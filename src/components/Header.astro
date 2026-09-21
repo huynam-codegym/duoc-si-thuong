@@ -25,6 +25,11 @@ const current = Astro.url.pathname;
           ))
         }
         <li>
+          <a href={url('/gioi-thieu/')} aria-current={current.startsWith(url('/gioi-thieu/')) ? 'page' : undefined}>
+            Giới thiệu
+          </a>
+        </li>
+        <li>
           <a href={url('/tim-kiem/')} aria-current={current.startsWith(url('/tim-kiem/')) ? 'page' : undefined}>
             Tìm kiếm
           </a>

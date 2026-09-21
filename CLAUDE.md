@@ -104,12 +104,14 @@ src/
     categories.ts     # danh sách chuyên mục (slug, tên, mô tả) - nguồn duy nhất
     posts.ts          # getPosts(), isPublishable(), formatDate()
     url.ts            # url(): thêm đường dẫn gốc (base) vào liên kết nội bộ
-  components/         # Header, Footer, Disclaimer, PostCard
+    site.ts           # thông tin thương hiệu dùng chung (tên, số điện thoại): đổi ở đây là đổi toàn site
+  components/         # Header, Footer, Disclaimer, PostCard, CallButton (nút gọi điện)
   layouts/            # BaseLayout (meta, canonical, JSON-LD)
   pages/
     index.astro               # trang chủ
     [category]/index.astro    # trang chuyên mục
     [category]/[slug].astro   # trang bài viết, URL dạng /an-uong/ten-bai/
+    gioi-thieu.astro          # trang giới thiệu dược sĩ Thương, có nút gọi và lưu ý cấp cứu 115
     tim-kiem.astro            # trang tìm kiếm (Pagefind UI, hỗ trợ ?q=từ-khóa)
     404.astro                 # trang báo lỗi không tìm thấy
     robots.txt.ts             # robots.txt, tự lấy tên miền từ `site`
@@ -148,7 +150,9 @@ Sau khi deploy, kiểm tra: trang chủ, một bài viết, `/tim-kiem/`, `/site
 - **Logo** `src/assets/logo.jpg`: **logo tạm**, là khuôn mặt của dược sĩ cắt từ ảnh bìa (300x300). Khi có logo chính thức thì thay file này (giữ tên `logo.jpg`, hoặc sửa import trong `src/components/Header.astro`).
 - **Favicon và ảnh chia sẻ mạng xã hội** trong `public/`: `favicon.png` (64px), `apple-touch-icon.png` (180px) cắt từ khuôn mặt; `og-image.jpg` (1200x630) là ảnh bìa đặt giữa nền trắng. Các file này được tạo bằng script từ ảnh bìa, nên khi đổi ảnh bìa hoặc logo phải tạo lại cho khớp.
 - Màu chủ đạo: xanh lá (`--green-900`, `--green-700` trong `src/styles/global.css`), khớp với ảnh bìa.
-- Ảnh bìa chứa số điện thoại và ảnh cá nhân, đó là thông tin chủ website đã chủ động công khai. Không thêm thông tin liên hệ hay ảnh cá nhân khác khi chưa được chủ website đồng ý.
+- **Số điện thoại 0988 283 415** lưu ở `src/lib/site.ts` (một nơi duy nhất). Hiển thị qua component `CallButton` (bấm để gọi, dạng `tel:+84988283415`) ở trang chủ, trang Giới thiệu và chân trang. Đổi số thì chỉ sửa `site.ts` và ảnh bìa (số cũng nằm trong ảnh, phải sửa alt ở `src/pages/index.astro`).
+- **Trang Giới thiệu** chỉ dùng thông tin chủ website đã công bố trong ảnh bìa (hơn 10 năm kinh nghiệm tư vấn sức khỏe, các giá trị thương hiệu). **Không tự thêm bằng cấp, chứng chỉ hành nghề, nơi làm việc, địa chỉ** khi chưa có thông tin do chủ website cung cấp.
+- Ảnh bìa chứa số điện thoại và ảnh cá nhân, đó là thông tin chủ website đã chủ động công khai. Không thêm thông tin liên hệ hay ảnh cá nhân khác (email, địa chỉ, mạng xã hội...) khi chưa được chủ website đồng ý.
 
 ### Cách thêm bài viết mới
 

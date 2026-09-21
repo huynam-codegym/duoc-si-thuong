@@ -142,6 +142,48 @@ img {
   padding-block: 1.5rem 0.5rem;
 }
 
+.hero .cta {
+  margin-top: 1.25rem;
+}
+
+/* Nút gọi điện */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-height: 3rem;
+  padding: 0.6rem 1.4rem;
+  border-radius: 999px;
+  background: var(--green-700);
+  color: #fff;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.btn:hover {
+  background: var(--green-900);
+  color: #fff;
+}
+
+/* Thẻ thông tin (không bấm được) */
+.info-card {
+  padding: 1.1rem 1.25rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--green-50);
+}
+
+.info-card h3 {
+  margin: 0 0 0.3rem;
+  font-size: 1.1rem;
+}
+
+.info-card p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--ink-soft);
+}
+
 .site-nav ul {
   display: flex;
   flex-wrap: wrap;

@@ -1,0 +1,85 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import CallButton from '../components/CallButton.astro';
+import { categories } from '../lib/categories';
+import { site } from '../lib/site';
+import { url } from '../lib/url';
+
+const values = [
+  { title: 'Tư vấn tận tâm', text: 'An toàn, hiệu quả.' },
+  { title: 'Đồng hành lâu dài', text: 'Vì sức khỏe gia đình bạn.' },
+  { title: 'Chia sẻ kiến thức', text: 'Sống khỏe mỗi ngày.' },
+  { title: 'Sản phẩm chính hãng', text: 'Nguồn gốc rõ ràng.' },
+];
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  name: 'Dược sĩ Thương',
+  jobTitle: 'Dược sĩ',
+  telephone: site.phoneIntl,
+  image: new URL(url('/apple-touch-icon.png'), Astro.site).href,
+  url: new URL(url('/gioi-thieu/'), Astro.site).href,
+};
+---
+
+<BaseLayout
+  title="Giới thiệu"
+  description="Dược sĩ Thương đồng hành chăm sóc sức khỏe gia đình bạn, với hơn 10 năm kinh nghiệm tư vấn sức khỏe."
+  jsonLd={jsonLd}
+>
+  <div class="container narrow">
+    <section class="hero">
+      <h1>Giới thiệu</h1>
+      <p>Dược sĩ đồng hành chăm sóc sức khỏe gia đình bạn.</p>
+    </section>
+
+    <div class="prose">
+      <p>
+        <strong>Dược Sĩ Thương</strong> là website chia sẻ kiến thức sức khỏe của dược sĩ Thương, người có hơn 10
+        năm kinh nghiệm tư vấn sức khỏe. Mong muốn của website là giúp mỗi gia đình hiểu đúng, dùng đúng và sống
+        khỏe mỗi ngày, vì một cộng đồng khỏe mạnh hơn.
+      </p>
+
+      <h2>Bạn sẽ tìm thấy gì ở đây?</h2>
+      <ul>
+        {
+          Object.entries(categories).map(([slug, category]) => (
+            <li>
+              <a href={url(`/${slug}/`)}>{category.name}</a>: {category.description}
+            </li>
+          ))
+        }
+      </ul>
+
+      <h2>Điều dược sĩ Thương hướng tới</h2>
+    </div>
+
+    <div class="grid">
+      {
+        values.map((value) => (
+          <div class="info-card">
+            <h3>{value.title}</h3>
+            <p>{value.text}</p>
+          </div>
+        ))
+      }
+    </div>
+
+    <div class="prose">
+      <h2>Về nội dung trên website</h2>
+      <p>
+        Mỗi bài viết đều có nguồn tham khảo, ngày cập nhật và người kiểm duyệt. Thông tin chỉ mang tính chất tham
+        khảo, không thay thế cho chẩn đoán, tư vấn hay điều trị của bác sĩ.
+      </p>
+
+      <h2>Liên hệ tư vấn</h2>
+      <p>Bạn cần được tư vấn về sức khỏe hoặc cách dùng thuốc? Hãy gọi cho dược sĩ Thương:</p>
+      <p><CallButton /></p>
+      <p class="warning">
+        <strong>Trường hợp khẩn cấp:</strong> nếu bạn hoặc người thân có dấu hiệu nguy hiểm, hãy gọi cấp cứu
+        <strong>115</strong> hoặc đến cơ sở y tế gần nhất, đừng chờ tư vấn qua điện thoại.
+      </p>
+    </div>
+  </div>
+</BaseLayout>

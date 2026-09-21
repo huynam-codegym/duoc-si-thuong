@@ -2,6 +2,7 @@
 import { Image } from 'astro:assets';
 import cover from '../assets/cover.jpg';
 import BaseLayout from '../layouts/BaseLayout.astro';
+import CallButton from '../components/CallButton.astro';
 import PostCard from '../components/PostCard.astro';
 import { categories } from '../lib/categories';
 import { getPosts } from '../lib/posts';
@@ -31,6 +32,7 @@ const latest = (await getPosts()).slice(0, 6);
         Kiến thức về ăn uống, nhận biết bệnh, phòng chống bệnh và dùng thuốc an toàn, được chia sẻ dễ hiểu
         như một dược sĩ đang trò chuyện cùng bạn.
       </p>
+      <p class="cta"><CallButton label="Gọi ngay để được tư vấn" /></p>
     </section>
 
     <section aria-labelledby="chuyen-muc">
