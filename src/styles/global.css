@@ -157,9 +157,40 @@ img {
   border-radius: 999px;
 }
 
-.banner-cta:hover {
-  background: rgb(21 128 61 / 0.08);
-  box-shadow: 0 0 0 2px rgb(21 128 61 / 0.5);
+/* Khi rê chuột hoặc focus: viền cam (đối lập với xanh lá của ảnh) và nhãn báo bấm được */
+.banner-cta {
+  transition: background-color 0.15s, box-shadow 0.15s;
+}
+
+.banner-cta:hover,
+.banner-cta:focus-visible {
+  background: rgb(234 88 12 / 0.12);
+  box-shadow: 0 0 0 3px #ea580c, 0 4px 14px rgb(234 88 12 / 0.35);
+  outline: none;
+}
+
+.banner-cta::after {
+  content: 'Bấm để nhắn Zalo';
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 8px);
+  transform: translateX(-50%);
+  padding: 0.25rem 0.8rem;
+  border-radius: 999px;
+  background: #c2410c;
+  color: #fff;
+  font-size: 0.8rem;
+  font-weight: 700;
+  line-height: 1.4;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s;
+}
+
+.banner-cta:hover::after,
+.banner-cta:focus-visible::after {
+  opacity: 1;
 }
 
 .hero-intro {
