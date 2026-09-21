@@ -39,11 +39,21 @@ const entries = Object.entries(categories) as [CategorySlug, (typeof categories)
                 </button>
                 <ul class="submenu" id={`sub-${slug}`}>
                   <li>
-                    <a href={href}>Xem tất cả bài viết</a>
+                    <a href={href}>
+                      <span class="sub-icon" aria-hidden="true">
+                        📚
+                      </span>
+                      <span>Xem tất cả bài viết</span>
+                    </a>
                   </li>
                   {groups.map(([groupSlug, group]) => (
                     <li>
-                      <a href={url(`/${slug}/nhom/${groupSlug}/`)}>{group.name}</a>
+                      <a href={url(`/${slug}/nhom/${groupSlug}/`)}>
+                        <span class="sub-icon" aria-hidden="true">
+                          {group.icon}
+                        </span>
+                        <span>{group.name}</span>
+                      </a>
                     </li>
                   ))}
                 </ul>

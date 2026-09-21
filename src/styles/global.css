@@ -375,10 +375,21 @@ img {
 }
 
 .site-nav .submenu a {
-  display: block;
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
   padding: 0.5rem 0.75rem;
   border-radius: 8px;
   white-space: nowrap;
+}
+
+/* Biểu tượng nhỏ trước tên nhóm: cùng độ rộng để chữ các mục thẳng hàng */
+.site-nav .sub-icon {
+  flex: none;
+  width: 1.4rem;
+  font-size: 1.05rem;
+  line-height: 1;
+  text-align: center;
 }
 
 .site-nav .submenu a:hover,
