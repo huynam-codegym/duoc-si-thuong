@@ -6,4 +6,11 @@ export const site = {
   // Liên kết bấm để gọi trên điện thoại (định dạng quốc tế, bỏ số 0 đầu)
   phoneHref: 'tel:+84988283415',
   phoneIntl: '+84988283415',
+  // Chuyên môn và chức vụ do chủ website cung cấp
+  degree: 'Dược sĩ đại học',
+  role: 'CEO',
+  pharmacy: {
+    name: 'Nhà Thuốc Nhật Minh',
+    facebook: 'https://www.facebook.com/nhathuocnhatminhhanoi',
+  },
 } as const;

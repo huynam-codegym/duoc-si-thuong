@@ -12,11 +12,18 @@ const values = [
   { title: 'Sản phẩm chính hãng', text: 'Nguồn gốc rõ ràng.' },
 ];
 
+const profile = [
+  { title: site.degree, label: 'Trình độ chuyên môn' },
+  { title: `${site.role} ${site.pharmacy.name}`, label: 'Chức vụ' },
+  { title: 'Hơn 10 năm', label: 'Kinh nghiệm tư vấn sức khỏe' },
+];
+
 const jsonLd = {
   '@context': 'https://schema.org',
   '@type': 'Person',
   name: 'Dược sĩ Thương',
-  jobTitle: 'Dược sĩ',
+  jobTitle: `${site.degree}, ${site.role} ${site.pharmacy.name}`,
+  worksFor: { '@type': 'Organization', name: site.pharmacy.name, sameAs: [site.pharmacy.facebook] },
   telephone: site.phoneIntl,
   image: new URL(url('/apple-touch-icon.png'), Astro.site).href,
   url: new URL(url('/gioi-thieu/'), Astro.site).href,
@@ -25,7 +32,7 @@ const jsonLd = {
 
 <BaseLayout
   title="Giới thiệu"
-  description="Dược sĩ Thương đồng hành chăm sóc sức khỏe gia đình bạn, với hơn 10 năm kinh nghiệm tư vấn sức khỏe."
+  description="Dược sĩ Thương, dược sĩ đại học, CEO Nhà Thuốc Nhật Minh, đồng hành chăm sóc sức khỏe gia đình bạn với hơn 10 năm kinh nghiệm tư vấn."
   jsonLd={jsonLd}
 >
   <div class="container narrow">
@@ -36,11 +43,25 @@ const jsonLd = {
 
     <div class="prose">
       <p>
-        <strong>Dược Sĩ Thương</strong> là website chia sẻ kiến thức sức khỏe của dược sĩ Thương, người có hơn 10
-        năm kinh nghiệm tư vấn sức khỏe. Mong muốn của website là giúp mỗi gia đình hiểu đúng, dùng đúng và sống
-        khỏe mỗi ngày, vì một cộng đồng khỏe mạnh hơn.
+        <strong>Dược Sĩ Thương</strong> là website chia sẻ kiến thức sức khỏe của dược sĩ Thương, {site.degree.toLowerCase()},
+        {site.role} <a href={site.pharmacy.facebook} target="_blank" rel="noopener noreferrer">{site.pharmacy.name}</a>,
+        với hơn 10 năm kinh nghiệm tư vấn sức khỏe. Mong muốn của website là giúp mỗi gia đình hiểu đúng, dùng đúng
+        và sống khỏe mỗi ngày, vì một cộng đồng khỏe mạnh hơn.
       </p>
+    </div>
 
+    <div class="grid">
+      {
+        profile.map((item) => (
+          <div class="info-card">
+            <h3>{item.title}</h3>
+            <p>{item.label}</p>
+          </div>
+        ))
+      }
+    </div>
+
+    <div class="prose">
       <h2>Bạn sẽ tìm thấy gì ở đây?</h2>
       <ul>
         {
@@ -75,7 +96,12 @@ const jsonLd = {
 
       <h2>Liên hệ tư vấn</h2>
       <p>Bạn cần được tư vấn về sức khỏe hoặc cách dùng thuốc? Hãy gọi cho dược sĩ Thương:</p>
-      <p><CallButton /></p>
+      <p class="actions">
+        <CallButton />
+        <a class="btn btn-outline" href={site.pharmacy.facebook} target="_blank" rel="noopener noreferrer">
+          {site.pharmacy.name} trên Facebook
+        </a>
+      </p>
       <p class="warning">
         <strong>Trường hợp khẩn cấp:</strong> nếu bạn hoặc người thân có dấu hiệu nguy hiểm, hãy gọi cấp cứu
         <strong>115</strong> hoặc đến cơ sở y tế gần nhất, đừng chờ tư vấn qua điện thoại.

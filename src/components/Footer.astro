@@ -10,7 +10,9 @@ const year = new Date().getFullYear();
   <div class="container">
     <Disclaimer />
     <p>
-      Liên hệ tư vấn: <a href={site.phoneHref}>{site.phone}</a> · <a href={url('/gioi-thieu/')}>Giới thiệu</a>
+      Liên hệ tư vấn: <a href={site.phoneHref}>{site.phone}</a> ·
+      <a href={site.pharmacy.facebook} target="_blank" rel="noopener noreferrer">{site.pharmacy.name} trên Facebook</a> ·
+      <a href={url('/gioi-thieu/')}>Giới thiệu</a>
     </p>
     <p>© {year} Dược Sĩ Thương. Chia sẻ kiến thức về ăn uống, nhận biết và phòng chống bệnh.</p>
   </div>

@@ -165,6 +165,24 @@ img {
   color: #fff;
 }
 
+.btn-outline {
+  background: #fff;
+  color: var(--green-700);
+  border: 2px solid var(--green-700);
+}
+
+.btn-outline:hover {
+  background: var(--green-50);
+  color: var(--green-900);
+  border-color: var(--green-900);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
 /* Thẻ thông tin (không bấm được) */
 .info-card {
   padding: 1.1rem 1.25rem;
