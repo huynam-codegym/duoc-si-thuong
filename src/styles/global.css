@@ -192,14 +192,6 @@ img {
   opacity: 1;
 }
 
-.hero-intro {
-  padding-block: 1.5rem 0.5rem;
-}
-
-.hero .cta {
-  margin-top: 1.25rem;
-}
-
 /* Nút gọi điện */
 .btn {
   display: inline-flex;

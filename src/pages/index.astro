@@ -2,7 +2,6 @@
 import { Image } from 'astro:assets';
 import cover from '../assets/cover.jpg';
 import BaseLayout from '../layouts/BaseLayout.astro';
-import ZaloButton from '../components/ZaloButton.astro';
 import PostCard from '../components/PostCard.astro';
 import { categories } from '../lib/categories';
 import { getPosts } from '../lib/posts';
@@ -36,14 +35,6 @@ const latest = (await getPosts()).slice(0, 6);
         rel="noopener noreferrer"
         aria-label={`Liên hệ dược sĩ Thương qua Zalo: ${site.phone}`}></a>
     </div>
-
-    <section class="hero hero-intro">
-      <p>
-        Kiến thức về ăn uống, nhận biết bệnh, phòng chống bệnh và dùng thuốc an toàn, được chia sẻ dễ hiểu
-        như một dược sĩ đang trò chuyện cùng bạn.
-      </p>
-      <p class="cta"><ZaloButton label="Gọi ngay để được tư vấn qua Zalo" /></p>
-    </section>
 
     <section aria-labelledby="chuyen-muc">
       <h2 class="section-title" id="chuyen-muc">Chuyên mục</h2>
