@@ -238,6 +238,36 @@ img {
   gap: 0.75rem;
 }
 
+/* Khung chat với dược sĩ ở trang Hỏi đáp */
+.chat-panel {
+  margin-bottom: 2rem;
+  padding: 1.25rem 1.5rem;
+  border: 1px solid var(--green-100);
+  border-radius: var(--radius);
+  background: var(--green-50);
+}
+
+.chat-panel h2 {
+  margin: 0 0 0.5rem;
+  font-size: 1.3rem;
+}
+
+.chat-panel p {
+  margin: 0.5rem 0;
+}
+
+.chat-panel .notice {
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+}
+
+button.btn {
+  border: 0;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
 /* Thẻ thông tin (không bấm được) */
 .info-card {
   padding: 1.1rem 1.25rem;

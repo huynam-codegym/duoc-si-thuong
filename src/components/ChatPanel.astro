@@ -1,0 +1,82 @@
+---
+import ZaloButton from './ZaloButton.astro';
+import { site } from '../lib/site';
+
+const { tawkPropertyId, tawkWidgetId } = site.chat;
+// Chỉ bật chat trực tiếp khi đã điền đủ mã Tawk.to trong src/lib/site.ts
+const enabled = Boolean(tawkPropertyId && tawkWidgetId);
+---
+
+<section
+  id="chat-panel"
+  class="chat-panel"
+  aria-labelledby="chat-title"
+  data-tawk={enabled ? `${tawkPropertyId}/${tawkWidgetId}` : ''}
+  data-zalo={site.zaloHref}
+>
+  <h2 id="chat-title">Hỏi trực tiếp dược sĩ Thương</h2>
+  <p>
+    Bạn có thắc mắc về sức khỏe hoặc cách dùng thuốc?
+    {
+      enabled
+        ? ' Nhắn cho dược sĩ Thương để được tư vấn ngay trên website.'
+        : ' Nhắn tin cho dược sĩ Thương qua Zalo để được tư vấn.'
+    }
+  </p>
+
+  <p class="actions">
+    {
+      enabled && (
+        <button type="button" class="btn" id="chat-start">
+          Bắt đầu chat
+        </button>
+      )
+    }
+    <ZaloButton label={enabled ? 'Hoặc nhắn qua Zalo' : 'Nhắn tin qua Zalo'} />
+  </p>
+
+  <p class="notice">
+    Tư vấn qua tin nhắn chỉ mang tính tham khảo, không thay thế khám và điều trị trực tiếp. Vui lòng không gửi
+    số CCCD, mật khẩu hay thông tin thanh toán.
+    {enabled && ' Nội dung trò chuyện được lưu trên dịch vụ Tawk.to.'}
+    Trường hợp khẩn cấp hãy gọi <strong>115</strong>.
+  </p>
+</section>
+
+<script>
+  // Nạp khung chat Tawk.to (chỉ ở trang có ChatPanel) và mở khi bấm "Bắt đầu chat"
+  const panel = document.getElementById('chat-panel');
+  const tawk = panel?.dataset.tawk;
+
+  if (panel && tawk) {
+    const w = window as any;
+    w.Tawk_API = w.Tawk_API || {};
+    w.Tawk_LoadStart = new Date();
+
+    let loaded = false;
+    let failed = false;
+    let openWhenLoaded = false;
+
+    w.Tawk_API.onLoad = () => {
+      loaded = true;
+      if (openWhenLoaded) w.Tawk_API.maximize();
+    };
+
+    const script = document.createElement('script');
+    script.async = true;
+    script.src = `https://embed.tawk.to/${tawk}`;
+    script.charset = 'UTF-8';
+    script.setAttribute('crossorigin', '*');
+    // Trình duyệt chặn quảng cáo hoặc mạng lỗi: chuyển sang Zalo để khách vẫn liên hệ được
+    script.onerror = () => {
+      failed = true;
+    };
+    document.head.appendChild(script);
+
+    document.getElementById('chat-start')?.addEventListener('click', () => {
+      if (loaded) w.Tawk_API.maximize();
+      else if (failed) window.open(panel.dataset.zalo, '_blank', 'noopener');
+      else openWhenLoaded = true;
+    });
+  }
+</script>

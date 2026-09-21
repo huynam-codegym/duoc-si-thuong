@@ -156,6 +156,15 @@ Sau khi deploy, kiểm tra: trang chủ, một bài viết, `/tim-kiem/`, `/site
 - **Minh bạch với nhà thuốc:** chủ website điều hành một nhà thuốc, nên bài viết là nội dung chia sẻ kiến thức, **không quảng cáo và không gắn liên kết bán sản phẩm** của nhà thuốc. Nếu một bài có nhắc đến sản phẩm hoặc nhà thuốc thì phải nói rõ mối liên hệ đó (xem thêm nguyên tắc 6 và 9 ở mục "Nguyên tắc nội dung sức khỏe").
 - Ảnh bìa chứa số điện thoại và ảnh cá nhân, đó là thông tin chủ website đã chủ động công khai. Không thêm thông tin liên hệ hay ảnh cá nhân khác (email, địa chỉ, mạng xã hội...) khi chưa được chủ website đồng ý.
 
+### Chat trực tiếp với dược sĩ (trang Hỏi đáp)
+
+- Component `ChatPanel` (`src/components/ChatPanel.astro`) hiện ở đầu trang `/hoi-dap/`, gồm nút "Bắt đầu chat" (khung chat **Tawk.to**, miễn phí, chủ website trả lời bằng ứng dụng Tawk.to trên điện thoại) và nút Zalo dự phòng.
+- **Chat chỉ bật khi đã điền `tawkPropertyId` và `tawkWidgetId` trong `src/lib/site.ts`** (lấy từ mã nhúng dạng `https://embed.tawk.to/<propertyId>/<widgetId>`). Để trống thì trang chỉ hiện nút Zalo và **không nạp bất kỳ mã nào của bên thứ ba**. Mã này chỉ được nạp ở trang Hỏi đáp, không nạp ở các trang khác.
+- Nếu khung chat không tải được (trình duyệt chặn quảng cáo, mạng lỗi), bấm "Bắt đầu chat" sẽ mở Zalo để khách vẫn liên hệ được.
+- **Quy tắc khi tư vấn qua chat:** chỉ tham khảo, không chẩn đoán, không kê đơn, không hứa chữa khỏi (như các nguyên tắc nội dung sức khỏe ở trên). Trường hợp có dấu hiệu nguy hiểm hướng dẫn khách gọi 115 hoặc đến cơ sở y tế. Khung chat đã có dòng lưu ý: không gửi CCCD, mật khẩu, thông tin thanh toán; nội dung trò chuyện lưu ở Tawk.to.
+- **Dữ liệu cá nhân:** câu hỏi sức khỏe là thông tin nhạy cảm và được lưu ở máy chủ của Tawk.to (nước ngoài). Nên cân nhắc quy định bảo vệ dữ liệu cá nhân của Việt Nam (Nghị định 13/2023/NĐ-CP) và cấu hình lời chào tự động của Tawk.to có nhắc điều này.
+- Muốn đổi sang dịch vụ khác (ví dụ Zalo OA): thay phần nạp script trong `ChatPanel.astro`, các phần còn lại giữ nguyên.
+
 ### Cách thêm bài viết mới
 
 1. Tạo file `.md` trong `src/content/posts/`. Tên file không dấu, dùng gạch ngang; tên file chính là phần cuối của URL.
