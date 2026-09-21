@@ -6,5 +6,6 @@ import sitemap from '@astrojs/sitemap';
 // Nếu quay lại địa chỉ github.io/duoc-si-thuong thì thêm lại: site 'https://huynam-codegym.github.io', base '/duoc-si-thuong'.
 export default defineConfig({
   site: 'https://duocsithuong.com',
-  integrations: [sitemap()],
+  // Trang giỏ hàng là noindex nên không đưa vào sitemap
+  integrations: [sitemap({ filter: (page) => !page.includes('/gio-hang/') })],
 });
