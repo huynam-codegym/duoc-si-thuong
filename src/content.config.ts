@@ -53,6 +53,9 @@ const products = defineCollection({
       unit: z.string().optional(),
       brand: z.string().optional(),
       origin: z.string().optional(),
+      // Dạng bào chế (ví dụ "Viên nang mềm") và thành phần đúng như trên nhãn, hiện trong bảng thông tin ở đầu trang
+      dosageForm: z.string().optional(),
+      ingredients: z.string().optional(),
       // Ảnh sản phẩm (đặt trong src/assets/products/<tên>/), nên vuông, nền sáng
       image: image(),
       imageAlt: z.string().min(1),

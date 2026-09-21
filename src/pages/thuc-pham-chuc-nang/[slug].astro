@@ -17,9 +17,11 @@ export async function getStaticPaths() {
 }
 
 const { product } = Astro.props;
-const { name, summary, group, price, unit, brand, origin, image, imageAlt, publicationNo, adConfirmationNo, updatedAt, draft } =
+const { name, summary, group, price, unit, brand, origin, dosageForm, ingredients, image, imageAlt, publicationNo, adConfirmationNo, updatedAt, draft } =
   product.data;
-const { Content } = await render(product);
+const { Content, headings } = await render(product);
+// Mục lục bên trái phần mô tả: các tiêu đề cấp 2 trong nội dung sản phẩm
+const sections = headings.filter((heading) => heading.depth === 2);
 const groupInfo = productGroups[group];
 const cartImage = await getImage({ src: image, width: 160, height: 160, format: 'webp' });
 const imageForSchema = await getImage({ src: image, width: 1200, height: 630, fit: 'cover', format: 'jpg' });
@@ -45,10 +47,12 @@ const jsonLd = {
           </p>
         )
       }
-      <p class="breadcrumb">
-        <a href={url('/thuc-pham-chuc-nang/')}>Thực phẩm chức năng</a> ›
-        <a href={url(`/thuc-pham-chuc-nang/nhom/${group}/`)}>{groupInfo.name}</a>
-      </p>
+      <nav class="breadcrumb" aria-label="Đường dẫn">
+        <a href={url('/')}>Trang chủ</a> /
+        <a href={url('/thuc-pham-chuc-nang/')}>Thực phẩm chức năng</a> /
+        <a href={url(`/thuc-pham-chuc-nang/nhom/${group}/`)}>{groupInfo.name}</a> /
+        <span aria-current="page">{name}</span>
+      </nav>
 
       <div class="product-top">
         <figure class="product-photo">
@@ -65,14 +69,25 @@ const jsonLd = {
           <dl class="product-facts">
             {brand && (<><dt>Thương hiệu</dt><dd>{brand}</dd></>)}
             {origin && (<><dt>Xuất xứ</dt><dd>{origin}</dd></>)}
+            {dosageForm && (<><dt>Dạng bào chế</dt><dd>{dosageForm}</dd></>)}
+            {ingredients && (<><dt>Thành phần</dt><dd>{ingredients}</dd></>)}
             {publicationNo && (<><dt>Số công bố sản phẩm</dt><dd>{publicationNo}</dd></>)}
             {adConfirmationNo && (<><dt>Xác nhận quảng cáo</dt><dd>{adConfirmationNo}</dd></>)}
           </dl>
+          <div class="buy-qty">
+            <span id="qty-label">Số lượng</span>
+            <div class="qty" role="group" aria-labelledby="qty-label">
+              <button type="button" class="qty-btn" data-qty-step="-1" aria-label="Giảm số lượng">−</button>
+              <input id="buy-qty" type="number" min="1" max="20" value="1" inputmode="numeric" aria-labelledby="qty-label" />
+              <button type="button" class="qty-btn" data-qty-step="1" aria-label="Tăng số lượng">+</button>
+            </div>
+          </div>
           <div class="actions">
             <button
               type="button"
               class="btn"
               data-add-to-cart
+              data-qty-input="#buy-qty"
               data-go-cart
               data-cart-url={url('/gio-hang/')}
               data-id={product.id}
@@ -87,6 +102,7 @@ const jsonLd = {
               type="button"
               class="btn btn-outline"
               data-add-to-cart
+              data-qty-input="#buy-qty"
               data-id={product.id}
               data-name={name}
               data-price={price ?? ''}
@@ -102,9 +118,31 @@ const jsonLd = {
 
       <ProductNotice />
 
-      <div class="prose">
-        <Content />
-      </div>
+      <section class="product-detail">
+        {
+          sections.length > 1 && (
+            <nav class="detail-nav" aria-label="Mục lục thông tin sản phẩm">
+              <ul>
+                {sections.map((section) => (
+                  <li>
+                    <a href={`#${section.slug}`}>{section.text}</a>
+                  </li>
+                ))}
+              </ul>
+            </nav>
+          )
+        }
+        <div class="detail-body">
+          <div class="font-toggle" role="group" aria-label="Kích thước chữ">
+            <span>Kích thước chữ</span>
+            <button type="button" data-font="normal" aria-pressed="true">Mặc định</button>
+            <button type="button" data-font="large" aria-pressed="false">Lớn hơn</button>
+          </div>
+          <div class="prose product-desc">
+            <Content />
+          </div>
+        </div>
+      </section>
 
       <p class="product-seller">
         Sản phẩm được giới thiệu và bán bởi {site.pharmacy.name} (do dược sĩ Thương điều hành). Thông tin sản phẩm cập
@@ -119,3 +157,34 @@ const jsonLd = {
     </article>
   </ShopShell>
 </BaseLayout>
+
+<script>
+  // Chọn số lượng trước khi mua
+  const input = document.getElementById('buy-qty') as HTMLInputElement | null;
+  const clamp = (value: number) => Math.min(20, Math.max(1, Number.isFinite(value) ? Math.floor(value) : 1));
+  document.querySelectorAll<HTMLElement>('[data-qty-step]').forEach((button) => {
+    button.addEventListener('click', () => {
+      if (input) input.value = String(clamp(Number(input.value) + Number(button.dataset.qtyStep)));
+    });
+  });
+  input?.addEventListener('change', () => (input.value = String(clamp(Number(input.value)))));
+
+  // Đổi cỡ chữ phần mô tả (nhiều người đọc là người lớn tuổi); nhớ lựa chọn trên máy người đọc
+  const description = document.querySelector('.product-desc');
+  const fontButtons = document.querySelectorAll<HTMLButtonElement>('[data-font]');
+  function setFont(mode: string) {
+    description?.classList.toggle('prose-large', mode === 'large');
+    fontButtons.forEach((button) => button.setAttribute('aria-pressed', String(button.dataset.font === mode)));
+    try {
+      localStorage.setItem('duocsithuong-font', mode);
+    } catch {
+      // trình duyệt chặn lưu trữ: bỏ qua
+    }
+  }
+  fontButtons.forEach((button) => button.addEventListener('click', () => setFont(button.dataset.font ?? 'normal')));
+  try {
+    if (localStorage.getItem('duocsithuong-font') === 'large') setFont('large');
+  } catch {
+    // bỏ qua
+  }
+</script>

@@ -227,7 +227,7 @@ for (const [slug] of groupEntries) {
 <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 
 <script>
-  import { addToCart, cartCount } from '../lib/cart';
+  import { MAX_QTY, addToCart, cartCount } from '../lib/cart';
 
   // Mở/đóng danh sách thả xuống bằng nút mũi tên (dùng cho điện thoại và bàn phím).
   // Trên máy tính, danh sách còn tự mở khi rê chuột (xử lý bằng CSS).
@@ -294,11 +294,13 @@ for (const [slug] of groupEntries) {
     if (!button) return;
     const { id, name, price, unit, image, goCart } = button.dataset;
     if (!id || !name) return;
-    addToCart({ id, name, price: price ? Number(price) : null, unit: unit ?? '', image: image ?? '' });
+    const qtyInput = button.dataset.qtyInput ? document.querySelector<HTMLInputElement>(button.dataset.qtyInput) : null;
+    const qty = qtyInput ? Math.min(MAX_QTY, Math.max(1, Math.floor(Number(qtyInput.value) || 1))) : 1;
+    addToCart({ id, name, price: price ? Number(price) : null, unit: unit ?? '', image: image ?? '' }, qty);
     if (goCart !== undefined) {
       location.href = button.dataset.cartUrl ?? '/gio-hang/';
     } else {
-      showToast(`Đã thêm "${name}" vào giỏ hàng`);
+      showToast(`Đã thêm ${qty > 1 ? qty + ' x ' : ''}"${name}" vào giỏ hàng`);
     }
   });
 </script>

@@ -142,7 +142,9 @@ import { url } from '../lib/url';
       emptyBox.hidden = items.length > 0 || !result.hidden;
       filledBox.hidden = items.length === 0 || !result.hidden;
       list.replaceChildren(...items.map(row));
-      totalEl.textContent = formatVnd(cartTotal(items));
+      // Giỏ chỉ có sản phẩm chưa có giá thì hiện "Liên hệ" thay vì "0 ₫"
+      const total = cartTotal(items);
+      totalEl.textContent = total === 0 && hasUnpriced(items) ? 'Liên hệ' : formatVnd(total);
       unpricedEl.hidden = !hasUnpriced(items);
     }
 
