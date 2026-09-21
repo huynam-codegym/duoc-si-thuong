@@ -84,7 +84,7 @@ Yêu cầu: Node.js 20 trở lên. Phiên bản Astro đang dùng là 5.x.
 
 ```bash
 npm install        # cài thư viện
-npm run dev        # chạy thử ở máy (http://localhost:4321/duoc-si-thuong/), HIỆN cả bài nháp
+npm run dev        # chạy thử ở máy (http://localhost:4321/), HIỆN cả bài nháp
 npm run build      # dựng site ra thư mục dist/ (CHỈ gồm bài đã kiểm duyệt) rồi tạo chỉ mục tìm kiếm
 npm run preview    # xem thử bản build, dùng để thử tìm kiếm
 ```
@@ -115,7 +115,7 @@ src/
     robots.txt.ts             # robots.txt, tự lấy tên miền từ `site`
   styles/global.css   # CSS toàn site
 public/               # favicon.svg, _headers (chỉ dùng nếu chuyển sang Cloudflare/Netlify)
-astro.config.mjs      # `site` và `base` của GitHub Pages
+astro.config.mjs      # `site` = https://duocsithuong.com (không có `base`)
 .github/workflows/    # deploy.yml: tự build và deploy khi đẩy code lên `main`
 .nvmrc                # phiên bản Node dùng khi build
 ```
@@ -123,13 +123,14 @@ astro.config.mjs      # `site` và `base` của GitHub Pages
 ### Deploy lên GitHub Pages
 
 - Repo: https://github.com/huynam-codegym/duoc-si-thuong (công khai, vì GitHub Pages bản miễn phí yêu cầu vậy)
-- Website: https://huynam-codegym.github.io/duoc-si-thuong/
+- Website: **https://duocsithuong.com** (tên miền mua ở Cloudflare Registrar, tháng 9/2026, gia hạn tự động hằng năm)
+- DNS quản lý ở Cloudflare (mục DNS > Records của tên miền): 4 bản ghi `A` cho `@` trỏ tới 185.199.108.153, .109.153, .110.153, .111.153 và 1 bản ghi `CNAME` cho `www` trỏ tới `huynam-codegym.github.io`. **Tất cả phải để "DNS only" (đám mây xám)**, nếu bật Proxied thì GitHub không cấp được HTTPS.
+- Tên miền được khai báo trong Settings > Pages của repo (không dùng file `CNAME` vì workflow tự deploy bỏ qua file này).
 - Tự động deploy mỗi lần đẩy code lên nhánh `main`, qua `.github/workflows/deploy.yml` (dùng `withastro/action` và `actions/deploy-pages`). Có thể chạy tay ở tab Actions (workflow_dispatch).
 
-**Website nằm ở đường dẫn con `/duoc-si-thuong/`** (khai báo bằng `base` trong `astro.config.mjs`). Vì vậy:
-- Mọi liên kết nội bộ phải viết qua hàm `url()` trong `src/lib/url.ts`, ví dụ `href={url('/an-uong/')}`. **Không viết `href="/..."` trực tiếp**, nếu không link sẽ lỗi 404 trên GitHub Pages.
-- Khi chạy `npm run dev` hoặc `npm run preview`, mở địa chỉ http://localhost:4321/duoc-si-thuong/ (không phải gốc `/`).
-- Nếu sau này dùng tên miền riêng: đổi `site` thành tên miền đó và bỏ dòng `base`. Code không cần sửa thêm.
+Website chạy ở gốc tên miền nên `astro.config.mjs` **không có `base`**. Tuy vậy mọi liên kết nội bộ vẫn phải viết qua hàm `url()` trong `src/lib/url.ts`, ví dụ `href={url('/an-uong/')}`, **không viết `href="/..."` trực tiếp**. Làm vậy để nếu sau này phải dùng lại đường dẫn con (ví dụ github.io/duoc-si-thuong) thì chỉ cần thêm `base` vào cấu hình.
+
+Khi chạy `npm run dev` hoặc `npm run preview`, mở http://localhost:4321/.
 
 Lưu ý:
 - Chỉ bài đã kiểm duyệt (`draft: false` và có `reviewedBy`) mới lên website. Chưa có bài nào thì website hiện "đang biên soạn".

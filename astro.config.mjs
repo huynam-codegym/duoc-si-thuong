@@ -2,10 +2,9 @@
 import { defineConfig } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
 
-// Đang deploy lên GitHub Pages: https://huynam-codegym.github.io/duoc-si-thuong/
-// Nếu sau này dùng tên miền riêng: đổi `site` thành tên miền đó và bỏ dòng `base`.
+// Website chạy ở tên miền riêng (GitHub Pages + Cloudflare DNS), nên không cần `base`.
+// Nếu quay lại địa chỉ github.io/duoc-si-thuong thì thêm lại: site 'https://huynam-codegym.github.io', base '/duoc-si-thuong'.
 export default defineConfig({
-  site: 'https://huynam-codegym.github.io',
-  base: '/duoc-si-thuong',
+  site: 'https://duocsithuong.com',
   integrations: [sitemap()],
 });
