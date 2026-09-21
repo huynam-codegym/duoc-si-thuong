@@ -1,58 +1,20 @@
 ---
 import ZaloButton from './ZaloButton.astro';
-import { site } from '../lib/site';
-
-const { zaloOaId, welcomeMessage, useOaWidget } = site.chat;
-// Chỉ bật khi đã điền mã OA trong src/lib/site.ts
-const enabled = Boolean(zaloOaId);
-// Biểu tượng chat nổi của OA chỉ hiện khi bật useOaWidget (mặc định tắt, xem site.ts)
-const showWidget = enabled && useOaWidget;
-const oaHref = `https://zalo.me/${zaloOaId}`;
 ---
 
 <section id="chat-panel" class="chat-panel" aria-labelledby="chat-title">
   <h2 id="chat-title">Hỏi trực tiếp dược sĩ Thương</h2>
   <p>
-    Bạn có thắc mắc về sức khỏe hoặc cách dùng thuốc?
-    {
-      enabled
-        ? ' Nhắn cho dược sĩ Thương qua Zalo bằng các nút bên dưới hoặc biểu tượng Zalo ở góc màn hình để được tư vấn.'
-        : ' Nhắn tin cho dược sĩ Thương qua Zalo để được tư vấn.'
-    }
+    Bạn có thắc mắc về sức khỏe hoặc cách dùng thuốc? Nhắn tin cho dược sĩ Thương qua Zalo bằng nút bên dưới hoặc
+    biểu tượng Zalo ở góc màn hình để được tư vấn.
   </p>
 
   <p class="actions">
-    {
-      enabled && (
-        <a class="btn" href={oaHref} target="_blank" rel="noopener noreferrer">
-          Chat với dược sĩ trên Zalo
-        </a>
-      )
-    }
-    <ZaloButton label={enabled ? 'Hoặc nhắn Zalo cá nhân' : 'Nhắn tin qua Zalo'} />
+    <ZaloButton label="Nhắn tin qua Zalo" />
   </p>
 
   <p class="notice">
     Tư vấn qua tin nhắn chỉ mang tính tham khảo, không thay thế khám và điều trị trực tiếp. Vui lòng không gửi
-    số CCCD, mật khẩu hay thông tin thanh toán.
-    {enabled && ' Nội dung trò chuyện được lưu trên Zalo.'}
-    Trường hợp khẩn cấp hãy gọi <strong>115</strong>.
+    số CCCD, mật khẩu hay thông tin thanh toán. Trường hợp khẩn cấp hãy gọi <strong>115</strong>.
   </p>
-
-  {
-    showWidget && (
-      <>
-        {/* Khung chat Zalo OA nổi: chỉ nạp ở trang có ChatPanel (trang Hỏi đáp) và khi bật useOaWidget */}
-        <div
-          class="zalo-chat-widget"
-          data-oaid={zaloOaId}
-          data-welcome-message={welcomeMessage}
-          data-autopopup="0"
-          data-width=""
-          data-height=""
-        />
-        <script is:inline src="https://sp.zalo.me/plugins/sdk.js" />
-      </>
-    )
-  }
 </section>

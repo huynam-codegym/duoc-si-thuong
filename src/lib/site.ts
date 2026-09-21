@@ -8,15 +8,6 @@ export const site = {
   // Liên kết bấm để gọi thường trên điện thoại (hiện chưa dùng ở nút nào)
   phoneHref: 'tel:+84988283415',
   phoneIntl: '+84988283415',
-  // Chat trực tiếp ở trang Hỏi đáp qua Zalo Official Account (OA) của Nhà Thuốc Nhật Minh.
-  // Để zaloOaId trống = tắt khung chat, trang chỉ hiện nút Zalo cá nhân.
-  chat: {
-    zaloOaId: '3023321965821034220',
-    // true = hiện thêm biểu tượng chat nổi của Zalo OA ở trang Hỏi đáp. Đang tắt vì mọi trang đã có
-    // biểu tượng Zalo nổi mở Zalo cá nhân (ZaloFloat), bật cả hai sẽ chồng lên nhau ở góc phải.
-    useOaWidget: false,
-    welcomeMessage: 'Xin chào! Dược sĩ Thương có thể giúp gì cho bạn? Trường hợp khẩn cấp hãy gọi 115.',
-  },
   // Chuyên môn và chức vụ do chủ website cung cấp
   degree: 'Dược sĩ đại học',
   role: 'CEO',
