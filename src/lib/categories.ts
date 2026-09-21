@@ -16,6 +16,53 @@ const categoryData = {
   'an-uong': {
     name: 'Ăn uống & dinh dưỡng',
     description: 'Chế độ ăn, thực phẩm và thực đơn lành mạnh theo từng nhu cầu.',
+    groups: {
+      'nguyen-tac': {
+        name: 'Nguyên tắc ăn uống',
+        icon: '🥗',
+        description: 'Những nguyên tắc cơ bản để ăn uống cân bằng mỗi ngày.',
+      },
+      'thieu-canxi': {
+        name: 'Thiếu canxi',
+        icon: '🦴',
+        description: 'Thiếu canxi nên ăn gì? Thực phẩm giàu canxi và cách để cơ thể hấp thu tốt hơn.',
+      },
+      'thieu-sat': {
+        name: 'Thiếu sắt',
+        icon: '🩸',
+        description: 'Thiếu sắt nên ăn gì? Nguồn sắt từ động vật, thực vật và cách tăng hấp thu.',
+      },
+      'thieu-vitamin-d': {
+        name: 'Thiếu vitamin D',
+        icon: '☀️',
+        description: 'Thiếu vitamin D nên ăn gì, và vai trò của ánh nắng.',
+      },
+      'thieu-vitamin-b12': {
+        name: 'Thiếu vitamin B12',
+        icon: '🥚',
+        description: 'Thiếu vitamin B12 nên ăn gì, và ai dễ bị thiếu.',
+      },
+      'thieu-kem': {
+        name: 'Thiếu kẽm',
+        icon: '🦪',
+        description: 'Thiếu kẽm nên ăn gì để hỗ trợ miễn dịch, tăng trưởng và vết thương mau lành.',
+      },
+      'thieu-i-ot': {
+        name: 'Thiếu i-ốt',
+        icon: '🌊',
+        description: 'Thiếu i-ốt nên ăn gì để tuyến giáp hoạt động bình thường.',
+      },
+      'thieu-vitamin-c': {
+        name: 'Thiếu vitamin C',
+        icon: '🍋',
+        description: 'Thiếu vitamin C nên ăn gì, và cách giữ vitamin C khi chế biến.',
+      },
+      'thieu-acid-folic': {
+        name: 'Thiếu acid folic',
+        icon: '🥬',
+        description: 'Thiếu acid folic (folate) nên ăn gì, và vì sao quan trọng khi chuẩn bị mang thai.',
+      },
+    },
   },
   'nhan-biet-benh': {
     name: 'Nhận biết bệnh',

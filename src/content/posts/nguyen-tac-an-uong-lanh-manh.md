@@ -2,6 +2,7 @@
 title: "5 nguyên tắc ăn uống lành mạnh theo khuyến nghị của WHO"
 description: "Ăn nhiều rau quả, hạn chế đường, muối và chất béo bão hòa: những nguyên tắc cơ bản giúp bạn ăn uống cân bằng mỗi ngày."
 category: "an-uong"
+subcategory: "nguyen-tac"
 publishedAt: 2026-09-21
 updatedAt: 2026-09-21
 cover: "../../assets/posts/nguyen-tac-an-uong-lanh-manh/cover.jpg"
