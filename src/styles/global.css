@@ -130,12 +130,36 @@ img {
   border: 0;
 }
 
+.banner-wrap {
+  position: relative;
+  margin-top: 1rem;
+}
+
 .banner {
   display: block;
   width: 100%;
   height: auto;
-  margin-top: 1rem;
   border-radius: var(--radius);
+}
+
+/*
+ * Vùng bấm phủ lên khối "0988 283 415 | Liên hệ ngay" trong ảnh bìa.
+ * Vị trí theo % của ảnh gốc 2048x762. Chiều cao tối thiểu 2.75rem để dễ bấm trên điện thoại
+ * (khối trong ảnh khi thu nhỏ chỉ cao khoảng 18px), căn giữa theo khối số điện thoại.
+ */
+.banner-cta {
+  position: absolute;
+  left: 21.3%;
+  width: 38.6%;
+  top: 81.2%;
+  height: max(13.6%, 2.75rem);
+  transform: translateY(-50%);
+  border-radius: 999px;
+}
+
+.banner-cta:hover {
+  background: rgb(21 128 61 / 0.08);
+  box-shadow: 0 0 0 2px rgb(21 128 61 / 0.5);
 }
 
 .hero-intro {

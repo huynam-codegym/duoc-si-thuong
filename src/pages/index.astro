@@ -6,6 +6,7 @@ import ZaloButton from '../components/ZaloButton.astro';
 import PostCard from '../components/PostCard.astro';
 import { categories } from '../lib/categories';
 import { getPosts } from '../lib/posts';
+import { site } from '../lib/site';
 import { url } from '../lib/url';
 
 const latest = (await getPosts()).slice(0, 6);
@@ -17,15 +18,24 @@ const latest = (await getPosts()).slice(0, 6);
 >
   <div class="container">
     <h1 class="visually-hidden">Dược Sĩ Thương</h1>
-    <Image
-      class="banner"
-      src={cover}
-      alt="Dược sĩ Thương, dược sĩ đồng hành chăm sóc sức khỏe gia đình bạn. Hơn 10 năm kinh nghiệm tư vấn sức khỏe. Liên hệ: 0988 283 415."
-      widths={[640, 1024, 1400, 2048]}
-      sizes="(min-width: 68rem) 1088px, 100vw"
-      quality={85}
-      loading="eager"
-    />
+    <div class="banner-wrap">
+      <Image
+        class="banner"
+        src={cover}
+        alt="Dược sĩ Thương, dược sĩ đồng hành chăm sóc sức khỏe gia đình bạn. Hơn 10 năm kinh nghiệm tư vấn sức khỏe. Liên hệ: 0988 283 415."
+        widths={[640, 1024, 1400, 2048]}
+        sizes="(min-width: 68rem) 1088px, 100vw"
+        quality={85}
+        loading="eager"
+      />
+      <!-- Vùng bấm trong suốt phủ lên khối số điện thoại trong ảnh bìa (vị trí tính theo % ảnh gốc 2048x762) -->
+      <a
+        class="banner-cta"
+        href={site.zaloHref}
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label={`Liên hệ dược sĩ Thương qua Zalo: ${site.phone}`}></a>
+    </div>
 
     <section class="hero hero-intro">
       <p>
