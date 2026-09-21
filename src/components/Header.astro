@@ -68,6 +68,11 @@ const entries = Object.entries(categories) as [CategorySlug, (typeof categories)
           })
         }
         <li>
+          <a href={url('/thuc-pham-chuc-nang/')} aria-current={current.startsWith(url('/thuc-pham-chuc-nang/')) ? 'page' : undefined}>
+            Thực phẩm chức năng
+          </a>
+        </li>
+        <li>
           <a href={url('/gioi-thieu/')} aria-current={current.startsWith(url('/gioi-thieu/')) ? 'page' : undefined}>
             Giới thiệu
           </a>

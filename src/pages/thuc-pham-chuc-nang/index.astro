@@ -1,0 +1,32 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ShopShell from '../../components/ShopShell.astro';
+import ProductCard from '../../components/ProductCard.astro';
+import ProductNotice from '../../components/ProductNotice.astro';
+import { getProducts } from '../../lib/products';
+
+const products = await getProducts();
+---
+
+<BaseLayout
+  title="Thực phẩm chức năng"
+  description="Giới thiệu các sản phẩm thực phẩm chức năng từ Nhà Thuốc Nhật Minh: mô tả, hình ảnh, thông tin lưu ý và đặt hàng trực tiếp."
+>
+  <ShopShell>
+    <section class="hero shop-hero">
+      <h1>Thực phẩm chức năng</h1>
+      <p>Mô tả, hình ảnh và thông tin lưu ý của từng sản phẩm. Bấm vào sản phẩm để xem chi tiết và đặt hàng.</p>
+    </section>
+    <ProductNotice short />
+
+    {
+      products.length > 0 ? (
+        <div class="grid product-grid">
+          {products.map((product) => <ProductCard product={product} />)}
+        </div>
+      ) : (
+        <p class="empty">Sản phẩm đang được cập nhật. Mời bạn quay lại sau hoặc nhắn Zalo để được tư vấn.</p>
+      )
+    }
+  </ShopShell>
+</BaseLayout>

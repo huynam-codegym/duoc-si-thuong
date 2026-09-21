@@ -99,9 +99,12 @@ Pagefind chưa hỗ trợ tiếng Việt đầy đủ: nó tự bỏ dấu thanh
 src/
   content/
     posts/            # bài viết Markdown (phẳng, chuyên mục khai báo trong frontmatter)
-  content.config.ts   # schema kiểm tra frontmatter của bài viết
+    products/         # sản phẩm thực phẩm chức năng (mỗi sản phẩm một file .md), xem mục "Khu Thực phẩm chức năng"
+  content.config.ts   # schema kiểm tra frontmatter của bài viết và sản phẩm
   lib/
     categories.ts     # danh sách chuyên mục (slug, tên, mô tả) - nguồn duy nhất
+    product-groups.ts # nhóm sản phẩm thực phẩm chức năng (menu bên trái) - nguồn duy nhất
+    products.ts       # getProducts(), formatPrice()
     posts.ts          # getPosts(), isPublishable(), formatDate()
     url.ts            # url(): thêm đường dẫn gốc (base) vào liên kết nội bộ
     site.ts           # thông tin thương hiệu dùng chung (tên, số điện thoại): đổi ở đây là đổi toàn site
@@ -112,6 +115,7 @@ src/
     [category]/index.astro    # trang chuyên mục
     [category]/[slug].astro   # trang bài viết, URL dạng /an-uong/ten-bai/
     [category]/nhom/[group].astro  # trang một nhóm con, URL dạng /kien-thuc-ve-thuoc/nhom/khang-sinh/
+    thuc-pham-chuc-nang/      # khu bán hàng: index.astro (tất cả), nhom/[group].astro (theo nhóm), [slug].astro (chi tiết + form đặt hàng)
     gioi-thieu.astro          # trang giới thiệu dược sĩ Thương, có nút gọi và lưu ý cấp cứu 115
     tim-kiem.astro            # trang tìm kiếm (Pagefind UI, hỗ trợ ?q=từ-khóa)
     404.astro                 # trang báo lỗi không tìm thấy
@@ -155,7 +159,7 @@ Sau khi deploy, kiểm tra: trang chủ, một bài viết, `/tim-kiem/`, `/site
 - **Số điện thoại 0988 283 415** lưu ở `src/lib/site.ts` (một nơi duy nhất). Nút liên hệ là component `ZaloButton`: bấm vào mở **Zalo** của số này (`https://zalo.me/0988283415`, mở tab mới, trên điện thoại mở ứng dụng Zalo nếu đã cài). Có ở trang Giới thiệu, trang Hỏi đáp và chân trang. **Trang chủ không có nút này và không có đoạn giới thiệu "Kiến thức về ăn uống, nhận biết bệnh..." dưới ảnh bìa** (chủ website đã yêu cầu bỏ, không thêm lại); trang chủ chỉ giữ ảnh bìa, vùng bấm trong ảnh và biểu tượng Zalo nổi. Ngoài ra khối "0988 283 415 | Liên hệ ngay" **nằm trong ảnh bìa** cũng bấm được: có một liên kết trong suốt `.banner-cta` phủ lên đúng vị trí đó (trong `src/pages/index.astro`, CSS ở `src/styles/global.css`, vị trí tính theo % của ảnh gốc 2048x762: trái 21.3%, rộng 38.6%, tâm dọc 81.2%, cao 13.6%). **Khi đổi ảnh bìa phải đo lại các con số này** cho khớp khối liên hệ mới. Khi rê chuột (hoặc focus bàn phím) vùng này hiện **viền cam `#ea580c`** cùng nhãn "Bấm để nhắn Zalo" (nền `#c2410c`); chọn màu cam vì đối lập với xanh lá của ảnh bìa nên người dùng nhận ra chỗ bấm được. Chủ website chọn Zalo thay cho gọi điện thường; liên kết `tel:` vẫn còn trong `site.ts` (`phoneHref`) nhưng hiện không nút nào dùng. Nếu số điện thoại đổi mà không còn dùng Zalo, sửa `zaloHref`. Đổi số thì chỉ sửa `site.ts` và ảnh bìa (số cũng nằm trong ảnh, phải sửa alt ở `src/pages/index.astro`).
 - **Chuyên môn và chức vụ** do chủ website cung cấp (tháng 9/2026), lưu ở `src/lib/site.ts`: **Dược sĩ đại học**, **CEO Nhà Thuốc Nhật Minh**, trang Facebook của nhà thuốc https://www.facebook.com/nhathuocnhatminhhanoi. Hiển thị ở trang Giới thiệu (thẻ chuyên môn, nút Facebook), chân trang và dữ liệu schema.org (`Person`).
 - **Trang Giới thiệu** chỉ dùng thông tin chủ website đã công bố (ảnh bìa và các thông tin trên). **Không tự thêm bằng cấp cụ thể, số chứng chỉ hành nghề, địa chỉ nhà thuốc, tên trường** khi chưa có thông tin do chủ website cung cấp. Không tự nói nhà thuốc ở tỉnh/thành nào.
-- **Minh bạch với nhà thuốc:** chủ website điều hành một nhà thuốc, nên bài viết là nội dung chia sẻ kiến thức, **không quảng cáo và không gắn liên kết bán sản phẩm** của nhà thuốc. Nếu một bài có nhắc đến sản phẩm hoặc nhà thuốc thì phải nói rõ mối liên hệ đó (xem thêm nguyên tắc 6 và 9 ở mục "Nguyên tắc nội dung sức khỏe").
+- **Minh bạch với nhà thuốc:** chủ website điều hành một nhà thuốc, nên **bài viết kiến thức** (các chuyên mục ở menu trên) vẫn là nội dung chia sẻ, **không quảng cáo và không gắn liên kết bán sản phẩm**. Việc bán hàng chỉ nằm trong khu riêng **Thực phẩm chức năng** (chủ website yêu cầu tháng 9/2026, xem mục "Khu Thực phẩm chức năng"). Không chèn liên kết sản phẩm vào bài viết; nếu một bài có nhắc đến sản phẩm hoặc nhà thuốc thì phải nói rõ mối liên hệ đó (xem thêm nguyên tắc 6 và 9 ở mục "Nguyên tắc nội dung sức khỏe").
 - Ảnh bìa chứa số điện thoại và ảnh cá nhân, đó là thông tin chủ website đã chủ động công khai. Không thêm thông tin liên hệ hay ảnh cá nhân khác (email, địa chỉ, mạng xã hội...) khi chưa được chủ website đồng ý.
 
 ### Liên hệ và hỏi đáp qua Zalo (không dùng Zalo OA)
@@ -227,6 +231,23 @@ Bài có `draft: true` hoặc `reviewedBy` để trống thì **không được 
 - **Nhóm thực phẩm và tên gọi** dùng cách gọi quen thuộc ở Việt Nam. Không khuyến khích tự uống viên bổ sung liều cao; luôn có mục "Khi nào cần đi khám".
 - **Tất cả 8 bài (và bài nguyên tắc) đang ở dạng "bản xem thử"** (xem mục Bản xem thử ở trên), do AI soạn, chưa được kiểm duyệt. Điểm cần kiểm tra: `docs/ghi-chu-kiem-duyet-thieu-gi-an-gi.md`. Mức khuyến nghị hằng ngày đang theo Hoa Kỳ, cần thay bằng "Nhu cầu dinh dưỡng khuyến nghị cho người Việt Nam".
 - **Liên kết giữa các bài** trong Markdown dùng đường dẫn từ gốc (ví dụ `/an-uong/thieu-canxi-nen-an-gi/`), và chỉ trỏ tới bài đang được đăng, nếu không sẽ ra trang 404.
+
+### Khu Thực phẩm chức năng (bán hàng)
+
+Chủ website yêu cầu (tháng 9/2026): thêm khu giới thiệu và bán sản phẩm thực phẩm chức năng, có **menu bên trái**, mô tả và ảnh từng sản phẩm, bấm vào xem chi tiết và **đặt hàng trực tiếp trên web**.
+
+- **Địa chỉ:** `/thuc-pham-chuc-nang/` (tất cả), `/thuc-pham-chuc-nang/nhom/<nhóm>/`, `/thuc-pham-chuc-nang/<tên-sản-phẩm>/`. Có mục "Thực phẩm chức năng" trên thanh menu trên cùng.
+- **Menu bên trái** (`src/components/ShopShell.astro`): "Tất cả sản phẩm" và các nhóm, kèm số sản phẩm mỗi nhóm. Trên màn hình từ 48rem trở lên là cột cố định bên trái; trên điện thoại gập lại thành nút "Danh mục sản phẩm". Chỉ có ở khu này, các trang bài viết không có.
+- **Nhóm sản phẩm** khai báo ở `src/lib/product-groups.ts` (6 nhóm: vitamin & khoáng chất, xương khớp, tiêu hóa, tim mạch, phụ nữ & mẹ bầu, trẻ em; tôi đặt tạm, chủ website có thể đổi). Đặt tên nhóm theo hệ cơ quan hoặc đối tượng dùng, **không theo tên bệnh**.
+- **Thêm sản phẩm:** sao chép `src/content/products/san-pham-mau.md` (bản mẫu, `draft: true` nên chỉ thấy khi `npm run dev`), đổi tên file không dấu (là phần cuối URL), đặt ảnh vuông nền sáng khoảng 900x900 trong `src/assets/products/<tên>/`, điền frontmatter, viết nội dung (thành phần, đối tượng, cách dùng, lưu ý) rồi đổi `draft: false`. Giá bỏ trống thì hiện "Liên hệ".
+- **Quy tắc nội dung sản phẩm** (áp dụng nguyên tắc 4, 6, 9 ở đầu file): chỉ ghi thông tin đúng như **nhãn và hồ sơ công bố** của sản phẩm, không tự bịa thành phần, công dụng, số liệu. Chỉ dùng cách nói "hỗ trợ", "bổ sung"; **không** viết "chữa", "điều trị", "khỏi bệnh", "thần dược", không so sánh với thuốc. Điền `publicationNo` (số tiếp nhận công bố sản phẩm) và `adConfirmationNo` (số giấy xác nhận nội dung quảng cáo) nếu có, trang sẽ hiển thị. Theo hiểu biết của tôi, quảng cáo thực phẩm chức năng ở Việt Nam cần giấy xác nhận nội dung quảng cáo và website bán hàng có thể phải thông báo/đăng ký với Bộ Công Thương; **chủ website cần tự xác nhận với cơ quan quản lý**, tôi không thể khẳng định.
+- **Cảnh báo bắt buộc:** component `ProductNotice` hiện "Thực phẩm bổ sung, không phải là thuốc, không có tác dụng thay thế thuốc chữa bệnh" ở đầu trang danh sách và trang chi tiết (bản đầy đủ có lưu ý phụ nữ có thai, trẻ em, người có bệnh nền). Cuối trang chi tiết ghi rõ sản phẩm do **Nhà Thuốc Nhật Minh** giới thiệu và bán. Không xóa các dòng này.
+- **Đặt hàng** (`src/components/OrderForm.astro`): form gồm họ tên, số điện thoại (10 chữ số hoặc +84), địa chỉ, số lượng, ghi chú và ô đồng ý. **Chưa có thanh toán trực tuyến**; văn bản trên form nói nhà thuốc sẽ liên hệ xác nhận đơn, phí giao hàng và cách thanh toán (chủ website cần xác nhận quy trình đúng với thực tế). Có hai chế độ, chọn qua `orderEndpoint` trong `src/lib/site.ts`:
+  - **Để trống (hiện tại):** bấm gửi thì mở Zalo cá nhân, chép sẵn nội dung đơn vào clipboard và hiện nội dung để khách dán vào chat rồi gửi. Không lưu dữ liệu ở đâu ngoài Zalo.
+  - **Điền địa chỉ dịch vụ nhận form** (ví dụ Formspree `https://formspree.io/f/xxxx`, chủ website tự đăng ký và nhận đơn qua email của họ): form gửi JSON đến đó, hiện thông báo đã gửi. Website là site tĩnh, không có máy chủ riêng nên không tự lưu đơn. **Không đưa email của chủ website vào mã nguồn hay dịch vụ nào khi chưa được đồng ý.**
+- **Dữ liệu cá nhân:** tên, số điện thoại, địa chỉ khách là dữ liệu cá nhân (Nghị định 13/2023/NĐ-CP). Form có ô đồng ý và dặn không gửi CCCD, mật khẩu, thông tin thẻ. Khi dùng dịch vụ nhận form của bên thứ ba cần cân nhắc thêm trang chính sách bảo mật.
+- **Tìm kiếm và SEO:** trang chi tiết có `data-pagefind-body` (tìm được bằng ô Tìm kiếm, kể cả không dấu) và dữ liệu schema.org `Product` (chưa khai báo giá và tình trạng còn hàng để tránh nêu sai). Sản phẩm `draft: true` có `noindex`.
+- **Trạng thái tháng 9/2026:** chưa có sản phẩm thật (chờ chủ website cung cấp tên, ảnh, thành phần, giá, số công bố). Khu này hiện "Sản phẩm đang được cập nhật".
 
 ### Hình ảnh trong bài viết
 

@@ -1,0 +1,122 @@
+---
+import { site } from '../lib/site';
+
+interface Props {
+  productName: string;
+}
+
+const { productName } = Astro.props;
+---
+
+<section class="order" id="dat-hang" aria-labelledby="dat-hang-tieu-de">
+  <h2 id="dat-hang-tieu-de">Đặt hàng</h2>
+  <p class="order-lead">
+    Điền thông tin nhận hàng, nhà thuốc sẽ liên hệ xác nhận đơn, phí giao hàng và cách thanh toán trước khi giao.
+  </p>
+
+  <form id="order-form" data-endpoint={site.orderEndpoint} data-zalo={site.zaloHref} data-product={productName} novalidate>
+    <label>
+      Họ và tên
+      <input type="text" name="name" autocomplete="name" required maxlength="80" />
+    </label>
+    <label>
+      Số điện thoại
+      <input type="tel" name="phone" autocomplete="tel" inputmode="tel" required pattern="(0|[+]84)[0-9]{9}" title="Số điện thoại 10 chữ số, ví dụ 0912345678" placeholder="Ví dụ: 0912345678" />
+    </label>
+    <label>
+      Địa chỉ nhận hàng
+      <input type="text" name="address" autocomplete="street-address" required maxlength="200" />
+    </label>
+    <label>
+      Số lượng
+      <input type="number" name="quantity" value="1" min="1" max="20" required inputmode="numeric" />
+    </label>
+    <label>
+      Ghi chú (không bắt buộc)
+      <textarea name="note" rows="3" maxlength="500"></textarea>
+    </label>
+    <!-- Ô chống thư rác: người thật không thấy và không điền -->
+    <input type="text" name="_gotcha" tabindex="-1" autocomplete="off" class="order-trap" aria-hidden="true" />
+
+    <label class="order-consent">
+      <input type="checkbox" name="consent" required />
+      <span>
+        Tôi đồng ý để nhà thuốc dùng thông tin trên để liên hệ và giao hàng. Không gửi số CCCD, mật khẩu hay thông
+        tin thẻ ngân hàng qua form này.
+      </span>
+    </label>
+
+    <button type="submit" class="btn">Gửi đơn đặt hàng</button>
+    <p class="order-error" role="alert" hidden></p>
+  </form>
+
+  <div class="order-result" id="order-result" role="status" hidden></div>
+</section>
+
+<script>
+  const form = document.getElementById('order-form') as HTMLFormElement | null;
+  const result = document.getElementById('order-result') as HTMLElement | null;
+  const error = form?.querySelector<HTMLElement>('.order-error');
+
+  form?.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    if (!form || !result || !error) return;
+    error.hidden = true;
+
+    if (!form.reportValidity()) return;
+    const data = new FormData(form);
+    if (data.get('_gotcha')) return; // thư rác
+
+    const order = {
+      product: form.dataset.product ?? '',
+      quantity: String(data.get('quantity')),
+      name: String(data.get('name')).trim(),
+      phone: String(data.get('phone')).trim(),
+      address: String(data.get('address')).trim(),
+      note: String(data.get('note') ?? '').trim(),
+      page: location.href,
+    };
+    const text = [
+      'ĐẶT HÀNG',
+      `Sản phẩm: ${order.product}`,
+      `Số lượng: ${order.quantity}`,
+      `Họ tên: ${order.name}`,
+      `Số điện thoại: ${order.phone}`,
+      `Địa chỉ: ${order.address}`,
+      order.note && `Ghi chú: ${order.note}`,
+    ]
+      .filter(Boolean)
+      .join('\n');
+
+    const endpoint = form.dataset.endpoint;
+    if (endpoint) {
+      try {
+        const response = await fetch(endpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+          body: JSON.stringify(order),
+        });
+        if (!response.ok) throw new Error(String(response.status));
+        form.hidden = true;
+        result.textContent = 'Đã gửi đơn. Nhà thuốc sẽ liên hệ với bạn qua số điện thoại đã để lại để xác nhận. Cảm ơn bạn!';
+        result.hidden = false;
+      } catch {
+        error.textContent = 'Chưa gửi được đơn. Bạn vui lòng thử lại hoặc nhắn Zalo cho nhà thuốc.';
+        error.hidden = false;
+      }
+      return;
+    }
+
+    // Chưa có địa chỉ nhận đơn: mở Zalo (mở ngay trong lúc bấm nút để trình duyệt không chặn) và chép sẵn nội dung đơn
+    window.open(form.dataset.zalo, '_blank', 'noopener');
+    navigator.clipboard?.writeText(text).catch(() => {});
+    form.hidden = true;
+    result.replaceChildren();
+    const intro = document.createElement('p');
+    intro.textContent = 'Đơn của bạn đã được soạn sẵn. Hãy dán nội dung dưới đây vào khung chat Zalo của nhà thuốc rồi bấm gửi:';
+    const box = document.createElement('pre');
+    box.textContent = text;
+    result.append(intro, box);
+    result.hidden = false;
+  });
+</script>

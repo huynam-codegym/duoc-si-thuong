@@ -1,0 +1,98 @@
+---
+import { render } from 'astro:content';
+import { Image, getImage } from 'astro:assets';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ShopShell from '../../components/ShopShell.astro';
+import ProductNotice from '../../components/ProductNotice.astro';
+import OrderForm from '../../components/OrderForm.astro';
+import Disclaimer from '../../components/Disclaimer.astro';
+import { productGroups } from '../../lib/product-groups';
+import { foldVietnamese, formatDate } from '../../lib/posts';
+import { formatPrice, getProducts } from '../../lib/products';
+import { site } from '../../lib/site';
+import { url } from '../../lib/url';
+
+export async function getStaticPaths() {
+  const products = await getProducts();
+  return products.map((product) => ({ params: { slug: product.id }, props: { product } }));
+}
+
+const { product } = Astro.props;
+const { name, summary, group, price, unit, brand, origin, image, imageAlt, publicationNo, adConfirmationNo, updatedAt, draft } =
+  product.data;
+const { Content } = await render(product);
+const groupInfo = productGroups[group];
+const imageForSchema = await getImage({ src: image, width: 1200, height: 630, fit: 'cover', format: 'jpg' });
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Product',
+  name,
+  description: summary,
+  inLanguage: 'vi',
+  image: new URL(imageForSchema.src, Astro.site).href,
+  ...(brand && { brand: { '@type': 'Brand', name: brand } }),
+};
+---
+
+<BaseLayout title={name} description={summary} jsonLd={jsonLd} image={image} noindex={draft}>
+  <ShopShell current={group}>
+    <article class="product" data-pagefind-body>
+      {
+        draft && (
+          <p class="draft-banner">
+            Bản nháp: sản phẩm này chưa được đăng nên sẽ không xuất hiện trên website chính thức.
+          </p>
+        )
+      }
+      <p class="breadcrumb">
+        <a href={url('/thuc-pham-chuc-nang/')}>Thực phẩm chức năng</a> ›
+        <a href={url(`/thuc-pham-chuc-nang/nhom/${group}/`)}>{groupInfo.name}</a>
+      </p>
+
+      <div class="product-top">
+        <figure class="product-photo">
+          <Image src={image} alt={imageAlt} width={900} height={900} widths={[450, 700, 900]} sizes="(min-width: 46rem) 22rem, 90vw" quality={85} loading="eager" />
+        </figure>
+        <div class="product-info">
+          <a class="tag" href={url(`/thuc-pham-chuc-nang/nhom/${group}/`)}>{groupInfo.name}</a>
+          <h1>{name}</h1>
+          <p class="lead">{summary}</p>
+          <p class="product-price product-price-lg">
+            {formatPrice(price)}
+            {unit && <span class="product-unit"> / {unit}</span>}
+          </p>
+          <dl class="product-facts">
+            {brand && (<><dt>Thương hiệu</dt><dd>{brand}</dd></>)}
+            {origin && (<><dt>Xuất xứ</dt><dd>{origin}</dd></>)}
+            {publicationNo && (<><dt>Số công bố sản phẩm</dt><dd>{publicationNo}</dd></>)}
+            {adConfirmationNo && (<><dt>Xác nhận quảng cáo</dt><dd>{adConfirmationNo}</dd></>)}
+          </dl>
+          <div class="actions">
+            <a class="btn" href="#dat-hang">Đặt hàng ngay</a>
+            <a class="btn btn-outline" href={site.zaloHref} target="_blank" rel="noopener noreferrer">Hỏi qua Zalo</a>
+          </div>
+        </div>
+      </div>
+
+      <ProductNotice />
+
+      <div class="prose">
+        <Content />
+      </div>
+
+      <OrderForm productName={name} />
+
+      <p class="product-seller">
+        Sản phẩm được giới thiệu và bán bởi {site.pharmacy.name} (do dược sĩ Thương điều hành). Thông tin sản phẩm cập
+        nhật ngày {formatDate(updatedAt)}.
+      </p>
+      <div class="article-end">
+        <Disclaimer />
+      </div>
+
+      <!-- Bản không dấu của tên và mô tả, chỉ để tìm kiếm không dấu (xem foldVietnamese) -->
+      <p hidden aria-hidden="true">{foldVietnamese(`${name}. ${summary}`)}</p>
+    </article>
+  </ShopShell>
+</BaseLayout>

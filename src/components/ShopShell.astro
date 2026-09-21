@@ -1,0 +1,66 @@
+---
+// Khung của khu Thực phẩm chức năng: menu nhóm sản phẩm ở bên trái, nội dung ở bên phải.
+// Trên điện thoại menu gập lại thành nút bấm "Danh mục sản phẩm".
+import { productGroups } from '../lib/product-groups';
+import { getProducts } from '../lib/products';
+import { url } from '../lib/url';
+
+interface Props {
+  /** Slug nhóm đang xem (để tô đậm mục hiện tại). Bỏ trống ở trang "Tất cả sản phẩm" và trang chi tiết. */
+  current?: string;
+}
+
+const { current } = Astro.props;
+const products = await getProducts();
+const counts = new Map<string, number>();
+for (const product of products) counts.set(product.data.group, (counts.get(product.data.group) ?? 0) + 1);
+const isAll = Astro.url.pathname === url('/thuc-pham-chuc-nang/');
+---
+
+<div class="container shop">
+  <aside class="shop-side" id="shop-side">
+    <button type="button" class="shop-side-toggle" aria-expanded="false" aria-controls="shop-menu">
+      <span>Danh mục sản phẩm</span>
+      <svg viewBox="0 0 12 12" width="14" height="14" aria-hidden="true" focusable="false">
+        <path d="M2 4l4 4 4-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+      </svg>
+    </button>
+    <nav id="shop-menu" class="shop-menu" aria-label="Nhóm sản phẩm">
+      <p class="shop-menu-title">Thực phẩm chức năng</p>
+      <ul>
+        <li>
+          <a href={url('/thuc-pham-chuc-nang/')} aria-current={isAll ? 'page' : undefined}>
+            <span class="sub-icon" aria-hidden="true">🛒</span>
+            <span>Tất cả sản phẩm</span>
+            <span class="shop-count">{products.length}</span>
+          </a>
+        </li>
+        {
+          Object.entries(productGroups).map(([slug, group]) => (
+            <li>
+              <a href={url(`/thuc-pham-chuc-nang/nhom/${slug}/`)} aria-current={current === slug ? 'page' : undefined}>
+                <span class="sub-icon" aria-hidden="true">{group.icon}</span>
+                <span>{group.name}</span>
+                <span class="shop-count">{counts.get(slug) ?? 0}</span>
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+  </aside>
+
+  <div class="shop-main">
+    <slot />
+  </div>
+</div>
+
+<script>
+  const side = document.getElementById('shop-side');
+  const toggle = side?.querySelector<HTMLButtonElement>('.shop-side-toggle');
+  toggle?.addEventListener('click', () => {
+    const open = !side!.classList.contains('open');
+    side!.classList.toggle('open', open);
+    toggle.setAttribute('aria-expanded', String(open));
+  });
+</script>

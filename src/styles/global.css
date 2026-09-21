@@ -730,3 +730,358 @@ img {
   gap: 1rem;
   margin-top: 2rem;
 }
+
+/* Khu Thực phẩm chức năng: menu nhóm sản phẩm bên trái, nội dung bên phải */
+.shop {
+  display: grid;
+  gap: 1rem 2rem;
+  padding-block: 1rem 2rem;
+}
+
+.shop-side-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  min-height: 3rem;
+  padding: 0.5rem 1rem;
+  border: 2px solid var(--green-700);
+  border-radius: var(--radius);
+  background: var(--green-50);
+  color: var(--green-900);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.shop-side-toggle svg {
+  transition: transform 0.15s;
+}
+
+.shop-side.open .shop-side-toggle svg {
+  transform: rotate(180deg);
+}
+
+.shop-menu {
+  display: none;
+  margin-top: 0.5rem;
+  padding: 0.5rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: #fff;
+}
+
+.shop-side.open .shop-menu {
+  display: block;
+}
+
+.shop-menu-title {
+  margin: 0.25rem 0.5rem 0.5rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--ink-soft);
+}
+
+.shop-menu ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.shop-menu a {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-height: 2.75rem;
+  padding: 0.4rem 0.6rem;
+  border-radius: 8px;
+  color: var(--ink);
+  font-size: 0.95rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.shop-menu a:hover,
+.shop-menu a:focus-visible {
+  background: var(--green-50);
+  color: var(--green-900);
+}
+
+.shop-menu a[aria-current='page'] {
+  background: var(--green-100);
+  color: var(--green-900);
+}
+
+.shop-menu .sub-icon {
+  width: 1.4rem;
+  text-align: center;
+  flex: none;
+}
+
+.shop-count {
+  margin-left: auto;
+  padding: 0 0.5rem;
+  border-radius: 999px;
+  background: #fff;
+  border: 1px solid var(--line);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--ink-soft);
+}
+
+.shop-main {
+  min-width: 0;
+}
+
+.shop-hero {
+  padding-block: 1rem 1rem;
+}
+
+@media (min-width: 48rem) {
+  .shop {
+    grid-template-columns: 15rem 1fr;
+    align-items: start;
+  }
+
+  .shop-side {
+    position: sticky;
+    top: 1rem;
+  }
+
+  .shop-side-toggle {
+    display: none;
+  }
+
+  .shop-menu {
+    display: block;
+    margin-top: 0;
+  }
+}
+
+/* Thẻ sản phẩm */
+.product-grid {
+  grid-template-columns: repeat(auto-fill, minmax(13rem, 1fr));
+}
+
+.product-thumb {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1 / 1;
+  object-fit: contain;
+  margin-bottom: 0.75rem;
+  border-radius: 8px;
+  background: var(--green-50);
+}
+
+.product-price {
+  margin-top: 0.5rem !important;
+  font-size: 1.05rem !important;
+  font-weight: 700;
+  color: #c2410c !important;
+}
+
+.product-unit {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--ink-soft);
+}
+
+.product-notice {
+  margin: 0 0 1rem;
+  padding: 0.6rem 0.9rem;
+  border-left: 4px solid var(--green-700);
+  border-radius: 6px;
+  background: var(--green-50);
+  font-size: 0.85rem;
+  color: var(--ink);
+}
+
+/* Trang chi tiết sản phẩm */
+.product .breadcrumb {
+  margin: 0 0 1rem;
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+}
+
+.product-top {
+  display: grid;
+  gap: 1.25rem;
+  margin-bottom: 1.25rem;
+}
+
+.product-photo {
+  margin: 0;
+}
+
+.product-photo img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1 / 1;
+  object-fit: contain;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--green-50);
+}
+
+.product-info h1 {
+  margin: 0.4rem 0 0.5rem;
+  font-size: clamp(1.5rem, 4vw, 2rem);
+  line-height: 1.3;
+}
+
+.product-info .lead {
+  margin: 0 0 0.75rem;
+  color: var(--ink-soft);
+}
+
+.product-price-lg {
+  font-size: 1.6rem !important;
+  margin: 0 0 0.75rem !important;
+}
+
+.product-facts {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.15rem 1rem;
+  margin: 0 0 1rem;
+  font-size: 0.9rem;
+}
+
+.product-facts dt {
+  color: var(--ink-soft);
+}
+
+.product-facts dd {
+  margin: 0;
+  font-weight: 600;
+}
+
+@media (min-width: 46rem) {
+  .product-top {
+    grid-template-columns: 22rem 1fr;
+    align-items: start;
+  }
+}
+
+.product-seller {
+  margin: 1.5rem 0 0;
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+}
+
+/* Form đặt hàng */
+.order {
+  margin-top: 2rem;
+  padding: 1.25rem;
+  border: 2px solid var(--green-100);
+  border-radius: var(--radius);
+  background: var(--green-50);
+}
+
+.order h2 {
+  margin: 0 0 0.25rem;
+}
+
+.order-lead {
+  margin: 0 0 1rem;
+  color: var(--ink-soft);
+}
+
+.order form {
+  display: grid;
+  gap: 0.9rem;
+  max-width: 32rem;
+}
+
+.order label {
+  display: grid;
+  gap: 0.25rem;
+  font-weight: 600;
+}
+
+.order input[type='text'],
+.order input[type='tel'],
+.order input[type='number'],
+.order textarea {
+  width: 100%;
+  min-height: 2.75rem;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #9ca3af;
+  border-radius: 8px;
+  background: #fff;
+  font: inherit;
+  font-weight: 400;
+  color: var(--ink);
+}
+
+.order input:focus-visible,
+.order textarea:focus-visible {
+  outline: 3px solid var(--green-700);
+  outline-offset: 1px;
+}
+
+.order .order-consent {
+  grid-template-columns: auto 1fr;
+  align-items: start;
+  gap: 0.6rem;
+  font-size: 0.85rem;
+  font-weight: 400;
+}
+
+.order .order-consent input {
+  width: 1.25rem;
+  height: 1.25rem;
+  margin-top: 0.25rem;
+}
+
+.order button.btn {
+  justify-self: start;
+  border: 0;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.order-trap {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+}
+
+.order-error {
+  margin: 0;
+  padding: 0.5rem 0.75rem;
+  border-radius: 8px;
+  background: var(--warn-bg);
+  color: var(--warn-ink);
+  font-size: 0.9rem;
+}
+
+.order-result {
+  max-width: 32rem;
+  padding: 1rem;
+  border-radius: 8px;
+  background: #fff;
+  border: 1px solid var(--green-700);
+}
+
+.order-result p {
+  margin: 0 0 0.5rem;
+}
+
+.order-result pre {
+  margin: 0;
+  padding: 0.75rem;
+  border-radius: 8px;
+  background: var(--green-50);
+  white-space: pre-wrap;
+  font: inherit;
+  font-size: 0.9rem;
+  user-select: all;
+}

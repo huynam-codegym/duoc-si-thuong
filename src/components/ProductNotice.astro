@@ -1,0 +1,20 @@
+---
+interface Props {
+  /** Bản ngắn dùng ở trang danh sách, bản đầy đủ dùng ở trang chi tiết. */
+  short?: boolean;
+}
+
+const { short = false } = Astro.props;
+---
+
+<p class="product-notice">
+  <strong>Thực phẩm bổ sung, không phải là thuốc, không có tác dụng thay thế thuốc chữa bệnh.</strong>
+  {
+    !short && (
+      <>
+        {' '}Phụ nữ có thai, đang cho con bú, trẻ em, người cao tuổi, người có bệnh nền hoặc đang dùng thuốc nên hỏi ý
+        kiến bác sĩ, dược sĩ trước khi dùng. Ngừng dùng và đi khám nếu có dấu hiệu bất thường.
+      </>
+    )
+  }
+</p>

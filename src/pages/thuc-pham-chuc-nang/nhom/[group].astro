@@ -1,0 +1,36 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import ShopShell from '../../../components/ShopShell.astro';
+import ProductCard from '../../../components/ProductCard.astro';
+import ProductNotice from '../../../components/ProductNotice.astro';
+import { productGroups, productGroupSlugs, type ProductGroupSlug } from '../../../lib/product-groups';
+import { getProducts } from '../../../lib/products';
+
+export function getStaticPaths() {
+  return productGroupSlugs.map((group) => ({ params: { group } }));
+}
+
+const slug = Astro.params.group as ProductGroupSlug;
+const group = productGroups[slug];
+const products = await getProducts(slug);
+---
+
+<BaseLayout title={`${group.name} | Thực phẩm chức năng`} description={group.description}>
+  <ShopShell current={slug}>
+    <section class="hero shop-hero">
+      <h1>{group.icon} {group.name}</h1>
+      <p>{group.description}</p>
+    </section>
+    <ProductNotice short />
+
+    {
+      products.length > 0 ? (
+        <div class="grid product-grid">
+          {products.map((product) => <ProductCard product={product} />)}
+        </div>
+      ) : (
+        <p class="empty">Nhóm này đang được cập nhật sản phẩm. Mời bạn quay lại sau hoặc nhắn Zalo để được tư vấn.</p>
+      )
+    }
+  </ShopShell>
+</BaseLayout>
