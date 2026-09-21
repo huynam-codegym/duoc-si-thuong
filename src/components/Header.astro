@@ -2,92 +2,160 @@
 import { Image } from 'astro:assets';
 import logo from '../assets/logo.jpg';
 import { categories, getGroups, type CategorySlug } from '../lib/categories';
+import { productGroups } from '../lib/product-groups';
+import { site } from '../lib/site';
 import { url } from '../lib/url';
 
 const current = Astro.url.pathname;
 const entries = Object.entries(categories) as [CategorySlug, (typeof categories)[CategorySlug]][];
+const shopHref = url('/thuc-pham-chuc-nang/');
 ---
 
 <header class="site-header">
-  <div class="container">
+  <div class="topbar">
+    <div class="container">
+      <span>{site.pharmacy.name}</span>
+      <a href={site.zaloHref} target="_blank" rel="noopener noreferrer">Dược sĩ tư vấn qua Zalo: {site.phone}</a>
+    </div>
+  </div>
+
+  <div class="container header-main">
     <a class="brand" href={url('/')}>
       <Image class="brand-logo" src={logo} alt="" width={160} height={160} />
       <span>Dược Sĩ Thương</span>
     </a>
-    <nav class="site-nav" aria-label="Chuyên mục">
-      <ul>
-        {
-          entries.map(([slug, category]) => {
-            const groups = getGroups(slug);
-            const href = url(`/${slug}/`);
-            const isCurrent = current.startsWith(href);
-            return groups.length > 0 ? (
-              <li class="has-sub">
-                <a href={href} aria-current={isCurrent ? 'page' : undefined}>
-                  {category.name}
+
+    <form class="header-search" role="search" action={url('/tim-kiem/')} method="get">
+      <label class="visually-hidden" for="header-q">Tìm sản phẩm hoặc bài viết</label>
+      <input id="header-q" type="search" name="q" placeholder="Tìm sản phẩm, bài viết, câu hỏi về thuốc..." autocomplete="off" />
+      <button type="submit" aria-label="Tìm kiếm">
+        <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" focusable="false">
+          <circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2.2" />
+          <path d="M16.5 16.5L21 21" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" />
+        </svg>
+      </button>
+    </form>
+
+    <a class="cart-link" href={url('/gio-hang/')} aria-label="Giỏ hàng">
+      <svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true" focusable="false">
+        <path
+          d="M3 4h2.2l2.1 10.2a1 1 0 0 0 1 .8h8.6a1 1 0 0 0 1-.8L19.5 8H6.4"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"></path>
+        <circle cx="9.5" cy="19" r="1.5" fill="currentColor"></circle>
+        <circle cx="16.5" cy="19" r="1.5" fill="currentColor"></circle>
+      </svg>
+      <span class="cart-label">Giỏ hàng</span>
+      <span class="cart-badge" id="cart-badge" hidden>0</span>
+    </a>
+  </div>
+
+  <div class="navbar">
+    <div class="container">
+      <nav class="site-nav" aria-label="Chuyên mục">
+        <ul>
+          <li class="has-sub nav-shop">
+            <a href={shopHref} aria-current={current.startsWith(shopHref) ? 'page' : undefined}>Thực phẩm chức năng</a>
+            <button
+              type="button"
+              class="sub-toggle"
+              aria-expanded="false"
+              aria-controls="sub-shop"
+              aria-label="Mở danh mục sản phẩm"
+            >
+              <svg viewBox="0 0 12 12" aria-hidden="true" focusable="false">
+                <path d="M2 4l4 4 4-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+            </button>
+            <ul class="submenu" id="sub-shop">
+              <li>
+                <a href={shopHref}>
+                  <span class="sub-icon" aria-hidden="true">🛒</span>
+                  <span>Xem tất cả sản phẩm</span>
                 </a>
-                <button
-                  type="button"
-                  class="sub-toggle"
-                  aria-expanded="false"
-                  aria-controls={`sub-${slug}`}
-                  aria-label={`Mở danh sách ${category.name}`}
-                >
-                  <svg viewBox="0 0 12 12" aria-hidden="true" focusable="false">
-                    <path d="M2 4l4 4 4-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                  </svg>
-                </button>
-                <ul class="submenu" id={`sub-${slug}`}>
+              </li>
+              {
+                Object.entries(productGroups).map(([slug, group]) => (
                   <li>
-                    <a href={href}>
-                      <span class="sub-icon" aria-hidden="true">
-                        📚
-                      </span>
-                      <span>Xem tất cả bài viết</span>
+                    <a href={url(`/thuc-pham-chuc-nang/nhom/${slug}/`)}>
+                      <span class="sub-icon" aria-hidden="true">{group.icon}</span>
+                      <span>{group.name}</span>
                     </a>
                   </li>
-                  {groups.map(([groupSlug, group]) => (
+                ))
+              }
+            </ul>
+          </li>
+          {
+            entries.map(([slug, category]) => {
+              const groups = getGroups(slug);
+              const href = url(`/${slug}/`);
+              const isCurrent = current.startsWith(href);
+              return groups.length > 0 ? (
+                <li class="has-sub">
+                  <a href={href} aria-current={isCurrent ? 'page' : undefined}>
+                    {category.name}
+                  </a>
+                  <button
+                    type="button"
+                    class="sub-toggle"
+                    aria-expanded="false"
+                    aria-controls={`sub-${slug}`}
+                    aria-label={`Mở danh sách ${category.name}`}
+                  >
+                    <svg viewBox="0 0 12 12" aria-hidden="true" focusable="false">
+                      <path d="M2 4l4 4 4-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                  </button>
+                  <ul class="submenu" id={`sub-${slug}`}>
                     <li>
-                      <a href={url(`/${slug}/nhom/${groupSlug}/`)}>
+                      <a href={href}>
                         <span class="sub-icon" aria-hidden="true">
-                          {group.icon}
+                          📚
                         </span>
-                        <span>{group.name}</span>
+                        <span>Xem tất cả bài viết</span>
                       </a>
                     </li>
-                  ))}
-                </ul>
-              </li>
-            ) : (
-              <li>
-                <a href={href} aria-current={isCurrent ? 'page' : undefined}>
-                  {category.name}
-                </a>
-              </li>
-            );
-          })
-        }
-        <li>
-          <a href={url('/thuc-pham-chuc-nang/')} aria-current={current.startsWith(url('/thuc-pham-chuc-nang/')) ? 'page' : undefined}>
-            Thực phẩm chức năng
-          </a>
-        </li>
-        <li>
-          <a href={url('/gioi-thieu/')} aria-current={current.startsWith(url('/gioi-thieu/')) ? 'page' : undefined}>
-            Giới thiệu
-          </a>
-        </li>
-        <li>
-          <a href={url('/tim-kiem/')} aria-current={current.startsWith(url('/tim-kiem/')) ? 'page' : undefined}>
-            Tìm kiếm
-          </a>
-        </li>
-      </ul>
-    </nav>
+                    {groups.map(([groupSlug, group]) => (
+                      <li>
+                        <a href={url(`/${slug}/nhom/${groupSlug}/`)}>
+                          <span class="sub-icon" aria-hidden="true">
+                            {group.icon}
+                          </span>
+                          <span>{group.name}</span>
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                </li>
+              ) : (
+                <li>
+                  <a href={href} aria-current={isCurrent ? 'page' : undefined}>
+                    {category.name}
+                  </a>
+                </li>
+              );
+            })
+          }
+          <li>
+            <a href={url('/gioi-thieu/')} aria-current={current.startsWith(url('/gioi-thieu/')) ? 'page' : undefined}>
+              Giới thiệu
+            </a>
+          </li>
+        </ul>
+      </nav>
+    </div>
   </div>
 </header>
 
+<div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
 <script>
+  import { addToCart, cartCount } from '../lib/cart';
+
   // Mở/đóng danh sách thả xuống bằng nút mũi tên (dùng cho điện thoại và bàn phím).
   // Trên máy tính, danh sách còn tự mở khi rê chuột (xử lý bằng CSS).
   const items = document.querySelectorAll<HTMLElement>('.site-nav .has-sub');
@@ -111,5 +179,41 @@ const entries = Object.entries(categories) as [CategorySlug, (typeof categories)
 
   document.addEventListener('keydown', (event) => {
     if (event.key === 'Escape') items.forEach((item) => setOpen(item, false));
+  });
+
+  // Số sản phẩm trên biểu tượng giỏ hàng
+  const badge = document.getElementById('cart-badge');
+  function updateBadge() {
+    if (!badge) return;
+    const count = cartCount();
+    badge.textContent = String(count);
+    badge.hidden = count === 0;
+  }
+  updateBadge();
+  window.addEventListener('cart:change', updateBadge);
+  window.addEventListener('storage', updateBadge);
+
+  // Nút "Thêm vào giỏ" / "Mua ngay" ở mọi trang (thẻ sản phẩm, trang chi tiết)
+  const toast = document.getElementById('toast');
+  let toastTimer: number | undefined;
+  function showToast(message: string) {
+    if (!toast) return;
+    toast.textContent = message;
+    toast.hidden = false;
+    clearTimeout(toastTimer);
+    toastTimer = window.setTimeout(() => (toast.hidden = true), 2500);
+  }
+
+  document.addEventListener('click', (event) => {
+    const button = (event.target as HTMLElement).closest<HTMLButtonElement>('[data-add-to-cart]');
+    if (!button) return;
+    const { id, name, price, unit, image, goCart } = button.dataset;
+    if (!id || !name) return;
+    addToCart({ id, name, price: price ? Number(price) : null, unit: unit ?? '', image: image ?? '' });
+    if (goCart !== undefined) {
+      location.href = button.dataset.cartUrl ?? '/gio-hang/';
+    } else {
+      showToast(`Đã thêm "${name}" vào giỏ hàng`);
+    }
   });
 </script>

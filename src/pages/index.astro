@@ -3,12 +3,17 @@ import { Image } from 'astro:assets';
 import cover from '../assets/cover.jpg';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import PostCard from '../components/PostCard.astro';
+import ProductCard from '../components/ProductCard.astro';
 import { categories } from '../lib/categories';
+import { productGroups } from '../lib/product-groups';
 import { getPosts } from '../lib/posts';
+import { getProducts } from '../lib/products';
 import { site } from '../lib/site';
 import { url } from '../lib/url';
 
 const latest = (await getPosts()).slice(0, 6);
+const products = await getProducts();
+const featured = products.slice(0, 8);
 ---
 
 <BaseLayout
@@ -36,8 +41,44 @@ const latest = (await getPosts()).slice(0, 6);
         aria-label={`Liên hệ dược sĩ Thương qua Zalo: ${site.phone}`}></a>
     </div>
 
+    <ul class="trust">
+      <li><span aria-hidden="true">👩‍⚕️</span> Dược sĩ đại học tư vấn</li>
+      <li><span aria-hidden="true">💬</span> Nhắn Zalo hỏi đáp: {site.phone}</li>
+      <li><span aria-hidden="true">📚</span> Bài viết có nguồn tham khảo</li>
+    </ul>
+
+    {
+      products.length > 0 && (
+        <>
+          <section aria-labelledby="danh-muc-sp">
+            <h2 class="section-title" id="danh-muc-sp">Danh mục sản phẩm</h2>
+            <ul class="cat-tiles">
+              {Object.entries(productGroups).map(([slug, group]) => (
+                <li>
+                  <a href={url(`/thuc-pham-chuc-nang/nhom/${slug}/`)}>
+                    <span class="tile-icon" aria-hidden="true">{group.icon}</span>
+                    <span>{group.name}</span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </section>
+
+          <section aria-labelledby="sp-noi-bat">
+            <h2 class="section-title" id="sp-noi-bat">Sản phẩm</h2>
+            <div class="grid product-grid">
+              {featured.map((product) => <ProductCard product={product} />)}
+            </div>
+            <p class="more">
+              <a class="btn btn-outline" href={url('/thuc-pham-chuc-nang/')}>Xem tất cả sản phẩm</a>
+            </p>
+          </section>
+        </>
+      )
+    }
+
     <section aria-labelledby="chuyen-muc">
-      <h2 class="section-title" id="chuyen-muc">Chuyên mục</h2>
+      <h2 class="section-title" id="chuyen-muc">Góc sức khỏe: chuyên mục kiến thức</h2>
       <div class="grid">
         {
           Object.entries(categories).map(([slug, category]) => (

@@ -4,7 +4,6 @@ import { Image, getImage } from 'astro:assets';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import ShopShell from '../../components/ShopShell.astro';
 import ProductNotice from '../../components/ProductNotice.astro';
-import OrderForm from '../../components/OrderForm.astro';
 import Disclaimer from '../../components/Disclaimer.astro';
 import { productGroups } from '../../lib/product-groups';
 import { foldVietnamese, formatDate } from '../../lib/posts';
@@ -22,6 +21,7 @@ const { name, summary, group, price, unit, brand, origin, image, imageAlt, publi
   product.data;
 const { Content } = await render(product);
 const groupInfo = productGroups[group];
+const cartImage = await getImage({ src: image, width: 160, height: 160, format: 'webp' });
 const imageForSchema = await getImage({ src: image, width: 1200, height: 630, fit: 'cover', format: 'jpg' });
 
 const jsonLd = {
@@ -69,7 +69,32 @@ const jsonLd = {
             {adConfirmationNo && (<><dt>Xác nhận quảng cáo</dt><dd>{adConfirmationNo}</dd></>)}
           </dl>
           <div class="actions">
-            <a class="btn" href="#dat-hang">Đặt hàng ngay</a>
+            <button
+              type="button"
+              class="btn"
+              data-add-to-cart
+              data-go-cart
+              data-cart-url={url('/gio-hang/')}
+              data-id={product.id}
+              data-name={name}
+              data-price={price ?? ''}
+              data-unit={unit ?? ''}
+              data-image={cartImage.src}
+            >
+              Mua ngay
+            </button>
+            <button
+              type="button"
+              class="btn btn-outline"
+              data-add-to-cart
+              data-id={product.id}
+              data-name={name}
+              data-price={price ?? ''}
+              data-unit={unit ?? ''}
+              data-image={cartImage.src}
+            >
+              Thêm vào giỏ
+            </button>
             <a class="btn btn-outline" href={site.zaloHref} target="_blank" rel="noopener noreferrer">Hỏi qua Zalo</a>
           </div>
         </div>
@@ -80,8 +105,6 @@ const jsonLd = {
       <div class="prose">
         <Content />
       </div>
-
-      <OrderForm productName={name} />
 
       <p class="product-seller">
         Sản phẩm được giới thiệu và bán bởi {site.pharmacy.name} (do dược sĩ Thương điều hành). Thông tin sản phẩm cập

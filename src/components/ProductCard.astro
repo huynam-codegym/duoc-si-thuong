@@ -1,5 +1,5 @@
 ---
-import { Image } from 'astro:assets';
+import { Image, getImage } from 'astro:assets';
 import { productGroups } from '../lib/product-groups';
 import { formatPrice, type Product } from '../lib/products';
 import { url } from '../lib/url';
@@ -10,15 +10,31 @@ interface Props {
 
 const { product } = Astro.props;
 const { name, summary, group, price, unit, image, imageAlt } = product.data;
+// Ảnh nhỏ dùng trong giỏ hàng
+const cartImage = await getImage({ src: image, width: 160, height: 160, format: 'webp' });
 ---
 
-<a class="card product-card" href={url(`/thuc-pham-chuc-nang/${product.id}/`)}>
-  <Image class="product-thumb" src={image} alt={imageAlt} width={480} height={480} widths={[240, 480]} sizes="(min-width: 46rem) 14rem, 45vw" />
-  <span class="tag">{productGroups[group].name}</span>
-  <h3>{name}</h3>
-  <p>{summary}</p>
+<div class="card product-card">
+  <a class="product-link" href={url(`/thuc-pham-chuc-nang/${product.id}/`)}>
+    <Image class="product-thumb" src={image} alt={imageAlt} width={480} height={480} widths={[240, 480]} sizes="(min-width: 46rem) 14rem, 45vw" />
+    <span class="tag">{productGroups[group].name}</span>
+    <h3>{name}</h3>
+    <p>{summary}</p>
+  </a>
   <p class="product-price">
     {formatPrice(price)}
     {unit && <span class="product-unit"> / {unit}</span>}
   </p>
-</a>
+  <button
+    type="button"
+    class="btn btn-add"
+    data-add-to-cart
+    data-id={product.id}
+    data-name={name}
+    data-price={price ?? ''}
+    data-unit={unit ?? ''}
+    data-image={cartImage.src}
+  >
+    Thêm vào giỏ
+  </button>
+</div>
