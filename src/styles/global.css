@@ -261,13 +261,6 @@ img {
   color: var(--ink-soft);
 }
 
-button.btn {
-  border: 0;
-  font: inherit;
-  font-weight: 700;
-  cursor: pointer;
-}
-
 /* Thẻ thông tin (không bấm được) */
 .info-card {
   padding: 1.1rem 1.25rem;

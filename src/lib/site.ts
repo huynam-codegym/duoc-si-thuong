@@ -8,11 +8,11 @@ export const site = {
   // Liên kết bấm để gọi thường trên điện thoại (hiện chưa dùng ở nút nào)
   phoneHref: 'tel:+84988283415',
   phoneIntl: '+84988283415',
-  // Chat trực tiếp ở trang Hỏi đáp (dịch vụ Tawk.to). Để trống = chưa bật, trang chỉ hiện nút Zalo.
-  // Lấy từ mã nhúng của Tawk.to: https://embed.tawk.to/<tawkPropertyId>/<tawkWidgetId>
+  // Chat trực tiếp ở trang Hỏi đáp qua Zalo Official Account (OA) của Nhà Thuốc Nhật Minh.
+  // Để zaloOaId trống = tắt khung chat, trang chỉ hiện nút Zalo cá nhân.
   chat: {
-    tawkPropertyId: '',
-    tawkWidgetId: '',
+    zaloOaId: '3023321965821034220',
+    welcomeMessage: 'Xin chào! Dược sĩ Thương có thể giúp gì cho bạn? Trường hợp khẩn cấp hãy gọi 115.',
   },
   // Chuyên môn và chức vụ do chủ website cung cấp
   degree: 'Dược sĩ đại học',
