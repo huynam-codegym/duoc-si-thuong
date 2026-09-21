@@ -13,8 +13,8 @@ sources:
     url: "https://medlineplus.gov/heartburn.html"
   - title: "MedlinePlus - GERD (Trào ngược dạ dày thực quản)"
     url: "https://medlineplus.gov/gerd.html"
-reviewedBy: ""
-draft: true
+reviewedBy: "(bản xem thử, chưa được kiểm duyệt)"
+draft: false
 ---
 
 ## Tóm tắt nhanh
@@ -22,6 +22,9 @@ draft: true
 Ợ nóng, ợ chua, đau vùng thượng vị là những triệu chứng rất hay gặp. Thuốc dạ dày thường gồm hai nhóm chính: **thuốc trung hòa acid** (dùng khi có triệu chứng) và **thuốc giảm tiết acid** (tác dụng chậm hơn nhưng kéo dài). Thuốc chỉ giúp giảm triệu chứng, còn nếu triệu chứng kéo dài hoặc có dấu hiệu cảnh báo thì cần đi khám, không nên tự điều trị lâu ngày.
 
 ## Hai nhóm thuốc thường gặp
+
+![Bảng so sánh thuốc trung hòa acid và thuốc giảm tiết acid về ví dụ hoạt chất, cách tác dụng, tốc độ và cách dùng thường gặp](../../assets/posts/thuoc-da-day-khang-acid-va-giam-tiet-acid/hinh-1.jpg)
+*Đồ họa: Dược Sĩ Thương. Nguồn: MedlinePlus.*
 
 | | Thuốc trung hòa acid | Thuốc giảm tiết acid |
 | --- | --- | --- |
@@ -44,6 +47,9 @@ draft: true
 - Bỏ thuốc lá, giảm cân nếu thừa cân.
 
 ## Khi nào cần đi khám?
+
+![Năm dấu hiệu đi kèm ợ nóng cần đi khám sớm: khó nuốt, nôn ra máu hoặc phân đen, sụt cân không rõ lý do, đau ngực, ợ nóng kéo dài hơn khoảng 2 tuần](../../assets/posts/thuoc-da-day-khang-acid-va-giam-tiet-acid/hinh-2.jpg)
+*Đồ họa: Dược Sĩ Thương. Nguồn: MedlinePlus.*
 
 Hãy đi khám sớm nếu có một trong các dấu hiệu sau:
 

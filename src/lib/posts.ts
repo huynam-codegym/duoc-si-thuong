@@ -9,6 +9,20 @@ export function isPublishable(post: Post): boolean {
 }
 
 /**
+ * Bài có người kiểm duyệt thật. Quy ước: nếu `reviewedBy` bắt đầu bằng "(" (ví dụ
+ * "(bản xem thử, chưa được kiểm duyệt)") thì đó chỉ là ghi chú trạng thái, chưa có người kiểm duyệt.
+ */
+export function hasRealReviewer(post: Post): boolean {
+  const name = post.data.reviewedBy.trim();
+  return name !== '' && !name.startsWith('(');
+}
+
+/** Bài đang đăng ở dạng "bản xem thử": hiện trên web nhưng chưa có người kiểm duyệt. */
+export function isPreview(post: Post): boolean {
+  return isPublishable(post) && !hasRealReviewer(post);
+}
+
+/**
  * Trả về các bài viết, mới cập nhật nhất trước.
  * Khi chạy `npm run dev` hiện cả bản nháp để xem thử;
  * khi `npm run build` chỉ giữ bài đã kiểm duyệt.

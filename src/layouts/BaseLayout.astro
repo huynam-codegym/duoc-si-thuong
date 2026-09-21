@@ -12,10 +12,12 @@ interface Props {
   jsonLd?: Record<string, unknown>;
   // Ảnh dùng khi chia sẻ lên mạng xã hội (ví dụ ảnh đại diện của bài). Không có thì dùng ảnh bìa mặc định.
   image?: ImageMetadata;
+  // true = báo cho Google không lập chỉ mục trang này (dùng cho bài "bản xem thử" chưa kiểm duyệt)
+  noindex?: boolean;
 }
 
 const SITE_NAME = 'Dược Sĩ Thương';
-const { title, description, jsonLd, image } = Astro.props;
+const { title, description, jsonLd, image, noindex } = Astro.props;
 const fullTitle = title === SITE_NAME ? title : `${title} | ${SITE_NAME}`;
 const canonical = new URL(Astro.url.pathname, Astro.site);
 // Ảnh chia sẻ mạng xã hội (1200x630): ảnh đại diện của bài nếu có, không thì ảnh bìa mặc định
@@ -32,6 +34,7 @@ const ogImage = new URL(shareImage ? shareImage.src : url('/og-image.jpg'), Astr
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{fullTitle}</title>
     <meta name="description" content={description} />
+    {noindex && <meta name="robots" content="noindex" />}
     <link rel="canonical" href={canonical} />
     <link rel="icon" type="image/png" href={url('/favicon.png')} />
     <link rel="apple-touch-icon" href={url('/apple-touch-icon.png')} />

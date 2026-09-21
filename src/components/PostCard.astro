@@ -1,7 +1,7 @@
 ---
 import { Image } from 'astro:assets';
 import { categories } from '../lib/categories';
-import { formatDate, type Post } from '../lib/posts';
+import { formatDate, isPreview, type Post } from '../lib/posts';
 import { url } from '../lib/url';
 
 interface Props {
@@ -22,5 +22,8 @@ const { title, description, category, updatedAt, cover } = post.data;
   <span class="tag">{categories[category].name}</span>
   <h3>{title}</h3>
   <p>{description}</p>
-  <p class="meta">Cập nhật: {formatDate(updatedAt)}</p>
+  <p class="meta">
+    Cập nhật: {formatDate(updatedAt)}
+    {isPreview(post) && <> · Bản xem thử, chờ kiểm duyệt</>}
+  </p>
 </a>

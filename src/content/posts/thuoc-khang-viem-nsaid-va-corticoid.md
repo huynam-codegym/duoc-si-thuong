@@ -13,8 +13,8 @@ sources:
     url: "https://medlineplus.gov/steroids.html"
   - title: "MedlinePlus - Pain Relievers (gồm nhóm NSAID)"
     url: "https://medlineplus.gov/painrelievers.html"
-reviewedBy: ""
-draft: true
+reviewedBy: "(bản xem thử, chưa được kiểm duyệt)"
+draft: false
 ---
 
 ## Tóm tắt nhanh
@@ -27,6 +27,9 @@ Khi nói "thuốc kháng viêm", có hai nhóm hoàn toàn khác nhau:
 Cả hai đều có thể gây hại nếu tự ý dùng hoặc dùng kéo dài.
 
 ## So sánh nhanh
+
+![Bảng so sánh thuốc kháng viêm NSAID và corticoid về mức độ, công dụng thường gặp, nguy cơ và việc có cần kê đơn](../../assets/posts/thuoc-khang-viem-nsaid-va-corticoid/hinh-1.jpg)
+*Đồ họa: Dược Sĩ Thương. Nguồn: MedlinePlus.*
 
 | | NSAID | Corticoid |
 | --- | --- | --- |
@@ -43,6 +46,9 @@ Cả hai đều có thể gây hại nếu tự ý dùng hoặc dùng kéo dài.
 - Nếu đau dạ dày, đi ngoài phân đen hoặc nôn ra máu, hãy ngừng thuốc và đi khám ngay.
 
 ## Lưu ý với corticoid
+
+![Ba điều cần nhớ với corticoid: không tự ngưng đột ngột khi đã dùng kéo dài, không tự mua để chữa đau nhức dị ứng viêm họng, dùng trong thời gian ngắn nhất có thể theo bác sĩ](../../assets/posts/thuoc-khang-viem-nsaid-va-corticoid/hinh-2.jpg)
+*Đồ họa: Dược Sĩ Thương. Nguồn: MedlinePlus.*
 
 - Corticoid là thuốc mạnh, nên được dùng **trong thời gian ngắn nhất có thể** theo hướng dẫn của bác sĩ.
 - **Không tự ý ngưng đột ngột** khi đã dùng kéo dài. Cơ thể cần thời gian thích nghi, bác sĩ sẽ hướng dẫn cách giảm liều dần.

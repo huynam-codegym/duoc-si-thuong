@@ -13,8 +13,8 @@ sources:
     url: "https://medlineplus.gov/vitamins.html"
   - title: "MedlinePlus - Dietary Supplements (Thực phẩm bổ sung)"
     url: "https://medlineplus.gov/dietarysupplements.html"
-reviewedBy: ""
-draft: true
+reviewedBy: "(bản xem thử, chưa được kiểm duyệt)"
+draft: false
 ---
 
 ## Tóm tắt nhanh
@@ -22,6 +22,9 @@ draft: true
 Người khỏe mạnh có chế độ ăn đa dạng (nhiều rau, trái cây, ngũ cốc, đạm) thường **đã đủ** phần lớn vitamin và khoáng chất. Viên bổ sung hữu ích khi cơ thể **thật sự thiếu** hoặc có nhu cầu đặc biệt. Vitamin **không phải thuốc chữa bệnh**, và "uống nhiều hơn" không có nghĩa là "tốt hơn".
 
 ## Khi nào có thể cần bổ sung?
+
+![Năm tình huống bác sĩ có thể cân nhắc bổ sung vi chất: mang thai, thiếu máu thiếu sắt, ăn chay trường, ít nắng hoặc cao tuổi, bệnh giảm hấp thu](../../assets/posts/vitamin-va-khoang-chat-khi-nao-can-bo-sung/hinh-1.jpg)
+*Đồ họa: Dược Sĩ Thương. Nguồn: MedlinePlus.*
 
 Những tình huống thường được bác sĩ cân nhắc bổ sung (cần đánh giá riêng từng người):
 
@@ -34,6 +37,9 @@ Những tình huống thường được bác sĩ cân nhắc bổ sung (cần �
 Nếu nghi ngờ thiếu, hãy đi khám và làm xét nghiệm thay vì tự đoán và mua thuốc.
 
 ## Uống nhiều có thể gây hại
+
+![Bốn nguy cơ khi uống nhiều vitamin: vitamin tan trong dầu tích lũy, vitamin A liều cao khi mang thai, sắt quá liều nguy hiểm cho trẻ nhỏ, dùng trùng nhiều sản phẩm](../../assets/posts/vitamin-va-khoang-chat-khi-nao-can-bo-sung/hinh-2.jpg)
+*Đồ họa: Dược Sĩ Thương. Nguồn: MedlinePlus.*
 
 - **Vitamin tan trong dầu (A, D, E, K)** tích lũy trong cơ thể, dùng liều cao kéo dài có thể gây ngộ độc.
 - **Vitamin A liều cao** khi mang thai có thể gây hại cho thai nhi. Phụ nữ mang thai chỉ dùng theo chỉ định của bác sĩ.

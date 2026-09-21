@@ -4,7 +4,9 @@ Tài liệu này KHÔNG được đăng lên website. Nó liệt kê, với từ
 
 Cách duyệt một bài: đọc nội dung, kiểm tra các mục bên dưới, sửa trực tiếp trong file `src/content/posts/<tên-bài>.md`, rồi điền `reviewedBy` (tên người kiểm duyệt) và đổi `draft: false`.
 
-Xem bài nháp ở máy: `npm run dev` rồi mở http://localhost:4321/kien-thuc-ve-thuoc/ (bản chạy thử hiện cả bài nháp).
+Trạng thái: 9 bài đã đăng ở dạng "bản xem thử" (có khung vàng, `noindex`); bài kháng sinh vẫn là bản nháp. Cách hoàn tất một bài: xem mục "Khi dược sĩ đã rà soát một bài" trong CLAUDE.md.
+
+Xem bài ở máy: `npm run dev` rồi mở http://localhost:4321/kien-thuc-ve-thuoc/ (bản chạy thử hiện cả bài nháp).
 
 ## Nguồn đã đối chiếu (đọc trực tiếp nội dung trang)
 

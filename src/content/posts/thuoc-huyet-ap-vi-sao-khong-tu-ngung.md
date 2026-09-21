@@ -13,8 +13,8 @@ sources:
     url: "https://www.who.int/news-room/fact-sheets/detail/hypertension"
   - title: "MedlinePlus - Blood Pressure Medicines (Thuốc huyết áp)"
     url: "https://medlineplus.gov/bloodpressuremedicines.html"
-reviewedBy: ""
-draft: true
+reviewedBy: "(bản xem thử, chưa được kiểm duyệt)"
+draft: false
 ---
 
 ## Tóm tắt nhanh
@@ -22,6 +22,9 @@ draft: true
 Theo WHO, **đa số người bị tăng huyết áp không có triệu chứng**. Vì vậy nhiều người thấy khỏe, đo huyết áp đã bình thường rồi tự ngưng thuốc. Nhưng huyết áp ổn thường là **nhờ thuốc đang hoạt động**. Tăng huyết áp không được kiểm soát có thể dẫn đến **đột quỵ, nhồi máu cơ tim, suy thận**. Hãy dùng thuốc đều đặn theo chỉ định và chỉ thay đổi khi có ý kiến của bác sĩ.
 
 ## Các nhóm thuốc huyết áp thường gặp
+
+![Bốn nhóm thuốc huyết áp: ức chế men chuyển và chẹn thụ thể angiotensin, chẹn beta, chẹn kênh canxi, lợi tiểu, kèm cách tác dụng tóm tắt](../../assets/posts/thuoc-huyet-ap-vi-sao-khong-tu-ngung/hinh-1.jpg)
+*Đồ họa: Dược Sĩ Thương. Nguồn: MedlinePlus.*
 
 Bác sĩ chọn thuốc tùy từng người, đôi khi phối hợp nhiều loại:
 
@@ -54,6 +57,9 @@ Nếu thấy khó chịu, hãy **báo bác sĩ**. Thường có thể đổi thu
 - **Thói quen sống vẫn quan trọng:** ăn nhiều rau, trái cây, giảm muối, vận động đều đặn, giảm cân nếu thừa cân, bỏ thuốc lá, hạn chế rượu.
 
 ## Khi nào cần đi khám hoặc cấp cứu?
+
+![Ba dấu hiệu cần gọi 115 ngay: đau ngực khó thở, yếu liệt một bên méo miệng nói khó nhìn mờ đột ngột, đau đầu dữ dội kèm huyết áp rất cao](../../assets/posts/thuoc-huyet-ap-vi-sao-khong-tu-ngung/hinh-2.jpg)
+*Đồ họa: Dược Sĩ Thương. Nguồn: WHO.*
 
 **Gọi 115 ngay** nếu có:
 

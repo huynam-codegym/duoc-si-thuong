@@ -13,8 +13,8 @@ sources:
     url: "https://medlineplus.gov/allergy.html"
   - title: "MedlinePlus - Over-the-Counter Medicines (Thuốc không kê đơn)"
     url: "https://medlineplus.gov/overthecountermedicines.html"
-reviewedBy: ""
-draft: true
+reviewedBy: "(bản xem thử, chưa được kiểm duyệt)"
+draft: false
 ---
 
 ## Tóm tắt nhanh
@@ -22,6 +22,9 @@ draft: true
 Khi tiếp xúc với thứ gây dị ứng (phấn hoa, bụi nhà, lông thú, một số thức ăn, thuốc...), cơ thể giải phóng **histamin** gây hắt hơi, sổ mũi, ngứa mắt, nổi mề đay. **Thuốc kháng histamin** làm giảm các triệu chứng này. Thuốc phù hợp với dị ứng nhẹ đến vừa, **không thay thế** cấp cứu khi bị dị ứng nặng.
 
 ## Hai thế hệ thuốc kháng histamin
+
+![Bảng so sánh thuốc kháng histamin thế hệ cũ và thế hệ mới về ví dụ hoạt chất, mức buồn ngủ, tác dụng phụ khác và thời gian tác dụng](../../assets/posts/thuoc-di-ung-khang-histamin/hinh-1.jpg)
+*Đồ họa: Dược Sĩ Thương. Nguồn: MedlinePlus.*
 
 | | Thế hệ cũ (thế hệ 1) | Thế hệ mới (thế hệ 2) |
 | --- | --- | --- |
@@ -45,6 +48,9 @@ Mỗi người đáp ứng thuốc khác nhau, nên hãy hỏi dược sĩ để
 Nếu bạn từng bị dị ứng với một loại thuốc (nổi mề đay, sưng môi mặt, khó thở...), hãy **ghi lại tên thuốc** và báo cho bác sĩ, dược sĩ **mỗi khi khám hoặc mua thuốc**. Đây là cách đơn giản nhưng rất quan trọng để tránh bị dùng lại thuốc đó.
 
 ## Khi nào cần đi khám hoặc cấp cứu?
+
+![Bốn dấu hiệu dị ứng nặng (phản vệ) cần gọi 115: khó thở tức ngực, sưng môi mặt lưỡi họng, mề đay lan rộng kèm chóng mặt hoặc ngất, nôn nhiều đau bụng dữ dội](../../assets/posts/thuoc-di-ung-khang-histamin/hinh-2.jpg)
+*Đồ họa: Dược Sĩ Thương. Nguồn: MedlinePlus.*
 
 **Gọi 115 hoặc đến cơ sở cấp cứu ngay** nếu sau khi tiếp xúc với thức ăn, thuốc hay côn trùng đốt mà có các dấu hiệu:
 

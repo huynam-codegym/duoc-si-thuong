@@ -4,7 +4,7 @@ import { Image, getImage } from 'astro:assets';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import Disclaimer from '../../components/Disclaimer.astro';
 import { categories } from '../../lib/categories';
-import { foldVietnamese, formatDate, getPosts, isPublishable } from '../../lib/posts';
+import { foldVietnamese, formatDate, getPosts, hasRealReviewer, isPreview, isPublishable } from '../../lib/posts';
 import { url } from '../../lib/url';
 
 export async function getStaticPaths() {
@@ -31,17 +31,26 @@ const jsonLd = {
   datePublished: publishedAt.toISOString(),
   dateModified: updatedAt.toISOString(),
   ...(coverForSchema && { image: new URL(coverForSchema.src, Astro.site).href }),
-  ...(reviewedBy.trim() && { reviewedBy: { '@type': 'Person', name: reviewedBy } }),
+  ...(hasRealReviewer(post) && { reviewedBy: { '@type': 'Person', name: reviewedBy } }),
 };
+const preview = isPreview(post);
 ---
 
-<BaseLayout title={title} description={description} jsonLd={jsonLd} image={cover}>
+<BaseLayout title={title} description={description} jsonLd={jsonLd} image={cover} noindex={preview}>
   <article class="container narrow article" data-pagefind-body>
     <header>
       {
         !isPublishable(post) && (
           <p class="draft-banner">
             Bản nháp: bài này chưa được dược sĩ/bác sĩ kiểm duyệt nên sẽ không xuất hiện trên website chính thức.
+          </p>
+        )
+      }
+      {
+        preview && (
+          <p class="draft-banner">
+            Bản xem thử: bài này đang chờ dược sĩ kiểm duyệt. Thông tin chỉ mang tính tham khảo, không thay thế tư vấn
+            của bác sĩ, dược sĩ.
           </p>
         )
       }
@@ -57,7 +66,8 @@ const jsonLd = {
       <p class="lead">{description}</p>
       <p class="meta">
         Đăng ngày {formatDate(publishedAt)} · Cập nhật {formatDate(updatedAt)}
-        {reviewedBy.trim() && <> · Kiểm duyệt bởi {reviewedBy}</>}
+        {hasRealReviewer(post) && <> · Kiểm duyệt bởi {reviewedBy}</>}
+        {preview && <> · Chưa được kiểm duyệt</>}
       </p>
     </header>
 

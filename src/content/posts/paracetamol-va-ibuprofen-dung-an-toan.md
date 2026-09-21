@@ -15,8 +15,8 @@ sources:
     url: "https://medlineplus.gov/overthecountermedicines.html"
   - title: "MedlinePlus - Cold and Cough Medicines (Thuốc ho và cảm cúm)"
     url: "https://medlineplus.gov/coldandcoughmedicines.html"
-reviewedBy: ""
-draft: true
+reviewedBy: "(bản xem thử, chưa được kiểm duyệt)"
+draft: false
 ---
 
 ## Tóm tắt nhanh
@@ -24,6 +24,9 @@ draft: true
 Paracetamol và ibuprofen đều giúp giảm đau và hạ sốt, nhưng **không giống nhau**. Paracetamol có nguy cơ chính là **tổn thương gan khi dùng quá liều**. Ibuprofen thuộc nhóm thuốc kháng viêm không steroid (NSAID), có thể gây **đau dạ dày, loét** và cần thận trọng với người có bệnh thận, tim mạch. Dù dùng thuốc nào, hãy làm đúng theo nhãn hoặc hướng dẫn của bác sĩ, dược sĩ.
 
 ## So sánh nhanh
+
+![Bảng so sánh paracetamol và ibuprofen về tác dụng, trường hợp thường dùng, nguy cơ chính và người cần thận trọng hơn](../../assets/posts/paracetamol-va-ibuprofen-dung-an-toan/hinh-1.jpg)
+*Đồ họa: Dược Sĩ Thương. Nguồn: MedlinePlus.*
 
 | | Paracetamol | Ibuprofen |
 | --- | --- | --- |
@@ -33,6 +36,9 @@ Paracetamol và ibuprofen đều giúp giảm đau và hạ sốt, nhưng **khô
 | Cần thận trọng hơn ở | Người có bệnh gan, người uống nhiều rượu | Người có tiền sử loét dạ dày, bệnh thận, hen, tăng huyết áp, phụ nữ mang thai |
 
 ## Những sai lầm hay gặp
+
+![Sơ đồ phép cộng: thuốc cảm cúm đã chứa sẵn paracetamol cộng viên paracetamol uống thêm bằng nguy cơ vượt mức an toàn và hại gan; nhắc đọc mục hoạt chất trên nhãn](../../assets/posts/paracetamol-va-ibuprofen-dung-an-toan/hinh-2.jpg)
+*Đồ họa: Dược Sĩ Thương. Nguồn: MedlinePlus.*
 
 - **Dùng trùng paracetamol mà không biết.** Nhiều thuốc cảm cúm, thuốc giảm đau kê đơn đã chứa sẵn paracetamol. Uống thêm một viên paracetamol riêng rất dễ vượt quá lượng an toàn. Hãy đọc kỹ phần **hoạt chất** trên nhãn của mọi thuốc bạn đang dùng.
 - **Tự tăng liều hoặc uống dồn** khi chưa hết đau, chưa hạ sốt. Hãy tuân thủ liều và khoảng cách giữa các lần dùng ghi trên nhãn hoặc theo chỉ dẫn của bác sĩ, dược sĩ.

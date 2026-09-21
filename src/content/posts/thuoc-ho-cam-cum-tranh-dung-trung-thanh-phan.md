@@ -13,8 +13,8 @@ sources:
     url: "https://medlineplus.gov/coldandcoughmedicines.html"
   - title: "MedlinePlus - Over-the-Counter Medicines (Thuốc không kê đơn)"
     url: "https://medlineplus.gov/overthecountermedicines.html"
-reviewedBy: ""
-draft: true
+reviewedBy: "(bản xem thử, chưa được kiểm duyệt)"
+draft: false
 ---
 
 ## Tóm tắt nhanh
@@ -22,6 +22,9 @@ draft: true
 Cảm lạnh, cúm và phần lớn các cơn ho, sổ mũi thông thường là do **virus** nên **kháng sinh không có tác dụng**. Thuốc ho, cảm cúm chỉ giúp **giảm triệu chứng**, không diệt virus. Vấn đề hay gặp nhất là các thuốc này chứa **nhiều hoạt chất** nên dễ bị **dùng trùng** với thuốc khác, dẫn đến quá liều.
 
 ## Thuốc ho, cảm cúm gồm những gì?
+
+![Năm nhóm hoạt chất có thể có trong một viên thuốc cảm: thuốc thông mũi, giảm ho, long đờm, kháng histamin, giảm đau hạ sốt](../../assets/posts/thuoc-ho-cam-cum-tranh-dung-trung-thanh-phan/hinh-1.jpg)
+*Đồ họa: Dược Sĩ Thương. Nguồn: MedlinePlus.*
 
 Mỗi thuốc có thể chứa một hoặc nhiều hoạt chất, mỗi hoạt chất giúp một triệu chứng:
 
@@ -32,6 +35,9 @@ Mỗi thuốc có thể chứa một hoặc nhiều hoạt chất, mỗi hoạt 
 - **Thuốc giảm đau, hạ sốt** (như paracetamol): giảm đau nhức, sốt.
 
 ## Tránh dùng trùng thành phần
+
+![Bốn bước tránh dùng trùng thành phần: đọc hoạt chất trên nhãn, kiểm tra hai thuốc có cùng hoạt chất không, đọc nhãn mỗi lần mua, không chắc thì hỏi dược sĩ](../../assets/posts/thuoc-ho-cam-cum-tranh-dung-trung-thanh-phan/hinh-2.jpg)
+*Đồ họa: Dược Sĩ Thương. Nguồn: MedlinePlus.*
 
 Nhiều thuốc cảm cúm đã có sẵn **thuốc giảm đau, hạ sốt**. Nếu bạn uống thêm một loại thuốc giảm đau khác, tổng lượng có thể vượt mức an toàn.
 

@@ -13,8 +13,8 @@ sources:
     url: "https://www.fda.gov/drugs/understanding-over-counter-medicines/over-counter-drug-facts-label"
   - title: "MedlinePlus - Over-the-Counter Medicines (Thuốc không kê đơn)"
     url: "https://medlineplus.gov/overthecountermedicines.html"
-reviewedBy: ""
-draft: true
+reviewedBy: "(bản xem thử, chưa được kiểm duyệt)"
+draft: false
 ---
 
 ## Tóm tắt nhanh
@@ -22,6 +22,9 @@ draft: true
 Thuốc không kê đơn cũng là thuốc, vẫn có tác dụng phụ và có thể tương tác với thuốc khác. Thói quen đơn giản nhất và hiệu quả nhất là **đọc nhãn mỗi lần dùng**, không dùng lâu hơn hoặc nhiều hơn mức ghi, và **hỏi dược sĩ khi chưa chắc**.
 
 ## Đọc nhãn thuốc: cần chú ý gì?
+
+![Bảy mục trên nhãn thuốc cần chú ý: hoạt chất và hàm lượng, công dụng, cảnh báo, cách dùng, thông tin khác về bảo quản, tá dược, hạn dùng số lô nhà sản xuất](../../assets/posts/doc-nhan-thuoc-va-dung-thuoc-an-toan/hinh-1.jpg)
+*Đồ họa: Dược Sĩ Thương. Nguồn: FDA.*
 
 Theo hướng dẫn của FDA, nhãn thuốc không kê đơn thường có các mục sau. Bạn có thể tìm các mục tương tự trên vỏ hộp và tờ hướng dẫn của thuốc:
 
@@ -48,6 +51,9 @@ Lưu ý: nhà sản xuất có thể đổi công thức, nên **hãy đọc nh�
 7. **Thuốc kê đơn** chỉ dùng khi có chỉ định. Không tự mua các thuốc như kháng sinh, corticoid để dùng.
 
 ## Bảo quản và bỏ thuốc
+
+![Năm nguyên tắc bảo quản thuốc: nơi khô thoáng tránh nắng, để xa tầm tay trẻ em, giữ trong bao bì gốc, kiểm tra bao bì và màu mùi thuốc, bỏ thuốc hết hạn đúng cách](../../assets/posts/doc-nhan-thuoc-va-dung-thuoc-an-toan/hinh-2.jpg)
+*Đồ họa: Dược Sĩ Thương. Nguồn: FDA và MedlinePlus.*
 
 - Bảo quản nơi **khô, thoáng, tránh ánh nắng** và theo hướng dẫn trên nhãn (một số thuốc cần giữ ở tủ lạnh).
 - **Để xa tầm tay trẻ em**, tốt nhất là trong tủ hoặc hộp có khóa.

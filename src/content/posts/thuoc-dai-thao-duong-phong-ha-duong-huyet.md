@@ -13,8 +13,8 @@ sources:
     url: "https://www.who.int/news-room/fact-sheets/detail/diabetes"
   - title: "MedlinePlus - Diabetes Medicines (Thuốc điều trị đái tháo đường)"
     url: "https://medlineplus.gov/diabetesmedicines.html"
-reviewedBy: ""
-draft: true
+reviewedBy: "(bản xem thử, chưa được kiểm duyệt)"
+draft: false
 ---
 
 ## Tóm tắt nhanh
@@ -30,6 +30,9 @@ Loại thuốc, liều dùng do bác sĩ quyết định dựa trên tình trạ
 
 ## Hạ đường huyết: dấu hiệu và cách phòng
 
+![Sáu dấu hiệu hạ đường huyết thường gặp: run tay, vã mồ hôi lạnh, đói cồn cào, hồi hộp, chóng mặt mệt nhìn mờ, lú lẫn](../../assets/posts/thuoc-dai-thao-duong-phong-ha-duong-huyet/hinh-1.jpg)
+*Đồ họa: Dược Sĩ Thương. Nguồn: kiến thức chung, đang chờ dược sĩ kiểm duyệt.*
+
 **Dấu hiệu thường gặp:** run tay, vã mồ hôi lạnh, đói cồn cào, hồi hộp, chóng mặt, mệt, nhìn mờ, lú lẫn. Hạ đường huyết nặng có thể gây co giật, mất ý thức.
 
 **Cách phòng:**
@@ -39,6 +42,9 @@ Loại thuốc, liều dùng do bác sĩ quyết định dựa trên tình trạ
 - **Uống rượu**, nhất là khi đói, làm tăng nguy cơ hạ đường huyết.
 - Đo đường huyết theo hướng dẫn của bác sĩ và ghi lại.
 - Luôn có sẵn thức ăn hoặc đồ uống chứa đường hấp thu nhanh theo hướng dẫn của bác sĩ.
+
+![Ba bước khi nghi ngờ hạ đường huyết: làm theo kế hoạch bác sĩ đã dặn, kiểm tra lại đường huyết, nếu lơ mơ co giật bất tỉnh thì không cho ăn uống qua miệng và gọi 115](../../assets/posts/thuoc-dai-thao-duong-phong-ha-duong-huyet/hinh-2.jpg)
+*Đồ họa: Dược Sĩ Thương. Nguồn: kiến thức chung, đang chờ dược sĩ kiểm duyệt.*
 
 **Nếu nghi ngờ hạ đường huyết:** làm theo **kế hoạch mà bác sĩ đã dặn** (thường là ăn hoặc uống ngay thức ăn chứa đường rồi kiểm tra lại đường huyết). **Nếu người bệnh lơ mơ, không tỉnh táo hoặc co giật, không cho ăn uống gì qua miệng và gọi 115.**
 
