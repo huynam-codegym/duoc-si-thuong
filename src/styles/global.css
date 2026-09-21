@@ -1852,3 +1852,25 @@ button.btn:not(.btn-outline) {
   width: 2.9rem;
   height: 2.9rem;
 }
+
+/* Nền phần đầu trang: dải xanh lá nhạt chuyển sắc, có vệt sáng nhẹ ở góc phải cho nổi bật mà vẫn dịu mắt */
+.header-main {
+  max-width: none;
+  background:
+    radial-gradient(circle at 88% 0%, rgb(255 255 255 / 0.65), transparent 45%),
+    linear-gradient(100deg, #a7e8c0 0%, #bfeed3 45%, #d2f5e0 100%);
+}
+
+/* Nền kéo dài hết chiều ngang màn hình, nội dung vẫn giữ trong khung rộng */
+.header-main {
+  padding-inline: max(1rem, calc((100% - var(--max-wide)) / 2 + 1rem));
+}
+
+/* Chữ gợi ý đậm hơn để dễ đọc trên nền màu */
+.search-hints a {
+  color: var(--green-900);
+}
+
+.site-header {
+  box-shadow: 0 2px 8px rgb(20 83 45 / 0.08);
+}
