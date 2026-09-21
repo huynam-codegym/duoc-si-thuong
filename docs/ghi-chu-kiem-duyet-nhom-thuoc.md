@@ -4,15 +4,15 @@ Tài liệu này KHÔNG được đăng lên website. Nó liệt kê, với từ
 
 Cách duyệt một bài: đọc nội dung, kiểm tra các mục bên dưới, sửa trực tiếp trong file `src/content/posts/<tên-bài>.md`, rồi điền `reviewedBy` (tên người kiểm duyệt) và đổi `draft: false`.
 
-Trạng thái: 9 bài đã đăng ở dạng "bản xem thử" (có khung vàng, `noindex`); bài kháng sinh vẫn là bản nháp. Cách hoàn tất một bài: xem mục "Khi dược sĩ đã rà soát một bài" trong CLAUDE.md.
+Trạng thái: cả 10 bài đã đăng ở dạng "bản xem thử" (có khung vàng, `noindex`). Cách hoàn tất một bài: xem mục "Khi dược sĩ đã rà soát một bài" trong CLAUDE.md.
 
 Xem bài ở máy: `npm run dev` rồi mở http://localhost:4321/kien-thuc-ve-thuoc/ (bản chạy thử hiện cả bài nháp).
 
 ## Nguồn đã đối chiếu (đọc trực tiếp nội dung trang)
 
-- MedlinePlus: Pain Relievers, Cold and Cough Medicines, Steroids, Blood Pressure Medicines, Diabetes Medicines, Over-the-Counter Medicines.
+- MedlinePlus: Antibiotics, Pain Relievers, Cold and Cough Medicines, Steroids, Blood Pressure Medicines, Diabetes Medicines, Over-the-Counter Medicines.
 - FDA: The Over-the-Counter Drug Facts Label.
-- WHO: Hypertension, Diabetes.
+- WHO: Hypertension, Diabetes, Antimicrobial resistance (không nêu trực tiếp lời khuyên dùng thuốc, xem mục kháng sinh).
 
 Các trang MedlinePlus Antibiotics, Heartburn, GERD, Allergy, Vitamins, Dietary Supplements và WHO Antimicrobial resistance đã kiểm tra đường dẫn còn truy cập được, nhưng nội dung chi tiết chưa được đối chiếu từng câu.
 
@@ -66,4 +66,7 @@ Nguồn quốc tế; **chưa có nguồn Việt Nam** (Bộ Y tế, Dược thư
 - Cần kiểm tra thêm: đối chiếu với **quy định nhãn thuốc tại Việt Nam** (số đăng ký, nhà sản xuất...); cách bảo quản và xử lý thuốc hết hạn tại Việt Nam.
 
 ### dung-khang-sinh-dung-cach (Kháng sinh, bài đã có từ trước)
-- Nguồn: WHO Antimicrobial resistance. Nội dung nên đối chiếu thêm với hướng dẫn sử dụng kháng sinh của Bộ Y tế Việt Nam.
+- Đã có nguồn (MedlinePlus, Antibiotics): kháng sinh chỉ tác dụng với vi khuẩn, không với cảm lạnh, cúm, phần lớn đau họng; dùng thừa gây kháng thuốc; không giữ thuốc thừa, không chia sẻ, không dùng thuốc của người khác; có tác dụng phụ và dị ứng nặng.
+- **Trang WHO Antimicrobial resistance (bản đã đọc) không nêu trực tiếp** các lời khuyên cho từng người (chỉ dùng khi có chỉ định, không đòi kê, không dùng thuốc thừa, rửa tay...); nó chỉ nói về nguyên nhân kháng thuốc ở mức hệ thống (dùng kháng sinh không phù hợp, thiếu nước sạch và vệ sinh, thiếu vắc xin...). Nguồn này chỉ nên coi là bối cảnh.
+- Cần kiểm tra thêm: cách diễn đạt "đúng thời gian" (MedlinePlus khuyên dùng đủ đợt theo chỉ định dù đã thấy đỡ); mục phòng bệnh (rửa tay, tiêm chủng, ăn chín); các dấu hiệu cần đi khám (sốt cao kéo dài, đau tai, tiểu buốt, vết thương có mủ...).
+- **Bài còn mỏng so với các bài khác**: chưa có phần tác dụng phụ thường gặp, tương tác, trẻ em, phụ nữ có thai, cho con bú. Nên bổ sung khi duyệt. Nên đối chiếu thêm hướng dẫn sử dụng kháng sinh của Bộ Y tế Việt Nam.
