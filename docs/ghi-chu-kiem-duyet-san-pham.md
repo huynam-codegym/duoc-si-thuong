@@ -8,7 +8,7 @@ Nguồn: bạn gửi ảnh chụp trang sản phẩm và đoạn mô tả từ w
 
 **Việc bạn cần làm**
 - **Ảnh sản phẩm:** đang dùng ảnh giữ chỗ. Cần ảnh chụp thật hộp sản phẩm của nhà thuốc (vuông, nền sáng, khoảng 900x900), thay vào `src/assets/products/blackmores-omega-double-90-vien/anh.jpg` và sửa `imageAlt`.
-- **Giá:** đang để trống nên hiện "Liên hệ". Điền `price` (số nguyên, đơn vị đồng) theo giá của nhà thuốc bạn. Giá 642.600 ₫ và giảm 10% trên trang Long Châu là của họ, không dùng lại.
+- **Giá:** chủ website đặt tạm 450.000 ₫ (trường `price`, số nguyên, đơn vị đồng) khi đưa bản xem thử lên web. Xác nhận lại giá thật của nhà thuốc. Giá 642.600 ₫ và giảm 10% trên trang Long Châu là của họ, không dùng lại.
 - **Số công bố sản phẩm và số xác nhận quảng cáo:** điền `publicationNo` và `adConfirmationNo` từ hồ sơ của nhà phân phối. Chưa có thì để trống.
 - **Đối chiếu nội dung với nhãn và hồ sơ công bố:** thành phần (1 g omega-3, 360 mg EPA, 240 mg DHA), dạng bào chế, cách dùng, đối tượng, cảnh báo dị ứng (cá, sulfites, đậu nành), điều kiện bảo quản.
 
