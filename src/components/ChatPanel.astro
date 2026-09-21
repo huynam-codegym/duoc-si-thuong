@@ -2,9 +2,11 @@
 import ZaloButton from './ZaloButton.astro';
 import { site } from '../lib/site';
 
-const { zaloOaId, welcomeMessage } = site.chat;
-// Chỉ bật khung chat Zalo OA khi đã điền mã OA trong src/lib/site.ts
+const { zaloOaId, welcomeMessage, useOaWidget } = site.chat;
+// Chỉ bật khi đã điền mã OA trong src/lib/site.ts
 const enabled = Boolean(zaloOaId);
+// Biểu tượng chat nổi của OA chỉ hiện khi bật useOaWidget (mặc định tắt, xem site.ts)
+const showWidget = enabled && useOaWidget;
 const oaHref = `https://zalo.me/${zaloOaId}`;
 ---
 
@@ -14,7 +16,7 @@ const oaHref = `https://zalo.me/${zaloOaId}`;
     Bạn có thắc mắc về sức khỏe hoặc cách dùng thuốc?
     {
       enabled
-        ? ' Nhắn cho dược sĩ Thương ngay tại đây hoặc bấm biểu tượng chat Zalo ở góc màn hình để được tư vấn.'
+        ? ' Nhắn cho dược sĩ Thương qua Zalo bằng các nút bên dưới hoặc biểu tượng Zalo ở góc màn hình để được tư vấn.'
         : ' Nhắn tin cho dược sĩ Thương qua Zalo để được tư vấn.'
     }
   </p>
@@ -38,9 +40,9 @@ const oaHref = `https://zalo.me/${zaloOaId}`;
   </p>
 
   {
-    enabled && (
+    showWidget && (
       <>
-        {/* Khung chat Zalo OA: chỉ nạp ở trang có ChatPanel (trang Hỏi đáp) */}
+        {/* Khung chat Zalo OA nổi: chỉ nạp ở trang có ChatPanel (trang Hỏi đáp) và khi bật useOaWidget */}
         <div
           class="zalo-chat-widget"
           data-oaid={zaloOaId}

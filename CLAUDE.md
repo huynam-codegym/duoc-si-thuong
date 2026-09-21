@@ -105,7 +105,7 @@ src/
     posts.ts          # getPosts(), isPublishable(), formatDate()
     url.ts            # url(): thêm đường dẫn gốc (base) vào liên kết nội bộ
     site.ts           # thông tin thương hiệu dùng chung (tên, số điện thoại): đổi ở đây là đổi toàn site
-  components/         # Header, Footer, Disclaimer, PostCard, ZaloButton (nút "Gọi ngay qua Zalo"), ChatPanel (khung chat Zalo OA ở trang Hỏi đáp)
+  components/         # Header, Footer, Disclaimer, PostCard, ZaloButton (nút "Gọi ngay qua Zalo"), ChatPanel (khung chat ở trang Hỏi đáp), ZaloFloat (biểu tượng Zalo nổi ở mọi trang)
   layouts/            # BaseLayout (meta, canonical, JSON-LD)
   pages/
     index.astro               # trang chủ
@@ -158,8 +158,9 @@ Sau khi deploy, kiểm tra: trang chủ, một bài viết, `/tim-kiem/`, `/site
 
 ### Chat trực tiếp với dược sĩ (trang Hỏi đáp)
 
-- Component `ChatPanel` (`src/components/ChatPanel.astro`) hiện ở đầu trang `/hoi-dap/`, dùng **Zalo Official Account (OA) của Nhà Thuốc Nhật Minh**. Gồm: biểu tượng chat Zalo nổi ở góc màn hình (Zalo Chat Widget, nạp `https://sp.zalo.me/plugins/sdk.js`), nút "Chat với dược sĩ trên Zalo" (mở `https://zalo.me/<OA ID>`) và nút Zalo cá nhân dự phòng.
-- Cấu hình ở `src/lib/site.ts` mục `chat`: `zaloOaId` (mã OA **3023321965821034220**, chủ website cung cấp, đã xác nhận trang OA công khai tên "Nhà thuốc Nhật Minh") và `welcomeMessage` (lời chào hiện ở khung chat). **Để `zaloOaId` trống thì tắt khung chat**, trang chỉ hiện nút Zalo cá nhân và không nạp mã Zalo. Mã Zalo chỉ nạp ở trang Hỏi đáp, không nạp ở các trang khác.
+- **Biểu tượng Zalo nổi ở mọi trang** (`src/components/ZaloFloat.astro`, gắn trong `BaseLayout`): nút vuông bo tròn nền trắng, viền xanh Zalo `#0068ff`, chữ "Zalo", cố định ở góc phải dưới; bấm vào mở **Zalo cá nhân** `https://zalo.me/0988283415` (mở tab mới). Đây là biểu tượng tự vẽ bằng SVG theo kiểu biểu tượng chat của Zalo, vì widget chính thức của Zalo chỉ chạy với tài khoản OA chứ không mở được Zalo cá nhân.
+- Component `ChatPanel` (`src/components/ChatPanel.astro`) hiện ở đầu trang `/hoi-dap/`, gồm: nút "Chat với dược sĩ trên Zalo" (mở OA của **Nhà Thuốc Nhật Minh**, `https://zalo.me/<OA ID>`) và nút Zalo cá nhân dự phòng. Ngoài ra có thể bật thêm **biểu tượng chat nổi của Zalo OA** (Zalo Chat Widget, nạp `https://sp.zalo.me/plugins/sdk.js`) bằng `useOaWidget: true`; **đang tắt** vì sẽ chồng lên biểu tượng Zalo nổi ở góc phải.
+- Cấu hình ở `src/lib/site.ts` mục `chat`: `zaloOaId` (mã OA **3023321965821034220**, chủ website cung cấp, đã xác nhận trang OA công khai tên "Nhà thuốc Nhật Minh"), `welcomeMessage` (lời chào của widget OA khi bật) và `useOaWidget`. **Để `zaloOaId` trống thì tắt nút OA**, chỉ còn nút Zalo cá nhân. Mã Zalo OA chỉ nạp ở trang Hỏi đáp và chỉ khi bật `useOaWidget`.
 - Tin nhắn của khách về tài khoản OA; chủ website trả lời trong công cụ quản lý OA của Zalo (oa.zalo.me hoặc ứng dụng quản lý OA).
 - **Quy tắc khi tư vấn qua chat:** chỉ tham khảo, không chẩn đoán, không kê đơn, không hứa chữa khỏi (như các nguyên tắc nội dung sức khỏe ở trên). Trường hợp có dấu hiệu nguy hiểm hướng dẫn khách gọi 115 hoặc đến cơ sở y tế. Khung chat đã có dòng lưu ý: không gửi CCCD, mật khẩu, thông tin thanh toán; nội dung trò chuyện lưu trên Zalo. Lời chào của widget cũng nhắc gọi 115 khi khẩn cấp.
 - **Dữ liệu cá nhân:** câu hỏi sức khỏe là thông tin nhạy cảm; dữ liệu do Zalo (công ty Việt Nam) lưu giữ. Vẫn nên lưu ý quy định bảo vệ dữ liệu cá nhân của Việt Nam (Nghị định 13/2023/NĐ-CP) khi lưu trữ hoặc dùng lại nội dung khách hỏi (ví dụ đăng thành bài Hỏi đáp phải ẩn danh và xin phép).

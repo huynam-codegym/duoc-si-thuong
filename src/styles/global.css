@@ -238,6 +238,33 @@ img {
   gap: 0.75rem;
 }
 
+/* Biểu tượng Zalo nổi ở góc phải mọi trang */
+.zalo-float {
+  position: fixed;
+  right: 1rem;
+  bottom: 1rem;
+  z-index: 50;
+  display: block;
+  width: 56px;
+  height: 56px;
+  filter: drop-shadow(0 4px 10px rgb(0 0 0 / 0.28));
+  transition: transform 0.15s;
+}
+
+.zalo-float:hover {
+  transform: scale(1.08);
+}
+
+.zalo-float svg {
+  display: block;
+}
+
+@media print {
+  .zalo-float {
+    display: none;
+  }
+}
+
 /* Khung chat với dược sĩ ở trang Hỏi đáp */
 .chat-panel {
   margin-bottom: 2rem;

@@ -12,6 +12,9 @@ export const site = {
   // Để zaloOaId trống = tắt khung chat, trang chỉ hiện nút Zalo cá nhân.
   chat: {
     zaloOaId: '3023321965821034220',
+    // true = hiện thêm biểu tượng chat nổi của Zalo OA ở trang Hỏi đáp. Đang tắt vì mọi trang đã có
+    // biểu tượng Zalo nổi mở Zalo cá nhân (ZaloFloat), bật cả hai sẽ chồng lên nhau ở góc phải.
+    useOaWidget: false,
     welcomeMessage: 'Xin chào! Dược sĩ Thương có thể giúp gì cho bạn? Trường hợp khẩn cấp hãy gọi 115.',
   },
   // Chuyên môn và chức vụ do chủ website cung cấp
