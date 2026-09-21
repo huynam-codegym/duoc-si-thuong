@@ -1,6 +1,6 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import CallButton from '../components/CallButton.astro';
+import ZaloButton from '../components/ZaloButton.astro';
 import { categories } from '../lib/categories';
 import { site } from '../lib/site';
 import { url } from '../lib/url';
@@ -95,9 +95,9 @@ const jsonLd = {
       </p>
 
       <h2>Liên hệ tư vấn</h2>
-      <p>Bạn cần được tư vấn về sức khỏe hoặc cách dùng thuốc? Hãy gọi cho dược sĩ Thương:</p>
+      <p>Bạn cần được tư vấn về sức khỏe hoặc cách dùng thuốc? Hãy nhắn tin hoặc gọi cho dược sĩ Thương qua Zalo:</p>
       <p class="actions">
-        <CallButton />
+        <ZaloButton />
         <a class="btn btn-outline" href={site.pharmacy.facebook} target="_blank" rel="noopener noreferrer">
           {site.pharmacy.name} trên Facebook
         </a>

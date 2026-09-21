@@ -10,7 +10,8 @@ const year = new Date().getFullYear();
   <div class="container">
     <Disclaimer />
     <p>
-      Liên hệ tư vấn: <a href={site.phoneHref}>{site.phone}</a> ·
+      Liên hệ tư vấn qua Zalo:
+      <a href={site.zaloHref} target="_blank" rel="noopener noreferrer">{site.phone}</a> ·
       <a href={site.pharmacy.facebook} target="_blank" rel="noopener noreferrer">{site.pharmacy.name} trên Facebook</a> ·
       <a href={url('/gioi-thieu/')}>Giới thiệu</a>
     </p>
