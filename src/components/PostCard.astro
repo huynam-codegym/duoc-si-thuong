@@ -1,4 +1,5 @@
 ---
+import { Image } from 'astro:assets';
 import { categories } from '../lib/categories';
 import { formatDate, type Post } from '../lib/posts';
 import { url } from '../lib/url';
@@ -8,10 +9,16 @@ interface Props {
 }
 
 const { post } = Astro.props;
-const { title, description, category, updatedAt } = post.data;
+const { title, description, category, updatedAt, cover } = post.data;
 ---
 
 <a class="card" href={url(`/${category}/${post.id}/`)}>
+  {
+    cover && (
+      // alt rỗng vì ngay bên dưới đã có tiêu đề bài, ảnh chỉ để trang trí
+      <Image class="card-thumb" src={cover} alt="" width={640} height={360} widths={[320, 640]} sizes="(min-width: 46rem) 20rem, 90vw" />
+    )
+  }
   <span class="tag">{categories[category].name}</span>
   <h3>{title}</h3>
   <p>{description}</p>

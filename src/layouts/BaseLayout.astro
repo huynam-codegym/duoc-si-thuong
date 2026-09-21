@@ -1,5 +1,6 @@
 ---
 import '../styles/global.css';
+import { getImage } from 'astro:assets';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import ZaloFloat from '../components/ZaloFloat.astro';
@@ -9,14 +10,19 @@ interface Props {
   title: string;
   description: string;
   jsonLd?: Record<string, unknown>;
+  // Ảnh dùng khi chia sẻ lên mạng xã hội (ví dụ ảnh đại diện của bài). Không có thì dùng ảnh bìa mặc định.
+  image?: ImageMetadata;
 }
 
 const SITE_NAME = 'Dược Sĩ Thương';
-const { title, description, jsonLd } = Astro.props;
+const { title, description, jsonLd, image } = Astro.props;
 const fullTitle = title === SITE_NAME ? title : `${title} | ${SITE_NAME}`;
 const canonical = new URL(Astro.url.pathname, Astro.site);
-// Ảnh chia sẻ mạng xã hội (1200x630), tạo từ ảnh bìa
-const ogImage = new URL(url('/og-image.jpg'), Astro.site);
+// Ảnh chia sẻ mạng xã hội (1200x630): ảnh đại diện của bài nếu có, không thì ảnh bìa mặc định
+const shareImage = image
+  ? await getImage({ src: image, width: 1200, height: 630, fit: 'cover', format: 'jpg' })
+  : undefined;
+const ogImage = new URL(shareImage ? shareImage.src : url('/og-image.jpg'), Astro.site);
 ---
 
 <!doctype html>

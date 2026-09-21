@@ -187,6 +187,9 @@ description: "Mô tả ngắn 1-2 câu, dùng cho SEO"
 category: "an-uong"        # an-uong | nhan-biet-benh | phong-chong-benh | kien-thuc-ve-thuoc | hoi-dap
 publishedAt: 2026-01-01
 updatedAt: 2026-01-01
+cover: "../../assets/posts/ten-bai/cover.jpg"   # ảnh đại diện (không bắt buộc), xem mục "Hình ảnh trong bài viết"
+coverAlt: "Mô tả ảnh cho người đọc màn hình"      # bắt buộc nếu có cover
+coverCredit: "Đồ họa: Dược Sĩ Thương. Số liệu: WHO"  # nguồn/tác giả ảnh, hiện dưới ảnh
 sources:                   # bắt buộc, ít nhất 1 nguồn uy tín
   - title: "Tên nguồn"
     url: "https://..."
@@ -196,6 +199,21 @@ draft: true                # đổi thành false sau khi được kiểm duyệt
 ```
 
 Bài có `draft: true` hoặc `reviewedBy` để trống thì **không được đăng** lên bản chính thức.
+
+### Hình ảnh trong bài viết
+
+Mỗi bài nên có **ảnh đại diện** (`cover`) và 1-3 hình minh họa trong nội dung để dễ hình dung.
+
+- **Vị trí file:** `src/assets/posts/<tên-bài>/` (tên thư mục trùng tên file bài). Ảnh đại diện khai báo trong frontmatter (`cover`, `coverAlt`, `coverCredit`). Ảnh trong nội dung viết bằng Markdown, ngay sau đó là một dòng in nghiêng ghi nguồn:
+  ```
+  ![Mô tả ảnh chi tiết](../../assets/posts/ten-bai/hinh-1.jpg)
+  *Đồ họa: Dược Sĩ Thương. Số liệu: WHO.*
+  ```
+- **Astro tự tối ưu ảnh** (đổi sang webp, tạo nhiều kích cỡ) nên chỉ cần đặt ảnh gốc chất lượng tốt, rộng khoảng 1600px, tỷ lệ 16:9 cho ảnh đại diện. Ảnh đại diện còn được dùng làm ảnh chia sẻ mạng xã hội (cắt 1200x630) và cho Google.
+- **Mô tả ảnh (alt) bắt buộc** với ảnh đại diện (build sẽ báo lỗi nếu thiếu `coverAlt`) và nên có với mọi ảnh: mô tả nội dung/số liệu trong ảnh, không viết chung chung như "hình minh họa".
+- **Bản quyền:** chỉ dùng (1) ảnh do chủ website tự chụp, (2) đồ họa tự thiết kế, (3) ảnh có giấy phép cho dùng miễn phí như Unsplash, Pexels, Pixabay hoặc Wikimedia Commons, **ghi rõ nguồn** ở `coverCredit` hoặc dòng in nghiêng. **Không lấy ảnh từ website khác, từ Google Hình ảnh hay từ Facebook** khi chưa được phép. Nếu chưa chắc giấy phép thì không dùng.
+- **Nội dung ảnh:** không dùng ảnh bệnh nhân thật, ảnh gây sốc hoặc phản cảm (vết thương, bệnh ngoài da...), ảnh trước-sau như hứa hẹn điều trị, ảnh có logo/thương hiệu thuốc hay thực phẩm chức năng cụ thể (tránh thành quảng cáo). Không đưa hình có khuôn mặt người khác khi chưa được đồng ý.
+- **Số liệu trong đồ họa** phải khớp đúng với nguồn trong bài; biểu đồ vẽ đúng tỷ lệ, không phóng đại. Ví dụ mẫu: bài "5 nguyên tắc ăn uống lành mạnh" có hai đồ họa tự thiết kế (số liệu WHO). Các đồ họa mẫu này được dựng bằng HTML/CSS rồi chụp thành ảnh (màu xanh lá `#15803d`, nền `#f0fdf4`, cam `#ea580c` để nhấn), có ghi nguồn và địa chỉ website ở chân ảnh.
 
 ### Định hướng chung
 

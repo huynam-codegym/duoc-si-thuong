@@ -4,6 +4,9 @@ description: "Ăn nhiều rau quả, hạn chế đường, muối và chất b�
 category: "an-uong"
 publishedAt: 2026-09-21
 updatedAt: 2026-09-21
+cover: "../../assets/posts/nguyen-tac-an-uong-lanh-manh/cover.jpg"
+coverAlt: "Đồ họa 5 nguyên tắc ăn uống lành mạnh mỗi ngày: ít nhất 400 g rau và trái cây, đường tự do dưới 10% năng lượng, muối dưới 5 g, chất béo dưới 30% năng lượng, uống nước lọc thay đồ uống có đường"
+coverCredit: "Đồ họa: Dược Sĩ Thương. Số liệu: WHO, Healthy diet."
 sources:
   - title: "WHO - Healthy diet (Chế độ ăn lành mạnh)"
     url: "https://www.who.int/news-room/fact-sheets/detail/healthy-diet"
@@ -33,6 +36,9 @@ Nên dùng **dưới 5 g muối mỗi ngày** (khoảng 1 muỗng cà phê). Lư
 - Chất béo bão hòa (mỡ động vật, bơ, dầu dừa, dầu cọ) nên dưới 10%.
 - Chất béo chuyển hóa (có trong một số đồ chiên rán, bánh nướng công nghiệp) nên dưới 1%.
 - Ưu tiên chất béo không bão hòa như cá, quả bơ, các loại hạt và dầu thực vật.
+
+![Biểu đồ cột ngang thể hiện giới hạn chất béo mỗi ngày theo tỷ lệ tổng năng lượng ăn vào: tổng chất béo dưới 30%, chất béo bão hòa dưới 10%, chất béo chuyển hóa dưới 1%](../../assets/posts/nguyen-tac-an-uong-lanh-manh/fats.jpg)
+*Đồ họa: Dược Sĩ Thương. Số liệu: WHO, Healthy diet.*
 
 ## 5. Uống đủ nước lọc
 

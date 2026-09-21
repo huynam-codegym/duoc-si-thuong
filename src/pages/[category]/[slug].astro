@@ -1,5 +1,6 @@
 ---
 import { render } from 'astro:content';
+import { Image, getImage } from 'astro:assets';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import Disclaimer from '../../components/Disclaimer.astro';
 import { categories } from '../../lib/categories';
@@ -15,8 +16,9 @@ export async function getStaticPaths() {
 }
 
 const { post } = Astro.props;
-const { title, description, category, publishedAt, updatedAt, sources, reviewedBy } = post.data;
+const { title, description, category, publishedAt, updatedAt, sources, reviewedBy, cover, coverAlt, coverCredit } = post.data;
 const { Content } = await render(post);
+const coverForSchema = cover ? await getImage({ src: cover, width: 1200, height: 630, fit: 'cover', format: 'jpg' }) : undefined;
 
 const jsonLd = {
   '@context': 'https://schema.org',
@@ -26,11 +28,12 @@ const jsonLd = {
   inLanguage: 'vi',
   datePublished: publishedAt.toISOString(),
   dateModified: updatedAt.toISOString(),
+  ...(coverForSchema && { image: new URL(coverForSchema.src, Astro.site).href }),
   ...(reviewedBy.trim() && { reviewedBy: { '@type': 'Person', name: reviewedBy } }),
 };
 ---
 
-<BaseLayout title={title} description={description} jsonLd={jsonLd}>
+<BaseLayout title={title} description={description} jsonLd={jsonLd} image={cover}>
   <article class="container narrow article" data-pagefind-body>
     <header>
       {
@@ -48,6 +51,22 @@ const jsonLd = {
         {reviewedBy.trim() && <> · Kiểm duyệt bởi {reviewedBy}</>}
       </p>
     </header>
+
+    {
+      cover && (
+        <figure class="cover">
+          <Image
+            src={cover}
+            alt={coverAlt ?? ''}
+            widths={[640, 1024, 1400]}
+            sizes="(min-width: 46rem) 46rem, 100vw"
+            quality={85}
+            loading="eager"
+          />
+          {coverCredit && <figcaption>{coverCredit}</figcaption>}
+        </figure>
+      )
+    }
 
     <div class="prose">
       <Content />
