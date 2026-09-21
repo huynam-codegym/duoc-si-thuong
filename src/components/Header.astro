@@ -1,4 +1,6 @@
 ---
+import { Image } from 'astro:assets';
+import logo from '../assets/logo.jpg';
 import { categories } from '../lib/categories';
 import { url } from '../lib/url';
 
@@ -7,7 +9,10 @@ const current = Astro.url.pathname;
 
 <header class="site-header">
   <div class="container">
-    <a class="brand" href={url('/')}>Dược Sĩ Thương</a>
+    <a class="brand" href={url('/')}>
+      <Image class="brand-logo" src={logo} alt="" width={96} height={96} />
+      <span>Dược Sĩ Thương</span>
+    </a>
     <nav class="site-nav" aria-label="Chuyên mục">
       <ul>
         {

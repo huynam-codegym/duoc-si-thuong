@@ -114,7 +114,10 @@ src/
     404.astro                 # trang báo lỗi không tìm thấy
     robots.txt.ts             # robots.txt, tự lấy tên miền từ `site`
   styles/global.css   # CSS toàn site
-public/               # favicon.svg, _headers (chỉ dùng nếu chuyển sang Cloudflare/Netlify)
+src/assets/
+  cover.jpg           # ảnh bìa thương hiệu (2048x762), hiện ở đầu trang chủ
+  logo.jpg            # logo tạm: khuôn mặt dược sĩ Thương cắt từ ảnh bìa, hiện ở header
+public/               # favicon.png, apple-touch-icon.png, og-image.jpg, _headers (chỉ Cloudflare/Netlify dùng)
 astro.config.mjs      # `site` = https://duocsithuong.com (không có `base`)
 .github/workflows/    # deploy.yml: tự build và deploy khi đẩy code lên `main`
 .nvmrc                # phiên bản Node dùng khi build
@@ -138,6 +141,14 @@ Lưu ý:
 - Vì repo công khai, mã nguồn (kể cả bài nháp) ai cũng xem được. Đừng để thông tin nhạy cảm hoặc bài chưa muốn lộ trong repo.
 
 Sau khi deploy, kiểm tra: trang chủ, một bài viết, `/tim-kiem/`, `/sitemap-index.xml`, và một địa chỉ không tồn tại (phải ra trang 404).
+
+### Nhận diện thương hiệu
+
+- **Ảnh bìa** `src/assets/cover.jpg`: dược sĩ Thương (chủ website) mặc áo blouse tại nhà thuốc, có sẵn tên thương hiệu, khẩu hiệu "Dược sĩ đồng hành chăm sóc sức khỏe gia đình bạn", "Hơn 10 năm kinh nghiệm", số điện thoại **0988 283 415**. Dùng qua component `<Image>` của Astro (tự tạo ảnh webp nhiều kích cỡ). Văn bản alt của ảnh đã ghi lại các nội dung này, khi đổi ảnh bìa phải sửa alt ở `src/pages/index.astro`.
+- **Logo** `src/assets/logo.jpg`: **logo tạm**, là khuôn mặt của dược sĩ cắt từ ảnh bìa (300x300). Khi có logo chính thức thì thay file này (giữ tên `logo.jpg`, hoặc sửa import trong `src/components/Header.astro`).
+- **Favicon và ảnh chia sẻ mạng xã hội** trong `public/`: `favicon.png` (64px), `apple-touch-icon.png` (180px) cắt từ khuôn mặt; `og-image.jpg` (1200x630) là ảnh bìa đặt giữa nền trắng. Các file này được tạo bằng script từ ảnh bìa, nên khi đổi ảnh bìa hoặc logo phải tạo lại cho khớp.
+- Màu chủ đạo: xanh lá (`--green-900`, `--green-700` trong `src/styles/global.css`), khớp với ảnh bìa.
+- Ảnh bìa chứa số điện thoại và ảnh cá nhân, đó là thông tin chủ website đã chủ động công khai. Không thêm thông tin liên hệ hay ảnh cá nhân khác khi chưa được chủ website đồng ý.
 
 ### Cách thêm bài viết mới
 
