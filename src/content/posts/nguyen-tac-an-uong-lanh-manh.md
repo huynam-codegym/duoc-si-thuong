@@ -7,8 +7,8 @@ updatedAt: 2026-09-21
 sources:
   - title: "WHO - Healthy diet (Chế độ ăn lành mạnh)"
     url: "https://www.who.int/news-room/fact-sheets/detail/healthy-diet"
-reviewedBy: ""
-draft: true
+reviewedBy: "(bản xem thử, chưa được kiểm duyệt)"
+draft: false
 ---
 
 ## Tóm tắt nhanh
