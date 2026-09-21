@@ -4,7 +4,6 @@ import logo from '../assets/logo.jpg';
 import { categories, getGroups, type CategorySlug } from '../lib/categories';
 import { productGroups, type ProductGroupSlug } from '../lib/product-groups';
 import { formatPrice, getProducts } from '../lib/products';
-import { site } from '../lib/site';
 import { url } from '../lib/url';
 
 const current = Astro.url.pathname;
@@ -35,13 +34,6 @@ for (const [slug] of groupEntries) {
 ---
 
 <header class="site-header">
-  <div class="topbar">
-    <div class="container">
-      <span>{site.pharmacy.name}</span>
-      <a href={site.zaloHref} target="_blank" rel="noopener noreferrer">Dược sĩ tư vấn qua Zalo: {site.phone}</a>
-    </div>
-  </div>
-
   <div class="container header-main">
     <a class="brand" href={url('/')}>
       <Image class="brand-logo" src={logo} alt="" width={160} height={160} />

@@ -1082,29 +1082,10 @@ img {
   display: none !important;
 }
 
-.topbar {
-  background: var(--green-900);
-  color: #fff;
-  font-size: 0.8rem;
-}
-
-.topbar .container {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  gap: 0 1rem;
-  padding-block: 0.3rem;
-}
-
-.topbar a {
-  color: #fff;
-  font-weight: 600;
-}
-
 .header-main {
   display: flex;
   flex-wrap: wrap;
-  align-items: center;
+  align-items: flex-start;
   gap: 0.6rem 1rem;
   padding-block: 0.75rem;
 }
@@ -1860,4 +1841,14 @@ button.btn:not(.btn-outline) {
   .detail-nav li + li {
     margin-top: 0.25rem;
   }
+}
+
+/* Logo, ô tìm kiếm và giỏ hàng cùng cao 2,9rem để thẳng hàng với nhau */
+.header-main .brand {
+  min-height: 2.9rem;
+}
+
+.header-main .brand-logo {
+  width: 2.9rem;
+  height: 2.9rem;
 }
