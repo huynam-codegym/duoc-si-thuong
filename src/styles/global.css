@@ -1147,11 +1147,43 @@ img {
   text-align: center;
 }
 
-.header-search {
+.search-wrap {
   order: 3;
-  display: flex;
   flex: 1 1 100%;
   min-width: 0;
+}
+
+.header-search {
+  display: flex;
+  min-width: 0;
+}
+
+.search-hints {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.2rem 0.9rem;
+  margin: 0.4rem 0 0;
+  padding: 0 0.5rem;
+  list-style: none;
+  font-size: 0.85rem;
+}
+
+.search-hints a {
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.search-hints a:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 47.99rem) {
+  .search-hints {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding-bottom: 0.2rem;
+    white-space: nowrap;
+  }
 }
 
 .header-search input {
@@ -1191,7 +1223,7 @@ img {
     margin-right: 0;
   }
 
-  .header-search {
+  .search-wrap {
     order: 2;
     flex: 1 1 20rem;
   }
@@ -1500,5 +1532,216 @@ button.btn:not(.btn-outline) {
   .header-main .brand-logo {
     width: 2.6rem;
     height: 2.6rem;
+  }
+}
+
+/* Menu lớn "Thực phẩm chức năng": nhóm bên trái, sản phẩm của nhóm bên phải (máy tính); điện thoại chỉ hiện danh sách nhóm */
+.mega-menu {
+  display: none;
+}
+
+.has-sub.open > .mega-menu,
+.has-sub:has(:focus-visible) > .mega-menu {
+  display: block;
+}
+
+.mega-groups {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.mega-groups a {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 8px;
+  color: var(--ink);
+  font-size: 0.95rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.mega-groups .mega-all a {
+  margin-bottom: 0.25rem;
+  border-bottom: 1px solid var(--line);
+  border-radius: 8px 8px 0 0;
+  color: var(--ink-soft);
+  font-weight: 500;
+}
+
+.mega-groups a:hover,
+.mega-groups a:focus-visible,
+.mega-tab.active {
+  background: var(--green-50);
+  color: var(--green-900);
+}
+
+.mega-panels {
+  display: none;
+}
+
+.mega-panel-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  margin: 0 0 0.25rem;
+  font-size: 1.1rem;
+}
+
+.mega-panel-head a {
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.mega-panel-sub {
+  margin: 0.5rem 0;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--ink-soft);
+}
+
+.mega-products {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.mega-products a {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  height: 100%;
+  padding: 0.5rem;
+  border-radius: 10px;
+  background: #fff;
+  color: var(--ink);
+  font-size: 0.85rem;
+  line-height: 1.35;
+  text-decoration: none;
+}
+
+.mega-products a:hover {
+  box-shadow: 0 2px 10px rgb(0 0 0 / 0.1);
+}
+
+.mega-products img {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1 / 1;
+  border-radius: 8px;
+  background: var(--green-50);
+  object-fit: contain;
+}
+
+.mega-product-name {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  font-weight: 600;
+}
+
+.mega-product-price {
+  font-weight: 700;
+  color: #c2410c;
+}
+
+.mega-empty {
+  margin: 1rem 0;
+  color: var(--ink-soft);
+}
+
+@media (max-width: 47.99rem) {
+  .site-nav .has-sub.open > .mega-menu {
+    flex-basis: 100%;
+    margin: 0.25rem 0 0.25rem 0.25rem;
+    padding-left: 0.4rem;
+    border-left: 3px solid var(--green-100);
+  }
+}
+
+@media (min-width: 48rem) {
+  .navbar .container {
+    position: relative;
+  }
+
+  .site-nav .nav-shop {
+    position: static;
+  }
+
+  .mega-menu {
+    position: absolute;
+    top: 100%;
+    right: 1rem;
+    left: 1rem;
+    z-index: 60;
+    padding: 0.75rem;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: #fff;
+    box-shadow: 0 12px 32px rgb(0 0 0 / 0.18);
+  }
+
+  /* Vùng đệm để chuột đi từ tên mục xuống menu không bị mất hover */
+  .mega-menu::before {
+    content: '';
+    position: absolute;
+    top: -0.8rem;
+    right: 0;
+    left: 0;
+    height: 0.8rem;
+  }
+
+  .has-sub.open > .mega-menu,
+  .has-sub:has(:focus-visible) > .mega-menu {
+    display: grid;
+    grid-template-columns: 16rem 1fr;
+    gap: 1rem;
+  }
+
+  .mega-panels {
+    display: block;
+    min-height: 18rem;
+    padding: 1rem;
+    border-radius: var(--radius);
+    background: var(--green-50);
+  }
+
+  .mega-panel {
+    display: none;
+  }
+
+  .mega-panel.active {
+    display: block;
+  }
+}
+
+@media (min-width: 48rem) and (hover: hover) {
+  .nav-shop:hover > .mega-menu {
+    display: grid;
+    grid-template-columns: 16rem 1fr;
+    gap: 1rem;
+  }
+}
+
+/* Điện thoại: dãy từ khóa gợi ý cuộn ngang không hiện thanh cuộn; không tô sáng nhóm đầu vì không có khung xem trước */
+@media (max-width: 47.99rem) {
+  .search-hints {
+    scrollbar-width: none;
+  }
+
+  .search-hints::-webkit-scrollbar {
+    display: none;
+  }
+
+  .mega-tab.active {
+    background: none;
+    color: var(--ink);
   }
 }

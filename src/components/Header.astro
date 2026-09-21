@@ -1,14 +1,37 @@
 ---
-import { Image } from 'astro:assets';
+import { Image, getImage } from 'astro:assets';
 import logo from '../assets/logo.jpg';
 import { categories, getGroups, type CategorySlug } from '../lib/categories';
-import { productGroups } from '../lib/product-groups';
+import { productGroups, type ProductGroupSlug } from '../lib/product-groups';
+import { formatPrice, getProducts } from '../lib/products';
 import { site } from '../lib/site';
 import { url } from '../lib/url';
 
 const current = Astro.url.pathname;
 const entries = Object.entries(categories) as [CategorySlug, (typeof categories)[CategorySlug]][];
 const shopHref = url('/thuc-pham-chuc-nang/');
+
+// Từ khóa gợi ý dưới ô tìm kiếm (chỉ dùng từ có bài viết trên website để kết quả không trống)
+const searchHints = ['Canxi', 'Sắt', 'Kẽm', 'Vitamin D', 'Vitamin C', 'Acid folic', 'Kháng sinh'];
+
+// Sản phẩm của từng nhóm để hiện ở khung bên phải của menu lớn (tối đa 5 sản phẩm mỗi nhóm)
+const allProducts = await getProducts();
+const groupEntries = Object.entries(productGroups) as [ProductGroupSlug, (typeof productGroups)[ProductGroupSlug]][];
+const megaProducts = new Map<string, { id: string; name: string; price: number | undefined; image: string }[]>();
+for (const [slug] of groupEntries) {
+  const inGroup = allProducts.filter((product) => product.data.group === slug).slice(0, 5);
+  megaProducts.set(
+    slug,
+    await Promise.all(
+      inGroup.map(async (product) => ({
+        id: product.id,
+        name: product.data.name,
+        price: product.data.price,
+        image: (await getImage({ src: product.data.image, width: 240, height: 240, format: 'webp' })).src,
+      })),
+    ),
+  );
+}
 ---
 
 <header class="site-header">
@@ -25,6 +48,7 @@ const shopHref = url('/thuc-pham-chuc-nang/');
       <span>Dược Sĩ Thương</span>
     </a>
 
+    <div class="search-wrap">
     <form class="header-search" role="search" action={url('/tim-kiem/')} method="get">
       <label class="visually-hidden" for="header-q">Tìm sản phẩm hoặc bài viết</label>
       <input id="header-q" type="search" name="q" placeholder="Tìm sản phẩm, bài viết, câu hỏi về thuốc..." autocomplete="off" />
@@ -35,6 +59,16 @@ const shopHref = url('/thuc-pham-chuc-nang/');
         </svg>
       </button>
     </form>
+    <ul class="search-hints" aria-label="Từ khóa gợi ý">
+      {
+        searchHints.map((hint) => (
+          <li>
+            <a href={url(`/tim-kiem/?q=${encodeURIComponent(hint)}`)}>{hint}</a>
+          </li>
+        ))
+      }
+    </ul>
+    </div>
 
     <a class="cart-link" href={url('/gio-hang/')} aria-label="Giỏ hàng">
       <svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true" focusable="false">
@@ -70,24 +104,63 @@ const shopHref = url('/thuc-pham-chuc-nang/');
                 <path d="M2 4l4 4 4-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
               </svg>
             </button>
-            <ul class="submenu" id="sub-shop">
-              <li>
-                <a href={shopHref}>
-                  <span class="sub-icon" aria-hidden="true">🛒</span>
-                  <span>Xem tất cả sản phẩm</span>
-                </a>
-              </li>
-              {
-                Object.entries(productGroups).map(([slug, group]) => (
-                  <li>
-                    <a href={url(`/thuc-pham-chuc-nang/nhom/${slug}/`)}>
-                      <span class="sub-icon" aria-hidden="true">{group.icon}</span>
-                      <span>{group.name}</span>
-                    </a>
-                  </li>
-                ))
-              }
-            </ul>
+            <div class="mega-menu" id="sub-shop">
+              <ul class="mega-groups">
+                <li class="mega-all">
+                  <a href={shopHref}>
+                    <span class="sub-icon" aria-hidden="true">🛒</span>
+                    <span>Xem tất cả sản phẩm</span>
+                  </a>
+                </li>
+                {
+                  groupEntries.map(([slug, group], index) => (
+                    <li>
+                      <a
+                        class={`mega-tab${index === 0 ? ' active' : ''}`}
+                        href={url(`/thuc-pham-chuc-nang/nhom/${slug}/`)}
+                        data-panel={slug}
+                      >
+                        <span class="sub-icon" aria-hidden="true">{group.icon}</span>
+                        <span>{group.name}</span>
+                      </a>
+                    </li>
+                  ))
+                }
+              </ul>
+              <div class="mega-panels">
+                {
+                  groupEntries.map(([slug, group], index) => {
+                    const list = megaProducts.get(slug) ?? [];
+                    return (
+                      <section class={`mega-panel${index === 0 ? ' active' : ''}`} data-panel={slug} aria-label={group.name}>
+                        <p class="mega-panel-head">
+                          <strong>{group.name}</strong>
+                          <a href={url(`/thuc-pham-chuc-nang/nhom/${slug}/`)}>Xem tất cả ›</a>
+                        </p>
+                        {list.length > 0 ? (
+                          <>
+                            <p class="mega-panel-sub">Sản phẩm trong nhóm</p>
+                            <ul class="mega-products">
+                              {list.map((product) => (
+                                <li>
+                                  <a href={url(`/thuc-pham-chuc-nang/${product.id}/`)}>
+                                    <img src={product.image} alt="" width="120" height="120" loading="lazy" />
+                                    <span class="mega-product-name">{product.name}</span>
+                                    <span class="mega-product-price">{formatPrice(product.price)}</span>
+                                  </a>
+                                </li>
+                              ))}
+                            </ul>
+                          </>
+                        ) : (
+                          <p class="mega-empty">{group.description} Nhóm này đang cập nhật sản phẩm.</p>
+                        )}
+                      </section>
+                    );
+                  })
+                }
+              </div>
+            </div>
           </li>
           {
             entries.map(([slug, category]) => {
@@ -179,6 +252,18 @@ const shopHref = url('/thuc-pham-chuc-nang/');
 
   document.addEventListener('keydown', (event) => {
     if (event.key === 'Escape') items.forEach((item) => setOpen(item, false));
+  });
+
+  // Menu lớn: rê chuột hoặc focus vào một nhóm thì khung bên phải đổi sang sản phẩm của nhóm đó
+  const tabs = document.querySelectorAll<HTMLElement>('.mega-tab');
+  const panels = document.querySelectorAll<HTMLElement>('.mega-panel');
+  function showPanel(slug: string | undefined) {
+    tabs.forEach((tab) => tab.classList.toggle('active', tab.dataset.panel === slug));
+    panels.forEach((panel) => panel.classList.toggle('active', panel.dataset.panel === slug));
+  }
+  tabs.forEach((tab) => {
+    tab.addEventListener('mouseenter', () => showPanel(tab.dataset.panel));
+    tab.addEventListener('focus', () => showPanel(tab.dataset.panel));
   });
 
   // Số sản phẩm trên biểu tượng giỏ hàng
