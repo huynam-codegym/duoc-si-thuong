@@ -1,0 +1,51 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PostCard from '../components/PostCard.astro';
+import { categories } from '../lib/categories';
+import { getPosts } from '../lib/posts';
+import { url } from '../lib/url';
+
+const latest = (await getPosts()).slice(0, 6);
+---
+
+<BaseLayout
+  title="Dược Sĩ Thương"
+  description="Chia sẻ kiến thức về ăn uống lành mạnh, cách nhận biết bệnh, cách phòng chống bệnh và dùng thuốc an toàn."
+>
+  <div class="container">
+    <section class="hero">
+      <h1>Dược Sĩ Thương</h1>
+      <p>
+        Kiến thức về ăn uống, nhận biết bệnh, phòng chống bệnh và dùng thuốc an toàn, được chia sẻ dễ hiểu
+        như một dược sĩ đang trò chuyện cùng bạn.
+      </p>
+    </section>
+
+    <section aria-labelledby="chuyen-muc">
+      <h2 class="section-title" id="chuyen-muc">Chuyên mục</h2>
+      <div class="grid">
+        {
+          Object.entries(categories).map(([slug, category]) => (
+            <a class="card" href={url(`/${slug}/`)}>
+              <h3>{category.name}</h3>
+              <p>{category.description}</p>
+            </a>
+          ))
+        }
+      </div>
+    </section>
+
+    <section aria-labelledby="bai-moi">
+      <h2 class="section-title" id="bai-moi">Bài viết mới</h2>
+      {
+        latest.length > 0 ? (
+          <div class="grid">
+            {latest.map((post) => <PostCard post={post} />)}
+          </div>
+        ) : (
+          <p class="empty">Các bài viết đang được biên soạn và kiểm duyệt. Mời bạn quay lại sau.</p>
+        )
+      }
+    </section>
+  </div>
+</BaseLayout>

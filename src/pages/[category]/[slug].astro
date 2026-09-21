@@ -1,0 +1,78 @@
+---
+import { render } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Disclaimer from '../../components/Disclaimer.astro';
+import { categories } from '../../lib/categories';
+import { foldVietnamese, formatDate, getPosts, isPublishable } from '../../lib/posts';
+import { url } from '../../lib/url';
+
+export async function getStaticPaths() {
+  const posts = await getPosts();
+  return posts.map((post) => ({
+    params: { category: post.data.category, slug: post.id },
+    props: { post },
+  }));
+}
+
+const { post } = Astro.props;
+const { title, description, category, publishedAt, updatedAt, sources, reviewedBy } = post.data;
+const { Content } = await render(post);
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'MedicalWebPage',
+  headline: title,
+  description,
+  inLanguage: 'vi',
+  datePublished: publishedAt.toISOString(),
+  dateModified: updatedAt.toISOString(),
+  ...(reviewedBy.trim() && { reviewedBy: { '@type': 'Person', name: reviewedBy } }),
+};
+---
+
+<BaseLayout title={title} description={description} jsonLd={jsonLd}>
+  <article class="container narrow article" data-pagefind-body>
+    <header>
+      {
+        !isPublishable(post) && (
+          <p class="draft-banner">
+            Bản nháp: bài này chưa được dược sĩ/bác sĩ kiểm duyệt nên sẽ không xuất hiện trên website chính thức.
+          </p>
+        )
+      }
+      <a class="tag" href={url(`/${category}/`)}>{categories[category].name}</a>
+      <h1>{title}</h1>
+      <p class="lead">{description}</p>
+      <p class="meta">
+        Đăng ngày {formatDate(publishedAt)} · Cập nhật {formatDate(updatedAt)}
+        {reviewedBy.trim() && <> · Kiểm duyệt bởi {reviewedBy}</>}
+      </p>
+    </header>
+
+    <div class="prose">
+      <Content />
+    </div>
+
+    <section class="sources" aria-labelledby="nguon">
+      <h2 id="nguon">Nguồn tham khảo</h2>
+      <ol>
+        {
+          sources.map((source) => (
+            <li>
+              <a href={source.url} rel="noopener noreferrer" target="_blank">
+                {source.title}
+              </a>
+            </li>
+          ))
+        }
+      </ol>
+    </section>
+
+    <div class="article-end">
+      <Disclaimer />
+    </div>
+
+    <!-- Bản không dấu của tiêu đề và mô tả, chỉ để tìm kiếm không dấu (xem foldVietnamese) -->
+    <p hidden aria-hidden="true">{foldVietnamese(`${title}. ${description}`)}</p>
+  </article>
+</BaseLayout>

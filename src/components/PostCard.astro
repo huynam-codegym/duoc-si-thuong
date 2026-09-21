@@ -1,0 +1,19 @@
+---
+import { categories } from '../lib/categories';
+import { formatDate, type Post } from '../lib/posts';
+import { url } from '../lib/url';
+
+interface Props {
+  post: Post;
+}
+
+const { post } = Astro.props;
+const { title, description, category, updatedAt } = post.data;
+---
+
+<a class="card" href={url(`/${category}/${post.id}/`)}>
+  <span class="tag">{categories[category].name}</span>
+  <h3>{title}</h3>
+  <p>{description}</p>
+  <p class="meta">Cập nhật: {formatDate(updatedAt)}</p>
+</a>

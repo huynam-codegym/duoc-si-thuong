@@ -1,0 +1,51 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { url } from '../lib/url';
+---
+
+<BaseLayout title="Tìm kiếm" description="Tìm bài viết về ăn uống, bệnh và thuốc trên Dược Sĩ Thương.">
+  <div class="container narrow">
+    <section class="hero">
+      <h1>Tìm kiếm</h1>
+      <p>Nhập từ khóa để tìm bài viết, ví dụ: đường, huyết áp, kháng sinh.</p>
+    </section>
+
+    <div id="search"></div>
+    <p id="search-unavailable" class="empty" hidden>
+      Tìm kiếm chưa sẵn sàng. Chức năng này chỉ hoạt động sau khi chạy <code>npm run build</code> và
+      <code>npm run preview</code>, hoặc trên website đã đăng.
+    </p>
+  </div>
+
+  <link href={url('/pagefind/pagefind-ui.css')} rel="stylesheet" />
+  <script
+    is:inline
+    src={url('/pagefind/pagefind-ui.js')}
+    onerror="document.getElementById('search-unavailable').hidden = false"></script>
+  <script is:inline>
+    window.addEventListener('DOMContentLoaded', () => {
+      if (typeof PagefindUI === 'undefined') return;
+      const ui = new PagefindUI({
+        element: '#search',
+        showImages: false,
+        showSubResults: false,
+        autofocus: true,
+        translations: {
+          placeholder: 'Tìm bài viết...',
+          clear_search: 'Xóa',
+          load_more: 'Xem thêm kết quả',
+          search_label: 'Tìm kiếm trên website',
+          filters_label: 'Bộ lọc',
+          zero_results: 'Không tìm thấy kết quả cho [SEARCH_TERM]',
+          many_results: '[COUNT] kết quả cho [SEARCH_TERM]',
+          one_result: '[COUNT] kết quả cho [SEARCH_TERM]',
+          alt_search: 'Không có kết quả cho [SEARCH_TERM]. Đang hiện kết quả cho [DIFFERENT_TERM]',
+          search_suggestion: 'Không có kết quả cho [SEARCH_TERM]. Thử một trong các từ khóa sau:',
+          searching: 'Đang tìm [SEARCH_TERM]...',
+        },
+      });
+      const q = new URLSearchParams(location.search).get('q');
+      if (q) ui.triggerSearch(q);
+    });
+  </script>
+</BaseLayout>
