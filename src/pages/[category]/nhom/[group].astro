@@ -1,0 +1,55 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import PostCard from '../../../components/PostCard.astro';
+import { categories, categorySlugs, getGroups, type CategorySlug } from '../../../lib/categories';
+import { getPosts } from '../../../lib/posts';
+import { url } from '../../../lib/url';
+
+export function getStaticPaths() {
+  return categorySlugs.flatMap((category) =>
+    getGroups(category).map(([group]) => ({ params: { category, group } })),
+  );
+}
+
+const category = Astro.params.category as CategorySlug;
+const groupSlug = Astro.params.group as string;
+const categoryInfo = categories[category];
+const group = categoryInfo.groups![groupSlug];
+const otherGroups = getGroups(category).filter(([slug]) => slug !== groupSlug);
+const posts = await getPosts(category, groupSlug);
+---
+
+<BaseLayout title={`${group.name} | ${categoryInfo.name}`} description={group.description}>
+  <div class="container">
+    <section class="hero">
+      <a class="tag" href={url(`/${category}/`)}>{categoryInfo.name}</a>
+      <h1>{group.name}</h1>
+      <p>{group.description}</p>
+    </section>
+
+    {
+      posts.length > 0 ? (
+        <div class="grid">
+          {posts.map((post) => <PostCard post={post} />)}
+        </div>
+      ) : (
+        <p class="empty">Nhóm này chưa có bài viết được kiểm duyệt. Mời bạn quay lại sau.</p>
+      )
+    }
+
+    <section aria-labelledby="nhom-khac">
+      <h2 class="section-title" id="nhom-khac">Các nhóm khác</h2>
+      <ul class="chips">
+        {
+          otherGroups.map(([slug, other]) => (
+            <li>
+              <a class="chip" href={url(`/${category}/nhom/${slug}/`)}>
+                {other.name}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </section>
+  </div>
+</BaseLayout>

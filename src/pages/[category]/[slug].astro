@@ -18,6 +18,8 @@ export async function getStaticPaths() {
 const { post } = Astro.props;
 const { title, description, category, publishedAt, updatedAt, sources, reviewedBy, cover, coverAlt, coverCredit } = post.data;
 const { Content } = await render(post);
+const { subcategory } = post.data;
+const group = subcategory ? categories[category].groups?.[subcategory] : undefined;
 const coverForSchema = cover ? await getImage({ src: cover, width: 1200, height: 630, fit: 'cover', format: 'jpg' }) : undefined;
 
 const jsonLd = {
@@ -44,6 +46,13 @@ const jsonLd = {
         )
       }
       <a class="tag" href={url(`/${category}/`)}>{categories[category].name}</a>
+      {
+        group && (
+          <a class="tag tag-group" href={url(`/${category}/nhom/${subcategory}/`)}>
+            {group.name}
+          </a>
+        )
+      }
       <h1>{title}</h1>
       <p class="lead">{description}</p>
       <p class="meta">

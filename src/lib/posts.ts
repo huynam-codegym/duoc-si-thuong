@@ -13,11 +13,12 @@ export function isPublishable(post: Post): boolean {
  * Khi chạy `npm run dev` hiện cả bản nháp để xem thử;
  * khi `npm run build` chỉ giữ bài đã kiểm duyệt.
  */
-export async function getPosts(category?: CategorySlug): Promise<Post[]> {
+export async function getPosts(category?: CategorySlug, group?: string): Promise<Post[]> {
   const all = await getCollection('posts');
   return all
     .filter((post) => import.meta.env.DEV || isPublishable(post))
     .filter((post) => !category || post.data.category === category)
+    .filter((post) => !group || post.data.subcategory === group)
     .sort((a, b) => b.data.updatedAt.valueOf() - a.data.updatedAt.valueOf());
 }
 

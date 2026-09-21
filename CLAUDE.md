@@ -111,6 +111,7 @@ src/
     index.astro               # trang chủ
     [category]/index.astro    # trang chuyên mục
     [category]/[slug].astro   # trang bài viết, URL dạng /an-uong/ten-bai/
+    [category]/nhom/[group].astro  # trang một nhóm con, URL dạng /kien-thuc-ve-thuoc/nhom/khang-sinh/
     gioi-thieu.astro          # trang giới thiệu dược sĩ Thương, có nút gọi và lưu ý cấp cứu 115
     tim-kiem.astro            # trang tìm kiếm (Pagefind UI, hỗ trợ ?q=từ-khóa)
     404.astro                 # trang báo lỗi không tìm thấy
@@ -120,6 +121,7 @@ src/assets/
   cover.jpg           # ảnh bìa thương hiệu (2048x762), hiện ở đầu trang chủ
   logo.jpg            # logo chính thức (hình tròn viền xanh, 640x640), hiện ở header
 public/               # favicon.png, apple-touch-icon.png, og-image.jpg, _headers (chỉ Cloudflare/Netlify dùng)
+docs/                 # tài liệu nội bộ, KHÔNG đăng lên website (ví dụ ghi chú cho người kiểm duyệt)
 astro.config.mjs      # `site` = https://duocsithuong.com (không có `base`)
 .github/workflows/    # deploy.yml: tự build và deploy khi đẩy code lên `main`
 .nvmrc                # phiên bản Node dùng khi build
@@ -185,6 +187,7 @@ Muốn thêm hoặc đổi tên chuyên mục: sửa `src/lib/categories.ts`, c�
 title: "Tiêu đề bài viết"
 description: "Mô tả ngắn 1-2 câu, dùng cho SEO"
 category: "an-uong"        # an-uong | nhan-biet-benh | phong-chong-benh | kien-thuc-ve-thuoc | hoi-dap
+subcategory: "khang-sinh"   # nhóm con (không bắt buộc), chỉ dùng cho chuyên mục có nhóm, xem mục "Nhóm con và menu thả xuống"
 publishedAt: 2026-01-01
 updatedAt: 2026-01-01
 cover: "../../assets/posts/ten-bai/cover.jpg"   # ảnh đại diện (không bắt buộc), xem mục "Hình ảnh trong bài viết"
@@ -199,6 +202,17 @@ draft: true                # đổi thành false sau khi được kiểm duyệt
 ```
 
 Bài có `draft: true` hoặc `reviewedBy` để trống thì **không được đăng** lên bản chính thức.
+
+### Nhóm con và menu thả xuống
+
+- Một chuyên mục có thể có **nhóm con**. Hiện chỉ "Kiến thức về thuốc" có, gồm 10 **nhóm thuốc** (kháng sinh, giảm đau/hạ sốt, kháng viêm, dạ dày, ho/cảm cúm, dị ứng, vitamin/khoáng chất, tim mạch/huyết áp, đái tháo đường, dùng thuốc an toàn). Danh sách khai báo trong `src/lib/categories.ts` (mục `groups`), đó là nguồn duy nhất.
+- **Menu thả xuống** ở thanh đầu trang (`src/components/Header.astro`): rê chuột vào "Kiến thức về thuốc" thì hiện danh sách nhóm (mục đầu là "Xem tất cả bài viết"). Trên điện thoại (không có rê chuột) người dùng bấm mũi tên nhỏ cạnh tên mục để mở; bấm ra ngoài hoặc nhấn Esc để đóng; dùng bàn phím cũng mở được. Menu luôn liệt kê **đủ nhóm đã khai báo**, kể cả nhóm chưa có bài công khai (trang nhóm khi đó hiện "chưa có bài viết được kiểm duyệt").
+- Mỗi nhóm có trang riêng `/kien-thuc-ve-thuoc/nhom/<nhóm>/` (`src/pages/[category]/nhom/[group].astro`) liệt kê bài của nhóm và các nhóm khác. Trang chuyên mục cũng có phần "Chọn theo nhóm". Đầu mỗi bài hiện thêm thẻ tên nhóm.
+- Gắn bài vào nhóm bằng `subcategory: "<slug nhóm>"` trong frontmatter. Build sẽ báo lỗi nếu slug không có trong `categories.ts`.
+- **Thêm nhóm mới:** thêm vào `groups` trong `categories.ts`; menu, trang nhóm và sitemap tự cập nhật. Muốn chuyên mục khác cũng có nhóm con thì thêm `groups` cho chuyên mục đó, không cần sửa code khác.
+- **Quy tắc riêng cho bài về thuốc:** không đưa liều dùng cụ thể; nêu chống chỉ định, tác dụng phụ, tương tác, người cần thận trọng (trẻ em, phụ nữ có thai/cho con bú, người cao tuổi, bệnh nền), dấu hiệu cần đi khám/cấp cứu (115); không nêu tên biệt dược/thương hiệu; chỉ dùng tên hoạt chất. Ghi rõ điều nào **chưa đối chiếu trực tiếp với nguồn** trong `docs/` để người kiểm duyệt kiểm tra (xem `docs/ghi-chu-kiem-duyet-nhom-thuoc.md`).
+- **Ảnh đại diện của các bài về thuốc** là ảnh minh họa thống nhất (nhãn nhóm, tiêu đề, biểu tượng emoji, nền xanh lá) do chủ website và Claude thiết kế bằng HTML rồi chụp thành ảnh; ảnh **không chứa số liệu y khoa**.
+- **Trạng thái tháng 9/2026:** 10 bài (mỗi nhóm 1 bài) đều là **bản nháp do AI soạn, chưa được kiểm duyệt** (`draft: true`, `reviewedBy` trống), nên chưa hiện trên website. Nguồn chủ yếu là MedlinePlus, WHO, FDA; chưa có nguồn Việt Nam (Bộ Y tế, Dược thư quốc gia). Không đăng trước khi dược sĩ rà soát.
 
 ### Hình ảnh trong bài viết
 

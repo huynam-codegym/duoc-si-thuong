@@ -2,8 +2,12 @@
 title: "Dùng kháng sinh đúng cách để tránh kháng thuốc"
 description: "Kháng sinh chỉ có tác dụng với vi khuẩn, không trị được cảm lạnh hay cúm. Tự ý dùng kháng sinh có thể khiến thuốc mất tác dụng khi bạn thật sự cần."
 category: "kien-thuc-ve-thuoc"
+subcategory: "khang-sinh"
 publishedAt: 2026-09-21
 updatedAt: 2026-09-21
+cover: "../../assets/posts/dung-khang-sinh-dung-cach/cover.jpg"
+coverAlt: "Ảnh minh họa bài viết về kháng sinh: nhãn nhóm thuốc, tiêu đề bài và biểu tượng vi khuẩn trên nền xanh lá"
+coverCredit: "Đồ họa: Dược Sĩ Thương"
 sources:
   - title: "WHO - Antimicrobial resistance (Kháng thuốc kháng sinh)"
     url: "https://www.who.int/news-room/fact-sheets/detail/antimicrobial-resistance"

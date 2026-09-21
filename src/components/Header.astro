@@ -1,10 +1,11 @@
 ---
 import { Image } from 'astro:assets';
 import logo from '../assets/logo.jpg';
-import { categories } from '../lib/categories';
+import { categories, getGroups, type CategorySlug } from '../lib/categories';
 import { url } from '../lib/url';
 
 const current = Astro.url.pathname;
+const entries = Object.entries(categories) as [CategorySlug, (typeof categories)[CategorySlug]][];
 ---
 
 <header class="site-header">
@@ -16,13 +17,45 @@ const current = Astro.url.pathname;
     <nav class="site-nav" aria-label="Chuyên mục">
       <ul>
         {
-          Object.entries(categories).map(([slug, category]) => (
-            <li>
-              <a href={url(`/${slug}/`)} aria-current={current.startsWith(url(`/${slug}/`)) ? 'page' : undefined}>
-                {category.name}
-              </a>
-            </li>
-          ))
+          entries.map(([slug, category]) => {
+            const groups = getGroups(slug);
+            const href = url(`/${slug}/`);
+            const isCurrent = current.startsWith(href);
+            return groups.length > 0 ? (
+              <li class="has-sub">
+                <a href={href} aria-current={isCurrent ? 'page' : undefined}>
+                  {category.name}
+                </a>
+                <button
+                  type="button"
+                  class="sub-toggle"
+                  aria-expanded="false"
+                  aria-controls={`sub-${slug}`}
+                  aria-label={`Mở danh sách ${category.name}`}
+                >
+                  <svg viewBox="0 0 12 12" aria-hidden="true" focusable="false">
+                    <path d="M2 4l4 4 4-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                  </svg>
+                </button>
+                <ul class="submenu" id={`sub-${slug}`}>
+                  <li>
+                    <a href={href}>Xem tất cả bài viết</a>
+                  </li>
+                  {groups.map(([groupSlug, group]) => (
+                    <li>
+                      <a href={url(`/${slug}/nhom/${groupSlug}/`)}>{group.name}</a>
+                    </li>
+                  ))}
+                </ul>
+              </li>
+            ) : (
+              <li>
+                <a href={href} aria-current={isCurrent ? 'page' : undefined}>
+                  {category.name}
+                </a>
+              </li>
+            );
+          })
         }
         <li>
           <a href={url('/gioi-thieu/')} aria-current={current.startsWith(url('/gioi-thieu/')) ? 'page' : undefined}>
@@ -38,3 +71,30 @@ const current = Astro.url.pathname;
     </nav>
   </div>
 </header>
+
+<script>
+  // Mở/đóng danh sách thả xuống bằng nút mũi tên (dùng cho điện thoại và bàn phím).
+  // Trên máy tính, danh sách còn tự mở khi rê chuột (xử lý bằng CSS).
+  const items = document.querySelectorAll<HTMLElement>('.site-nav .has-sub');
+
+  function setOpen(item: HTMLElement, open: boolean) {
+    item.classList.toggle('open', open);
+    item.querySelector('.sub-toggle')?.setAttribute('aria-expanded', String(open));
+  }
+
+  items.forEach((item) => {
+    item.querySelector('.sub-toggle')?.addEventListener('click', () => {
+      setOpen(item, !item.classList.contains('open'));
+    });
+  });
+
+  document.addEventListener('click', (event) => {
+    items.forEach((item) => {
+      if (!item.contains(event.target as Node)) setOpen(item, false);
+    });
+  });
+
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') items.forEach((item) => setOpen(item, false));
+  });
+</script>

@@ -2,8 +2,9 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import PostCard from '../../components/PostCard.astro';
 import ChatPanel from '../../components/ChatPanel.astro';
-import { categories, categorySlugs, type CategorySlug } from '../../lib/categories';
+import { categories, categorySlugs, getGroups, type CategorySlug } from '../../lib/categories';
 import { getPosts } from '../../lib/posts';
+import { url } from '../../lib/url';
 
 export function getStaticPaths() {
   return categorySlugs.map((category) => ({ params: { category } }));
@@ -11,6 +12,7 @@ export function getStaticPaths() {
 
 const category = Astro.params.category as CategorySlug;
 const { name, description } = categories[category];
+const groups = getGroups(category);
 const posts = await getPosts(category);
 ---
 
@@ -22,6 +24,25 @@ const posts = await getPosts(category);
     </section>
 
     {category === 'hoi-dap' && <ChatPanel />}
+
+    {
+      groups.length > 0 && (
+        <section aria-labelledby="nhom">
+          <h2 class="section-title" id="nhom">
+            Chọn theo nhóm
+          </h2>
+          <div class="grid">
+            {groups.map(([groupSlug, group]) => (
+              <a class="card" href={url(`/${category}/nhom/${groupSlug}/`)}>
+                <h3>{group.name}</h3>
+                <p>{group.description}</p>
+              </a>
+            ))}
+          </div>
+          <h2 class="section-title">Tất cả bài viết</h2>
+        </section>
+      )
+    }
 
     {
       posts.length > 0 ? (
