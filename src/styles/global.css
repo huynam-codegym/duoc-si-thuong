@@ -292,7 +292,7 @@ img {
 .site-nav > ul {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.25rem 1rem;
+  gap: 0.25rem 0.5rem;
   margin: 0;
   padding: 0;
   list-style: none;
@@ -300,10 +300,17 @@ img {
 
 .site-nav a {
   display: inline-block;
-  padding: 0.25rem 0;
+  padding: 0.85rem 0.75rem;
+  border-radius: 8px;
   font-size: 0.9rem;
   font-weight: 600;
   text-decoration: none;
+}
+
+.site-nav a:hover,
+.site-nav a:focus-visible {
+  background: var(--green-50);
+  color: var(--green-900);
 }
 
 .site-nav a[aria-current='page'] {
@@ -1221,18 +1228,27 @@ img {
 }
 
 .navbar .container {
-  padding-block: 0.3rem;
+  padding-block: 0;
 }
 
 .site-nav .nav-shop > a {
-  padding: 0.25rem 0.9rem;
+  padding: 0.55rem 0.9rem;
   border-radius: 999px;
   background: var(--green-700);
   color: #fff;
 }
 
-.site-nav .nav-shop > a:hover {
+.site-nav .nav-shop > a:hover,
+.site-nav .nav-shop > a:focus-visible {
   background: var(--green-900);
+  color: #fff;
+}
+
+/* Thanh menu trải đều hết chiều ngang khi đủ rộng để không bị vỡ dòng (kiểu thanh menu ngang phổ biến) */
+@media (min-width: 75rem) {
+  .site-nav > ul {
+    justify-content: space-between;
+  }
 }
 
 .toast {
