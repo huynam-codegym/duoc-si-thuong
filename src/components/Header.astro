@@ -441,38 +441,29 @@ const drawerSections: DrawerSection[] = [
 <script>
   import { MAX_QTY, addToCart, cartCount } from '../lib/cart';
 
-  // Chữ gợi ý trong ô tìm kiếm: hiện dần từng chữ kiểu đang gõ bàn phím, gõ xong dừng một lúc rồi xóa
-  // dần và gõ lại (lặp lại mãi). Tắt hẳn hiệu ứng nếu người dùng chọn "giảm chuyển động" trên máy.
+  // Chữ gợi ý trong ô tìm kiếm: hiện dần từng chữ kiểu đang gõ bàn phím, gõ xong dừng một lúc rồi XÓA
+  // HẾT NGAY một lần (không xóa dần từng chữ), dừng một lúc rồi gõ lại từ đầu (lặp lại mãi). Tắt hẳn
+  // hiệu ứng nếu người dùng chọn "giảm chuyển động" trên máy.
   const typeTarget = document.querySelector<HTMLElement>('.search-placeholder-type');
   const typeScroller = typeTarget?.closest<HTMLElement>('.search-placeholder-scroll');
   if (typeTarget && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
     const fullText = typeTarget.dataset.text ?? '';
     let i = 0;
-    let deleting = false;
     function tick() {
       if (!typeTarget) return;
-      if (!deleting) {
-        i += 1;
-        typeTarget.textContent = fullText.slice(0, i);
-        // Cuộn theo con trỏ, giống ô nhập liệu thật tự cuộn khi chữ dài hơn bề rộng ô
-        if (typeScroller) typeScroller.scrollLeft = typeScroller.scrollWidth;
-        if (i >= fullText.length) {
-          deleting = true;
-          window.setTimeout(tick, 1800); // dừng một lúc khi gõ xong
-          return;
-        }
-        window.setTimeout(tick, 55);
-      } else {
-        i -= 1;
-        typeTarget.textContent = fullText.slice(0, i);
-        if (typeScroller) typeScroller.scrollLeft = typeScroller.scrollWidth;
-        if (i <= 0) {
-          deleting = false;
+      i += 1;
+      typeTarget.textContent = fullText.slice(0, i);
+      // Cuộn theo con trỏ, giống ô nhập liệu thật tự cuộn khi chữ dài hơn bề rộng ô
+      if (typeScroller) typeScroller.scrollLeft = typeScroller.scrollWidth;
+      if (i >= fullText.length) {
+        window.setTimeout(() => {
+          typeTarget.textContent = ''; // xóa hết ngay một lần, không xóa dần từng chữ
+          i = 0;
           window.setTimeout(tick, 500); // dừng một lúc trước khi gõ lại
-          return;
-        }
-        window.setTimeout(tick, 28);
+        }, 1800); // dừng một lúc khi gõ xong
+        return;
       }
+      window.setTimeout(tick, 55);
     }
     tick();
   } else if (typeTarget) {
