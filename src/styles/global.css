@@ -1182,8 +1182,9 @@ img {
 }
 
 .header-search input:focus-visible {
-  outline: 3px solid var(--green-700);
-  outline-offset: 1px;
+  outline: none;
+  /* Quầng sáng nhẹ thay cho viền cứng, vẫn đủ để người dùng bàn phím thấy đang ở ô này */
+  box-shadow: 0 0 0 4px rgb(21 128 61 / 0.18);
 }
 
 .header-search button {
