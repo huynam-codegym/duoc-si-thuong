@@ -1787,6 +1787,61 @@ button.btn:not(.btn-outline) {
   color: var(--ink-soft);
 }
 
+/* Menu lớn "Thuốc": nhóm nhỏ (tile) + gợi ý tên (chip, bấm vào để tìm kiếm trên toàn site) */
+.mega-cats {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(9rem, 1fr));
+  gap: 0.5rem;
+  margin: 0 0 0.75rem;
+  padding: 0;
+  list-style: none;
+}
+
+.mega-cats a {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 0.7rem;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #fff;
+  color: var(--ink);
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.mega-cats a:hover {
+  border-color: var(--green-700);
+  color: var(--green-700);
+}
+
+.mega-terms {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.mega-terms a {
+  display: inline-block;
+  padding: 0.4rem 0.8rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: #fff;
+  color: var(--ink);
+  font-size: 0.85rem;
+  text-decoration: none;
+}
+
+.mega-terms a:hover {
+  border-color: var(--green-700);
+  background: var(--green-50);
+  color: var(--green-900);
+}
+
 @media (max-width: 47.99rem) {
   .site-nav .has-sub.open > .mega-menu {
     flex-basis: 100%;
@@ -2771,11 +2826,22 @@ button.btn:not(.btn-outline) {
 }
 
 .az-item {
-  padding: 0.55rem 0.75rem;
   border: 1px solid var(--line);
   border-radius: 8px;
   background: var(--green-50);
   font-size: 0.9rem;
+}
+
+.az-item a {
+  display: block;
+  padding: 0.55rem 0.75rem;
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.az-item a:hover {
+  color: var(--green-900);
+  text-decoration: underline;
 }
 
 .az-empty {

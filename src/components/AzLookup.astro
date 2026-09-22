@@ -1,10 +1,12 @@
 ---
 // Ô tìm kiếm + (tùy chọn) nhóm + chỉ mục A-Z + danh sách tên, dùng chung cho 3 trang "Tra cứu"
 // (thuốc/dược chất/dược liệu). Tên trong danh sách CHƯA có trang chi tiết riêng (xem ghi chú trong
-// src/lib/drug-lookup.ts) nên hiện dạng thẻ chữ thường (không phải liên kết) — lọc theo nhóm/chữ
-// cái/ô tìm kiếm, không dẫn đi đâu.
+// src/lib/drug-lookup.ts) nên mỗi tên bấm vào sẽ chạy tìm kiếm tên đó trên toàn site (`/tim-kiem/?q=...`)
+// thay vì mở trang chi tiết — cách này vẫn hữu ích (ra bài viết có nhắc tới tên đó, nếu có) mà không cần
+// bịa nội dung riêng cho từng chất.
 import GroupIcon from './GroupIcon.astro';
 import type { IconName } from '../lib/icon-names';
+import { url } from '../lib/url';
 
 interface LookupItem {
   name: string;
@@ -53,7 +55,7 @@ const letters = [...new Set(items.map((item) => item.name.trim().charAt(0).toUpp
   <ul class="az-list">
     {items.map((item) => (
       <li class="az-item" data-name={item.name} data-letter={item.name.trim().charAt(0).toUpperCase()} data-group={item.group ?? ''}>
-        {item.name}
+        <a href={url(`/tim-kiem/?q=${encodeURIComponent(item.name)}`)}>{item.name}</a>
       </li>
     ))}
   </ul>

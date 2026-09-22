@@ -10,7 +10,9 @@
  * - Danh sách bên dưới chỉ là VÍ DỤ để lên giao diện (chủ website đồng ý dùng tạm để xem giao diện, tháng
  *   9/2026), gồm các hoạt chất/dược liệu phổ biến, không kèm liều dùng/chỉ định/chống chỉ định — vì tôi
  *   không có kho dữ liệu dược đầy đủ và không tự bịa thông tin y khoa (nguyên tắc 1, 10 trong CLAUDE.md).
- *   Vì vậy tên KHÔNG bấm được (chưa có trang chi tiết), chỉ để duyệt/tìm theo chữ cái.
+ *   Vì vậy mỗi tên chưa có TRANG CHI TIẾT riêng; bấm vào một tên (ở trang tra cứu hay ở menu lớn) sẽ
+ *   chạy TÌM KIẾM tên đó trên toàn site (`/tim-kiem/?q=...`, xem `AzLookup.astro`/`Header.astro`) — ra
+ *   bài viết nào có nhắc tới tên đó (nếu có), thay vì mở một trang trống hay 404.
  * - Muốn có trang chi tiết từng hoạt chất/dược liệu (liều dùng, chống chỉ định...): cần chủ website cung cấp
  *   nội dung có nguồn (Dược thư Quốc gia Việt Nam, DrugBank...) để viết đúng như một bài kiến thức về thuốc,
  *   không thể tự sinh hàng loạt.
