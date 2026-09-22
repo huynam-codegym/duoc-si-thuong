@@ -5,6 +5,7 @@ import GroupIcon from './GroupIcon.astro';
 import { categories, getGroups, type CategorySlug } from '../lib/categories';
 import { departments, departmentSlugs, getProductGroups, type DepartmentSlug } from '../lib/departments';
 import { formatPrice, getProducts } from '../lib/products';
+import { site } from '../lib/site';
 import { url } from '../lib/url';
 
 const current = Astro.url.pathname;
@@ -38,12 +39,49 @@ const shopMenus = await Promise.all(
     return { departmentSlug, department, groupEntries, megaProducts, href: url(`/${departmentSlug}/`) };
   }),
 );
+
+// Danh sách đơn giản (không có khung xem trước sản phẩm) dùng cho menu dạng ngăn kéo trên điện thoại/máy tính bảng
+type DrawerChild = { name: string; href: string; icon: Awaited<ReturnType<typeof getProductGroups>>[number][1]['icon'] };
+type DrawerSection = { name: string; href: string; current: boolean; children?: DrawerChild[] };
+const drawerSections: DrawerSection[] = [
+  ...shopMenus.map(({ department, groupEntries, href }): DrawerSection => ({
+    name: department.name,
+    href,
+    current: current.startsWith(href),
+    children: [
+      { name: 'Xem tất cả sản phẩm', href, icon: 'cart' as const },
+      ...groupEntries.map(([slug, group]) => ({ name: group.name, href: url(`${href}nhom/${slug}/`), icon: group.icon })),
+    ],
+  })),
+  ...entries.map(([slug, category]): DrawerSection => {
+    const groups = getGroups(slug);
+    const href = url(`/${slug}/`);
+    return {
+      name: category.name,
+      href,
+      current: current.startsWith(href),
+      children:
+        groups.length > 0
+          ? [
+              { name: 'Xem tất cả bài viết', href, icon: 'book' as const },
+              ...groups.map(([groupSlug, group]) => ({ name: group.name, href: url(`/${slug}/nhom/${groupSlug}/`), icon: group.icon })),
+            ]
+          : undefined,
+    };
+  }),
+  { name: 'Giới thiệu', href: url('/gioi-thieu/'), current: current.startsWith(url('/gioi-thieu/')) },
+];
 ---
 
 <header class="site-header">
   <div class="container header-main">
     <span class="header-deco header-deco-left" aria-hidden="true">🌿</span>
     <span class="header-deco header-deco-right" aria-hidden="true">🌿</span>
+    <button type="button" id="mobile-menu-btn" class="mobile-menu-btn" aria-expanded="false" aria-controls="mobile-drawer" aria-label="Mở menu">
+      <svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true" focusable="false">
+        <path d="M3 6h18M3 12h18M3 18h18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+      </svg>
+    </button>
     <a class="brand" href={url('/')}>
       <Image class="brand-logo" src={logo} alt="" width={160} height={160} />
       <span>Dược Sĩ Thương</span>
@@ -229,6 +267,68 @@ const shopMenus = await Promise.all(
       </nav>
     </div>
   </div>
+
+  <div class="mobile-drawer" id="mobile-drawer" hidden>
+    <div class="mobile-drawer-backdrop" data-close="true"></div>
+    <div class="mobile-drawer-panel" role="dialog" aria-modal="true" aria-label="Menu">
+      <div class="mobile-drawer-head">
+        <a class="mobile-drawer-brand" href={url('/')}>
+          <Image class="brand-logo" src={logo} alt="" width={80} height={80} />
+          <span>Dược Sĩ Thương</span>
+        </a>
+        <button type="button" class="mobile-drawer-close" data-close="true" aria-label="Đóng menu">
+          <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" focusable="false">
+            <path d="M5 5l14 14M19 5L5 19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+          </svg>
+        </button>
+      </div>
+      <nav class="mobile-drawer-nav" aria-label="Menu chính">
+        <ul>
+          {
+            drawerSections.map((section) => (
+              <li class="mobile-drawer-item">
+                {section.children ? (
+                  <>
+                    <div class="mobile-drawer-row">
+                      <a href={section.href} aria-current={section.current ? 'page' : undefined}>
+                        {section.name}
+                      </a>
+                      <button type="button" class="mobile-drawer-toggle" aria-expanded="false" aria-label={`Mở ${section.name}`}>
+                        <svg viewBox="0 0 12 12" aria-hidden="true" focusable="false">
+                          <path d="M2 4l4 4 4-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                      </button>
+                    </div>
+                    <ul class="mobile-drawer-sub">
+                      {section.children.map((child) => (
+                        <li>
+                          <a href={child.href}>
+                            <span class="sub-icon" aria-hidden="true">
+                              <GroupIcon icon={child.icon} size={17} />
+                            </span>
+                            <span>{child.name}</span>
+                          </a>
+                        </li>
+                      ))}
+                    </ul>
+                  </>
+                ) : (
+                  <a href={section.href} aria-current={section.current ? 'page' : undefined}>
+                    {section.name}
+                  </a>
+                )}
+              </li>
+            ))
+          }
+        </ul>
+      </nav>
+      <div class="mobile-drawer-foot">
+        <a class="btn" href={site.zaloHref} target="_blank" rel="noopener noreferrer">
+          Nhắn Zalo tư vấn: {site.phone}
+        </a>
+      </div>
+    </div>
+  </div>
 </header>
 
 <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
@@ -259,6 +359,45 @@ const shopMenus = await Promise.all(
 
   document.addEventListener('keydown', (event) => {
     if (event.key === 'Escape') items.forEach((item) => setOpen(item, false));
+  });
+
+  // Menu dạng ngăn kéo trên điện thoại/máy tính bảng (bấm biểu tượng 3 gạch)
+  const menuBtn = document.getElementById('mobile-menu-btn') as HTMLButtonElement | null;
+  const drawer = document.getElementById('mobile-drawer');
+
+  function openDrawer() {
+    if (!drawer || !menuBtn) return;
+    drawer.hidden = false;
+    document.body.style.overflow = 'hidden';
+    menuBtn.setAttribute('aria-expanded', 'true');
+    requestAnimationFrame(() => drawer.classList.add('open'));
+  }
+
+  function closeDrawer() {
+    if (!drawer || !menuBtn) return;
+    drawer.classList.remove('open');
+    document.body.style.overflow = '';
+    menuBtn.setAttribute('aria-expanded', 'false');
+    window.setTimeout(() => {
+      if (!drawer.classList.contains('open')) drawer.hidden = true;
+    }, 220);
+  }
+
+  menuBtn?.addEventListener('click', () => (drawer?.hidden ? openDrawer() : closeDrawer()));
+  drawer?.querySelectorAll<HTMLElement>('[data-close]').forEach((el) => el.addEventListener('click', closeDrawer));
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && drawer && !drawer.hidden) closeDrawer();
+  });
+
+  // Mở/đóng từng nhóm trong ngăn kéo (kiểu accordion)
+  drawer?.querySelectorAll<HTMLButtonElement>('.mobile-drawer-toggle').forEach((toggle) => {
+    toggle.addEventListener('click', () => {
+      const item = toggle.closest<HTMLElement>('.mobile-drawer-item');
+      if (!item) return;
+      const open = !item.classList.contains('open');
+      item.classList.toggle('open', open);
+      toggle.setAttribute('aria-expanded', String(open));
+    });
   });
 
   // Menu lớn: rê chuột hoặc focus vào một nhóm thì khung bên phải đổi sang sản phẩm của nhóm đó.

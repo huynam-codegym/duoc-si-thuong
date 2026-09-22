@@ -1955,3 +1955,230 @@ button.btn:not(.btn-outline) {
 .shop-menu .sub-icon {
   color: var(--green-700);
 }
+
+/* Nút menu 3 gạch: chỉ hiện trên điện thoại/máy tính bảng (thay cho thanh menu ngang) */
+.mobile-menu-btn {
+  display: none;
+  order: 0;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  margin-right: -0.25rem;
+  border: 0;
+  border-radius: 8px;
+  background: none;
+  color: var(--green-900);
+  cursor: pointer;
+}
+
+.mobile-menu-btn:hover,
+.mobile-menu-btn:focus-visible {
+  background: var(--green-100);
+}
+
+@media (max-width: 63.99rem) {
+  .mobile-menu-btn {
+    display: inline-flex;
+  }
+
+  .navbar {
+    display: none;
+  }
+}
+
+/* Menu dạng ngăn kéo (trượt từ bên trái), thay thanh menu ngang trên điện thoại/máy tính bảng */
+.mobile-drawer[hidden] {
+  display: none;
+}
+
+.mobile-drawer {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+}
+
+@media (min-width: 64rem) {
+  .mobile-drawer {
+    display: none !important;
+  }
+}
+
+.mobile-drawer-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgb(20 40 25 / 0.55);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.mobile-drawer.open .mobile-drawer-backdrop {
+  opacity: 1;
+}
+
+.mobile-drawer-panel {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  display: flex;
+  flex-direction: column;
+  width: 86vw;
+  max-width: 23rem;
+  background: #fff;
+  box-shadow: 10px 0 30px rgb(0 0 0 / 0.25);
+  transform: translateX(-100%);
+  transition: transform 0.22s ease;
+}
+
+.mobile-drawer.open .mobile-drawer-panel {
+  transform: translateX(0);
+}
+
+.mobile-drawer-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex: none;
+  padding: 0.85rem 1rem;
+  border-bottom: 1px solid var(--line);
+}
+
+.mobile-drawer-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 700;
+  color: var(--green-900);
+  text-decoration: none;
+}
+
+.mobile-drawer-brand .brand-logo {
+  width: 2.4rem;
+  height: 2.4rem;
+}
+
+.mobile-drawer-close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border: 0;
+  border-radius: 8px;
+  background: none;
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.mobile-drawer-close:hover,
+.mobile-drawer-close:focus-visible {
+  background: var(--green-50);
+}
+
+.mobile-drawer-nav {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.mobile-drawer-nav > ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.mobile-drawer-row,
+.mobile-drawer-item > a {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 3.1rem;
+  padding: 0.6rem 1rem;
+  border-bottom: 1px solid var(--line);
+  color: var(--ink);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.mobile-drawer-row a[aria-current='page'],
+.mobile-drawer-item > a[aria-current='page'] {
+  color: var(--green-700);
+}
+
+.mobile-drawer-row a {
+  flex: 1;
+  padding-block: 0.2rem;
+  border: 0;
+  color: inherit;
+  font: inherit;
+  text-decoration: none;
+}
+
+.mobile-drawer-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  margin: -0.5rem -0.4rem -0.5rem 0;
+  border: 0;
+  border-radius: 8px;
+  background: none;
+  color: var(--green-700);
+  cursor: pointer;
+}
+
+.mobile-drawer-toggle:hover,
+.mobile-drawer-toggle:focus-visible {
+  background: var(--green-50);
+}
+
+.mobile-drawer-toggle svg {
+  transition: transform 0.15s;
+}
+
+.mobile-drawer-item.open .mobile-drawer-toggle svg {
+  transform: rotate(180deg);
+}
+
+.mobile-drawer-sub {
+  display: none;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  background: var(--green-50);
+}
+
+.mobile-drawer-item.open .mobile-drawer-sub {
+  display: block;
+}
+
+.mobile-drawer-sub a {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-height: 2.9rem;
+  padding: 0.5rem 1rem 0.5rem 2rem;
+  border-bottom: 1px solid #fff;
+  color: var(--ink);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.mobile-drawer-sub .sub-icon {
+  flex: none;
+  color: var(--green-700);
+}
+
+.mobile-drawer-foot {
+  flex: none;
+  padding: 1rem;
+  border-top: 1px solid var(--line);
+}
+
+.mobile-drawer-foot .btn {
+  width: 100%;
+  justify-content: center;
+}
