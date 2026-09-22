@@ -123,49 +123,51 @@ const seasonal = await Promise.all(
 
     <section aria-labelledby="benh-theo-mua">
       <h2 class="section-title" id="benh-theo-mua">Bệnh thường gặp theo mùa</h2>
-      <div class="season-tabs" role="tablist">
+      <div class="season-card">
+        <div class="season-tabs" role="tablist">
+          {seasonal.map((topic, index) => topic.group && (
+            <button
+              type="button"
+              class={`season-tab${index === 0 ? ' active' : ''}`}
+              data-panel={`season-${index}`}
+              role="tab"
+              aria-selected={index === 0 ? 'true' : 'false'}
+            >
+              <GroupIcon icon={topic.group.icon} size={17} />
+              <span>{topic.group.name}</span>
+            </button>
+          ))}
+        </div>
         {seasonal.map((topic, index) => topic.group && (
-          <button
-            type="button"
-            class={`season-tab${index === 0 ? ' active' : ''}`}
-            data-panel={`season-${index}`}
-            role="tab"
-            aria-selected={index === 0 ? 'true' : 'false'}
-          >
-            <GroupIcon icon={topic.group.icon} size={17} />
-            <span>{topic.group.name}</span>
-          </button>
-        ))}
-      </div>
-      {seasonal.map((topic, index) => topic.group && (
-        <div class={`season-panel${index === 0 ? ' active' : ''}`} data-panel={`season-${index}`} role="tabpanel">
-          <div class="season-layout">
-            <div class="season-info">
-              <span class="season-icon"><GroupIcon icon={topic.group.icon} size={36} /></span>
-              <p>{topic.summary}</p>
-              <a class="btn btn-outline" href={url(`/an-uong/${topic.postSlug}/`)}>Xem dấu hiệu &amp; cách chăm sóc</a>
-            </div>
-            <div class="season-products">
-              {topic.products.length > 0 ? (
-                <div class="carousel">
-                  <div class="carousel-track">
-                    {topic.products.map((product) => (
-                      <div class="carousel-item">
-                        <ProductCard product={product} />
-                      </div>
-                    ))}
+          <div class={`season-panel${index === 0 ? ' active' : ''}`} data-panel={`season-${index}`} role="tabpanel">
+            <div class="season-layout">
+              <div class="season-info">
+                <span class="season-icon"><GroupIcon icon={topic.group.icon} size={36} /></span>
+                <p>{topic.summary}</p>
+                <a class="btn" href={url(`/an-uong/${topic.postSlug}/`)}>Xem dấu hiệu &amp; cách chăm sóc</a>
+              </div>
+              <div class="season-products">
+                {topic.products.length > 0 ? (
+                  <div class="carousel">
+                    <div class="carousel-track">
+                      {topic.products.map((product) => (
+                        <div class="carousel-item">
+                          <ProductCard product={product} />
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                </div>
-              ) : (
-                <p class="empty">
-                  Sản phẩm hỗ trợ liên quan đang được cập nhật.{' '}
-                  <a href={site.zaloHref} target="_blank" rel="noopener noreferrer">Nhắn Zalo hỏi dược sĩ</a> nếu cần tư vấn ngay.
-                </p>
-              )}
+                ) : (
+                  <p class="empty">
+                    Sản phẩm hỗ trợ liên quan đang được cập nhật.{' '}
+                    <a href={site.zaloHref} target="_blank" rel="noopener noreferrer">Nhắn Zalo hỏi dược sĩ</a> nếu cần tư vấn ngay.
+                  </p>
+                )}
+              </div>
             </div>
           </div>
-        </div>
-      ))}
+        ))}
+      </div>
       <p class="season-disclaimer">
         Sản phẩm gợi ý chỉ mang tính hỗ trợ, không phải thuốc và không thay thế khám, chẩn đoán hay điều trị của bác sĩ.
       </p>
