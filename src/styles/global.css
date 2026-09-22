@@ -942,6 +942,7 @@ img {
 }
 
 .product-gallery-main {
+  position: relative;
   margin: 0;
   cursor: zoom-in;
 }
@@ -955,6 +956,21 @@ img {
   border: 1px solid var(--line);
   border-radius: var(--radius);
   background: var(--green-50);
+}
+
+/* Khung kính lúp mỏng: đi theo chuột trên ảnh chính, cho biết đang phóng to đúng vùng nào */
+.gallery-lens {
+  display: none;
+  position: absolute;
+  pointer-events: none;
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.35);
+  box-shadow: 0 0 0 1px rgb(0 0 0 / 0.12);
+}
+
+.gallery-lens.active {
+  display: block;
 }
 
 .product-gallery-thumbs {
@@ -2513,7 +2529,7 @@ button.btn:not(.btn-outline) {
   min-height: 2.75rem;
   padding: 0.5rem 1rem;
   border: 0;
-  border-radius: 999px 999px 0 0;
+  border-radius: 8px 8px 0 0;
   background: transparent;
   color: var(--ink-soft);
   font: inherit;

@@ -90,6 +90,7 @@ const jsonLd = {
           <div class="product-gallery-stage">
             <div class="product-gallery-main" id="galleryMain" data-zoom={galleryPhotos[0].zoomSrc}>
               <img id="galleryMainImg" src={galleryPhotos[0].displaySrc} alt={imageAlt} width={galleryPhotos[0].width} height={galleryPhotos[0].height} loading="eager" />
+              <div class="gallery-lens" id="galleryLens" aria-hidden="true"></div>
             </div>
             {
               galleryPhotos.length > 1 && (
@@ -219,6 +220,10 @@ const jsonLd = {
   const galleryMain = document.getElementById('galleryMain');
   const galleryMainImg = document.getElementById('galleryMainImg') as HTMLImageElement | null;
   const galleryZoom = document.getElementById('galleryZoom');
+  const galleryLens = document.getElementById('galleryLens') as HTMLElement | null;
+  // Khớp với `background-size: 220%` của .product-gallery-zoom trong global.css: khung kính lúp
+  // (vùng đang được phóng to) chiếm 1 / 2.2 chiều rộng/cao ảnh chính. Đổi số này thì đổi luôn CSS.
+  const ZOOM_FACTOR = 2.2;
 
   document.querySelectorAll<HTMLButtonElement>('.gallery-thumb').forEach((thumb) => {
     thumb.addEventListener('click', () => {
@@ -232,20 +237,33 @@ const jsonLd = {
     });
   });
 
-  if (galleryMain && galleryZoom && window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
+  if (galleryMain && galleryZoom && galleryLens && window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
     galleryMain.addEventListener('mouseenter', () => {
       galleryZoom.style.backgroundImage = `url(${galleryMain.getAttribute('data-zoom')})`;
       galleryZoom.classList.add('active');
+      galleryLens.classList.add('active');
     });
     galleryMain.addEventListener('mousemove', (event) => {
       const rect = galleryMain.getBoundingClientRect();
       const mouseEvent = event as MouseEvent;
-      const x = ((mouseEvent.clientX - rect.left) / rect.width) * 100;
-      const y = ((mouseEvent.clientY - rect.top) / rect.height) * 100;
-      galleryZoom.style.backgroundPosition = `${x}% ${y}%`;
+      const lensW = rect.width / ZOOM_FACTOR;
+      const lensH = rect.height / ZOOM_FACTOR;
+      // Tâm khung kính lúp đi theo chuột, nhưng không cho tràn ra ngoài ảnh
+      let x = mouseEvent.clientX - rect.left - lensW / 2;
+      let y = mouseEvent.clientY - rect.top - lensH / 2;
+      x = Math.max(0, Math.min(x, rect.width - lensW));
+      y = Math.max(0, Math.min(y, rect.height - lensH));
+      galleryLens.style.width = `${lensW}px`;
+      galleryLens.style.height = `${lensH}px`;
+      galleryLens.style.left = `${x}px`;
+      galleryLens.style.top = `${y}px`;
+      const bgX = (x / (rect.width - lensW)) * 100;
+      const bgY = (y / (rect.height - lensH)) * 100;
+      galleryZoom.style.backgroundPosition = `${bgX}% ${bgY}%`;
     });
     galleryMain.addEventListener('mouseleave', () => {
       galleryZoom.classList.remove('active');
+      galleryLens.classList.remove('active');
     });
   }
 
