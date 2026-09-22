@@ -178,6 +178,10 @@ const drawerSections: DrawerSection[] = [
     </a>
   </div>
 
+  <!-- Gợi ý hiện ngay khi gõ vào ô tìm kiếm (xem script cuối trang). Đặt NGOÀI .header-main (dải nền có
+       overflow:hidden để cắt icon lá trang trí) và định vị bằng toạ độ thật qua JS, không thì bị cắt mất. -->
+  <div class="search-suggest" id="searchSuggest" role="listbox" aria-label="Gợi ý tìm kiếm" hidden></div>
+
   <div class="navbar">
     <div class="container">
       <nav class="site-nav" aria-label="Chuyên mục">
@@ -440,6 +444,7 @@ const drawerSections: DrawerSection[] = [
 
 <script>
   import { MAX_QTY, addToCart, cartCount } from '../lib/cart';
+  import { url } from '../lib/url';
 
   // Chữ gợi ý trong ô tìm kiếm: hiện dần từng chữ kiểu đang gõ bàn phím, gõ xong dừng một lúc rồi XÓA
   // HẾT NGAY một lần (không xóa dần từng chữ), dừng một lúc rồi gõ lại từ đầu (lặp lại mãi). Tắt hẳn
@@ -468,6 +473,115 @@ const drawerSections: DrawerSection[] = [
     tick();
   } else if (typeTarget) {
     typeTarget.textContent = typeTarget.dataset.text ?? '';
+  }
+
+  // Gợi ý hiện ngay khi gõ vào ô tìm kiếm đầu trang (không cần bấm nút tìm kiếm), dùng lại chỉ mục
+  // Pagefind có sẵn (chỉ tải khi người dùng thật sự bấm vào ô, để không nặng các trang không tìm kiếm).
+  // Bấm Enter hoặc nút tìm kiếm vẫn đi tới /tim-kiem/ như bình thường (hành vi mặc định của <form>).
+  const searchInput = document.getElementById('header-q') as HTMLInputElement | null;
+  const searchSuggest = document.getElementById('searchSuggest');
+  const searchWrap = document.querySelector<HTMLElement>('.search-wrap');
+  const siteHeader = document.querySelector<HTMLElement>('.site-header');
+  if (searchInput && searchSuggest) {
+    // .search-suggest nằm ngoài .header-main (xem lý do trong CSS) nên phải tự tính toạ độ theo
+    // .site-header (điểm neo position:relative) thay vì dựa vào CSS top/left cố định.
+    function positionSuggest() {
+      if (!searchWrap || !siteHeader) return;
+      const wrapRect = searchWrap.getBoundingClientRect();
+      const headerRect = siteHeader.getBoundingClientRect();
+      searchSuggest.style.top = `${wrapRect.bottom - headerRect.top}px`;
+      searchSuggest.style.left = `${wrapRect.left - headerRect.left}px`;
+      searchSuggest.style.width = `${wrapRect.width}px`;
+    }
+    window.addEventListener('resize', () => {
+      if (!searchSuggest.hidden) positionSuggest();
+    });
+    let pagefind: { search: (q: string) => Promise<{ results: { id: string; data: () => Promise<{ url: string; meta: { title?: string }; excerpt: string }> }[] }> } | null = null;
+    let loadingPagefind: Promise<void> | null = null;
+    function loadPagefind() {
+      if (!loadingPagefind) {
+        loadingPagefind = import(/* @vite-ignore */ url('/pagefind/pagefind.js'))
+          .then((mod) => {
+            pagefind = mod;
+          })
+          .catch(() => {
+            // Chưa build (npm run dev) hoặc lỗi tải: bỏ qua, gõ Enter vẫn dùng được trang /tim-kiem/
+          });
+      }
+      return loadingPagefind;
+    }
+
+    function hideSuggest() {
+      searchSuggest.hidden = true;
+      searchSuggest.innerHTML = '';
+    }
+
+    function stripTags(html: string): string {
+      const div = document.createElement('div');
+      div.innerHTML = html;
+      return div.textContent ?? '';
+    }
+
+    let requestId = 0;
+    async function runSearch(term: string) {
+      await loadPagefind();
+      if (!pagefind) return;
+      const myRequest = ++requestId;
+      const search = await pagefind.search(term);
+      if (myRequest !== requestId || term !== searchInput?.value.trim()) return; // gõ tiếp trong lúc chờ, bỏ kết quả cũ
+      const top = await Promise.all(search.results.slice(0, 6).map((r) => r.data()));
+      if (myRequest !== requestId) return;
+      if (top.length === 0) {
+        hideSuggest();
+        return;
+      }
+      searchSuggest.innerHTML = '';
+      top.forEach((item) => {
+        const a = document.createElement('a');
+        a.href = item.url;
+        a.setAttribute('role', 'option');
+        const title = document.createElement('span');
+        title.className = 'search-suggest-title';
+        title.textContent = item.meta.title ?? item.url;
+        const excerpt = document.createElement('span');
+        excerpt.className = 'search-suggest-excerpt';
+        excerpt.textContent = stripTags(item.excerpt);
+        a.append(title, excerpt);
+        searchSuggest.append(a);
+      });
+      const seeAll = document.createElement('a');
+      seeAll.href = url(`/tim-kiem/?q=${encodeURIComponent(term)}`);
+      seeAll.className = 'search-suggest-all';
+      seeAll.textContent = `Xem tất cả kết quả cho "${term}" ›`;
+      searchSuggest.append(seeAll);
+      positionSuggest();
+      searchSuggest.hidden = false;
+    }
+
+    let debounceTimer: number | undefined;
+    searchInput.addEventListener('input', () => {
+      const term = searchInput.value.trim();
+      window.clearTimeout(debounceTimer);
+      if (term.length < 2) {
+        hideSuggest();
+        return;
+      }
+      debounceTimer = window.setTimeout(() => runSearch(term), 200);
+    });
+    searchInput.addEventListener('focus', loadPagefind);
+    searchInput.addEventListener('focus', () => {
+      if (searchInput.value.trim().length >= 2 && searchSuggest.innerHTML) {
+        positionSuggest();
+        searchSuggest.hidden = false;
+      }
+    });
+    document.addEventListener('click', (event) => {
+      if (!(event.target instanceof Node)) return;
+      if (!searchInput.contains(event.target) && !searchSuggest.contains(event.target)) hideSuggest();
+    });
+    searchInput.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') hideSuggest();
+    });
   }
 
   // Mở/đóng danh sách thả xuống bằng nút mũi tên (dùng cho điện thoại và bàn phím).

@@ -1246,6 +1246,66 @@ img {
   min-width: 0;
 }
 
+/*
+ * Khung gợi ý hiện ngay khi gõ vào ô tìm kiếm đầu trang (xem script cuối Header.astro).
+ * `.site-header` là điểm neo (position: relative) — KHÔNG đặt khung này trong `.header-main` vì
+ * dải nền đó có `overflow: hidden` (để cắt icon lá trang trí) nên sẽ cắt mất khung gợi ý. Vị trí
+ * top/left/width thật do JS tính từ toạ độ ô tìm kiếm rồi gán trực tiếp qua style.
+ */
+.site-header {
+  position: relative;
+}
+
+.search-suggest {
+  position: absolute;
+  z-index: 70;
+  margin-top: 0.4rem;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: #fff;
+  box-shadow: 0 12px 32px rgb(0 0 0 / 0.18);
+}
+
+.search-suggest a {
+  display: block;
+  padding: 0.6rem 1rem;
+  border-bottom: 1px solid var(--line);
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.search-suggest a:last-child {
+  border-bottom: 0;
+}
+
+.search-suggest a:hover,
+.search-suggest a:focus-visible {
+  background: var(--green-50);
+}
+
+.search-suggest-title {
+  display: block;
+  font-weight: 700;
+}
+
+.search-suggest-excerpt {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  margin-top: 0.1rem;
+  font-size: 0.8rem;
+  color: var(--ink-soft);
+}
+
+.search-suggest-all {
+  font-weight: 700;
+  color: var(--green-700);
+  text-align: center;
+  background: var(--green-50);
+}
+
 .header-search {
   display: flex;
   min-width: 0;

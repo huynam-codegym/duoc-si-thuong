@@ -38,6 +38,10 @@ const preview = isPreview(post);
 
 <BaseLayout title={title} description={description} jsonLd={jsonLd} image={cover} noindex={preview}>
   <article class="container narrow article" data-pagefind-body>
+    <!-- Không hiện trên trang, chỉ để Pagefind lọc kết quả tìm kiếm theo chuyên mục/nhóm (xem /tim-kiem/) -->
+    <span hidden data-pagefind-filter="Loại nội dung">Bài viết</span>
+    <span hidden data-pagefind-filter="Chuyên mục">{categories[category].name}</span>
+    {group && <span hidden data-pagefind-filter="Nhóm">{group.name}</span>}
     <header>
       {
         !isPublishable(post) && (

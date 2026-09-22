@@ -3,11 +3,11 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import { url } from '../lib/url';
 ---
 
-<BaseLayout title="Tìm kiếm" description="Tìm bài viết về ăn uống, bệnh và thuốc trên Dược Sĩ Thương.">
+<BaseLayout title="Tìm kiếm" description="Tìm sản phẩm và bài viết về ăn uống, bệnh và thuốc trên Dược Sĩ Thương.">
   <div class="container narrow">
     <section class="hero">
       <h1>Tìm kiếm</h1>
-      <p>Nhập từ khóa để tìm bài viết, ví dụ: đường, huyết áp, kháng sinh.</p>
+      <p>Nhập từ khóa để tìm sản phẩm hoặc bài viết, ví dụ: đường, huyết áp, kháng sinh.</p>
     </section>
 
     <div id="search"></div>
@@ -31,7 +31,7 @@ import { url } from '../lib/url';
         showSubResults: false,
         autofocus: true,
         translations: {
-          placeholder: 'Tìm bài viết...',
+          placeholder: 'Tìm sản phẩm, bài viết...',
           clear_search: 'Xóa',
           load_more: 'Xem thêm kết quả',
           search_label: 'Tìm kiếm trên website',
@@ -48,4 +48,16 @@ import { url } from '../lib/url';
       if (q) ui.triggerSearch(q);
     });
   </script>
+
+  <style>
+    /* Đổi màu chủ đạo của khung Pagefind sang xanh lá của thương hiệu (biến CSS Pagefind hỗ trợ sẵn) */
+    #search {
+      --pagefind-ui-primary: var(--green-700);
+      --pagefind-ui-text: var(--ink);
+      --pagefind-ui-background: #fff;
+      --pagefind-ui-border: var(--line);
+      --pagefind-ui-border-radius: 10px;
+      --pagefind-ui-font: inherit;
+    }
+  </style>
 </BaseLayout>

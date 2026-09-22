@@ -7,7 +7,7 @@ import ProductNotice from '../../components/ProductNotice.astro';
 import Disclaimer from '../../components/Disclaimer.astro';
 import { departments } from '../../lib/departments';
 import { foldVietnamese, formatDate } from '../../lib/posts';
-import { formatPrice, getProducts } from '../../lib/products';
+import { formatPrice, getProducts, priceBucket } from '../../lib/products';
 import { site } from '../../lib/site';
 import { url } from '../../lib/url';
 
@@ -71,6 +71,11 @@ const jsonLd = {
 <BaseLayout title={name} description={summary} jsonLd={jsonLd} image={image} noindex={draft}>
   <ShopShell department={departmentSlug} current={group}>
     <article class="product" data-pagefind-body>
+      <!-- Không hiện trên trang, chỉ để Pagefind lọc kết quả tìm kiếm theo khu/nhóm/giá (xem /tim-kiem/) -->
+      <span hidden data-pagefind-filter="Loại nội dung">Sản phẩm</span>
+      <span hidden data-pagefind-filter="Khu">{department.name}</span>
+      <span hidden data-pagefind-filter="Nhóm">{groupInfo.name}</span>
+      {priceBucket(price) && <span hidden data-pagefind-filter="Giá">{priceBucket(price)}</span>}
       {
         draft && (
           <p class="draft-banner">

@@ -90,7 +90,20 @@ npm run preview    # xem thử bản build, dùng để thử tìm kiếm
 
 Tìm kiếm **không chạy trong `npm run dev`** vì chỉ mục chỉ được tạo lúc `npm run build`. Muốn thử tìm kiếm: `npm run build` rồi `npm run preview`.
 
-Pagefind chưa hỗ trợ tiếng Việt đầy đủ: nó tự bỏ dấu thanh/dấu mũ (gõ "khang sinh" ra "kháng sinh") nhưng không coi "đ" là "d". Vì vậy trang bài viết có thêm một đoạn ẩn chứa bản không dấu của tiêu đề và mô tả (`foldVietnamese` trong `src/lib/posts.ts`). Nhờ đó gõ "dot quy" ra "đột quỵ". Từ chỉ nằm trong phần nội dung chứa chữ "đ" thì vẫn phải gõ đúng dấu.
+Pagefind chưa hỗ trợ tiếng Việt đầy đủ: nó tự bỏ dấu thanh/dấu mũ (gõ "khang sinh" ra "kháng sinh") nhưng không coi "đ" là "d". Vì vậy trang bài viết có thêm một đoạn ẩn chứa bản không dấu của tiêu đề và mô tả (`foldVietnamese`, chuyển ra file riêng `src/lib/text.ts` — xem lý do ở mục "Gợi ý khi gõ" bên dưới). Nhờ đó gõ "dot quy" ra "đột quỵ". Từ chỉ nằm trong phần nội dung chứa chữ "đ" thì vẫn phải gõ đúng dấu.
+
+### Gợi ý khi gõ và bộ lọc tìm kiếm (tháng 9/2026)
+
+Chủ website gửi ảnh Google/Long Châu, muốn: (1) gõ vào ô tìm kiếm đầu trang hiện gợi ý ngay, không phải bấm tìm kiếm mới thấy; (2) trang `/tim-kiem/` có bộ lọc bên trái.
+
+- **Gợi ý khi gõ** (`Header.astro`, khung `#searchSuggest`): gõ ≥2 ký tự vào ô tìm kiếm đầu trang (mọi trang, không chỉ `/tim-kiem/`) sẽ tự tải chỉ mục Pagefind (`/pagefind/pagefind.js`, chỉ tải khi người dùng thật sự bấm/gõ vào ô, không tải sẵn cho nhẹ trang) và hiện tối đa 6 kết quả gần nhất + dòng "Xem tất cả kết quả cho...". Bấm Enter hoặc nút tìm kiếm vẫn đi tới `/tim-kiem/?q=...` như cũ (hành vi `<form>` mặc định).
+  - **Bẫy đã gặp:** khung gợi ý ban đầu đặt trong `.search-wrap` (bên trong `.header-main`), nhưng `.header-main` có `overflow: hidden` (để cắt icon lá trang trí ở mép ngoài) nên cắt luôn khung gợi ý — khung vẫn "visible" theo CSS nhưng không thấy gì trên màn hình. Đã sửa bằng cách đặt khung `#searchSuggest` làm con trực tiếp của `<header class="site-header">` (ngoài `.header-main`) và tự tính `top/left/width` bằng JS theo toạ độ thật của ô tìm kiếm (`getBoundingClientRect`), không dùng CSS `top/left` cố định.
+  - **Bẫy đã gặp (2):** script trong thẻ `<script>` của `Header.astro` là một module JS riêng chạy ở trình duyệt, KHÔNG dùng chung biến với phần frontmatter phía trên (dù cùng file `.astro`) — gọi `url(...)` mà quên `import { url } from '../lib/url'` ngay trong `<script>` sẽ lỗi `ReferenceError: url is not defined` (chỉ thấy trong console trình duyệt, không báo lỗi lúc build).
+- **Bộ lọc ở `/tim-kiem/`**: `PagefindUI` tự có sẵn khung lọc bên trái (`filters_label`), chỉ cần đánh dấu `data-pagefind-filter="Tên bộ lọc"` trên các trang. Đã thêm cho:
+  - Trang sản phẩm (`[department]/[slug].astro`): `Loại nội dung` (luôn "Sản phẩm"), `Khu`, `Nhóm`, `Giá` (khoảng giá, hàm `priceBucket()` trong `src/lib/products.ts`, ví dụ "100.000 - 300.000 đ"; sản phẩm chưa có giá thì không lọc được theo Giá).
+  - Trang bài viết (`[category]/[slug].astro`): `Loại nội dung` (luôn "Bài viết"), `Chuyên mục`, `Nhóm` (nếu bài có `subcategory`).
+  - Các thẻ `<span hidden data-pagefind-filter="...">` này không hiện trên trang, chỉ để Pagefind đọc lúc lập chỉ mục (`npm run build`). Thêm bộ lọc mới: thêm dòng tương tự trong 2 file trên.
+  - Màu khung Pagefind đổi sang xanh lá thương hiệu qua biến CSS `--pagefind-ui-primary` (khai báo trong `<style>` của `tim-kiem.astro`, Pagefind hỗ trợ sẵn, không cần ghi đè từng class).
 
 ### Cấu trúc thư mục
 

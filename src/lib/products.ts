@@ -20,3 +20,12 @@ export async function getProducts(department?: DepartmentSlug, group?: string): 
 export function formatPrice(price?: number): string {
   return price === undefined ? 'Liên hệ' : `${price.toLocaleString('vi-VN')} ₫`;
 }
+
+/** Khoảng giá dùng làm bộ lọc tìm kiếm (Pagefind). Không có giá thì trả undefined (không lọc được theo giá). */
+export function priceBucket(price?: number): string | undefined {
+  if (price === undefined) return undefined;
+  if (price < 100_000) return 'Dưới 100.000 đ';
+  if (price < 300_000) return '100.000 - 300.000 đ';
+  if (price < 500_000) return '300.000 - 500.000 đ';
+  return 'Trên 500.000 đ';
+}
