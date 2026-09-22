@@ -6,8 +6,8 @@ subcategory: "nguyen-tac"
 publishedAt: 2026-09-21
 updatedAt: 2026-09-21
 cover: "../../assets/posts/nguyen-tac-an-uong-lanh-manh/cover.jpg"
-coverAlt: "Đồ họa 5 nguyên tắc ăn uống lành mạnh mỗi ngày: ít nhất 400 g rau và trái cây, đường tự do dưới 10% năng lượng, muối dưới 5 g, chất béo dưới 30% năng lượng, uống nước lọc thay đồ uống có đường"
-coverCredit: "Đồ họa: Dược Sĩ Thương. Số liệu: WHO, Healthy diet."
+coverAlt: "Ảnh minh họa bài viết 5 nguyên tắc ăn uống lành mạnh: nhãn nhóm Nguyên tắc ăn uống, tiêu đề bài và biểu tượng bát salad trên nền xanh lá"
+coverCredit: "Đồ họa: Dược Sĩ Thương"
 sources:
   - title: "WHO - Healthy diet (Chế độ ăn lành mạnh)"
     url: "https://www.who.int/news-room/fact-sheets/detail/healthy-diet"
@@ -18,6 +18,9 @@ draft: false
 ## Tóm tắt nhanh
 
 Ăn uống lành mạnh không cần cầu kỳ. Bạn chỉ cần ăn đa dạng, nhiều rau quả, ít đường, ít muối và ít chất béo không tốt. Các con số dưới đây áp dụng cho **người trưởng thành khỏe mạnh**.
+
+![5 nguyên tắc ăn uống lành mạnh theo WHO: ăn đa dạng ít nhất 400 g rau và trái cây mỗi ngày, đường tự do dưới 10% năng lượng, muối dưới 5 g mỗi ngày, tổng chất béo dưới 30% năng lượng, ưu tiên nước lọc](../../assets/posts/nguyen-tac-an-uong-lanh-manh/hinh-1.jpg)
+*Đồ họa: Dược Sĩ Thương. Nguồn: WHO, Healthy diet.*
 
 ## 1. Ăn đa dạng, nhiều rau và trái cây
 
@@ -38,8 +41,8 @@ Nên dùng **dưới 5 g muối mỗi ngày** (khoảng 1 muỗng cà phê). Lư
 - Chất béo chuyển hóa (có trong một số đồ chiên rán, bánh nướng công nghiệp) nên dưới 1%.
 - Ưu tiên chất béo không bão hòa như cá, quả bơ, các loại hạt và dầu thực vật.
 
-![Biểu đồ cột ngang thể hiện giới hạn chất béo mỗi ngày theo tỷ lệ tổng năng lượng ăn vào: tổng chất béo dưới 30%, chất béo bão hòa dưới 10%, chất béo chuyển hóa dưới 1%](../../assets/posts/nguyen-tac-an-uong-lanh-manh/fats.jpg)
-*Đồ họa: Dược Sĩ Thương. Số liệu: WHO, Healthy diet.*
+![Giới hạn chất béo mỗi ngày tính theo % tổng năng lượng ăn vào: tổng chất béo dưới 30%, chất béo bão hòa dưới 10%, chất béo chuyển hóa dưới 1%, ưu tiên chất béo không bão hòa từ cá, quả bơ, các loại hạt, dầu thực vật](../../assets/posts/nguyen-tac-an-uong-lanh-manh/hinh-2.jpg)
+*Đồ họa: Dược Sĩ Thương. Nguồn: WHO, Healthy diet.*
 
 ## 5. Uống đủ nước lọc
 

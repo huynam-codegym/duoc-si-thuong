@@ -53,4 +53,4 @@ Trạng thái: 8 bài đã đăng ở dạng "bản xem thử" (có khung vàng,
 - Cần kiểm tra thêm: cách diễn đạt liều bổ sung cho phụ nữ chuẩn bị mang thai theo khuyến cáo của Bộ Y tế Việt Nam; mục "Khi nào cần đi khám".
 
 ### nguyen-tac-an-uong-lanh-manh (bài đã có từ trước, nay thuộc nhóm "Nguyên tắc ăn uống")
-- Nguồn: WHO Healthy diet. Hai hình minh họa làm trước có chữ nhỏ, nên làm lại theo khổ mới cho dễ đọc trên điện thoại.
+- Nguồn: WHO Healthy diet. **Đã làm lại ảnh (2026-09-22):** ảnh bìa đổi sang kiểu nhãn nhóm đơn giản (giống các bài khác, không còn chứa số liệu); 2 hình minh họa cũ (`cover.jpg` bản gộp 5 nguyên tắc, `fats.jpg`) thay bằng `hinh-1.jpg`/`hinh-2.jpg` theo khổ 1000px, chữ lớn, dễ đọc trên điện thoại. Số liệu giữ nguyên như bản cũ, không thêm nguồn mới.
