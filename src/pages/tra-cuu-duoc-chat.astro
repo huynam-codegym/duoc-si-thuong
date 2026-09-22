@@ -1,0 +1,36 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import AzLookup from '../components/AzLookup.astro';
+import Disclaimer from '../components/Disclaimer.astro';
+import { allActiveIngredients } from '../lib/drug-lookup';
+import { url } from '../lib/url';
+
+const items = allActiveIngredients.map((name) => ({ name }));
+---
+
+<BaseLayout
+  title="Tra cứu dược chất"
+  description="Tra cứu nhanh tên hoạt chất (dược chất) theo chữ cái hoặc từ khóa."
+  noindex
+>
+  <div class="container narrow">
+    <nav class="breadcrumb" aria-label="Đường dẫn">
+      <a href={url('/')}>Trang chủ</a> / <a href={url('/kien-thuc-ve-thuoc/')}>Thuốc</a> / <span aria-current="page">Tra cứu dược chất</span>
+    </nav>
+    <h1>Tra cứu dược chất</h1>
+    <p class="lead">
+      Danh sách <strong>tên hoạt chất</strong> (dược chất), gõ tìm hoặc bấm theo chữ cái. Đây là <strong>bản xem thử giao
+      diện</strong>, mới có một số hoạt chất phổ biến làm ví dụ, chưa có trang chi tiết cho từng chất.
+    </p>
+    <AzLookup items={items} searchPlaceholder="Nhập tên dược chất cần tìm..." />
+    <div class="article-end">
+      <Disclaimer />
+    </div>
+  </div>
+</BaseLayout>
+
+<style>
+  .lead {
+    color: var(--ink-soft);
+  }
+</style>

@@ -1,0 +1,37 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import AzLookup from '../components/AzLookup.astro';
+import Disclaimer from '../components/Disclaimer.astro';
+import { herbalMaterials } from '../lib/drug-lookup';
+import { url } from '../lib/url';
+
+const items = herbalMaterials.map((name) => ({ name }));
+---
+
+<BaseLayout
+  title="Tra cứu dược liệu"
+  description="Tra cứu nhanh tên dược liệu (y học cổ truyền) theo chữ cái hoặc từ khóa."
+  noindex
+>
+  <div class="container narrow">
+    <nav class="breadcrumb" aria-label="Đường dẫn">
+      <a href={url('/')}>Trang chủ</a> / <a href={url('/kien-thuc-ve-thuoc/')}>Thuốc</a> / <span aria-current="page">Tra cứu dược liệu</span>
+    </nav>
+    <h1>Tra cứu dược liệu</h1>
+    <p class="lead">
+      Danh sách <strong>tên dược liệu</strong> quen thuộc trong y học cổ truyền, gõ tìm hoặc bấm theo chữ cái. Đây là
+      <strong>bản xem thử giao diện</strong>, mới có một số dược liệu phổ biến làm ví dụ, chưa có trang chi tiết (công
+      dụng, cách dùng...) cho từng dược liệu.
+    </p>
+    <AzLookup items={items} searchPlaceholder="Nhập tên dược liệu cần tìm..." />
+    <div class="article-end">
+      <Disclaimer />
+    </div>
+  </div>
+</BaseLayout>
+
+<style>
+  .lead {
+    color: var(--ink-soft);
+  }
+</style>

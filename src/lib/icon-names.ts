@@ -30,4 +30,6 @@ export type IconName =
   | 'doctor'
   | 'tooth'
   | 'comb'
-  | 'firstaid';
+  | 'firstaid'
+  | 'search'
+  | 'flask';

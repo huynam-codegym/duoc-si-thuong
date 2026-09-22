@@ -2660,3 +2660,125 @@ button.btn:not(.btn-outline) {
   font-weight: 600;
   line-height: 1.35;
 }
+
+/* 3 trang "Tra cứu" (thuốc/dược chất/dược liệu): nhóm (tùy chọn) + ô tìm kiếm + chỉ mục A-Z + danh sách tên */
+.az-groups {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(9rem, 1fr));
+  gap: 0.75rem;
+  margin: 1.25rem 0;
+}
+
+.az-group-tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 1rem 0.5rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: #fff;
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-align: center;
+  cursor: pointer;
+}
+
+.az-group-tile:hover {
+  border-color: var(--green-700);
+  background: var(--green-50);
+}
+
+.az-group-tile.active {
+  border-color: var(--green-700);
+  background: var(--green-700);
+  color: #fff;
+}
+
+.az-group-icon {
+  color: var(--green-700);
+}
+
+.az-group-tile.active .az-group-icon {
+  color: #fff;
+}
+
+.az-lookup-search {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.7rem 1rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: #fff;
+  color: var(--green-700);
+  margin: 1.25rem 0 1rem;
+}
+
+.az-lookup-search:focus-within {
+  border-color: var(--green-700);
+  box-shadow: 0 0 0 3px var(--green-100);
+}
+
+.az-input {
+  flex: 1;
+  border: 0;
+  outline: 0;
+  font: inherit;
+  color: var(--ink);
+  background: none;
+}
+
+.az-letters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin-bottom: 1.25rem;
+}
+
+.az-letter {
+  min-width: 2.1rem;
+  padding: 0.35rem;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--ink);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.az-letter:hover {
+  border-color: var(--green-700);
+  color: var(--green-700);
+}
+
+.az-letter.active {
+  border-color: var(--green-700);
+  background: var(--green-700);
+  color: #fff;
+}
+
+.az-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr));
+  gap: 0.5rem 1rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.az-item {
+  padding: 0.55rem 0.75rem;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--green-50);
+  font-size: 0.9rem;
+}
+
+.az-empty {
+  margin-top: 1.25rem;
+  color: var(--ink-soft);
+}

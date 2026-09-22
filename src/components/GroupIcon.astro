@@ -201,6 +201,18 @@ const { icon: name, size = 20, badge = false, badgeSize = size + 20 } = Astro.pr
             <path d="M12 9v6M9 12h6" />
           </>
         )}
+        {name === 'search' && (
+          <>
+            <circle cx="10.5" cy="10.5" r="6.5" />
+            <path d="M15.5 15.5L20 20" />
+          </>
+        )}
+        {name === 'flask' && (
+          <>
+            <path d="M10 3h4M10.5 3.5v5.8L5.8 18a1.6 1.6 0 0 0 1.4 2.4h9.6a1.6 1.6 0 0 0 1.4-2.4L13.5 9.3V3.5" />
+            <path d="M7.8 15h8.4" />
+          </>
+        )}
       </svg>
     </span>
   ) : (
@@ -385,6 +397,18 @@ const { icon: name, size = 20, badge = false, badgeSize = size + 20 } = Astro.pr
         <>
           <rect x="4" y="5" width="16" height="14" rx="3" />
           <path d="M12 9v6M9 12h6" />
+        </>
+      )}
+      {name === 'search' && (
+        <>
+          <circle cx="10.5" cy="10.5" r="6.5" />
+          <path d="M15.5 15.5L20 20" />
+        </>
+      )}
+      {name === 'flask' && (
+        <>
+          <path d="M10 3h4M10.5 3.5v5.8L5.8 18a1.6 1.6 0 0 0 1.4 2.4h9.6a1.6 1.6 0 0 0 1.4-2.4L13.5 9.3V3.5" />
+          <path d="M7.8 15h8.4" />
         </>
       )}
     </svg>

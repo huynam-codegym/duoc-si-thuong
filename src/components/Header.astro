@@ -14,6 +14,16 @@ const entries = Object.entries(categories) as [CategorySlug, (typeof categories)
 // Từ khóa gợi ý dưới ô tìm kiếm (chỉ dùng từ có bài viết trên website để kết quả không trống)
 const searchHints = ['Canxi', 'Sắt', 'Kẽm', 'Vitamin D', 'Vitamin C', 'Acid folic', 'Kháng sinh'];
 
+// Menu thả xuống của mục "Thuốc" tạm thời thay bằng 3 trang "Tra cứu" (chủ website yêu cầu tháng 9/2026,
+// theo mẫu Long Châu gửi), thay cho danh sách nhóm bài viết "Kiến thức về thuốc" như trước — xem
+// src/lib/drug-lookup.ts để biết vì sao chỉ có tên hoạt chất/dược liệu, chưa có trang chi tiết từng chất.
+// Đổi lại danh sách nhóm bài viết: xóa hằng số này và khôi phục đoạn dùng getGroups() như các chuyên mục khác.
+const drugLookupLinks = [
+  { name: 'Tra cứu thuốc', href: url('/tra-cuu-thuoc/'), icon: 'search' as const },
+  { name: 'Tra cứu dược chất', href: url('/tra-cuu-duoc-chat/'), icon: 'flask' as const },
+  { name: 'Tra cứu dược liệu', href: url('/tra-cuu-duoc-lieu/'), icon: 'leaf' as const },
+];
+
 // Với mỗi khu bán hàng: sản phẩm của từng nhóm để hiện ở khung bên phải menu lớn (tối đa 5 sản phẩm mỗi nhóm)
 const allProducts = await getProducts();
 type MegaProduct = { id: string; name: string; price: number | undefined; image: string };
@@ -56,6 +66,9 @@ const drawerSections: DrawerSection[] = [
   ...entries.map(([slug, category]): DrawerSection => {
     const groups = getGroups(slug);
     const href = url(`/${slug}/`);
+    if (slug === 'kien-thuc-ve-thuoc') {
+      return { name: category.name, href, current: current.startsWith(href), children: drugLookupLinks };
+    }
     return {
       name: category.name,
       href,
@@ -214,6 +227,7 @@ const drawerSections: DrawerSection[] = [
               const groups = getGroups(slug);
               const href = url(`/${slug}/`);
               const isCurrent = current.startsWith(href);
+              const isDrugLookup = slug === 'kien-thuc-ve-thuoc';
               return groups.length > 0 ? (
                 <li class="has-sub">
                   <a href={href} aria-current={isCurrent ? 'page' : undefined}>
@@ -231,24 +245,39 @@ const drawerSections: DrawerSection[] = [
                     </svg>
                   </button>
                   <ul class="submenu" id={`sub-${slug}`}>
-                    <li>
-                      <a href={href}>
-                        <span class="sub-icon" aria-hidden="true">
-                          <GroupIcon icon="book" size={17} />
-                        </span>
-                        <span>Xem tất cả bài viết</span>
-                      </a>
-                    </li>
-                    {groups.map(([groupSlug, group]) => (
-                      <li>
-                        <a href={url(`/${slug}/nhom/${groupSlug}/`)}>
-                          <span class="sub-icon" aria-hidden="true">
-                            <GroupIcon icon={group.icon} size={17} />
-                          </span>
-                          <span>{group.name}</span>
-                        </a>
-                      </li>
-                    ))}
+                    {isDrugLookup ? (
+                      drugLookupLinks.map((link) => (
+                        <li>
+                          <a href={link.href}>
+                            <span class="sub-icon" aria-hidden="true">
+                              <GroupIcon icon={link.icon} size={17} />
+                            </span>
+                            <span>{link.name}</span>
+                          </a>
+                        </li>
+                      ))
+                    ) : (
+                      <>
+                        <li>
+                          <a href={href}>
+                            <span class="sub-icon" aria-hidden="true">
+                              <GroupIcon icon="book" size={17} />
+                            </span>
+                            <span>Xem tất cả bài viết</span>
+                          </a>
+                        </li>
+                        {groups.map(([groupSlug, group]) => (
+                          <li>
+                            <a href={url(`/${slug}/nhom/${groupSlug}/`)}>
+                              <span class="sub-icon" aria-hidden="true">
+                                <GroupIcon icon={group.icon} size={17} />
+                              </span>
+                              <span>{group.name}</span>
+                            </a>
+                          </li>
+                        ))}
+                      </>
+                    )}
                   </ul>
                 </li>
               ) : (

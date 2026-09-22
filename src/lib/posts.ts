@@ -1,6 +1,8 @@
 import { getCollection, type CollectionEntry } from 'astro:content';
 import type { CategorySlug } from './categories';
 
+export { foldVietnamese } from './text';
+
 export type Post = CollectionEntry<'posts'>;
 
 /** Bài đã được kiểm duyệt và đủ điều kiện đăng. */
@@ -34,18 +36,6 @@ export async function getPosts(category?: CategorySlug, group?: string): Promise
     .filter((post) => !category || post.data.category === category)
     .filter((post) => !group || post.data.subcategory === group)
     .sort((a, b) => b.data.updatedAt.valueOf() - a.data.updatedAt.valueOf());
-}
-
-/**
- * Bỏ dấu tiếng Việt (kể cả đ/Đ). Pagefind tự bỏ dấu thanh và dấu mũ nhưng không xem "đ" là "d",
- * nên gõ "dot quy" sẽ không ra "đột quỵ". Bản không dấu này được thêm vào chỉ mục tìm kiếm.
- */
-export function foldVietnamese(text: string): string {
-  return text
-    .normalize('NFD')
-    .replace(/[̀-ͯ]/g, '')
-    .replace(/đ/g, 'd')
-    .replace(/Đ/g, 'D');
 }
 
 export function formatDate(date: Date): string {

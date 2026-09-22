@@ -1,0 +1,107 @@
+---
+// Ô tìm kiếm + (tùy chọn) nhóm + chỉ mục A-Z + danh sách tên, dùng chung cho 3 trang "Tra cứu"
+// (thuốc/dược chất/dược liệu). Tên trong danh sách CHƯA có trang chi tiết riêng (xem ghi chú trong
+// src/lib/drug-lookup.ts) nên hiện dạng thẻ chữ thường (không phải liên kết) — lọc theo nhóm/chữ
+// cái/ô tìm kiếm, không dẫn đi đâu.
+import GroupIcon from './GroupIcon.astro';
+import type { IconName } from '../lib/icon-names';
+
+interface LookupItem {
+  name: string;
+  group?: string; // slug, khớp với groups[].slug bên dưới nếu có
+}
+
+interface LookupGroup {
+  slug: string;
+  name: string;
+  icon: IconName;
+}
+
+interface Props {
+  items: LookupItem[];
+  searchPlaceholder: string;
+  groups?: LookupGroup[];
+  emptyText?: string;
+}
+
+const { items, searchPlaceholder, groups, emptyText = 'Không tìm thấy tên phù hợp.' } = Astro.props;
+const letters = [...new Set(items.map((item) => item.name.trim().charAt(0).toUpperCase()))].sort((a, b) => a.localeCompare(b, 'vi'));
+---
+
+<div class="az-lookup">
+  {
+    groups && groups.length > 0 && (
+      <div class="az-groups">
+        {groups.map((group) => (
+          <button type="button" class="az-group-tile" data-group={group.slug}>
+            <span class="az-group-icon"><GroupIcon icon={group.icon} size={22} /></span>
+            <span>{group.name}</span>
+          </button>
+        ))}
+      </div>
+    )
+  }
+  <div class="az-lookup-search">
+    <GroupIcon icon="search" size={18} />
+    <input type="search" class="az-input" placeholder={searchPlaceholder} autocomplete="off" aria-label={searchPlaceholder} />
+  </div>
+  <div class="az-letters" role="group" aria-label="Lọc theo chữ cái">
+    {letters.map((letter) => (
+      <button type="button" class="az-letter" data-letter={letter}>{letter}</button>
+    ))}
+  </div>
+  <ul class="az-list">
+    {items.map((item) => (
+      <li class="az-item" data-name={item.name} data-letter={item.name.trim().charAt(0).toUpperCase()} data-group={item.group ?? ''}>
+        {item.name}
+      </li>
+    ))}
+  </ul>
+  <p class="az-empty" hidden>{emptyText}</p>
+</div>
+
+<script>
+  import { foldVietnamese } from '../lib/text';
+
+  document.querySelectorAll<HTMLElement>('.az-lookup').forEach((root) => {
+    const input = root.querySelector<HTMLInputElement>('.az-input');
+    const letterButtons = root.querySelectorAll<HTMLButtonElement>('.az-letter');
+    const groupButtons = root.querySelectorAll<HTMLButtonElement>('.az-group-tile');
+    const items = root.querySelectorAll<HTMLElement>('.az-item');
+    const empty = root.querySelector<HTMLElement>('.az-empty');
+    let activeLetter: string | null = null;
+    let activeGroup: string | null = null;
+
+    function applyFilter() {
+      const query = foldVietnamese(input?.value.trim() ?? '');
+      let visibleCount = 0;
+      items.forEach((item) => {
+        const matchesText = query === '' || foldVietnamese(item.dataset.name ?? '').includes(query);
+        const matchesLetter = !activeLetter || item.dataset.letter === activeLetter;
+        const matchesGroup = !activeGroup || item.dataset.group === activeGroup;
+        const show = matchesText && matchesLetter && matchesGroup;
+        item.hidden = !show;
+        if (show) visibleCount += 1;
+      });
+      if (empty) empty.hidden = visibleCount > 0;
+    }
+
+    input?.addEventListener('input', applyFilter);
+    letterButtons.forEach((button) => {
+      button.addEventListener('click', () => {
+        const letter = button.dataset.letter ?? null;
+        activeLetter = activeLetter === letter ? null : letter;
+        letterButtons.forEach((b) => b.classList.toggle('active', b.dataset.letter === activeLetter));
+        applyFilter();
+      });
+    });
+    groupButtons.forEach((button) => {
+      button.addEventListener('click', () => {
+        const group = button.dataset.group ?? null;
+        activeGroup = activeGroup === group ? null : group;
+        groupButtons.forEach((b) => b.classList.toggle('active', b.dataset.group === activeGroup));
+        applyFilter();
+      });
+    });
+  });
+</script>
