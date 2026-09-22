@@ -2433,8 +2433,8 @@ button.btn:not(.btn-outline) {
 
 .season-tab.active {
   border-color: var(--green-700);
-  background: var(--green-50);
-  color: var(--green-900);
+  background: var(--green-700);
+  color: #fff;
 }
 
 .season-panel {

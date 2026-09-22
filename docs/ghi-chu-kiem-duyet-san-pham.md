@@ -20,3 +20,20 @@ Nguồn: bạn gửi ảnh chụp trang sản phẩm và đoạn mô tả từ w
 
 **Chưa làm theo mẫu Long Châu**
 - Chọn đơn vị tính, thư viện nhiều ảnh, khuyến mãi, đánh giá, mục "Tìm nhà thuốc", chính sách đổi trả và miễn phí vận chuyển (đây là chính sách kinh doanh của họ, chỉ thêm khi nhà thuốc bạn có thật), thanh mua hàng cố định khi cuộn trang.
+
+## com-vi-sinh-lacto-biomin-gold-hop-20-goi (tháng 9/2026)
+
+Nguồn: bạn gửi 3 ảnh chụp hộp và gói sản phẩm (mặt trước), giá 149.000 ₫/hộp. Gắn vào nhóm "Tiêu hóa" (`thuc-pham-chuc-nang`/`tieu-hoa`) vì đây là nhóm sản phẩm liên quan tới tab "Tiêu chảy cấp" ở mục "Bệnh thường gặp theo mùa" trên trang chủ (xem `src/lib/seasonal.ts`).
+
+**Trước khi thêm sản phẩm khác cùng loại, một điều quan trọng cần biết:** khi anh gửi sản phẩm **Enterogermina Gut Defense** trước đó, tôi nhận thấy mặt sau hộp có in "SĐK: QLSP-0728-13" và dòng "...xem hướng dẫn sử dụng **thuốc**" — đây là cách ghi thường dùng cho **thuốc đã đăng ký** (có số đăng ký thuốc), khác với thực phẩm chức năng (ghi "Số tiếp nhận đăng ký bản công bố sản phẩm"). Vì site **chưa có giấy phép kinh doanh dược qua thương mại điện tử** (xem CLAUDE.md, mục "Khu bán hàng"), tôi **chưa thêm sản phẩm Enterogermina này vào cửa hàng** — nhờ anh xác nhận lại đây là thuốc hay TPCN trước khi tôi thêm (nếu là thuốc thì không thể bán trực tuyến khi chưa có giấy phép). Sản phẩm Lacto Biomin Gold+ trong ảnh anh gửi có ghi rõ "Thực phẩm bảo vệ sức khỏe" trên bao bì nên tôi thêm sản phẩm này thay vào nhóm Tiêu hóa.
+
+**Việc bạn cần làm**
+- **Ảnh sản phẩm:** đã dùng ảnh hộp thật anh gửi (mặt trước). Nếu có ảnh đẹp hơn hoặc ảnh chụp riêng của nhà thuốc, gửi để thay.
+- **Thành phần và liều dùng chi tiết:** ảnh gửi chỉ có mặt trước hộp và 1 gói lẻ, chưa thấy mặt sau (nơi thường ghi hàm lượng từng thành phần, liều dùng theo độ tuổi, số công bố sản phẩm, hạn dùng, nhà sản xuất/nhà phân phối). Trang sản phẩm đang ghi rõ "chưa có trong ảnh gửi tới" ở phần thành phần và cách dùng — gửi thêm ảnh mặt sau hoặc thông tin cụ thể để tôi điền đầy đủ và chính xác hơn.
+- **Số công bố sản phẩm và số xác nhận quảng cáo:** điền `publicationNo` và `adConfirmationNo` khi có.
+- **Thương hiệu "Bayer World":** đây là tên in trên bao bì (không phải hãng dược phẩm Bayer AG của Đức) — nhờ anh xác nhận đây đúng là nhà phân phối/thương hiệu hợp lệ của sản phẩm trước khi bán, vì tên gần giống một thương hiệu lớn có thể gây nhầm lẫn cho khách.
+- **Giá 149.000 ₫/hộp:** đã điền đúng theo anh gửi.
+
+**Những câu tôi giữ nguyên/diễn đạt lại từ bao bì**
+- Các công dụng ("bổ sung lợi khuẩn...", "cải thiện tình trạng biếng ăn...", "hỗ trợ cải thiện hệ vi sinh đường ruột...") đều ghi rõ "theo nhà sản xuất", đúng nguyên văn ý trên bao bì, không thêm claim mạnh hơn (không viết "chữa", "khỏi", "hiệu quả tuyệt đối").
+- Thêm lưu ý cho trẻ dưới 1 tuổi, người có bệnh nền, người dùng thuốc khác — theo nguyên tắc 7 trong CLAUDE.md, đây là lưu ý chung tôi thêm vào, dược sĩ cần xác nhận lại có đúng với sản phẩm này không.
