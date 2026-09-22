@@ -1207,7 +1207,10 @@ img {
   background: var(--green-900);
 }
 
-@media (min-width: 48rem) {
+/* Ô tìm kiếm nằm cùng hàng với logo/giỏ hàng (thay vì xuống hàng riêng) chỉ từ 64rem trở lên,
+   khớp với ngưỡng ẩn nút 3 gạch/hiện thanh menu ngang — dưới mức đó (kể cả máy tính bảng như iPad
+   đứng) giữ kiểu gọn: ô tìm kiếm xuống hàng riêng, logo/giỏ hàng đủ chỗ trên cùng một hàng. */
+@media (min-width: 64rem) {
   .header-main .brand {
     margin-right: 0;
   }
@@ -1506,7 +1509,9 @@ button.btn:not(.btn-outline) {
   margin-bottom: 2rem;
 }
 
-/* Điện thoại hẹp: giỏ hàng chỉ còn biểu tượng và số, để nằm cùng hàng với logo */
+/* Điện thoại hẹp: giỏ hàng chỉ còn biểu tượng và số, để nằm cùng hàng với logo.
+   Tên thương hiệu bằng chữ cũng ẩn đi (chỉ còn logo tròn) vì nút 3 gạch + logo + giỏ hàng
+   không đủ chỗ cùng hàng nếu giữ cả chữ, làm giỏ hàng bị rớt xuống dòng riêng. */
 @media (max-width: 30rem) {
   .cart-label {
     display: none;
@@ -1522,9 +1527,20 @@ button.btn:not(.btn-outline) {
     white-space: nowrap;
   }
 
+  .header-main .brand span {
+    display: none;
+  }
+
   .header-main .brand-logo {
     width: 2.6rem;
     height: 2.6rem;
+  }
+}
+
+/* Bỏ dãy từ khóa gợi ý dưới ô tìm kiếm trên điện thoại và máy tính bảng để đầu trang gọn hơn */
+@media (max-width: 63.99rem) {
+  .search-hints {
+    display: none;
   }
 }
 
@@ -2136,6 +2152,10 @@ button.btn:not(.btn-outline) {
 }
 
 .mobile-drawer-toggle svg {
+  /* Bắt buộc phải có kích thước rõ ràng: thiếu dòng này khiến một số trình duyệt trên điện thoại
+     hiện mũi tên quá to (dùng kích thước mặc định của SVG) hoặc không hiện mũi tên nào. */
+  width: 0.85rem;
+  height: 0.85rem;
   transition: transform 0.15s;
 }
 
