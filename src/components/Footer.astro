@@ -1,5 +1,7 @@
 ---
 import Disclaimer from './Disclaimer.astro';
+import { categories } from '../lib/categories';
+import { departments, departmentSlugs } from '../lib/departments';
 import { site } from '../lib/site';
 import { url } from '../lib/url';
 
@@ -7,14 +9,56 @@ const year = new Date().getFullYear();
 ---
 
 <footer class="site-footer">
-  <div class="container">
+  <div class="container footer-grid">
+    <div class="footer-col footer-brand">
+      <p class="footer-title">{site.name}</p>
+      <p>{site.degree} · {site.role} {site.pharmacy.name}</p>
+      <p>
+        <a href={site.zaloHref} target="_blank" rel="noopener noreferrer">Nhắn Zalo: {site.phone}</a>
+      </p>
+      <p>
+        <a href={site.pharmacy.facebook} target="_blank" rel="noopener noreferrer">{site.pharmacy.name} trên Facebook</a>
+      </p>
+    </div>
+
+    <div class="footer-col">
+      <p class="footer-title">Kiến thức</p>
+      <ul>
+        {
+          Object.entries(categories).map(([slug, category]) => (
+            <li>
+              <a href={url(`/${slug}/`)}>{category.name}</a>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+
+    <div class="footer-col">
+      <p class="footer-title">Mua sắm</p>
+      <ul>
+        {
+          departmentSlugs.map((slug) => (
+            <li>
+              <a href={url(`/${slug}/`)}>{departments[slug].name}</a>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+
+    <div class="footer-col">
+      <p class="footer-title">Liên kết</p>
+      <ul>
+        <li><a href={url('/gioi-thieu/')}>Giới thiệu</a></li>
+        <li><a href={url('/gio-hang/')}>Giỏ hàng</a></li>
+        <li><a href={url('/tim-kiem/')}>Tìm kiếm</a></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="container footer-bottom">
     <Disclaimer />
-    <p>
-      Liên hệ tư vấn qua Zalo:
-      <a href={site.zaloHref} target="_blank" rel="noopener noreferrer">{site.phone}</a> ·
-      <a href={site.pharmacy.facebook} target="_blank" rel="noopener noreferrer">{site.pharmacy.name} trên Facebook</a> ·
-      <a href={url('/gioi-thieu/')}>Giới thiệu</a>
-    </p>
     <p>© {year} Dược Sĩ Thương. Chia sẻ kiến thức về ăn uống, nhận biết và phòng chống bệnh.</p>
   </div>
 </footer>

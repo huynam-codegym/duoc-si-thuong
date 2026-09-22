@@ -55,6 +55,45 @@ const activeShops = shops.filter((shop) => shop.featured.length > 0);
       <li><GroupIcon icon="book" size={18} /> Bài viết có nguồn tham khảo</li>
     </ul>
 
+    <ul class="quick-tiles">
+      <li>
+        <a href={site.zaloHref} target="_blank" rel="noopener noreferrer">
+          <GroupIcon icon="doctor" size={24} badge badgeSize={48} />
+          <span>Tư vấn dược sĩ</span>
+        </a>
+      </li>
+      <li>
+        <a href={url('/thuc-pham-chuc-nang/')}>
+          <GroupIcon icon="cart" size={24} badge badgeSize={48} />
+          <span>Thực phẩm chức năng</span>
+        </a>
+      </li>
+      <li>
+        <a href={url('/an-uong/')}>
+          <GroupIcon icon="salad" size={24} badge badgeSize={48} />
+          <span>Ăn uống & dinh dưỡng</span>
+        </a>
+      </li>
+      <li>
+        <a href={url('/kien-thuc-ve-thuoc/')}>
+          <GroupIcon icon="capsule" size={24} badge badgeSize={48} />
+          <span>Thuốc</span>
+        </a>
+      </li>
+      <li>
+        <a href={url('/gio-hang/')}>
+          <GroupIcon icon="cart" size={24} badge badgeSize={48} />
+          <span>Giỏ hàng</span>
+        </a>
+      </li>
+      <li>
+        <a href={url('/gioi-thieu/')}>
+          <GroupIcon icon="shield" size={24} badge badgeSize={48} />
+          <span>Giới thiệu</span>
+        </a>
+      </li>
+    </ul>
+
     {
       activeShops.map((shop) => (
         <>
@@ -78,8 +117,20 @@ const activeShops = shops.filter((shop) => shop.featured.length > 0);
 
           <section aria-labelledby={`sp-${shop.slug}`}>
             <h2 class="section-title" id={`sp-${shop.slug}`}>{shop.department.name}</h2>
-            <div class="grid product-grid">
-              {shop.featured.map((product) => <ProductCard product={product} />)}
+            <div class="carousel">
+              {shop.featured.length > 4 && (
+                <button type="button" class="carousel-btn carousel-prev" data-dir="-1" aria-label="Xem sản phẩm trước">‹</button>
+              )}
+              <div class="carousel-track">
+                {shop.featured.map((product) => (
+                  <div class="carousel-item">
+                    <ProductCard product={product} />
+                  </div>
+                ))}
+              </div>
+              {shop.featured.length > 4 && (
+                <button type="button" class="carousel-btn carousel-next" data-dir="1" aria-label="Xem sản phẩm sau">›</button>
+              )}
             </div>
             <p class="more">
               <a class="btn btn-outline" href={url(`/${shop.slug}/`)}>Xem tất cả {shop.department.name.toLowerCase()}</a>
@@ -117,3 +168,15 @@ const activeShops = shops.filter((shop) => shop.featured.length > 0);
     </section>
   </div>
 </BaseLayout>
+
+<script>
+  // Nút mũi tên cho khối sản phẩm cuộn ngang (vuốt tay vẫn dùng được, nút chỉ là tiện thêm)
+  document.querySelectorAll<HTMLElement>('.carousel').forEach((carousel) => {
+    const track = carousel.querySelector<HTMLElement>('.carousel-track');
+    carousel.querySelectorAll<HTMLButtonElement>('.carousel-btn').forEach((button) => {
+      button.addEventListener('click', () => {
+        track?.scrollBy({ left: Number(button.dataset.dir) * (track.clientWidth * 0.8), behavior: 'smooth' });
+      });
+    });
+  });
+</script>
