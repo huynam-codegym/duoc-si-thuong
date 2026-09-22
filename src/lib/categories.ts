@@ -16,8 +16,11 @@ export interface Category {
 
 const categoryData = {
   'an-uong': {
-    name: 'Ăn uống & dinh dưỡng',
-    description: 'Chế độ ăn, thực phẩm và thực đơn lành mạnh theo từng nhu cầu.',
+    // Tên đổi từ "Ăn uống & dinh dưỡng" thành "Bệnh & Góc Sức Khỏe" (chủ website yêu cầu tháng 9/2026,
+    // theo kiểu menu của các nhà thuốc trực tuyến khác) SAU KHI thêm nhóm bệnh thường gặp bên dưới,
+    // để tên chuyên mục khớp đúng với nội dung thật (trước đó chỉ đổi tạm ở menu, xem lịch sử Git).
+    name: 'Bệnh & Góc Sức Khỏe',
+    description: 'Ăn uống, dinh dưỡng và các bệnh thường gặp: dấu hiệu nhận biết, cách chăm sóc và khi nào cần đi khám.',
     groups: {
       'nguyen-tac': {
         name: 'Nguyên tắc ăn uống',
@@ -63,6 +66,26 @@ const categoryData = {
         name: 'Thiếu acid folic',
         icon: 'leaf',
         description: 'Thiếu acid folic (folate) nên ăn gì, và vì sao quan trọng khi chuẩn bị mang thai.',
+      },
+      'tieu-chay-cap': {
+        name: 'Tiêu chảy cấp',
+        icon: 'stomach',
+        description: 'Dấu hiệu, cách bù nước và khi nào cần đưa trẻ đi khám.',
+      },
+      'tay-chan-mieng': {
+        name: 'Tay chân miệng',
+        icon: 'baby',
+        description: 'Dấu hiệu ở trẻ nhỏ, chăm sóc tại nhà và dấu hiệu trở nặng cần cấp cứu.',
+      },
+      cum: {
+        name: 'Cúm',
+        icon: 'thermometer',
+        description: 'Phân biệt cúm với cảm lạnh, chăm sóc tại nhà và tiêm phòng.',
+      },
+      'sot-xuat-huyet': {
+        name: 'Sốt xuất huyết',
+        icon: 'droplet',
+        description: 'Dấu hiệu cảnh báo trở nặng, thuốc nên tránh và cách phòng muỗi đốt.',
       },
     },
   },
