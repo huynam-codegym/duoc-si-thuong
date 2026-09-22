@@ -5,12 +5,14 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import PostCard from '../components/PostCard.astro';
 import ProductCard from '../components/ProductCard.astro';
 import GroupIcon from '../components/GroupIcon.astro';
+import VideoSection from '../components/VideoSection.astro';
 import { categories } from '../lib/categories';
 import { departments, departmentSlugs, getProductGroups } from '../lib/departments';
 import { getPosts } from '../lib/posts';
 import { getProducts } from '../lib/products';
 import { site } from '../lib/site';
 import { url } from '../lib/url';
+import { videos } from '../lib/videos';
 
 const latest = (await getPosts()).slice(0, 6);
 
@@ -22,6 +24,18 @@ const shops = await Promise.all(
   }),
 );
 const activeShops = shops.filter((shop) => shop.featured.length > 0);
+
+// "Sản phẩm theo nhu cầu": gộp các NHÓM (ở bất kỳ khu nào) đã có sản phẩm thật, thành các thẻ để bấm chuyển.
+// Không gắn theo tên bệnh cụ thể (tránh hiểu nhầm "sản phẩm chữa bệnh X"); tự ẩn khi chưa nhóm nào có sản phẩm.
+const needTabsRaw = await Promise.all(
+  departmentSlugs.flatMap((deptSlug) =>
+    getProductGroups(deptSlug).map(async ([groupSlug, group]) => {
+      const products = await getProducts(deptSlug, groupSlug);
+      return { deptSlug, groupSlug, group, products: products.slice(0, 8) };
+    }),
+  ),
+);
+const needTabs = needTabsRaw.filter((tab) => tab.products.length > 0);
 ---
 
 <BaseLayout
@@ -95,6 +109,52 @@ const activeShops = shops.filter((shop) => shop.featured.length > 0);
     </ul>
 
     {
+      needTabs.length > 0 && (
+        <section aria-labelledby="theo-nhu-cau">
+          <h2 class="section-title" id="theo-nhu-cau">Sản phẩm theo nhu cầu</h2>
+          <div class="need-tabs" role="tablist">
+            {needTabs.map((tab, index) => (
+              <button
+                type="button"
+                class={`need-tab${index === 0 ? ' active' : ''}`}
+                data-panel={`need-${index}`}
+                role="tab"
+                aria-selected={index === 0 ? 'true' : 'false'}
+              >
+                <GroupIcon icon={tab.group.icon} size={17} />
+                <span>{tab.group.name}</span>
+              </button>
+            ))}
+          </div>
+          {needTabs.map((tab, index) => (
+            <div class={`need-panel${index === 0 ? ' active' : ''}`} data-panel={`need-${index}`} role="tabpanel">
+              <div class="carousel">
+                {tab.products.length > 4 && (
+                  <button type="button" class="carousel-btn carousel-prev" data-dir="-1" aria-label="Xem sản phẩm trước">‹</button>
+                )}
+                <div class="carousel-track">
+                  {tab.products.map((product) => (
+                    <div class="carousel-item">
+                      <ProductCard product={product} />
+                    </div>
+                  ))}
+                </div>
+                {tab.products.length > 4 && (
+                  <button type="button" class="carousel-btn carousel-next" data-dir="1" aria-label="Xem sản phẩm sau">›</button>
+                )}
+              </div>
+              <p class="more">
+                <a class="btn btn-outline" href={url(`/${tab.deptSlug}/nhom/${tab.groupSlug}/`)}>
+                  Xem tất cả {tab.group.name.toLowerCase()}
+                </a>
+              </p>
+            </div>
+          ))}
+        </section>
+      )
+    }
+
+    {
       activeShops.map((shop) => (
         <>
           <section aria-labelledby={`danh-muc-${shop.slug}`}>
@@ -140,6 +200,8 @@ const activeShops = shops.filter((shop) => shop.featured.length > 0);
       ))
     }
 
+    {videos.length > 0 && <VideoSection videos={videos} />}
+
     <section aria-labelledby="chuyen-muc">
       <h2 class="section-title" id="chuyen-muc">Góc sức khỏe: chuyên mục kiến thức</h2>
       <div class="grid">
@@ -177,6 +239,19 @@ const activeShops = shops.filter((shop) => shop.featured.length > 0);
       button.addEventListener('click', () => {
         track?.scrollBy({ left: Number(button.dataset.dir) * (track.clientWidth * 0.8), behavior: 'smooth' });
       });
+    });
+  });
+
+  // Thẻ "Sản phẩm theo nhu cầu": bấm để chuyển nhóm đang xem
+  document.querySelectorAll<HTMLButtonElement>('.need-tab').forEach((tab) => {
+    tab.addEventListener('click', () => {
+      const panel = tab.dataset.panel;
+      document.querySelectorAll<HTMLElement>('.need-tab').forEach((t) => {
+        const active = t.dataset.panel === panel;
+        t.classList.toggle('active', active);
+        t.setAttribute('aria-selected', String(active));
+      });
+      document.querySelectorAll<HTMLElement>('.need-panel').forEach((p) => p.classList.toggle('active', p.dataset.panel === panel));
     });
   });
 </script>

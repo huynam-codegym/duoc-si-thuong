@@ -1,0 +1,31 @@
+---
+// Mục "Video ngắn" ở trang chủ. Chỉ được gọi khi `videos` (src/lib/videos.ts) có ít nhất 1 video thật;
+// xem điều kiện `videos.length > 0` ở nơi gọi component này (src/pages/index.astro).
+import { Image } from 'astro:assets';
+import type { VideoItem } from '../lib/videos';
+
+interface Props {
+  videos: VideoItem[];
+}
+
+const { videos } = Astro.props;
+---
+
+<section aria-labelledby="video-ngan">
+  <h2 class="section-title" id="video-ngan">Video ngắn</h2>
+  <div class="carousel">
+    <div class="carousel-track video-track">
+      {
+        videos.map((video) => (
+          <a class="video-card" href={video.url} target="_blank" rel="noopener noreferrer">
+            <span class="video-thumb">
+              <Image src={video.thumbnail} alt="" width={260} height={462} />
+              <span class="video-play" aria-hidden="true">▶</span>
+            </span>
+            <span class="video-title">{video.title}</span>
+          </a>
+        ))
+      }
+    </div>
+  </div>
+</section>

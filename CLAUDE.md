@@ -243,6 +243,19 @@ Bài có `draft: true` hoặc `reviewedBy` để trống thì **không được 
 - **Tất cả 8 bài (và bài nguyên tắc) đang ở dạng "bản xem thử"** (xem mục Bản xem thử ở trên), do AI soạn, chưa được kiểm duyệt. Điểm cần kiểm tra: `docs/ghi-chu-kiem-duyet-thieu-gi-an-gi.md`. Mức khuyến nghị hằng ngày đang theo Hoa Kỳ, cần thay bằng "Nhu cầu dinh dưỡng khuyến nghị cho người Việt Nam".
 - **Liên kết giữa các bài** trong Markdown dùng đường dẫn từ gốc (ví dụ `/an-uong/thieu-canxi-nen-an-gi/`), và chỉ trỏ tới bài đang được đăng, nếu không sẽ ra trang 404.
 
+### Trang chủ: "Sản phẩm theo nhu cầu" và "Video ngắn" (tháng 9/2026)
+
+Chủ website gửi ảnh trang chủ Long Châu, có mục "Bệnh theo mùa" (tab theo tên bệnh, kèm sản phẩm) và "Video ngắn nổi bật" (reels). Hai mục này được làm lại cho phù hợp với nguyên tắc nội dung sức khỏe của site:
+
+- **"Sản phẩm theo nhu cầu"** (`needTabs` trong `src/pages/index.astro`, ngay dưới dải "Liên hệ nhanh"): thay cho "Bệnh theo mùa". Khác biệt quan trọng: đây là **thẻ bấm chuyển theo NHÓM sản phẩm có thật** (ví dụ "Vitamin & khoáng chất", "Đề kháng & miễn dịch"), **không gắn theo tên bệnh cụ thể** (không có tab "Tiêu chảy cấp", "Tay chân miệng"...) để tránh hiểu nhầm "sản phẩm này chữa bệnh kia" (nguyên tắc 4, 6). Dữ liệu tự động gộp mọi nhóm (ở cả 4 khu bán hàng) đã có ít nhất 1 sản phẩm thật, mỗi thẻ có khung cuộn ngang riêng (`.carousel`, dùng chung style với các khối sản phẩm khác). Nhóm nào chưa có sản phẩm thì không hiện thẻ; **cả mục tự ẩn nếu chưa nhóm nào có sản phẩm**. Không cần sửa gì khi thêm sản phẩm mới, thẻ tự xuất hiện.
+- **"Video ngắn"** (`src/lib/videos.ts` + `src/components/VideoSection.astro`): mảng `videos` đang **để trống**, nên mục này chưa hiện trên trang chủ. Đây là quyết định của chủ website (tháng 9/2026): chờ có video thật (tự quay, hoặc video đã đăng trên Zalo/Facebook/YouTube) mới thêm, không tự dựng video hay dùng video của người khác. Thêm video: thêm 1 phần tử vào mảng `videos` (tiêu đề, `url` liên kết tới video thật, `thumbnail` là ảnh đại diện tỷ lệ dọc 9:16 đặt trong `src/assets/videos/`). Thẻ video bấm vào mở tab mới tới đúng nơi video được đăng (site không tự lưu trữ video).
+
+### Tên hiển thị trên menu khác với tên chuyên mục thật
+
+Chủ website yêu cầu (tháng 9/2026, theo mẫu Long Châu): trên **thanh menu** (cả bản ngang trên máy tính và ngăn kéo trên điện thoại), chuyên mục `an-uong` hiện chữ **"Bệnh & Góc Sức Khỏe"** thay vì "Ăn uống & dinh dưỡng". Đây **chỉ là chữ hiển thị trên menu** (`navLabel()` trong `src/components/Header.astro`, áp dụng ở cả nav ngang và `drawerSections`); tiêu đề trang `/an-uong/`, thẻ gắn ở mỗi bài, thẻ trên trang chủ ("Góc sức khỏe: chuyên mục kiến thức") và `sitemap` vẫn dùng đúng tên thật "Ăn uống & dinh dưỡng" (`categories.ts`), vì nội dung bên trong hiện **chỉ có bài về ăn uống/dinh dưỡng**, chưa có bài về bệnh nói chung — đổi tên thật sẽ sai với nội dung thật, dễ gây hiểu lầm. Nếu sau này site có thêm chuyên mục/bài về bệnh nói chung, nên cân nhắc đổi luôn tên thật thay vì tiếp tục tách biệt tên menu và tên thật.
+
+**Chủ website muốn mở thêm chuyên mục mới** (ví dụ theo kiểu "Người cao tuổi", "Mẹ và bé"... của Long Châu) nhưng **chưa nêu rõ sẽ là chuyên mục nào** — hỏi lại chủ website tên chuyên mục cụ thể trước khi tạo, không tự đoán hay tự phục hồi lại "Nhận biết bệnh"/"Phòng chống bệnh" đã xóa trước đó nếu chưa được yêu cầu lại rõ ràng.
+
 ### Khu bán hàng (Thực phẩm chức năng, Dược mỹ phẩm, Chăm sóc cá nhân, Thiết bị y tế)
 
 Chủ website yêu cầu (tháng 9/2026): 4 khu bán hàng riêng biệt, mỗi khu có **menu bên trái**, mô tả và ảnh từng sản phẩm, bấm vào xem chi tiết và **đặt hàng trực tiếp trên web**. Ban đầu chỉ có "Thực phẩm chức năng"; 3 khu còn lại (Dược mỹ phẩm, Chăm sóc cá nhân, Thiết bị y tế) thêm sau theo mẫu menu chủ website gửi (kiểu Long Châu), **không thêm khu "Thuốc"** vì bán thuốc online cần giấy phép riêng (xem mục "Cấu trúc nội dung" ở trên).

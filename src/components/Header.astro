@@ -11,6 +11,12 @@ import { url } from '../lib/url';
 const current = Astro.url.pathname;
 const entries = Object.entries(categories) as [CategorySlug, (typeof categories)[CategorySlug]][];
 
+// Tên hiện trên MENU cho chuyên mục "an-uong" khác với tên thật của chuyên mục (chủ website yêu cầu
+// tháng 9/2026, theo kiểu menu "Bệnh & Góc sức khỏe" của các nhà thuốc trực tuyến khác). Chỉ đổi chữ
+// trên menu; tiêu đề trang, thẻ gắn ở bài viết và mọi nơi khác vẫn dùng đúng tên "Ăn uống & dinh dưỡng"
+// vì nội dung bên trong hiện chỉ có bài về ăn uống, chưa có bài về bệnh nói chung.
+const navLabel = (slug: CategorySlug, name: string) => (slug === 'an-uong' ? 'Bệnh & Góc Sức Khỏe' : name);
+
 // Từ khóa gợi ý dưới ô tìm kiếm (chỉ dùng từ có bài viết trên website để kết quả không trống)
 const searchHints = ['Canxi', 'Sắt', 'Kẽm', 'Vitamin D', 'Vitamin C', 'Acid folic', 'Kháng sinh'];
 
@@ -57,7 +63,7 @@ const drawerSections: DrawerSection[] = [
     const groups = getGroups(slug);
     const href = url(`/${slug}/`);
     return {
-      name: category.name,
+      name: navLabel(slug, category.name),
       href,
       current: current.startsWith(href),
       children:
@@ -214,17 +220,18 @@ const drawerSections: DrawerSection[] = [
               const groups = getGroups(slug);
               const href = url(`/${slug}/`);
               const isCurrent = current.startsWith(href);
+              const label = navLabel(slug, category.name);
               return groups.length > 0 ? (
                 <li class="has-sub">
                   <a href={href} aria-current={isCurrent ? 'page' : undefined}>
-                    {category.name}
+                    {label}
                   </a>
                   <button
                     type="button"
                     class="sub-toggle"
                     aria-expanded="false"
                     aria-controls={`sub-${slug}`}
-                    aria-label={`Mở danh sách ${category.name}`}
+                    aria-label={`Mở danh sách ${label}`}
                   >
                     <svg viewBox="0 0 12 12" aria-hidden="true" focusable="false">
                       <path d="M2 4l4 4 4-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
@@ -254,7 +261,7 @@ const drawerSections: DrawerSection[] = [
               ) : (
                 <li>
                   <a href={href} aria-current={isCurrent ? 'page' : undefined}>
-                    {category.name}
+                    {label}
                   </a>
                 </li>
               );
