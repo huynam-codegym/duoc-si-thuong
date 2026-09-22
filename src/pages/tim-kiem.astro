@@ -1,63 +1,203 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import { url } from '../lib/url';
 ---
 
 <BaseLayout title="Tìm kiếm" description="Tìm sản phẩm và bài viết về ăn uống, bệnh và thuốc trên Dược Sĩ Thương.">
-  <div class="container narrow">
+  <div class="container">
     <section class="hero">
       <h1>Tìm kiếm</h1>
-      <p>Nhập từ khóa để tìm sản phẩm hoặc bài viết, ví dụ: đường, huyết áp, kháng sinh.</p>
+      <p id="searchIntro">Nhập từ khóa vào ô tìm kiếm ở đầu trang để tìm sản phẩm hoặc bài viết.</p>
     </section>
 
-    <div id="search"></div>
-    <p id="search-unavailable" class="empty" hidden>
+    <!-- "Tìm kiếm theo": chọn Tất cả / Sản phẩm / Bài viết sức khỏe (lọc theo "Loại nội dung") -->
+    <fieldset class="search-type-toggle" id="searchTypeToggle" hidden>
+      <legend class="visually-hidden">Tìm kiếm theo</legend>
+      <label><input type="radio" name="content-type" value="" checked /> Tất cả</label>
+      <label><input type="radio" name="content-type" value="Sản phẩm" /> Sản phẩm</label>
+      <label><input type="radio" name="content-type" value="Bài viết" /> Bài viết sức khỏe</label>
+    </fieldset>
+
+    <div class="search-layout" id="searchLayout" hidden>
+      <!-- Đóng theo mặc định (điện thoại/máy tính bảng bấm "Bộ lọc" để mở); trên máy tính CSS ép luôn
+           hiện (xem .search-filters-body ở @media min-width: 56rem), không phụ thuộc thuộc tính open này -->
+      <details class="search-filters" id="searchFilters">
+        <summary class="search-filters-toggle">Bộ lọc</summary>
+        <div class="search-filters-body" id="searchFiltersBody"></div>
+      </details>
+
+      <div class="search-results-wrap">
+        <p class="search-count" id="searchCount"></p>
+        <ul class="search-results" id="searchResults"></ul>
+      </div>
+    </div>
+
+    <p id="searchEmpty" class="empty" hidden>Không tìm thấy kết quả phù hợp. Thử từ khóa khác hoặc bỏ bớt bộ lọc.</p>
+    <p id="searchUnavailable" class="empty" hidden>
       Tìm kiếm chưa sẵn sàng. Chức năng này chỉ hoạt động sau khi chạy <code>npm run build</code> và
       <code>npm run preview</code>, hoặc trên website đã đăng.
     </p>
   </div>
-
-  <link href={url('/pagefind/pagefind-ui.css')} rel="stylesheet" />
-  <script
-    is:inline
-    src={url('/pagefind/pagefind-ui.js')}
-    onerror="document.getElementById('search-unavailable').hidden = false"></script>
-  <script is:inline>
-    window.addEventListener('DOMContentLoaded', () => {
-      if (typeof PagefindUI === 'undefined') return;
-      const ui = new PagefindUI({
-        element: '#search',
-        showImages: false,
-        showSubResults: false,
-        autofocus: true,
-        translations: {
-          placeholder: 'Tìm sản phẩm, bài viết...',
-          clear_search: 'Xóa',
-          load_more: 'Xem thêm kết quả',
-          search_label: 'Tìm kiếm trên website',
-          filters_label: 'Bộ lọc',
-          zero_results: 'Không tìm thấy kết quả cho [SEARCH_TERM]',
-          many_results: '[COUNT] kết quả cho [SEARCH_TERM]',
-          one_result: '[COUNT] kết quả cho [SEARCH_TERM]',
-          alt_search: 'Không có kết quả cho [SEARCH_TERM]. Đang hiện kết quả cho [DIFFERENT_TERM]',
-          search_suggestion: 'Không có kết quả cho [SEARCH_TERM]. Thử một trong các từ khóa sau:',
-          searching: 'Đang tìm [SEARCH_TERM]...',
-        },
-      });
-      const q = new URLSearchParams(location.search).get('q');
-      if (q) ui.triggerSearch(q);
-    });
-  </script>
-
-  <style>
-    /* Đổi màu chủ đạo của khung Pagefind sang xanh lá của thương hiệu (biến CSS Pagefind hỗ trợ sẵn) */
-    #search {
-      --pagefind-ui-primary: var(--green-700);
-      --pagefind-ui-text: var(--ink);
-      --pagefind-ui-background: #fff;
-      --pagefind-ui-border: var(--line);
-      --pagefind-ui-border-radius: 10px;
-      --pagefind-ui-font: inherit;
-    }
-  </style>
 </BaseLayout>
+
+<script>
+  import { url } from '../lib/url';
+
+  // Trang tìm kiếm tự xây bằng chỉ mục Pagefind (không dùng khung PagefindUI đóng gói sẵn như trước nữa)
+  // để: (1) không có ô nhập từ khóa thứ hai trên trang này (chỉ ô đầu trang), (2) tách riêng bộ lọc
+  // "Loại nội dung" thành hàng chọn Tất cả/Sản phẩm/Bài viết sức khỏe (chủ website yêu cầu tháng 9/2026,
+  // theo mẫu Long Châu), (3) bố cục giống nhau, chỉ đổi cách hiện bộ lọc, trên cả điện thoại lẫn máy tính.
+  type PagefindFilters = Record<string, Record<string, number>>;
+  interface PagefindSearchResult {
+    results: { id: string; data: () => Promise<{ url: string; meta: { title?: string; image?: string; image_alt?: string }; excerpt: string }> }[];
+    filters: PagefindFilters;
+  }
+  interface Pagefind {
+    search: (query: string, options?: { filters?: Record<string, string[]> }) => Promise<PagefindSearchResult>;
+    filters: () => Promise<PagefindFilters>;
+  }
+
+  const FILTER_CATEGORIES = ['Chuyên mục', 'Khu', 'Nhóm', 'Giá'];
+
+  const intro = document.getElementById('searchIntro');
+  const typeToggle = document.getElementById('searchTypeToggle');
+  const layout = document.getElementById('searchLayout');
+  const filtersBody = document.getElementById('searchFiltersBody');
+  const resultsCount = document.getElementById('searchCount');
+  const resultsList = document.getElementById('searchResults');
+  const emptyMsg = document.getElementById('searchEmpty');
+  const unavailableMsg = document.getElementById('searchUnavailable');
+
+  const query = new URLSearchParams(location.search).get('q')?.trim() ?? '';
+  let contentType = '';
+  // Nhóm đang mở (chỉ ảnh hưởng máy tính bảng/máy tính; điện thoại đóng mở cả khối "Bộ lọc" bằng <details> ngoài)
+  const openGroups = new Set(['Chuyên mục']);
+  const activeFilters: Record<string, Set<string>> = Object.fromEntries(FILTER_CATEGORIES.map((c) => [c, new Set<string>()]));
+
+  function stripTags(html: string): string {
+    const div = document.createElement('div');
+    div.innerHTML = html;
+    return div.textContent ?? '';
+  }
+
+  function buildFilters(): Record<string, string[]> {
+    const filters: Record<string, string[]> = {};
+    if (contentType) filters['Loại nội dung'] = [contentType];
+    for (const category of FILTER_CATEGORIES) {
+      if (activeFilters[category].size > 0) filters[category] = [...activeFilters[category]];
+    }
+    return filters;
+  }
+
+  function renderFilters(facets: PagefindFilters) {
+    if (!filtersBody) return;
+    // Bỏ qua nếu Pagefind chưa tải xong dữ liệu bộ lọc cho lần gọi này (thường xảy ra ở lượt tìm đầu
+    // tiên, chỉ mục lọc tải sau chỉ mục kết quả) — giữ nguyên danh sách bộ lọc đang hiện thay vì xóa trắng.
+    if (Object.keys(facets).length === 0) return;
+    filtersBody.innerHTML = '';
+    FILTER_CATEGORIES.forEach((category) => {
+      const values = facets[category];
+      if (!values || Object.keys(values).length === 0) return;
+      const group = document.createElement('details');
+      group.className = 'filter-group';
+      group.open = openGroups.has(category);
+      group.addEventListener('toggle', () => {
+        if (group.open) openGroups.add(category);
+        else openGroups.delete(category);
+      });
+      const summary = document.createElement('summary');
+      summary.textContent = category;
+      group.append(summary);
+      const list = document.createElement('div');
+      list.className = 'filter-group-body';
+      Object.entries(values)
+        .sort((a, b) => a[0].localeCompare(b[0], 'vi'))
+        .forEach(([value, count]) => {
+          const isChecked = activeFilters[category].has(value);
+          const label = document.createElement('label');
+          label.className = 'filter-option';
+          const checkbox = document.createElement('input');
+          checkbox.type = 'checkbox';
+          checkbox.checked = isChecked;
+          checkbox.disabled = count === 0 && !isChecked;
+          checkbox.addEventListener('change', () => {
+            if (checkbox.checked) activeFilters[category].add(value);
+            else activeFilters[category].delete(value);
+            runSearch();
+          });
+          label.append(checkbox, document.createTextNode(` ${value} (${count})`));
+          list.append(label);
+        });
+      group.append(list);
+      filtersBody.append(group);
+    });
+  }
+
+  async function runSearch() {
+    if (!query) return;
+    const pf = await loadPagefind();
+    if (!pf) {
+      if (unavailableMsg) unavailableMsg.hidden = false;
+      return;
+    }
+    const res = await pf.search(query, { filters: buildFilters() });
+    renderFilters(res.filters);
+    const items = await Promise.all(res.results.map((r) => r.data()));
+
+    if (resultsList) resultsList.innerHTML = '';
+    items.forEach((item) => {
+      const li = document.createElement('li');
+      li.className = 'search-result';
+      const a = document.createElement('a');
+      a.href = item.url;
+      if (item.meta.image) {
+        const img = document.createElement('img');
+        img.src = item.meta.image;
+        img.alt = '';
+        img.loading = 'lazy';
+        img.width = 96;
+        img.height = 96;
+        a.append(img);
+      }
+      const text = document.createElement('span');
+      const title = document.createElement('strong');
+      title.textContent = item.meta.title ?? item.url;
+      const excerpt = document.createElement('span');
+      excerpt.className = 'search-result-excerpt';
+      excerpt.textContent = stripTags(item.excerpt);
+      text.append(title, excerpt);
+      a.append(text);
+      li.append(a);
+      resultsList?.append(li);
+    });
+
+    if (resultsCount) resultsCount.textContent = `${items.length} kết quả cho "${query}"`;
+    if (emptyMsg) emptyMsg.hidden = items.length > 0;
+    if (layout) layout.hidden = false;
+  }
+
+  let pagefindPromise: Promise<Pagefind | null> | null = null;
+  function loadPagefind(): Promise<Pagefind | null> {
+    if (!pagefindPromise) {
+      pagefindPromise = import(/* @vite-ignore */ url('/pagefind/pagefind.js'))
+        .then((mod) => mod as Pagefind)
+        .catch(() => null);
+    }
+    return pagefindPromise;
+  }
+
+  if (query) {
+    if (intro) intro.textContent = `Kết quả tìm kiếm cho "${query}". Đổi từ khóa ở ô tìm kiếm đầu trang.`;
+    if (typeToggle) typeToggle.hidden = false;
+    typeToggle?.querySelectorAll<HTMLInputElement>('input[name="content-type"]').forEach((input) => {
+      input.addEventListener('change', () => {
+        contentType = input.value;
+        runSearch();
+      });
+    });
+    // Chỉ mục bộ lọc của Pagefind tải riêng (sau chỉ mục kết quả) nên lượt tìm đầu tiên thường chưa có
+    // dữ liệu lọc ngay — gọi thêm pagefind.filters() (danh sách đầy đủ, không theo từ khóa) để chắc chắn
+    // bộ lọc luôn hiện ra; runSearch() ở dưới sẽ cập nhật lại số lượng cho đúng theo từ khóa ngay khi có.
+    loadPagefind().then((pf) => pf?.filters().then(renderFilters));
+    runSearch();
+  }
+</script>
