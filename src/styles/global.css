@@ -100,6 +100,12 @@ img {
   text-decoration: none;
 }
 
+/* "Dược Sĩ Thương" trên 1 dòng ở màn hình vừa/rộng; xuống 2 dòng nhỏ trên điện thoại hẹp (xem @media max-width:30rem) */
+.brand-name {
+  display: inline-flex;
+  gap: 0.3rem;
+}
+
 /* Logo chính thức là hình tròn có viền xanh sẵn, nền ngoài vòng tròn màu trắng nên cắt tròn để bỏ 4 góc trắng */
 .brand-logo {
   width: 3.1rem;
@@ -1527,8 +1533,13 @@ button.btn:not(.btn-outline) {
     white-space: nowrap;
   }
 
-  .header-main .brand span {
-    display: none;
+  /* "Dược Sĩ" / "Thương" xuống 2 dòng nhỏ cạnh logo, thay vì 1 dòng dài dễ tràn hàng */
+  .header-main .brand-name {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    font-size: 0.78rem;
+    line-height: 1.15;
   }
 
   .header-main .brand-logo {

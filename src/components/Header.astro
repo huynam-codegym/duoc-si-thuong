@@ -84,7 +84,9 @@ const drawerSections: DrawerSection[] = [
     </button>
     <a class="brand" href={url('/')}>
       <Image class="brand-logo" src={logo} alt="" width={160} height={160} />
-      <span>Dược Sĩ Thương</span>
+      <!-- Màn hình hẹp: "Dược Sĩ" và "Thương" xuống 2 dòng (xem .brand-name ở CSS) thay vì thu chữ quá nhỏ.
+           Dấu cách giữa hai <span> vẫn nằm trong mã nguồn để trình đọc màn hình đọc đúng "Dược Sĩ Thương". -->
+      <span class="brand-name"><span>Dược Sĩ</span> <span>Thương</span></span>
     </a>
 
     <div class="search-wrap">
