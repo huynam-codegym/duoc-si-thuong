@@ -134,7 +134,14 @@ const drawerSections: DrawerSection[] = [
     <div class="search-wrap">
     <form class="header-search" role="search" action={url('/tim-kiem/')} method="get">
       <label class="visually-hidden" for="header-q">Tìm sản phẩm hoặc bài viết</label>
-      <input id="header-q" type="search" name="q" placeholder="Tìm sản phẩm, bài viết, câu hỏi về thuốc..." autocomplete="off" />
+      <div class="header-search-field">
+        <input id="header-q" type="search" name="q" placeholder="Tìm kiếm..." autocomplete="off" />
+        <!-- Chữ gợi ý chạy ngang qua ô (che chữ placeholder thật ở trên), để đọc được hết câu dài trên
+             màn hình hẹp; tự ẩn khi ô có chữ hoặc đang được bấm vào, xem CSS .search-placeholder-scroll -->
+        <span class="search-placeholder-scroll" aria-hidden="true">
+          <span>Tìm sản phẩm, bài viết, câu hỏi về thuốc...</span>
+        </span>
+      </div>
       <button type="submit" aria-label="Tìm kiếm">
         <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" focusable="false">
           <circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2.2" />

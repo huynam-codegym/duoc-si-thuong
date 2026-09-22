@@ -1279,9 +1279,14 @@ img {
   }
 }
 
-.header-search input {
+.header-search-field {
+  position: relative;
   flex: 1;
   min-width: 0;
+}
+
+.header-search input {
+  width: 100%;
   min-height: 2.9rem;
   padding: 0 1rem;
   border: 2px solid var(--green-700);
@@ -1297,6 +1302,48 @@ img {
   outline: none;
   /* Quầng sáng nhẹ thay cho viền cứng, vẫn đủ để người dùng bàn phím thấy đang ở ô này */
   box-shadow: 0 0 0 4px rgb(21 128 61 / 0.18);
+}
+
+/* Chữ gợi ý chạy ngang trong ô tìm kiếm (thay cho placeholder tĩnh hay bị cắt chữ trên màn hình hẹp) */
+.search-placeholder-scroll {
+  position: absolute;
+  inset: 2px 0 2px 2px;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  border-radius: 999px 0 0 999px;
+  background: #fff;
+  pointer-events: none;
+}
+
+.search-placeholder-scroll span {
+  display: inline-block;
+  padding-left: 100%;
+  white-space: nowrap;
+  color: #757575;
+  animation: search-placeholder-scroll 14s linear infinite;
+}
+
+@keyframes search-placeholder-scroll {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-100%);
+  }
+}
+
+/* Ẩn chữ chạy khi ô đã có chữ hoặc đang được bấm vào, để không đè lên chữ người dùng gõ */
+.header-search input:focus ~ .search-placeholder-scroll,
+.header-search input:not(:placeholder-shown) ~ .search-placeholder-scroll {
+  display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .search-placeholder-scroll span {
+    animation: none;
+    padding-left: 1rem;
+  }
 }
 
 .header-search button {
