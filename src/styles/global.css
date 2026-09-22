@@ -2968,19 +2968,25 @@ button.btn:not(.btn-outline) {
 
 /*
  * Trang /tim-kiem/ (tháng 9/2026, tự xây bằng chỉ mục Pagefind thay cho khung PagefindUI đóng gói sẵn —
- * xem lý do trong script của tim-kiem.astro): hàng "Tìm kiếm theo" (radio Tất cả/Sản phẩm/Bài viết sức
- * khỏe) + bộ lọc bên trái (Chuyên mục/Khu/Nhóm/Giá) + danh sách kết quả bên phải.
+ * xem lý do trong script của tim-kiem.astro, theo đúng ảnh Long Châu chủ website gửi):
+ * - Máy tính (≥56rem): hàng radio "Tìm kiếm theo: Sản phẩm / Bài viết sức khỏe" + bộ lọc cố định bên
+ *   trái ("Bộ lọc nâng cao") + danh sách kết quả có sắp xếp theo giá bên phải.
+ * - Điện thoại/máy tính bảng: hàng radio đổi thành 2 tab, thêm dải nút tròn "Lọc/Chuyên mục/Khu/Nhóm/Giá"
+ *   mở khay lọc trượt lên từ dưới (nội dung dùng chung với bộ lọc bên trái qua JS, không lặp HTML).
  */
-.search-type-toggle {
-  display: flex;
+.search-type-row {
+  display: none;
+  align-items: center;
   flex-wrap: wrap;
   gap: 0.5rem 1.5rem;
   margin: 1.25rem 0;
-  padding: 0;
-  border: 0;
 }
 
-.search-type-toggle label {
+.search-type-label {
+  font-weight: 700;
+}
+
+.search-type-row label {
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
@@ -2988,37 +2994,104 @@ button.btn:not(.btn-outline) {
   cursor: pointer;
 }
 
-.search-type-toggle input {
+.search-type-row input {
   accent-color: var(--green-700);
   width: 1.1rem;
   height: 1.1rem;
 }
 
-.search-layout {
-  display: grid;
+.search-tabs {
+  display: flex;
   gap: 1.5rem;
+  margin: 1.25rem 0 0;
+  border-bottom: 1px solid var(--line);
 }
 
-.search-filters {
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  background: #fff;
-  padding: 0.25rem 1rem;
-}
-
-.search-filters-toggle {
-  padding: 0.75rem 0;
+.search-tabs button {
+  padding: 0.7rem 0.1rem;
+  border: 0;
+  border-bottom: 3px solid transparent;
+  background: none;
+  color: var(--ink-soft);
+  font: inherit;
   font-weight: 700;
   cursor: pointer;
 }
 
-.search-filters-body {
-  padding-bottom: 0.5rem;
+.search-tabs button.active {
+  border-color: var(--green-700);
+  color: var(--green-900);
+}
+
+.search-pill-row {
+  display: flex;
+  gap: 0.5rem;
+  margin: 0.75rem 0;
+  padding-bottom: 0.2rem;
+  overflow-x: auto;
+}
+
+.search-pill {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.5rem 0.9rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: #fff;
+  color: var(--ink);
+  font: inherit;
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.search-pill-main {
+  border-color: var(--green-700);
+  color: var(--green-700);
+}
+
+.link-button {
+  border: 0;
+  padding: 0;
+  background: none;
+  color: var(--green-700);
+  font: inherit;
+  font-weight: 700;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.search-layout {
+  display: grid;
+  gap: 1.5rem;
+  margin-top: 1rem;
+}
+
+.search-filters {
+  display: none;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: #fff;
+  padding: 1rem;
+  align-self: start;
+}
+
+.search-filters-heading {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0 0 0.5rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--line);
+  font-size: 1rem;
+  color: var(--green-900);
 }
 
 .filter-group {
   border-top: 1px solid var(--line);
-  padding: 0.5rem 0;
+  padding: 0.6rem 0;
 }
 
 .filter-group:first-child {
@@ -3027,15 +3100,15 @@ button.btn:not(.btn-outline) {
 
 .filter-group summary {
   padding: 0.35rem 0;
-  font-weight: 600;
+  font-weight: 700;
   cursor: pointer;
 }
 
 .filter-group-body {
   display: flex;
   flex-direction: column;
-  gap: 0.4rem;
-  padding: 0.4rem 0 0.2rem;
+  gap: 0.5rem;
+  padding: 0.5rem 0 0.2rem;
 }
 
 .filter-option {
@@ -3057,14 +3130,97 @@ button.btn:not(.btn-outline) {
   cursor: not-allowed;
 }
 
+.filter-more {
+  align-self: flex-start;
+  margin-top: 0.15rem;
+  border: 0;
+  padding: 0;
+  background: none;
+  color: var(--green-700);
+  font: inherit;
+  font-weight: 700;
+  font-size: 0.85rem;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.filter-group-body-buttons {
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.filter-price-btn {
+  padding: 0.45rem 0.8rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: #fff;
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.filter-price-btn.active {
+  border-color: var(--green-700);
+  background: var(--green-50);
+  color: var(--green-900);
+  font-weight: 700;
+}
+
+.filter-price-btn:disabled {
+  color: var(--ink-soft);
+  cursor: not-allowed;
+}
+
+.search-results-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem 1rem;
+}
+
+.search-results-head h2 {
+  margin: 0;
+  font-size: 1.15rem;
+}
+
+.search-sort {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+}
+
+.search-sort button {
+  padding: 0.35rem 0.7rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: #fff;
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.search-sort button.active {
+  border-color: var(--green-700);
+  background: var(--green-50);
+  color: var(--green-900);
+  font-weight: 700;
+}
+
 .search-count {
-  margin: 0 0 1rem;
+  margin: 0.75rem 0 1rem;
   font-weight: 700;
 }
 
 .search-results {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 1rem;
   margin: 0;
   padding: 0;
@@ -3073,7 +3229,9 @@ button.btn:not(.btn-outline) {
 
 .search-result a {
   display: flex;
-  gap: 1rem;
+  flex-direction: column;
+  gap: 0.5rem;
+  height: 100%;
   padding: 0.9rem;
   border: 1px solid var(--line);
   border-radius: var(--radius);
@@ -3087,17 +3245,18 @@ button.btn:not(.btn-outline) {
 }
 
 .search-result img {
-  flex: none;
-  width: 6rem;
-  height: 6rem;
+  width: 100%;
+  aspect-ratio: 1 / 1;
   border-radius: 8px;
   background: var(--green-50);
   object-fit: contain;
 }
 
 .search-result strong {
-  display: block;
-  margin-bottom: 0.25rem;
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
   color: var(--green-900);
 }
 
@@ -3106,21 +3265,104 @@ button.btn:not(.btn-outline) {
   overflow: hidden;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   color: var(--ink-soft);
 }
 
+/* Khay lọc trượt lên từ dưới (điện thoại/máy tính bảng) */
+.search-drawer {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+}
+
+.search-drawer-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgb(0 0 0 / 0.4);
+}
+
+.search-drawer-panel {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  max-height: 80vh;
+  border-radius: 16px 16px 0 0;
+  background: #fff;
+  box-shadow: 0 -8px 24px rgb(0 0 0 / 0.2);
+}
+
+.search-drawer-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--line);
+}
+
+.search-drawer-head button {
+  border: 0;
+  padding: 0.25rem;
+  background: none;
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.search-drawer-body {
+  overflow-y: auto;
+  padding: 0.5rem 1.25rem 1rem;
+}
+
+.search-drawer-foot {
+  padding: 0.85rem 1.25rem;
+  border-top: 1px solid var(--line);
+}
+
+.search-drawer-foot .btn {
+  display: block;
+  width: 100%;
+  text-align: center;
+}
+
 @media (min-width: 56rem) {
+  .search-type-row {
+    display: flex;
+  }
+
+  .search-tabs,
+  .search-pill-row {
+    display: none !important;
+  }
+
   .search-layout {
     grid-template-columns: 16rem 1fr;
     align-items: start;
   }
 
-  .search-filters-toggle {
-    display: none;
+  .search-filters {
+    display: block;
   }
 
-  .search-filters-body {
-    display: block !important;
+  .search-results {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 72rem) {
+  .search-results {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 55.99rem) {
+  .search-tabs {
+    display: flex;
+  }
+
+  .search-pill-row {
+    display: flex;
   }
 }

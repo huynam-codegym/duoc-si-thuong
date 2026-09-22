@@ -76,6 +76,9 @@ const jsonLd = {
       <span hidden data-pagefind-filter="Khu">{department.name}</span>
       <span hidden data-pagefind-filter="Nhóm">{groupInfo.name}</span>
       {priceBucket(price) && <span hidden data-pagefind-filter="Giá">{priceBucket(price)}</span>}
+      <!-- Cho phép trang /tim-kiem/ sắp xếp theo giá (thấp→cao/cao→thấp). Đệm số 0 phía trước vì Pagefind
+           so sánh giá trị sắp xếp như CHUỖI KÝ TỰ, không phải số — không đệm thì "9000" > "80000" (sai). -->
+      {price !== undefined && <span hidden data-pagefind-sort={`Gia:${String(price).padStart(9, '0')}`} />}
       {
         draft && (
           <p class="draft-banner">

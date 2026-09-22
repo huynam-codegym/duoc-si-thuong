@@ -9,67 +9,133 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       <p id="searchIntro">Nhập từ khóa vào ô tìm kiếm ở đầu trang để tìm sản phẩm hoặc bài viết.</p>
     </section>
 
-    <!-- "Tìm kiếm theo": chọn Tất cả / Sản phẩm / Bài viết sức khỏe (lọc theo "Loại nội dung") -->
-    <fieldset class="search-type-toggle" id="searchTypeToggle" hidden>
-      <legend class="visually-hidden">Tìm kiếm theo</legend>
-      <label><input type="radio" name="content-type" value="" checked /> Tất cả</label>
-      <label><input type="radio" name="content-type" value="Sản phẩm" /> Sản phẩm</label>
+    <!-- Máy tính: hàng "Tìm kiếm theo" dạng radio. Điện thoại/máy tính bảng: đổi thành 2 tab (CSS ẩn/hiện
+         theo màn hình, xem .search-type-row / .search-tabs), cùng điều khiển một biến contentType. -->
+    <div class="search-type-row" id="searchTypeRow" hidden>
+      <span class="search-type-label">Tìm kiếm theo:</span>
+      <label><input type="radio" name="content-type" value="Sản phẩm" checked /> Sản phẩm</label>
       <label><input type="radio" name="content-type" value="Bài viết" /> Bài viết sức khỏe</label>
-    </fieldset>
+    </div>
+    <div class="search-tabs" id="searchTabs" role="tablist" hidden>
+      <button type="button" class="active" data-value="Sản phẩm" role="tab" aria-selected="true">Sản phẩm</button>
+      <button type="button" data-value="Bài viết" role="tab" aria-selected="false">Bài viết sức khỏe</button>
+    </div>
+
+    <!-- Điện thoại/máy tính bảng: hàng thẻ tròn "Lọc" + từng nhóm, bấm ra mở khay lọc bên dưới (nút
+         "Lọc" mở khay ở đầu; bấm tên một nhóm mở khay VÀ cuộn/mở sẵn đúng nhóm đó) -->
+    <div class="search-pill-row" id="searchPillRow" hidden>
+      <button type="button" class="search-pill search-pill-main" data-open-filter="">
+        <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" focusable="false">
+          <path d="M4 6h16M7 12h10M10 18h4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+        </svg>
+        Lọc
+      </button>
+      <button type="button" class="search-pill" data-open-filter="Chuyên mục">Chuyên mục</button>
+      <button type="button" class="search-pill" data-open-filter="Khu">Khu</button>
+      <button type="button" class="search-pill" data-open-filter="Nhóm">Nhóm</button>
+      <button type="button" class="search-pill" data-open-filter="Giá">Giá
+      </button>
+    </div>
 
     <div class="search-layout" id="searchLayout" hidden>
-      <!-- Đóng theo mặc định (điện thoại/máy tính bảng bấm "Bộ lọc" để mở); trên máy tính CSS ép luôn
-           hiện (xem .search-filters-body ở @media min-width: 56rem), không phụ thuộc thuộc tính open này -->
-      <details class="search-filters" id="searchFilters">
-        <summary class="search-filters-toggle">Bộ lọc</summary>
-        <div class="search-filters-body" id="searchFiltersBody"></div>
-      </details>
+      <aside class="search-filters">
+        <h2 class="search-filters-heading">
+          <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false">
+            <path d="M4 6h16M7 12h10M10 18h4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+          </svg>
+          Bộ lọc nâng cao
+        </h2>
+        <div id="searchFiltersBody"></div>
+      </aside>
 
       <div class="search-results-wrap">
+        <div class="search-results-head">
+          <h2 id="searchResultsHeading">Danh sách sản phẩm</h2>
+          <div class="search-sort" id="searchSort">
+            <span>Sắp xếp theo:</span>
+            <button type="button" class="active" data-sort="">Liên quan nhất</button>
+            <button type="button" data-sort="asc">Giá thấp</button>
+            <button type="button" data-sort="desc">Giá cao</button>
+          </div>
+        </div>
         <p class="search-count" id="searchCount"></p>
         <ul class="search-results" id="searchResults"></ul>
       </div>
     </div>
 
-    <p id="searchEmpty" class="empty" hidden>Không tìm thấy kết quả phù hợp. Thử từ khóa khác hoặc bỏ bớt bộ lọc.</p>
+    <p id="searchEmpty" class="empty" hidden>
+      Không tìm thấy kết quả phù hợp. Thử từ khóa khác, bỏ bớt bộ lọc
+      <button type="button" class="link-button" id="searchSwitchType"></button>.
+    </p>
     <p id="searchUnavailable" class="empty" hidden>
       Tìm kiếm chưa sẵn sàng. Chức năng này chỉ hoạt động sau khi chạy <code>npm run build</code> và
       <code>npm run preview</code>, hoặc trên website đã đăng.
     </p>
+  </div>
+
+  <!-- Khay lọc trên điện thoại/máy tính bảng (trượt lên từ dưới), chứa CÙNG nội dung với #searchFiltersBody
+       (di chuyển qua lại bằng JS tuỳ bề rộng màn hình, không lặp lại HTML) -->
+  <div class="search-drawer" id="searchDrawer" hidden>
+    <div class="search-drawer-backdrop" data-close-filter></div>
+    <div class="search-drawer-panel" role="dialog" aria-modal="true" aria-label="Bộ lọc">
+      <div class="search-drawer-head">
+        <strong>Bộ lọc</strong>
+        <button type="button" data-close-filter aria-label="Đóng">
+          <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false">
+            <path d="M5 5l14 14M19 5L5 19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+          </svg>
+        </button>
+      </div>
+      <div class="search-drawer-body" id="searchDrawerBody"></div>
+      <div class="search-drawer-foot">
+        <button type="button" class="btn" data-close-filter id="searchDrawerApply">Xem kết quả</button>
+      </div>
+    </div>
   </div>
 </BaseLayout>
 
 <script>
   import { url } from '../lib/url';
 
-  // Trang tìm kiếm tự xây bằng chỉ mục Pagefind (không dùng khung PagefindUI đóng gói sẵn như trước nữa)
-  // để: (1) không có ô nhập từ khóa thứ hai trên trang này (chỉ ô đầu trang), (2) tách riêng bộ lọc
-  // "Loại nội dung" thành hàng chọn Tất cả/Sản phẩm/Bài viết sức khỏe (chủ website yêu cầu tháng 9/2026,
-  // theo mẫu Long Châu), (3) bố cục giống nhau, chỉ đổi cách hiện bộ lọc, trên cả điện thoại lẫn máy tính.
+  // Trang tìm kiếm tự xây bằng chỉ mục Pagefind (không dùng khung PagefindUI đóng gói sẵn) để khớp đúng
+  // giao diện chủ website gửi (ảnh Long Châu, tháng 9/2026): không có ô nhập từ khóa thứ hai (chỉ ô đầu
+  // trang); hàng "Tìm kiếm theo" chỉ 2 lựa chọn Sản phẩm/Bài viết sức khỏe (không có "Tất cả", mặc định
+  // Sản phẩm); bộ lọc bên trái trên máy tính, gộp vào khay trượt lên trên điện thoại/máy tính bảng; có
+  // sắp xếp theo giá (không có "Bán chạy" vì site chưa có số liệu bán hàng thật — xem nguyên tắc 1 trong
+  // CLAUDE.md, không tự bịa số liệu).
   type PagefindFilters = Record<string, Record<string, number>>;
   interface PagefindSearchResult {
     results: { id: string; data: () => Promise<{ url: string; meta: { title?: string; image?: string; image_alt?: string }; excerpt: string }> }[];
     filters: PagefindFilters;
   }
   interface Pagefind {
-    search: (query: string, options?: { filters?: Record<string, string[]> }) => Promise<PagefindSearchResult>;
+    search: (query: string, options?: { filters?: Record<string, string[]>; sort?: Record<string, 'asc' | 'desc'> }) => Promise<PagefindSearchResult>;
     filters: () => Promise<PagefindFilters>;
   }
 
   const FILTER_CATEGORIES = ['Chuyên mục', 'Khu', 'Nhóm', 'Giá'];
+  const COLLAPSE_AFTER = 5; // số dòng hiện trước khi cần bấm "Xem thêm"
 
   const intro = document.getElementById('searchIntro');
-  const typeToggle = document.getElementById('searchTypeToggle');
+  const typeRow = document.getElementById('searchTypeRow');
+  const tabs = document.getElementById('searchTabs');
+  const pillRow = document.getElementById('searchPillRow');
   const layout = document.getElementById('searchLayout');
   const filtersBody = document.getElementById('searchFiltersBody');
+  const drawerBody = document.getElementById('searchDrawerBody');
+  const drawer = document.getElementById('searchDrawer');
+  const resultsHeading = document.getElementById('searchResultsHeading');
+  const sortRow = document.getElementById('searchSort');
   const resultsCount = document.getElementById('searchCount');
   const resultsList = document.getElementById('searchResults');
   const emptyMsg = document.getElementById('searchEmpty');
+  const switchTypeBtn = document.getElementById('searchSwitchType');
   const unavailableMsg = document.getElementById('searchUnavailable');
 
   const query = new URLSearchParams(location.search).get('q')?.trim() ?? '';
-  let contentType = '';
-  // Nhóm đang mở (chỉ ảnh hưởng máy tính bảng/máy tính; điện thoại đóng mở cả khối "Bộ lọc" bằng <details> ngoài)
+  let contentType = 'Sản phẩm';
+  let sortDir: 'asc' | 'desc' | '' = '';
+  const expandedGroups = new Set<string>();
   const openGroups = new Set(['Chuyên mục']);
   const activeFilters: Record<string, Set<string>> = Object.fromEntries(FILTER_CATEGORIES.map((c) => [c, new Set<string>()]));
 
@@ -88,17 +154,32 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     return filters;
   }
 
-  function renderFilters(facets: PagefindFilters) {
-    if (!filtersBody) return;
-    // Bỏ qua nếu Pagefind chưa tải xong dữ liệu bộ lọc cho lần gọi này (thường xảy ra ở lượt tìm đầu
-    // tiên, chỉ mục lọc tải sau chỉ mục kết quả) — giữ nguyên danh sách bộ lọc đang hiện thay vì xóa trắng.
-    if (Object.keys(facets).length === 0) return;
-    filtersBody.innerHTML = '';
+  function setContentType(value: string) {
+    contentType = value;
+    typeRow?.querySelectorAll<HTMLInputElement>('input[name="content-type"]').forEach((input) => {
+      input.checked = input.value === value;
+    });
+    tabs?.querySelectorAll<HTMLButtonElement>('button').forEach((btn) => {
+      const active = btn.dataset.value === value;
+      btn.classList.toggle('active', active);
+      btn.setAttribute('aria-selected', String(active));
+    });
+    if (resultsHeading) resultsHeading.textContent = value === 'Bài viết' ? 'Danh sách bài viết' : 'Danh sách sản phẩm';
+    if (sortRow) sortRow.hidden = value !== 'Sản phẩm';
+    if (switchTypeBtn) switchTypeBtn.textContent = value === 'Sản phẩm' ? 'hoặc xem bài viết sức khỏe liên quan' : 'hoặc xem sản phẩm liên quan';
+    runSearch();
+  }
+
+  // Dựng danh sách bộ lọc — dùng chung cho khung bên trái (máy tính) và khay trượt lên (điện thoại):
+  // gọi 2 lần với 2 nơi chứa khác nhau (containers), tránh phải viết trùng HTML.
+  function renderFiltersInto(container: HTMLElement, facets: PagefindFilters) {
+    container.innerHTML = '';
     FILTER_CATEGORIES.forEach((category) => {
       const values = facets[category];
       if (!values || Object.keys(values).length === 0) return;
       const group = document.createElement('details');
       group.className = 'filter-group';
+      group.dataset.category = category;
       group.open = openGroups.has(category);
       group.addEventListener('toggle', () => {
         if (group.open) openGroups.add(category);
@@ -107,11 +188,47 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       const summary = document.createElement('summary');
       summary.textContent = category;
       group.append(summary);
+
       const list = document.createElement('div');
       list.className = 'filter-group-body';
-      Object.entries(values)
-        .sort((a, b) => a[0].localeCompare(b[0], 'vi'))
-        .forEach(([value, count]) => {
+
+      if (category === 'Giá') {
+        // Giá hiện dạng nút bấm (như ảnh mẫu), không phải ô tick
+        list.classList.add('filter-group-body-buttons');
+        Object.entries(values)
+          .sort((a, b) => a[0].localeCompare(b[0], 'vi'))
+          .forEach(([value, count]) => {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'filter-price-btn';
+            btn.textContent = value;
+            btn.classList.toggle('active', activeFilters[category].has(value));
+            btn.disabled = count === 0 && !activeFilters[category].has(value);
+            btn.addEventListener('click', () => {
+              if (activeFilters[category].has(value)) activeFilters[category].delete(value);
+              else activeFilters[category].add(value);
+              runSearch();
+            });
+            list.append(btn);
+          });
+      } else {
+        // "Tất cả": bỏ hết lựa chọn riêng trong nhóm này (không lọc theo nhóm này nữa)
+        const allLabel = document.createElement('label');
+        allLabel.className = 'filter-option';
+        const allCheckbox = document.createElement('input');
+        allCheckbox.type = 'checkbox';
+        allCheckbox.checked = activeFilters[category].size === 0;
+        allCheckbox.addEventListener('change', () => {
+          activeFilters[category].clear();
+          runSearch();
+        });
+        allLabel.append(allCheckbox, document.createTextNode(' Tất cả'));
+        list.append(allLabel);
+
+        const entries = Object.entries(values).sort((a, b) => a[0].localeCompare(b[0], 'vi'));
+        const isExpanded = expandedGroups.has(category);
+        const shown = isExpanded ? entries : entries.slice(0, COLLAPSE_AFTER);
+        shown.forEach(([value, count]) => {
           const isChecked = activeFilters[category].has(value);
           const label = document.createElement('label');
           label.className = 'filter-option';
@@ -127,9 +244,61 @@ import BaseLayout from '../layouts/BaseLayout.astro';
           label.append(checkbox, document.createTextNode(` ${value} (${count})`));
           list.append(label);
         });
+        if (entries.length > COLLAPSE_AFTER) {
+          const more = document.createElement('button');
+          more.type = 'button';
+          more.className = 'filter-more';
+          more.textContent = isExpanded ? 'Thu gọn' : 'Xem thêm';
+          more.addEventListener('click', () => {
+            if (isExpanded) expandedGroups.delete(category);
+            else expandedGroups.add(category);
+            renderFilters();
+          });
+          list.append(more);
+        }
+      }
+
       group.append(list);
-      filtersBody.append(group);
+      container.append(group);
     });
+  }
+
+  // Pagefind tải chỉ mục lọc RIÊNG (sau chỉ mục kết quả) và có vẻ tải theo từng nhóm một, không phải
+  // một lần đủ hết — nên `search.filters` của một lượt `pagefind.search()` có thể chỉ có VÀI nhóm, hoặc
+  // thiếu hẳn, tuỳ lượt gọi tới sớm hay muộn (đã thấy tái hiện ngẫu nhiên khi thử nhiều lần). Nếu dựng
+  // bộ lọc trực tiếp từ đó, danh sách nhóm dễ "nhấp nháy" thiếu mất khi đổi lựa chọn.
+  // Cách chắc chắn: `globalFacets` (gọi `pagefind.filters()` MỘT LẦN, không theo từ khóa/lựa chọn) luôn
+  // có đủ TÊN mọi nhóm và mọi giá trị — dùng làm KHUNG cố định. `scopedFacets` gom số lượng thật nhất có
+  // được từ mỗi lượt tìm (giữ lại của lượt trước cho nhóm nào lượt này chưa có, không xoá). Khi vẽ ra
+  // màn hình, ghép hai bên: đủ nhóm/giá trị từ globalFacets, số lượng ưu tiên lấy từ scopedFacets nếu có.
+  let globalFacets: PagefindFilters = {};
+  let scopedFacets: PagefindFilters = {};
+
+  function mergedFacets(): PagefindFilters {
+    const merged: PagefindFilters = {};
+    for (const category of FILTER_CATEGORIES) {
+      const globalValues = globalFacets[category];
+      if (!globalValues) continue;
+      const scopedValues = scopedFacets[category];
+      const out: Record<string, number> = {};
+      for (const value of Object.keys(globalValues)) {
+        out[value] = scopedValues && value in scopedValues ? scopedValues[value] : 0;
+      }
+      merged[category] = out;
+    }
+    return merged;
+  }
+
+  function renderFilters() {
+    const facets = mergedFacets();
+    if (filtersBody) renderFiltersInto(filtersBody, facets);
+    if (drawerBody) renderFiltersInto(drawerBody, facets);
+  }
+
+  function mergeScopedFacets(facets: PagefindFilters) {
+    for (const [category, values] of Object.entries(facets)) {
+      if (values && Object.keys(values).length > 0) scopedFacets[category] = values;
+    }
   }
 
   async function runSearch() {
@@ -139,8 +308,9 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       if (unavailableMsg) unavailableMsg.hidden = false;
       return;
     }
-    const res = await pf.search(query, { filters: buildFilters() });
-    renderFilters(res.filters);
+    const res = await pf.search(query, { filters: buildFilters(), ...(sortDir && contentType === 'Sản phẩm' ? { sort: { Gia: sortDir } } : {}) });
+    mergeScopedFacets(res.filters);
+    renderFilters();
     const items = await Promise.all(res.results.map((r) => r.data()));
 
     if (resultsList) resultsList.innerHTML = '';
@@ -185,19 +355,72 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     return pagefindPromise;
   }
 
+  function openDrawer(scrollToCategory?: string) {
+    if (!drawer) return;
+    drawer.hidden = false;
+    document.body.style.overflow = 'hidden';
+    if (scrollToCategory) {
+      const target = drawerBody?.querySelector<HTMLDetailsElement>(`[data-category="${scrollToCategory}"]`);
+      if (target) {
+        target.open = true;
+        window.setTimeout(() => target.scrollIntoView({ block: 'start' }), 50);
+      }
+    }
+  }
+  function closeDrawer() {
+    if (!drawer) return;
+    drawer.hidden = true;
+    document.body.style.overflow = '';
+  }
+
   if (query) {
     if (intro) intro.textContent = `Kết quả tìm kiếm cho "${query}". Đổi từ khóa ở ô tìm kiếm đầu trang.`;
-    if (typeToggle) typeToggle.hidden = false;
-    typeToggle?.querySelectorAll<HTMLInputElement>('input[name="content-type"]').forEach((input) => {
-      input.addEventListener('change', () => {
-        contentType = input.value;
+    if (typeRow) typeRow.hidden = false;
+    if (tabs) tabs.hidden = false;
+    if (pillRow) pillRow.hidden = false;
+    setContentType('Sản phẩm');
+
+    typeRow?.querySelectorAll<HTMLInputElement>('input[name="content-type"]').forEach((input) => {
+      input.addEventListener('change', () => setContentType(input.value));
+    });
+    tabs?.querySelectorAll<HTMLButtonElement>('button').forEach((btn) => {
+      btn.addEventListener('click', () => setContentType(btn.dataset.value ?? 'Sản phẩm'));
+    });
+    switchTypeBtn?.addEventListener('click', () => setContentType(contentType === 'Sản phẩm' ? 'Bài viết' : 'Sản phẩm'));
+
+    sortRow?.querySelectorAll<HTMLButtonElement>('button[data-sort]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        sortDir = (btn.dataset.sort as 'asc' | 'desc' | '') ?? '';
+        sortRow.querySelectorAll('button').forEach((b) => b.classList.toggle('active', b === btn));
         runSearch();
       });
     });
-    // Chỉ mục bộ lọc của Pagefind tải riêng (sau chỉ mục kết quả) nên lượt tìm đầu tiên thường chưa có
-    // dữ liệu lọc ngay — gọi thêm pagefind.filters() (danh sách đầy đủ, không theo từ khóa) để chắc chắn
-    // bộ lọc luôn hiện ra; runSearch() ở dưới sẽ cập nhật lại số lượng cho đúng theo từ khóa ngay khi có.
-    loadPagefind().then((pf) => pf?.filters().then(renderFilters));
-    runSearch();
+
+    pillRow?.querySelectorAll<HTMLButtonElement>('[data-open-filter]').forEach((btn) => {
+      btn.addEventListener('click', () => openDrawer(btn.dataset.openFilter || undefined));
+    });
+    drawer?.querySelectorAll<HTMLElement>('[data-close-filter]').forEach((el) => el.addEventListener('click', closeDrawer));
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && drawer && !drawer.hidden) closeDrawer();
+    });
+
+    // Gọi pagefind.filters() MỘT LẦN (không theo từ khóa/lựa chọn) để có đủ TÊN mọi nhóm/giá trị làm
+    // khung cố định (globalFacets) — xem giải thích đầy đủ ở khai báo mergedFacets() phía trên. Vẽ lại
+    // ngay khi có, dù runSearch() (chạy song song) đã vẽ trước đó hay chưa — ghép qua mergedFacets() nên
+    // gọi lại renderFilters() lúc nào cũng an toàn, không mất số liệu đã có.
+    loadPagefind().then((pf) =>
+      pf?.filters().then((facets) => {
+        globalFacets = facets;
+        renderFilters();
+      }),
+    );
+
+    // Đôi khi lượt tìm đầu tiên chỉ lấy được số lượng thật cho MỘT VÀI nhóm (chỉ mục lọc của Pagefind có
+    // vẻ tải theo từng nhóm, không phải một lần đủ hết) — các nhóm còn thiếu tạm hiện đếm 0 (vẫn còn
+    // nguyên nhóm, không biến mất, chỉ chưa đúng số). Gọi âm thầm lại một lần sau 700ms để lấy nốt số
+    // liệu còn thiếu, không cần người dùng phải tự bấm gì thêm mới thấy đúng.
+    window.setTimeout(() => {
+      if (FILTER_CATEGORIES.some((c) => globalFacets[c] && !scopedFacets[c])) runSearch();
+    }, 700);
   }
 </script>
