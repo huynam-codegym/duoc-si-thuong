@@ -1519,32 +1519,56 @@ button.btn:not(.btn-outline) {
    Tên thương hiệu bằng chữ cũng ẩn đi (chỉ còn logo tròn) vì nút 3 gạch + logo + giỏ hàng
    không đủ chỗ cùng hàng nếu giữ cả chữ, làm giỏ hàng bị rớt xuống dòng riêng. */
 @media (max-width: 30rem) {
+  .header-main .brand {
+    gap: 0.4rem;
+    font-size: 1.1rem;
+    white-space: nowrap;
+  }
+
+  .header-main .brand-name {
+    font-size: 1em;
+  }
+
+  /* Logo nhỏ lại một chút để nhường chỗ cho tên thương hiệu giữ nguyên 1 dòng */
+  .header-main .brand-logo {
+    width: 2.2rem;
+    height: 2.2rem;
+  }
+
+  /* Giỏ hàng gọn lại: chỉ còn icon, bỏ viền/nền/chữ, số hiện đè lên góc icon (không chiếm thêm bề ngang) */
   .cart-label {
     display: none;
   }
 
   .cart-link {
-    padding-inline: 0.75rem;
-  }
-
-  .header-main .brand {
-    gap: 0.45rem;
-    font-size: 1.15rem;
-    white-space: nowrap;
-  }
-
-  /* "Dược Sĩ" / "Thương" xuống 2 dòng nhỏ cạnh logo, thay vì 1 dòng dài dễ tràn hàng */
-  .header-main .brand-name {
-    display: flex;
-    flex-direction: column;
     gap: 0;
-    font-size: 0.78rem;
-    line-height: 1.15;
+    min-height: 2.5rem;
+    padding: 0.3rem;
+    border: 0;
   }
 
-  .header-main .brand-logo {
-    width: 2.6rem;
-    height: 2.6rem;
+  .cart-link svg {
+    width: 1.35rem;
+    height: 1.35rem;
+  }
+
+  .cart-badge {
+    position: absolute;
+    top: -0.1rem;
+    right: -0.1rem;
+    min-width: 1.1rem;
+    height: 1.1rem;
+    padding: 0 0.25rem;
+    font-size: 0.62rem;
+    line-height: 1.1rem;
+  }
+}
+
+/* Màn hình rất hẹp (điện thoại đời cũ, khoảng 320px): vẫn không đủ chỗ cho tên thương hiệu 1 dòng
+   dù đã thu gọn logo và giỏ hàng, nên ẩn chữ, chỉ còn logo tròn để không bị tràn hàng. */
+@media (max-width: 21rem) {
+  .header-main .brand-name {
+    display: none;
   }
 }
 
