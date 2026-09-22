@@ -1,6 +1,6 @@
 ---
 import { render } from 'astro:content';
-import { Image, getImage } from 'astro:assets';
+import { getImage } from 'astro:assets';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import ShopShell from '../../components/ShopShell.astro';
 import ProductNotice from '../../components/ProductNotice.astro';
@@ -33,6 +33,7 @@ const {
   ingredients,
   image,
   imageAlt,
+  gallery,
   publicationNo,
   adConfirmationNo,
   updatedAt,
@@ -45,6 +46,16 @@ const department = departments[departmentSlug];
 const groupInfo = department.groups[group];
 const cartImage = await getImage({ src: image, width: 160, height: 160, format: 'webp' });
 const imageForSchema = await getImage({ src: image, width: 1200, height: 630, fit: 'cover', format: 'jpg' });
+
+// Ảnh chính + ảnh phụ (nếu có): mỗi ảnh cần bản hiển thị (vuông, vừa khung) và bản lớn hơn để phóng to khi rê chuột
+const galleryImages = [image, ...(gallery ?? [])];
+const galleryPhotos = await Promise.all(
+  galleryImages.map(async (img) => {
+    const display = await getImage({ src: img, width: 700, height: 700, format: 'webp' });
+    const zoom = await getImage({ src: img, width: 1300, height: 1300, format: 'webp' });
+    return { displaySrc: display.src, zoomSrc: zoom.src, width: display.attributes.width, height: display.attributes.height };
+  }),
+);
 
 const jsonLd = {
   '@context': 'https://schema.org',
@@ -75,9 +86,33 @@ const jsonLd = {
       </nav>
 
       <div class="product-top">
-        <figure class="product-photo">
-          <Image src={image} alt={imageAlt} width={900} height={900} widths={[450, 700, 900]} sizes="(min-width: 46rem) 22rem, 90vw" quality={85} loading="eager" />
-        </figure>
+        <div class="product-gallery">
+          <div class="product-gallery-stage">
+            <div class="product-gallery-main" id="galleryMain" data-zoom={galleryPhotos[0].zoomSrc}>
+              <img id="galleryMainImg" src={galleryPhotos[0].displaySrc} alt={imageAlt} width={galleryPhotos[0].width} height={galleryPhotos[0].height} loading="eager" />
+            </div>
+            {
+              galleryPhotos.length > 1 && (
+                <div class="product-gallery-thumbs" role="tablist" aria-label="Các ảnh khác của sản phẩm">
+                  {galleryPhotos.map((photo, index) => (
+                    <button
+                      type="button"
+                      class={`gallery-thumb${index === 0 ? ' active' : ''}`}
+                      data-display={photo.displaySrc}
+                      data-zoom={photo.zoomSrc}
+                      role="tab"
+                      aria-selected={index === 0 ? 'true' : 'false'}
+                      aria-label={`Xem ảnh ${index + 1}`}
+                    >
+                      <img src={photo.displaySrc} alt="" />
+                    </button>
+                  ))}
+                </div>
+              )
+            }
+          </div>
+          <div class="product-gallery-zoom" id="galleryZoom" aria-hidden="true"></div>
+        </div>
         <div class="product-info">
           <a class="tag" href={url(`/${departmentSlug}/nhom/${group}/`)}>{groupInfo.name}</a>
           <h1>{name}</h1>
@@ -179,6 +214,41 @@ const jsonLd = {
 </BaseLayout>
 
 <script>
+  // Ảnh sản phẩm: bấm ảnh nhỏ để đổi ảnh chính; rê chuột lên ảnh chính để phóng to sang khung bên cạnh
+  // (chỉ áp dụng khi có chuột thật, không hiện trên điện thoại/máy tính bảng vì không có "rê chuột").
+  const galleryMain = document.getElementById('galleryMain');
+  const galleryMainImg = document.getElementById('galleryMainImg') as HTMLImageElement | null;
+  const galleryZoom = document.getElementById('galleryZoom');
+
+  document.querySelectorAll<HTMLButtonElement>('.gallery-thumb').forEach((thumb) => {
+    thumb.addEventListener('click', () => {
+      if (galleryMainImg) galleryMainImg.src = thumb.dataset.display ?? '';
+      galleryMain?.setAttribute('data-zoom', thumb.dataset.zoom ?? '');
+      document.querySelectorAll<HTMLButtonElement>('.gallery-thumb').forEach((t) => {
+        const active = t === thumb;
+        t.classList.toggle('active', active);
+        t.setAttribute('aria-selected', String(active));
+      });
+    });
+  });
+
+  if (galleryMain && galleryZoom && window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
+    galleryMain.addEventListener('mouseenter', () => {
+      galleryZoom.style.backgroundImage = `url(${galleryMain.getAttribute('data-zoom')})`;
+      galleryZoom.classList.add('active');
+    });
+    galleryMain.addEventListener('mousemove', (event) => {
+      const rect = galleryMain.getBoundingClientRect();
+      const mouseEvent = event as MouseEvent;
+      const x = ((mouseEvent.clientX - rect.left) / rect.width) * 100;
+      const y = ((mouseEvent.clientY - rect.top) / rect.height) * 100;
+      galleryZoom.style.backgroundPosition = `${x}% ${y}%`;
+    });
+    galleryMain.addEventListener('mouseleave', () => {
+      galleryZoom.classList.remove('active');
+    });
+  }
+
   // Chọn số lượng trước khi mua
   const input = document.getElementById('buy-qty') as HTMLInputElement | null;
   const clamp = (value: number) => Math.min(20, Math.max(1, Number.isFinite(value) ? Math.floor(value) : 1));

@@ -931,11 +931,22 @@ img {
   margin-bottom: 1.25rem;
 }
 
-.product-photo {
-  margin: 0;
+/*
+ * Ảnh sản phẩm: ảnh chính + dải ảnh nhỏ bên dưới (bấm để đổi ảnh chính) khi sản phẩm có `gallery`.
+ * `.product-gallery-zoom` là khung phóng to hiện bên phải ảnh chính khi rê chuột (chỉ máy có chuột thật,
+ * xem điều kiện `matchMedia('(hover: hover)...')` trong script) — định vị `position: absolute` ra ngoài
+ * dòng chảy bình thường nên không ảnh hưởng bố cục khi ẩn, và chỉ bật ở màn hình đủ rộng (≥60rem).
+ */
+.product-gallery {
+  position: relative;
 }
 
-.product-photo img {
+.product-gallery-main {
+  margin: 0;
+  cursor: zoom-in;
+}
+
+.product-gallery-main img {
   display: block;
   width: 100%;
   height: auto;
@@ -944,6 +955,62 @@ img {
   border: 1px solid var(--line);
   border-radius: var(--radius);
   background: var(--green-50);
+}
+
+.product-gallery-thumbs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.6rem;
+}
+
+.gallery-thumb {
+  width: 3.5rem;
+  height: 3.5rem;
+  padding: 0.2rem;
+  border: 2px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+  cursor: pointer;
+}
+
+.gallery-thumb img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.gallery-thumb:hover {
+  border-color: var(--green-700);
+}
+
+.gallery-thumb.active {
+  border-color: var(--green-700);
+  box-shadow: 0 0 0 1px var(--green-700);
+}
+
+.product-gallery-zoom {
+  display: none;
+  position: absolute;
+  top: 0;
+  left: 100%;
+  z-index: 5;
+  width: 24rem;
+  aspect-ratio: 1 / 1;
+  margin-left: 1rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background-color: #fff;
+  background-repeat: no-repeat;
+  background-size: 220%;
+  box-shadow: 0 8px 24px rgb(0 0 0 / 0.15);
+}
+
+@media (min-width: 60rem) {
+  .product-gallery-zoom.active {
+    display: block;
+  }
 }
 
 .product-info h1 {

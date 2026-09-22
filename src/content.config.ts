@@ -62,6 +62,9 @@ const products = defineCollection({
         // Ảnh sản phẩm (đặt trong src/assets/products/<tên>/), nên vuông, nền sáng
         image: image(),
         imageAlt: z.string().min(1),
+        // Ảnh phụ (không bắt buộc): thêm góc chụp khác, ảnh cận cảnh... Cùng dùng chung imageAlt.
+        // Trang chi tiết hiện thành dải ảnh nhỏ bên dưới ảnh chính, bấm để đổi ảnh chính.
+        gallery: z.array(image()).optional(),
         // Số tiếp nhận hồ sơ công bố sản phẩm và số giấy xác nhận nội dung quảng cáo (nếu có); hiện ở trang chi tiết
         publicationNo: z.string().optional(),
         adConfirmationNo: z.string().optional(),
