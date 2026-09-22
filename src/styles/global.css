@@ -1244,12 +1244,7 @@ img {
   color: #fff;
 }
 
-/* Thanh menu trải đều hết chiều ngang khi đủ rộng để không bị vỡ dòng (kiểu thanh menu ngang phổ biến) */
-@media (min-width: 75rem) {
-  .site-nav > ul {
-    justify-content: space-between;
-  }
-}
+/* Thanh menu có 7 mục nên tự xuống dòng gọn gàng trên hầu hết màn hình (khung nội dung rộng tối đa 68rem, xem .container) */
 
 .toast {
   position: fixed;
@@ -1952,4 +1947,11 @@ button.btn:not(.btn-outline) {
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
+}
+
+/* Icon trong menu lớn và menu bên trái khu Thực phẩm chức năng: luôn giữ màu xanh lá,
+   không phụ thuộc màu chữ (chữ đổi màu khi hover/đang chọn nhưng icon giữ nguyên) */
+.mega-groups .sub-icon,
+.shop-menu .sub-icon {
+  color: var(--green-700);
 }

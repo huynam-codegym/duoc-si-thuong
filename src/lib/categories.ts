@@ -66,16 +66,11 @@ const categoryData = {
       },
     },
   },
-  'nhan-biet-benh': {
-    name: 'Nhận biết bệnh',
-    description: 'Triệu chứng, dấu hiệu cảnh báo và khi nào cần đi khám.',
-  },
-  'phong-chong-benh': {
-    name: 'Phòng chống bệnh',
-    description: 'Lối sống, tiêm chủng, sàng lọc và chăm sóc sức khỏe tại nhà.',
-  },
   'kien-thuc-ve-thuoc': {
-    name: 'Kiến thức về thuốc',
+    // Tên hiển thị là "Thuốc" (chủ website yêu cầu tháng 9/2026, theo kiểu menu của các nhà thuốc trực tuyến khác).
+    // Đây VẪN CHỈ LÀ bài viết kiến thức, KHÔNG bán thuốc; slug và nội dung giữ nguyên "kiến thức về thuốc".
+    // Không tự đổi thành khu bán hàng khi chưa có giấy phép kinh doanh dược qua thương mại điện tử.
+    name: 'Thuốc',
     description: 'Cách dùng thuốc an toàn, tương tác thuốc và bảo quản thuốc.',
     groups: {
       'khang-sinh': {
@@ -129,10 +124,6 @@ const categoryData = {
         description: 'Đọc nhãn thuốc, bảo quản, tương tác thuốc và những nguyên tắc chung.',
       },
     },
-  },
-  'hoi-dap': {
-    name: 'Hỏi đáp',
-    description: 'Giải đáp những thắc mắc thường gặp về sức khỏe và thuốc.',
   },
 } satisfies Record<string, Category>;
 

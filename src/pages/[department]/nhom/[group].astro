@@ -4,25 +4,29 @@ import ShopShell from '../../../components/ShopShell.astro';
 import GroupIcon from '../../../components/GroupIcon.astro';
 import ProductCard from '../../../components/ProductCard.astro';
 import ProductNotice from '../../../components/ProductNotice.astro';
-import { productGroups, productGroupSlugs, type ProductGroupSlug } from '../../../lib/product-groups';
+import { departments, departmentSlugs, getProductGroups, type DepartmentSlug } from '../../../lib/departments';
 import { getProducts } from '../../../lib/products';
 
 export function getStaticPaths() {
-  return productGroupSlugs.map((group) => ({ params: { group } }));
+  return departmentSlugs.flatMap((department) =>
+    getProductGroups(department).map(([group]) => ({ params: { department, group } })),
+  );
 }
 
-const slug = Astro.params.group as ProductGroupSlug;
-const group = productGroups[slug];
-const products = await getProducts(slug);
+const departmentSlug = Astro.params.department as DepartmentSlug;
+const groupSlug = Astro.params.group as string;
+const department = departments[departmentSlug];
+const group = department.groups[groupSlug];
+const products = await getProducts(departmentSlug, groupSlug);
 ---
 
-<BaseLayout title={`${group.name} | Thực phẩm chức năng`} description={group.description}>
-  <ShopShell current={slug}>
+<BaseLayout title={`${group.name} | ${department.name}`} description={group.description}>
+  <ShopShell department={departmentSlug} current={groupSlug}>
     <section class="hero shop-hero">
       <h1><GroupIcon icon={group.icon} size={28} badge badgeSize={44} /> {group.name}</h1>
       <p>{group.description}</p>
     </section>
-    <ProductNotice short />
+    <ProductNotice department={departmentSlug} short />
 
     {
       products.length > 0 ? (

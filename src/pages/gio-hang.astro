@@ -1,11 +1,10 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import ProductNotice from '../components/ProductNotice.astro';
 import { site } from '../lib/site';
 import { url } from '../lib/url';
 ---
 
-<BaseLayout title="Giỏ hàng" description="Giỏ hàng và đặt hàng thực phẩm chức năng từ Nhà Thuốc Nhật Minh." noindex>
+<BaseLayout title="Giỏ hàng" description="Giỏ hàng và đặt hàng sản phẩm từ Nhà Thuốc Nhật Minh." noindex>
   <div class="container">
     <section class="hero shop-hero">
       <h1>Giỏ hàng</h1>
@@ -15,7 +14,7 @@ import { url } from '../lib/url';
 
     <div id="cart-empty" class="empty" hidden>
       <p>Giỏ hàng của bạn đang trống.</p>
-      <a class="btn" href={url('/thuc-pham-chuc-nang/')}>Xem sản phẩm</a>
+      <a class="btn" href={url('/')}>Xem sản phẩm</a>
     </div>
 
     <div id="cart-filled" class="cart-layout" hidden>
@@ -30,7 +29,6 @@ import { url } from '../lib/url';
           Sản phẩm ghi "Liên hệ" chưa được tính vào tạm tính. Nhà thuốc sẽ báo giá khi xác nhận đơn.
         </p>
         <p class="cart-note">Giá chưa gồm phí giao hàng. Nhà thuốc sẽ xác nhận lại giá, phí giao và cách thanh toán trước khi giao.</p>
-        <ProductNotice short />
       </section>
 
       <section class="order" id="dat-hang" aria-labelledby="dat-hang-tieu-de">

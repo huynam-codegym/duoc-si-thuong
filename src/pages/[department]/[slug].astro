@@ -5,7 +5,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import ShopShell from '../../components/ShopShell.astro';
 import ProductNotice from '../../components/ProductNotice.astro';
 import Disclaimer from '../../components/Disclaimer.astro';
-import { productGroups } from '../../lib/product-groups';
+import { departments } from '../../lib/departments';
 import { foldVietnamese, formatDate } from '../../lib/posts';
 import { formatPrice, getProducts } from '../../lib/products';
 import { site } from '../../lib/site';
@@ -13,16 +13,36 @@ import { url } from '../../lib/url';
 
 export async function getStaticPaths() {
   const products = await getProducts();
-  return products.map((product) => ({ params: { slug: product.id }, props: { product } }));
+  return products.map((product) => ({
+    params: { department: product.data.department, slug: product.id },
+    props: { product },
+  }));
 }
 
 const { product } = Astro.props;
-const { name, summary, group, price, unit, brand, origin, dosageForm, ingredients, image, imageAlt, publicationNo, adConfirmationNo, updatedAt, draft } =
-  product.data;
+const {
+  name,
+  summary,
+  department: departmentSlug,
+  group,
+  price,
+  unit,
+  brand,
+  origin,
+  dosageForm,
+  ingredients,
+  image,
+  imageAlt,
+  publicationNo,
+  adConfirmationNo,
+  updatedAt,
+  draft,
+} = product.data;
 const { Content, headings } = await render(product);
 // Mục lục bên trái phần mô tả: các tiêu đề cấp 2 trong nội dung sản phẩm
 const sections = headings.filter((heading) => heading.depth === 2);
-const groupInfo = productGroups[group];
+const department = departments[departmentSlug];
+const groupInfo = department.groups[group];
 const cartImage = await getImage({ src: image, width: 160, height: 160, format: 'webp' });
 const imageForSchema = await getImage({ src: image, width: 1200, height: 630, fit: 'cover', format: 'jpg' });
 
@@ -38,7 +58,7 @@ const jsonLd = {
 ---
 
 <BaseLayout title={name} description={summary} jsonLd={jsonLd} image={image} noindex={draft}>
-  <ShopShell current={group}>
+  <ShopShell department={departmentSlug} current={group}>
     <article class="product" data-pagefind-body>
       {
         draft && (
@@ -49,8 +69,8 @@ const jsonLd = {
       }
       <nav class="breadcrumb" aria-label="Đường dẫn">
         <a href={url('/')}>Trang chủ</a> /
-        <a href={url('/thuc-pham-chuc-nang/')}>Thực phẩm chức năng</a> /
-        <a href={url(`/thuc-pham-chuc-nang/nhom/${group}/`)}>{groupInfo.name}</a> /
+        <a href={url(`/${departmentSlug}/`)}>{department.name}</a> /
+        <a href={url(`/${departmentSlug}/nhom/${group}/`)}>{groupInfo.name}</a> /
         <span aria-current="page">{name}</span>
       </nav>
 
@@ -59,7 +79,7 @@ const jsonLd = {
           <Image src={image} alt={imageAlt} width={900} height={900} widths={[450, 700, 900]} sizes="(min-width: 46rem) 22rem, 90vw" quality={85} loading="eager" />
         </figure>
         <div class="product-info">
-          <a class="tag" href={url(`/thuc-pham-chuc-nang/nhom/${group}/`)}>{groupInfo.name}</a>
+          <a class="tag" href={url(`/${departmentSlug}/nhom/${group}/`)}>{groupInfo.name}</a>
           <h1>{name}</h1>
           <p class="lead">{summary}</p>
           <p class="product-price product-price-lg">
@@ -116,7 +136,7 @@ const jsonLd = {
         </div>
       </div>
 
-      <ProductNotice />
+      <ProductNotice department={departmentSlug} />
 
       <section class="product-detail">
         {

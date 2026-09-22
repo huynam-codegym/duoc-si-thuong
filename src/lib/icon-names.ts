@@ -27,4 +27,7 @@ export type IconName =
   | 'sparkle'
   | 'baby'
   | 'chat'
-  | 'doctor';
+  | 'doctor'
+  | 'tooth'
+  | 'comb'
+  | 'firstaid';

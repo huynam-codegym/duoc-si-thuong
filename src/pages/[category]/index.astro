@@ -1,7 +1,6 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import PostCard from '../../components/PostCard.astro';
-import ChatPanel from '../../components/ChatPanel.astro';
 import { categories, categorySlugs, getGroups, type CategorySlug } from '../../lib/categories';
 import { getPosts } from '../../lib/posts';
 import { url } from '../../lib/url';
@@ -22,8 +21,6 @@ const posts = await getPosts(category);
       <h1>{name}</h1>
       <p>{description}</p>
     </section>
-
-    {category === 'hoi-dap' && <ChatPanel />}
 
     {
       groups.length > 0 && (

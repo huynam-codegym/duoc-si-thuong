@@ -1,21 +1,23 @@
 ---
-// Khung của khu Thực phẩm chức năng: menu nhóm sản phẩm ở bên trái, nội dung ở bên phải.
-// Trên điện thoại menu gập lại thành nút bấm "Danh mục sản phẩm".
+// Khung của một khu bán hàng (Thực phẩm chức năng, Dược mỹ phẩm, Chăm sóc cá nhân, Thiết bị y tế):
+// menu nhóm sản phẩm ở bên trái, nội dung ở bên phải. Trên điện thoại menu gập lại thành nút bấm "Danh mục sản phẩm".
 import GroupIcon from './GroupIcon.astro';
-import { productGroups } from '../lib/product-groups';
+import { departments, getProductGroups, type DepartmentSlug } from '../lib/departments';
 import { getProducts } from '../lib/products';
 import { url } from '../lib/url';
 
 interface Props {
+  department: DepartmentSlug;
   /** Slug nhóm đang xem (để tô đậm mục hiện tại). Bỏ trống ở trang "Tất cả sản phẩm" và trang chi tiết. */
   current?: string;
 }
 
-const { current } = Astro.props;
-const products = await getProducts();
+const { department: departmentSlug, current } = Astro.props;
+const department = departments[departmentSlug];
+const products = await getProducts(departmentSlug);
 const counts = new Map<string, number>();
 for (const product of products) counts.set(product.data.group, (counts.get(product.data.group) ?? 0) + 1);
-const isAll = Astro.url.pathname === url('/thuc-pham-chuc-nang/');
+const isAll = Astro.url.pathname === url(`/${departmentSlug}/`);
 ---
 
 <div class="container shop">
@@ -27,19 +29,19 @@ const isAll = Astro.url.pathname === url('/thuc-pham-chuc-nang/');
       </svg>
     </button>
     <nav id="shop-menu" class="shop-menu" aria-label="Nhóm sản phẩm">
-      <p class="shop-menu-title">Thực phẩm chức năng</p>
+      <p class="shop-menu-title">{department.name}</p>
       <ul>
         <li>
-          <a href={url('/thuc-pham-chuc-nang/')} aria-current={isAll ? 'page' : undefined}>
+          <a href={url(`/${departmentSlug}/`)} aria-current={isAll ? 'page' : undefined}>
             <span class="sub-icon" aria-hidden="true"><GroupIcon icon="cart" size={17} /></span>
             <span>Tất cả sản phẩm</span>
             <span class="shop-count">{products.length}</span>
           </a>
         </li>
         {
-          Object.entries(productGroups).map(([slug, group]) => (
+          getProductGroups(departmentSlug).map(([slug, group]) => (
             <li>
-              <a href={url(`/thuc-pham-chuc-nang/nhom/${slug}/`)} aria-current={current === slug ? 'page' : undefined}>
+              <a href={url(`/${departmentSlug}/nhom/${slug}/`)} aria-current={current === slug ? 'page' : undefined}>
                 <span class="sub-icon" aria-hidden="true">
                   <GroupIcon icon={group.icon} size={17} />
                 </span>

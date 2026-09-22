@@ -1,6 +1,7 @@
 ---
 name: "Sản phẩm mẫu (chỉ để thử giao diện)"
 summary: "Đây là sản phẩm mẫu để xem giao diện. Khi có sản phẩm thật, sao chép file này, sửa nội dung và đổi draft thành false."
+department: "thuc-pham-chuc-nang"
 group: "vitamin-khoang-chat"
 price: 250000
 unit: "Hộp 30 viên"

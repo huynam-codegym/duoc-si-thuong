@@ -3,35 +3,41 @@ import { Image, getImage } from 'astro:assets';
 import logo from '../assets/logo.jpg';
 import GroupIcon from './GroupIcon.astro';
 import { categories, getGroups, type CategorySlug } from '../lib/categories';
-import { productGroups, type ProductGroupSlug } from '../lib/product-groups';
+import { departments, departmentSlugs, getProductGroups, type DepartmentSlug } from '../lib/departments';
 import { formatPrice, getProducts } from '../lib/products';
 import { url } from '../lib/url';
 
 const current = Astro.url.pathname;
 const entries = Object.entries(categories) as [CategorySlug, (typeof categories)[CategorySlug]][];
-const shopHref = url('/thuc-pham-chuc-nang/');
 
 // Từ khóa gợi ý dưới ô tìm kiếm (chỉ dùng từ có bài viết trên website để kết quả không trống)
 const searchHints = ['Canxi', 'Sắt', 'Kẽm', 'Vitamin D', 'Vitamin C', 'Acid folic', 'Kháng sinh'];
 
-// Sản phẩm của từng nhóm để hiện ở khung bên phải của menu lớn (tối đa 5 sản phẩm mỗi nhóm)
+// Với mỗi khu bán hàng: sản phẩm của từng nhóm để hiện ở khung bên phải menu lớn (tối đa 5 sản phẩm mỗi nhóm)
 const allProducts = await getProducts();
-const groupEntries = Object.entries(productGroups) as [ProductGroupSlug, (typeof productGroups)[ProductGroupSlug]][];
-const megaProducts = new Map<string, { id: string; name: string; price: number | undefined; image: string }[]>();
-for (const [slug] of groupEntries) {
-  const inGroup = allProducts.filter((product) => product.data.group === slug).slice(0, 5);
-  megaProducts.set(
-    slug,
-    await Promise.all(
-      inGroup.map(async (product) => ({
-        id: product.id,
-        name: product.data.name,
-        price: product.data.price,
-        image: (await getImage({ src: product.data.image, width: 240, height: 240, format: 'webp' })).src,
-      })),
-    ),
-  );
-}
+type MegaProduct = { id: string; name: string; price: number | undefined; image: string };
+const shopMenus = await Promise.all(
+  departmentSlugs.map(async (departmentSlug) => {
+    const department = departments[departmentSlug];
+    const groupEntries = getProductGroups(departmentSlug);
+    const megaProducts = new Map<string, MegaProduct[]>();
+    for (const [slug] of groupEntries) {
+      const inGroup = allProducts.filter((product) => product.data.department === departmentSlug && product.data.group === slug).slice(0, 5);
+      megaProducts.set(
+        slug,
+        await Promise.all(
+          inGroup.map(async (product) => ({
+            id: product.id,
+            name: product.data.name,
+            price: product.data.price,
+            image: (await getImage({ src: product.data.image, width: 240, height: 240, format: 'webp' })).src,
+          })),
+        ),
+      );
+    }
+    return { departmentSlug, department, groupEntries, megaProducts, href: url(`/${departmentSlug}/`) };
+  }),
+);
 ---
 
 <header class="site-header">
@@ -86,79 +92,83 @@ for (const [slug] of groupEntries) {
     <div class="container">
       <nav class="site-nav" aria-label="Chuyên mục">
         <ul>
-          <li class="has-sub nav-shop">
-            <a href={shopHref} aria-current={current.startsWith(shopHref) ? 'page' : undefined}>Thực phẩm chức năng</a>
-            <button
-              type="button"
-              class="sub-toggle"
-              aria-expanded="false"
-              aria-controls="sub-shop"
-              aria-label="Mở danh mục sản phẩm"
-            >
-              <svg viewBox="0 0 12 12" aria-hidden="true" focusable="false">
-                <path d="M2 4l4 4 4-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-              </svg>
-            </button>
-            <div class="mega-menu" id="sub-shop">
-              <ul class="mega-groups">
-                <li class="mega-all">
-                  <a href={shopHref}>
-                    <span class="sub-icon" aria-hidden="true"><GroupIcon icon="cart" size={17} /></span>
-                    <span>Xem tất cả sản phẩm</span>
-                  </a>
-                </li>
-                {
-                  groupEntries.map(([slug, group], index) => (
-                    <li>
-                      <a
-                        class={`mega-tab${index === 0 ? ' active' : ''}`}
-                        href={url(`/thuc-pham-chuc-nang/nhom/${slug}/`)}
-                        data-panel={slug}
-                      >
-                        <span class="sub-icon" aria-hidden="true">
-                          <GroupIcon icon={group.icon} size={17} />
-                        </span>
-                        <span>{group.name}</span>
+          {
+            shopMenus.map(({ departmentSlug, department, groupEntries, megaProducts, href }, deptIndex) => (
+              <li class={`has-sub${deptIndex === 0 ? ' nav-shop' : ''}`}>
+                <a href={href} aria-current={current.startsWith(href) ? 'page' : undefined}>{department.name}</a>
+                <button
+                  type="button"
+                  class="sub-toggle"
+                  aria-expanded="false"
+                  aria-controls={`sub-shop-${departmentSlug}`}
+                  aria-label={`Mở danh mục ${department.name}`}
+                >
+                  <svg viewBox="0 0 12 12" aria-hidden="true" focusable="false">
+                    <path d="M2 4l4 4 4-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                  </svg>
+                </button>
+                <div class="mega-menu" id={`sub-shop-${departmentSlug}`}>
+                  <ul class="mega-groups">
+                    <li class="mega-all">
+                      <a href={href}>
+                        <span class="sub-icon" aria-hidden="true"><GroupIcon icon="cart" size={17} /></span>
+                        <span>Xem tất cả sản phẩm</span>
                       </a>
                     </li>
-                  ))
-                }
-              </ul>
-              <div class="mega-panels">
-                {
-                  groupEntries.map(([slug, group], index) => {
-                    const list = megaProducts.get(slug) ?? [];
-                    return (
-                      <section class={`mega-panel${index === 0 ? ' active' : ''}`} data-panel={slug} aria-label={group.name}>
-                        <p class="mega-panel-head">
-                          <strong>{group.name}</strong>
-                          <a href={url(`/thuc-pham-chuc-nang/nhom/${slug}/`)}>Xem tất cả ›</a>
-                        </p>
-                        {list.length > 0 ? (
-                          <>
-                            <p class="mega-panel-sub">Sản phẩm trong nhóm</p>
-                            <ul class="mega-products">
-                              {list.map((product) => (
-                                <li>
-                                  <a href={url(`/thuc-pham-chuc-nang/${product.id}/`)}>
-                                    <img src={product.image} alt="" width="120" height="120" loading="lazy" />
-                                    <span class="mega-product-name">{product.name}</span>
-                                    <span class="mega-product-price">{formatPrice(product.price)}</span>
-                                  </a>
-                                </li>
-                              ))}
-                            </ul>
-                          </>
-                        ) : (
-                          <p class="mega-empty">{group.description} Nhóm này đang cập nhật sản phẩm.</p>
-                        )}
-                      </section>
-                    );
-                  })
-                }
-              </div>
-            </div>
-          </li>
+                    {
+                      groupEntries.map(([slug, group], index) => (
+                        <li>
+                          <a
+                            class={`mega-tab${index === 0 ? ' active' : ''}`}
+                            href={url(`/${departmentSlug}/nhom/${slug}/`)}
+                            data-panel={slug}
+                          >
+                            <span class="sub-icon" aria-hidden="true">
+                              <GroupIcon icon={group.icon} size={17} />
+                            </span>
+                            <span>{group.name}</span>
+                          </a>
+                        </li>
+                      ))
+                    }
+                  </ul>
+                  <div class="mega-panels">
+                    {
+                      groupEntries.map(([slug, group], index) => {
+                        const list = megaProducts.get(slug) ?? [];
+                        return (
+                          <section class={`mega-panel${index === 0 ? ' active' : ''}`} data-panel={slug} aria-label={group.name}>
+                            <p class="mega-panel-head">
+                              <strong>{group.name}</strong>
+                              <a href={url(`/${departmentSlug}/nhom/${slug}/`)}>Xem tất cả ›</a>
+                            </p>
+                            {list.length > 0 ? (
+                              <>
+                                <p class="mega-panel-sub">Sản phẩm trong nhóm</p>
+                                <ul class="mega-products">
+                                  {list.map((product) => (
+                                    <li>
+                                      <a href={url(`/${departmentSlug}/${product.id}/`)}>
+                                        <img src={product.image} alt="" width="120" height="120" loading="lazy" />
+                                        <span class="mega-product-name">{product.name}</span>
+                                        <span class="mega-product-price">{formatPrice(product.price)}</span>
+                                      </a>
+                                    </li>
+                                  ))}
+                                </ul>
+                              </>
+                            ) : (
+                              <p class="mega-empty">{group.description} Nhóm này đang cập nhật sản phẩm.</p>
+                            )}
+                          </section>
+                        );
+                      })
+                    }
+                  </div>
+                </div>
+              </li>
+            ))
+          }
           {
             entries.map(([slug, category]) => {
               const groups = getGroups(slug);
@@ -251,16 +261,19 @@ for (const [slug] of groupEntries) {
     if (event.key === 'Escape') items.forEach((item) => setOpen(item, false));
   });
 
-  // Menu lớn: rê chuột hoặc focus vào một nhóm thì khung bên phải đổi sang sản phẩm của nhóm đó
-  const tabs = document.querySelectorAll<HTMLElement>('.mega-tab');
-  const panels = document.querySelectorAll<HTMLElement>('.mega-panel');
-  function showPanel(slug: string | undefined) {
-    tabs.forEach((tab) => tab.classList.toggle('active', tab.dataset.panel === slug));
-    panels.forEach((panel) => panel.classList.toggle('active', panel.dataset.panel === slug));
-  }
-  tabs.forEach((tab) => {
-    tab.addEventListener('mouseenter', () => showPanel(tab.dataset.panel));
-    tab.addEventListener('focus', () => showPanel(tab.dataset.panel));
+  // Menu lớn: rê chuột hoặc focus vào một nhóm thì khung bên phải đổi sang sản phẩm của nhóm đó.
+  // Mỗi khu bán hàng có menu lớn riêng, nên chỉ tìm tab/khung trong CÙNG một menu.
+  document.querySelectorAll<HTMLElement>('.mega-menu').forEach((menu) => {
+    const tabs = menu.querySelectorAll<HTMLElement>('.mega-tab');
+    const panels = menu.querySelectorAll<HTMLElement>('.mega-panel');
+    function showPanel(slug: string | undefined) {
+      tabs.forEach((tab) => tab.classList.toggle('active', tab.dataset.panel === slug));
+      panels.forEach((panel) => panel.classList.toggle('active', panel.dataset.panel === slug));
+    }
+    tabs.forEach((tab) => {
+      tab.addEventListener('mouseenter', () => showPanel(tab.dataset.panel));
+      tab.addEventListener('focus', () => showPanel(tab.dataset.panel));
+    });
   });
 
   // Số sản phẩm trên biểu tượng giỏ hàng

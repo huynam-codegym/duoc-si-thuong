@@ -1,6 +1,7 @@
 ---
 name: "Viên uống Blackmores Omega Double High Strength Fish Oil (90 viên)"
 summary: "Viên nang mềm bổ sung omega-3 từ dầu cá cô đặc, mỗi viên chứa 360 mg EPA và 240 mg DHA. Người lớn dùng 1 viên mỗi ngày cùng bữa ăn."
+department: "thuc-pham-chuc-nang"
 group: "vitamin-khoang-chat"
 price: 450000
 unit: "Hộp 90 viên"

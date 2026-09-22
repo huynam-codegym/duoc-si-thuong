@@ -1,20 +1,39 @@
 ---
+// Dòng cảnh báo bắt buộc ở đầu trang danh sách và trang chi tiết, nội dung khác nhau theo khu bán hàng.
+// Xem mục "Khu bán hàng (Thực phẩm chức năng, Dược mỹ phẩm, Chăm sóc cá nhân, Thiết bị y tế)" trong CLAUDE.md.
+import type { DepartmentSlug } from '../lib/departments';
+
 interface Props {
+  department: DepartmentSlug;
   /** Bản ngắn dùng ở trang danh sách, bản đầy đủ dùng ở trang chi tiết. */
   short?: boolean;
 }
 
-const { short = false } = Astro.props;
+const { department, short = false } = Astro.props;
+
+const notices: Record<DepartmentSlug, { lead: string; full: string }> = {
+  'thuc-pham-chuc-nang': {
+    lead: 'Thực phẩm bổ sung, không phải là thuốc, không có tác dụng thay thế thuốc chữa bệnh.',
+    full: 'Phụ nữ có thai, đang cho con bú, trẻ em, người cao tuổi, người có bệnh nền hoặc đang dùng thuốc nên hỏi ý kiến bác sĩ, dược sĩ trước khi dùng. Ngừng dùng và đi khám nếu có dấu hiệu bất thường.',
+  },
+  'duoc-my-pham': {
+    lead: 'Sản phẩm mỹ phẩm dùng ngoài da, không phải là thuốc.',
+    full: 'Nên thử trên một vùng da nhỏ trước khi dùng toàn mặt. Ngừng dùng ngay và hỏi bác sĩ da liễu nếu da bị kích ứng, mẩn đỏ hoặc ngứa. Phụ nữ có thai, đang cho con bú nên hỏi ý kiến bác sĩ trước khi dùng sản phẩm có hoạt chất đặc trị.',
+  },
+  'cham-soc-ca-nhan': {
+    lead: 'Sản phẩm chăm sóc cá nhân, dùng ngoài da theo hướng dẫn trên nhãn.',
+    full: 'Ngừng dùng nếu da bị kích ứng, mẩn đỏ hoặc ngứa. Tránh để sản phẩm dính vào mắt. Để xa tầm tay trẻ em.',
+  },
+  'thiet-bi-y-te': {
+    lead: 'Thiết bị hỗ trợ theo dõi sức khỏe tại nhà, không thay thế chẩn đoán của bác sĩ.',
+    full: 'Đọc kỹ hướng dẫn sử dụng trước khi dùng. Kết quả đo tại nhà chỉ mang tính tham khảo; nếu thấy bất thường hãy đến cơ sở y tế để kiểm tra lại.',
+  },
+};
+
+const notice = notices[department];
 ---
 
 <p class="product-notice">
-  <strong>Thực phẩm bổ sung, không phải là thuốc, không có tác dụng thay thế thuốc chữa bệnh.</strong>
-  {
-    !short && (
-      <>
-        {' '}Phụ nữ có thai, đang cho con bú, trẻ em, người cao tuổi, người có bệnh nền hoặc đang dùng thuốc nên hỏi ý
-        kiến bác sĩ, dược sĩ trước khi dùng. Ngừng dùng và đi khám nếu có dấu hiệu bất thường.
-      </>
-    )
-  }
+  <strong>{notice.lead}</strong>
+  {!short && <> {notice.full}</>}
 </p>

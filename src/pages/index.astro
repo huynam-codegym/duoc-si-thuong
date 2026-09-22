@@ -6,15 +6,22 @@ import PostCard from '../components/PostCard.astro';
 import ProductCard from '../components/ProductCard.astro';
 import GroupIcon from '../components/GroupIcon.astro';
 import { categories } from '../lib/categories';
-import { productGroups } from '../lib/product-groups';
+import { departments, departmentSlugs, getProductGroups } from '../lib/departments';
 import { getPosts } from '../lib/posts';
 import { getProducts } from '../lib/products';
 import { site } from '../lib/site';
 import { url } from '../lib/url';
 
 const latest = (await getPosts()).slice(0, 6);
-const products = await getProducts();
-const featured = products.slice(0, 8);
+
+// Với mỗi khu bán hàng: chỉ hiện phần "Danh mục sản phẩm"/"Sản phẩm" khi khu đó đã có sản phẩm thật
+const shops = await Promise.all(
+  departmentSlugs.map(async (slug) => {
+    const products = await getProducts(slug);
+    return { slug, department: departments[slug], groups: getProductGroups(slug), featured: products.slice(0, 8) };
+  }),
+);
+const activeShops = shops.filter((shop) => shop.featured.length > 0);
 ---
 
 <BaseLayout
@@ -49,14 +56,16 @@ const featured = products.slice(0, 8);
     </ul>
 
     {
-      products.length > 0 && (
+      activeShops.map((shop) => (
         <>
-          <section aria-labelledby="danh-muc-sp">
-            <h2 class="section-title" id="danh-muc-sp">Danh mục sản phẩm</h2>
+          <section aria-labelledby={`danh-muc-${shop.slug}`}>
+            <h2 class="section-title" id={`danh-muc-${shop.slug}`}>
+              Danh mục {shop.department.name.toLowerCase()}
+            </h2>
             <ul class="cat-tiles">
-              {Object.entries(productGroups).map(([slug, group]) => (
+              {shop.groups.map(([groupSlug, group]) => (
                 <li>
-                  <a href={url(`/thuc-pham-chuc-nang/nhom/${slug}/`)}>
+                  <a href={url(`/${shop.slug}/nhom/${groupSlug}/`)}>
                     <span class="tile-icon" aria-hidden="true">
                       <GroupIcon icon={group.icon} size={26} badge badgeSize={52} />
                     </span>
@@ -67,17 +76,17 @@ const featured = products.slice(0, 8);
             </ul>
           </section>
 
-          <section aria-labelledby="sp-noi-bat">
-            <h2 class="section-title" id="sp-noi-bat">Sản phẩm</h2>
+          <section aria-labelledby={`sp-${shop.slug}`}>
+            <h2 class="section-title" id={`sp-${shop.slug}`}>{shop.department.name}</h2>
             <div class="grid product-grid">
-              {featured.map((product) => <ProductCard product={product} />)}
+              {shop.featured.map((product) => <ProductCard product={product} />)}
             </div>
             <p class="more">
-              <a class="btn btn-outline" href={url('/thuc-pham-chuc-nang/')}>Xem tất cả sản phẩm</a>
+              <a class="btn btn-outline" href={url(`/${shop.slug}/`)}>Xem tất cả {shop.department.name.toLowerCase()}</a>
             </p>
           </section>
         </>
-      )
+      ))
     }
 
     <section aria-labelledby="chuyen-muc">
