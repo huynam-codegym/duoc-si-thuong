@@ -1144,7 +1144,7 @@ img {
   flex-wrap: wrap;
   gap: 0.2rem 0.9rem;
   margin: 0.4rem 0 0;
-  padding: 0 0.5rem;
+  padding: 0;
   list-style: none;
   font-size: 0.85rem;
 }
@@ -1870,10 +1870,6 @@ button.btn:not(.btn-outline) {
 }
 
 /* Chữ gợi ý đậm hơn để dễ đọc trên nền màu */
-.search-hints a {
-  color: var(--green-900);
-}
-
 .site-header {
   box-shadow: 0 2px 8px rgb(20 83 45 / 0.08);
 }
