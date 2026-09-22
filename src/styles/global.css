@@ -308,6 +308,7 @@ img {
   display: inline-block;
   padding: 0.85rem 0.6rem;
   border-radius: 8px;
+  color: var(--ink);
   font-size: 0.9rem;
   font-weight: 600;
   text-decoration: none;
@@ -315,8 +316,8 @@ img {
 
 .site-nav a:hover,
 .site-nav a:focus-visible {
-  background: var(--green-50);
-  color: var(--green-900);
+  color: var(--green-700);
+  text-decoration: underline;
 }
 
 .site-nav a[aria-current='page'] {
@@ -1338,19 +1339,6 @@ img {
   padding-block: 0;
 }
 
-.site-nav .nav-shop > a {
-  padding: 0.55rem 0.9rem;
-  border-radius: 999px;
-  background: var(--green-700);
-  color: #fff;
-}
-
-.site-nav .nav-shop > a:hover,
-.site-nav .nav-shop > a:focus-visible {
-  background: var(--green-900);
-  color: #fff;
-}
-
 /* Thanh menu có 7 mục nên tự xuống dòng gọn gàng trên hầu hết màn hình (khung nội dung rộng tối đa 68rem, xem .container) */
 
 .toast {
@@ -1813,7 +1801,9 @@ button.btn:not(.btn-outline) {
     position: relative;
   }
 
-  .site-nav .nav-shop {
+  /* .mega-menu trải rộng theo .navbar .container (right/left: 1rem bên dưới), không theo từng mục,
+     nên mục chứa nó phải bỏ position:relative mặc định của .has-sub */
+  .site-nav .has-sub:has(> .mega-menu) {
     position: static;
   }
 
@@ -1865,7 +1855,7 @@ button.btn:not(.btn-outline) {
 }
 
 @media (min-width: 48rem) and (hover: hover) {
-  .nav-shop:hover > .mega-menu {
+  .site-nav .has-sub:hover > .mega-menu {
     display: grid;
     grid-template-columns: 16rem 1fr;
     gap: 1rem;

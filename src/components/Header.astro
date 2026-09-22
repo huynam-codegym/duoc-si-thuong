@@ -133,8 +133,8 @@ const drawerSections: DrawerSection[] = [
       <nav class="site-nav" aria-label="Chuyên mục">
         <ul>
           {
-            shopMenus.map(({ departmentSlug, department, groupEntries, megaProducts, href }, deptIndex) => (
-              <li class={`has-sub${deptIndex === 0 ? ' nav-shop' : ''}`}>
+            shopMenus.map(({ departmentSlug, department, groupEntries, megaProducts, href }) => (
+              <li class="has-sub">
                 <a href={href} aria-current={current.startsWith(href) ? 'page' : undefined}>{department.name}</a>
                 <button
                   type="button"
