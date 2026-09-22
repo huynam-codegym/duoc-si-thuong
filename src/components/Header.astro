@@ -1,6 +1,7 @@
 ---
 import { Image, getImage } from 'astro:assets';
 import logo from '../assets/logo.jpg';
+import GroupIcon from './GroupIcon.astro';
 import { categories, getGroups, type CategorySlug } from '../lib/categories';
 import { productGroups, type ProductGroupSlug } from '../lib/product-groups';
 import { formatPrice, getProducts } from '../lib/products';
@@ -102,7 +103,7 @@ for (const [slug] of groupEntries) {
               <ul class="mega-groups">
                 <li class="mega-all">
                   <a href={shopHref}>
-                    <span class="sub-icon" aria-hidden="true">🛒</span>
+                    <span class="sub-icon" aria-hidden="true"><GroupIcon icon="cart" size={17} /></span>
                     <span>Xem tất cả sản phẩm</span>
                   </a>
                 </li>
@@ -114,7 +115,9 @@ for (const [slug] of groupEntries) {
                         href={url(`/thuc-pham-chuc-nang/nhom/${slug}/`)}
                         data-panel={slug}
                       >
-                        <span class="sub-icon" aria-hidden="true">{group.icon}</span>
+                        <span class="sub-icon" aria-hidden="true">
+                          <GroupIcon icon={group.icon} size={17} />
+                        </span>
                         <span>{group.name}</span>
                       </a>
                     </li>
@@ -181,7 +184,7 @@ for (const [slug] of groupEntries) {
                     <li>
                       <a href={href}>
                         <span class="sub-icon" aria-hidden="true">
-                          📚
+                          <GroupIcon icon="book" size={17} />
                         </span>
                         <span>Xem tất cả bài viết</span>
                       </a>
@@ -190,7 +193,7 @@ for (const [slug] of groupEntries) {
                       <li>
                         <a href={url(`/${slug}/nhom/${groupSlug}/`)}>
                           <span class="sub-icon" aria-hidden="true">
-                            {group.icon}
+                            <GroupIcon icon={group.icon} size={17} />
                           </span>
                           <span>{group.name}</span>
                         </a>

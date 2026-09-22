@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '../../../layouts/BaseLayout.astro';
 import ShopShell from '../../../components/ShopShell.astro';
+import GroupIcon from '../../../components/GroupIcon.astro';
 import ProductCard from '../../../components/ProductCard.astro';
 import ProductNotice from '../../../components/ProductNotice.astro';
 import { productGroups, productGroupSlugs, type ProductGroupSlug } from '../../../lib/product-groups';
@@ -18,7 +19,7 @@ const products = await getProducts(slug);
 <BaseLayout title={`${group.name} | Thực phẩm chức năng`} description={group.description}>
   <ShopShell current={slug}>
     <section class="hero shop-hero">
-      <h1>{group.icon} {group.name}</h1>
+      <h1><GroupIcon icon={group.icon} size={28} badge badgeSize={44} /> {group.name}</h1>
       <p>{group.description}</p>
     </section>
     <ProductNotice short />

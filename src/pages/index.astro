@@ -4,6 +4,7 @@ import cover from '../assets/cover.jpg';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import PostCard from '../components/PostCard.astro';
 import ProductCard from '../components/ProductCard.astro';
+import GroupIcon from '../components/GroupIcon.astro';
 import { categories } from '../lib/categories';
 import { productGroups } from '../lib/product-groups';
 import { getPosts } from '../lib/posts';
@@ -42,9 +43,9 @@ const featured = products.slice(0, 8);
     </div>
 
     <ul class="trust">
-      <li><span aria-hidden="true">👩‍⚕️</span> Dược sĩ đại học tư vấn</li>
-      <li><span aria-hidden="true">💬</span> Nhắn Zalo hỏi đáp: {site.phone}</li>
-      <li><span aria-hidden="true">📚</span> Bài viết có nguồn tham khảo</li>
+      <li><GroupIcon icon="doctor" size={18} /> Dược sĩ đại học tư vấn</li>
+      <li><GroupIcon icon="chat" size={18} /> Nhắn Zalo hỏi đáp: {site.phone}</li>
+      <li><GroupIcon icon="book" size={18} /> Bài viết có nguồn tham khảo</li>
     </ul>
 
     {
@@ -56,7 +57,9 @@ const featured = products.slice(0, 8);
               {Object.entries(productGroups).map(([slug, group]) => (
                 <li>
                   <a href={url(`/thuc-pham-chuc-nang/nhom/${slug}/`)}>
-                    <span class="tile-icon" aria-hidden="true">{group.icon}</span>
+                    <span class="tile-icon" aria-hidden="true">
+                      <GroupIcon icon={group.icon} size={26} badge badgeSize={52} />
+                    </span>
                     <span>{group.name}</span>
                   </a>
                 </li>

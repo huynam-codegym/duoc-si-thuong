@@ -1905,3 +1905,39 @@ button.btn:not(.btn-outline) {
     display: block;
   }
 }
+
+/* Icon đường nét (GroupIcon.astro): thay cho emoji trước đây */
+.group-icon {
+  display: inline-block;
+  flex: none;
+  vertical-align: middle;
+}
+
+.group-icon-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  border-radius: 50%;
+  background: var(--green-100);
+  color: var(--green-700);
+}
+
+/* Tiêu đề trang nhóm sản phẩm có icon: căn icon và chữ cùng hàng */
+.shop-hero h1 {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.trust .group-icon-badge,
+.trust svg.group-icon {
+  vertical-align: middle;
+  color: var(--green-700);
+}
+
+.trust li {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}

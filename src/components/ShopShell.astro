@@ -1,6 +1,7 @@
 ---
 // Khung của khu Thực phẩm chức năng: menu nhóm sản phẩm ở bên trái, nội dung ở bên phải.
 // Trên điện thoại menu gập lại thành nút bấm "Danh mục sản phẩm".
+import GroupIcon from './GroupIcon.astro';
 import { productGroups } from '../lib/product-groups';
 import { getProducts } from '../lib/products';
 import { url } from '../lib/url';
@@ -30,7 +31,7 @@ const isAll = Astro.url.pathname === url('/thuc-pham-chuc-nang/');
       <ul>
         <li>
           <a href={url('/thuc-pham-chuc-nang/')} aria-current={isAll ? 'page' : undefined}>
-            <span class="sub-icon" aria-hidden="true">🛒</span>
+            <span class="sub-icon" aria-hidden="true"><GroupIcon icon="cart" size={17} /></span>
             <span>Tất cả sản phẩm</span>
             <span class="shop-count">{products.length}</span>
           </a>
@@ -39,7 +40,9 @@ const isAll = Astro.url.pathname === url('/thuc-pham-chuc-nang/');
           Object.entries(productGroups).map(([slug, group]) => (
             <li>
               <a href={url(`/thuc-pham-chuc-nang/nhom/${slug}/`)} aria-current={current === slug ? 'page' : undefined}>
-                <span class="sub-icon" aria-hidden="true">{group.icon}</span>
+                <span class="sub-icon" aria-hidden="true">
+                  <GroupIcon icon={group.icon} size={17} />
+                </span>
                 <span>{group.name}</span>
                 <span class="shop-count">{counts.get(slug) ?? 0}</span>
               </a>

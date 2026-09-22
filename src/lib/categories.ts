@@ -1,6 +1,8 @@
+import type { IconName } from './icon-names';
+
 export interface Group {
-  /** Biểu tượng nhỏ (emoji) hiện cạnh tên nhóm trong menu thả xuống. */
-  icon: string;
+  /** Icon đường nét hiện cạnh tên nhóm trong menu thả xuống (xem GroupIcon.astro). */
+  icon: IconName;
   name: string;
   description: string;
 }
@@ -19,47 +21,47 @@ const categoryData = {
     groups: {
       'nguyen-tac': {
         name: 'Nguyên tắc ăn uống',
-        icon: '🥗',
+        icon: 'salad',
         description: 'Những nguyên tắc cơ bản để ăn uống cân bằng mỗi ngày.',
       },
       'thieu-canxi': {
         name: 'Thiếu canxi',
-        icon: '🦴',
+        icon: 'bone',
         description: 'Thiếu canxi nên ăn gì? Thực phẩm giàu canxi và cách để cơ thể hấp thu tốt hơn.',
       },
       'thieu-sat': {
         name: 'Thiếu sắt',
-        icon: '🩸',
+        icon: 'droplet',
         description: 'Thiếu sắt nên ăn gì? Nguồn sắt từ động vật, thực vật và cách tăng hấp thu.',
       },
       'thieu-vitamin-d': {
         name: 'Thiếu vitamin D',
-        icon: '☀️',
+        icon: 'sun',
         description: 'Thiếu vitamin D nên ăn gì, và vai trò của ánh nắng.',
       },
       'thieu-vitamin-b12': {
         name: 'Thiếu vitamin B12',
-        icon: '🥚',
+        icon: 'egg',
         description: 'Thiếu vitamin B12 nên ăn gì, và ai dễ bị thiếu.',
       },
       'thieu-kem': {
         name: 'Thiếu kẽm',
-        icon: '🦪',
+        icon: 'shell',
         description: 'Thiếu kẽm nên ăn gì để hỗ trợ miễn dịch, tăng trưởng và vết thương mau lành.',
       },
       'thieu-i-ot': {
         name: 'Thiếu i-ốt',
-        icon: '🌊',
+        icon: 'wave',
         description: 'Thiếu i-ốt nên ăn gì để tuyến giáp hoạt động bình thường.',
       },
       'thieu-vitamin-c': {
         name: 'Thiếu vitamin C',
-        icon: '🍋',
+        icon: 'citrus',
         description: 'Thiếu vitamin C nên ăn gì, và cách giữ vitamin C khi chế biến.',
       },
       'thieu-acid-folic': {
         name: 'Thiếu acid folic',
-        icon: '🥬',
+        icon: 'leaf',
         description: 'Thiếu acid folic (folate) nên ăn gì, và vì sao quan trọng khi chuẩn bị mang thai.',
       },
     },
@@ -78,52 +80,52 @@ const categoryData = {
     groups: {
       'khang-sinh': {
         name: 'Kháng sinh',
-        icon: '🦠',
+        icon: 'bacteria',
         description: 'Khi nào cần kháng sinh, vì sao không tự ý dùng và cách tránh kháng thuốc.',
       },
       'giam-dau-ha-sot': {
         name: 'Giảm đau, hạ sốt',
-        icon: '🌡️',
+        icon: 'thermometer',
         description: 'Paracetamol, ibuprofen và cách dùng an toàn khi đau, sốt.',
       },
       'khang-viem': {
         name: 'Thuốc kháng viêm',
-        icon: '💊',
+        icon: 'capsule',
         description: 'Thuốc kháng viêm không steroid (NSAID) và corticoid: khác nhau ra sao, lưu ý gì.',
       },
       'da-day': {
         name: 'Thuốc dạ dày',
-        icon: '🍽️',
+        icon: 'stomach',
         description: 'Thuốc trung hòa acid, thuốc giảm tiết acid và những điều cần biết khi dùng.',
       },
       'ho-cam-cum': {
         name: 'Thuốc ho, cảm cúm',
-        icon: '🤧',
+        icon: 'wind',
         description: 'Thuốc giảm triệu chứng ho, sổ mũi, nghẹt mũi và cách tránh dùng trùng thành phần.',
       },
       'di-ung': {
         name: 'Thuốc dị ứng',
-        icon: '🌼',
+        icon: 'flower',
         description: 'Thuốc kháng histamin: chọn và dùng sao cho an toàn.',
       },
       'vitamin-khoang-chat': {
         name: 'Vitamin, khoáng chất',
-        icon: '🍊',
+        icon: 'citrus',
         description: 'Bổ sung khi nào là cần thiết và khi nào có thể gây hại.',
       },
       'tim-mach-huyet-ap': {
         name: 'Thuốc tim mạch, huyết áp',
-        icon: '❤️',
+        icon: 'heart',
         description: 'Các nhóm thuốc hạ huyết áp và vì sao cần dùng đều đặn theo chỉ định.',
       },
       'tieu-duong': {
         name: 'Thuốc đái tháo đường',
-        icon: '🩸',
+        icon: 'droplet',
         description: 'Thuốc và insulin: dùng đúng, phòng hạ đường huyết.',
       },
       'dung-thuoc-an-toan': {
         name: 'Dùng thuốc an toàn',
-        icon: '🛡️',
+        icon: 'shield',
         description: 'Đọc nhãn thuốc, bảo quản, tương tác thuốc và những nguyên tắc chung.',
       },
     },

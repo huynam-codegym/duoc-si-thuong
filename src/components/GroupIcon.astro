@@ -1,0 +1,362 @@
+---
+// Icon đường nét (line icon) tự vẽ, dùng cho nhóm thuốc, nhóm dinh dưỡng và nhóm sản phẩm.
+// Thay cho emoji trước đây vì trên nhiều máy/điện thoại emoji hiện mỗi nơi một kiểu.
+// Thêm icon mới: thêm tên vào IconName (src/lib/icon-names.ts) rồi thêm một khối {name === '...' && (...)} bên dưới.
+import type { IconName } from '../lib/icon-names';
+
+interface Props {
+  icon: IconName;
+  /** Cỡ icon tính bằng px. */
+  size?: number;
+  /** true = có khung tròn màu bao quanh (dùng ở thẻ chuyên mục, đầu trang nhóm). */
+  badge?: boolean;
+  /** Cỡ khung tròn tính bằng px, chỉ dùng khi badge=true. */
+  badgeSize?: number;
+}
+
+const { icon: name, size = 20, badge = false, badgeSize = size + 20 } = Astro.props;
+---
+
+{
+  badge ? (
+    <span class="group-icon-badge" style={`width:${badgeSize}px;height:${badgeSize}px`} aria-hidden="true">
+      <svg
+        width={size}
+        height={size}
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.7"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        {name === 'book' && (
+          <>
+            <path d="M4 5.5C6.5 4.5 9.5 4.7 12 6.3C14.5 4.7 17.5 4.5 20 5.5V18C17.5 17 14.5 17.2 12 18.8C9.5 17.2 6.5 17 4 18Z" />
+            <path d="M12 6.3V18.8" />
+          </>
+        )}
+        {name === 'cart' && (
+          <>
+            <path d="M3 4h2.2l2.1 10.2a1 1 0 0 0 1 .8h8.6a1 1 0 0 0 1-.8L19.5 8H6.4" />
+            <circle cx="9.5" cy="19" r="1.3" fill="currentColor" stroke="none" />
+            <circle cx="16.5" cy="19" r="1.3" fill="currentColor" stroke="none" />
+          </>
+        )}
+        {name === 'salad' && (
+          <>
+            <path d="M4 12h16" />
+            <path d="M5 12a7 7 0 0 0 14 0" />
+            <path d="M9.7 12c-.7-2.2 0-4 1.5-5.5" />
+            <path d="M12.3 12c0-2.3.7-4 2.4-5.5" />
+            <path d="M15 6.2c1 .2 1.6.9 1.8 1.9" />
+          </>
+        )}
+        {name === 'bone' && (
+          <>
+            <path d="M7.5 16.5L16.5 7.5" stroke-width="3.4" />
+            <circle cx="6.3" cy="15.3" r="1.8" fill="currentColor" stroke="none" />
+            <circle cx="8.7" cy="17.7" r="1.8" fill="currentColor" stroke="none" />
+            <circle cx="15.3" cy="6.3" r="1.8" fill="currentColor" stroke="none" />
+            <circle cx="17.7" cy="8.7" r="1.8" fill="currentColor" stroke="none" />
+          </>
+        )}
+        {name === 'droplet' && <path d="M12 3.3C12 3.3 6 10.5 6 15a6 6 0 0 0 12 0c0-4.5-6-11.7-6-11.7Z" />}
+        {name === 'sun' && (
+          <>
+            <circle cx="12" cy="12" r="4" />
+            <path d="M12 2.5v2.4M12 19.1v2.4M2.5 12h2.4M19.1 12h2.4M4.6 4.6l1.7 1.7M17.7 17.7l1.7 1.7M19.4 4.6l-1.7 1.7M6.3 17.7l-1.7 1.7" />
+          </>
+        )}
+        {name === 'egg' && <path d="M12 3C8.4 3 6 9 6 14a6 6 0 0 0 12 0c0-5-2.4-11-6-11Z" />}
+        {name === 'shell' && (
+          <>
+            <path d="M12 3c4.5 1 8 5.5 8 10.7 0 .3 0 .6-.1.8H4.1c-.1-.2-.1-.5-.1-.8C4 8.5 7.5 4 12 3Z" />
+            <path d="M12 3v11.5M8.7 4.3l1.6 10.2M15.3 4.3l-1.6 10.2" />
+            <path d="M4.3 14.5h15.4" />
+          </>
+        )}
+        {name === 'wave' && (
+          <>
+            <path d="M3 9c1.5-1.4 3-1.4 4.5 0s3 1.4 4.5 0 3-1.4 4.5 0 3 1.4 4.5 0" />
+            <path d="M3 15.5c1.5-1.4 3-1.4 4.5 0s3 1.4 4.5 0 3-1.4 4.5 0 3 1.4 4.5 0" />
+          </>
+        )}
+        {name === 'citrus' && (
+          <>
+            <circle cx="12" cy="12" r="8.5" />
+            <path d="M20.5 12H3.5M16.25 4.64L7.75 19.36M7.75 4.64L16.25 19.36" />
+          </>
+        )}
+        {name === 'leaf' && (
+          <>
+            <path d="M6 18C6 10 12 4 19 4c0 7-6 13-14 13-1 0-2-.1-3-.4Z" />
+            <path d="M6 18c2-2.3 5-4 8-6.8" />
+          </>
+        )}
+        {name === 'bacteria' && (
+          <>
+            <circle cx="12" cy="12" r="5" />
+            <circle cx="12" cy="12" r="1.5" fill="currentColor" stroke="none" />
+            <path d="M12 3.5v2.4M12 18.1v2.4M3.5 12h2.4M18.1 12h2.4M5.9 5.9l1.7 1.7M16.4 16.4l1.7 1.7M18.1 5.9l-1.7 1.7M7.6 16.4l-1.7 1.7" />
+          </>
+        )}
+        {name === 'thermometer' && (
+          <>
+            <path d="M12 4a2 2 0 0 0-2 2v8.3a4 4 0 1 0 4 0V6a2 2 0 0 0-2-2Z" />
+            <path d="M12 9v5.5" />
+          </>
+        )}
+        {name === 'capsule' && (
+          <>
+            <rect x="3.2" y="9.6" width="17.6" height="4.8" rx="2.4" transform="rotate(-30 12 12)" />
+            <path d="M12 8.5V15.5" transform="rotate(-30 12 12)" />
+          </>
+        )}
+        {name === 'stomach' && (
+          <>
+            <path d="M9 4c-1.4 0-2.4 1.1-2.4 2.4 0 .8.4 1.6 1 2-1.7.8-3 2.6-3 4.8 0 3.8 3 6.8 6.8 6.8 4.4 0 8.1-2.9 8.1-7.2 0-3.2-2-5.6-4.8-6.4.3-.4.5-1 .5-1.5C15.2 2.9 14 1.8 12.6 1.8" />
+            <path d="M13.5 10.2c1.3-.5 2.7 0 3.2 1.2" />
+          </>
+        )}
+        {name === 'wind' && (
+          <>
+            <path d="M3 8h9.5a2.5 2.5 0 1 0-2.5-2.5" />
+            <path d="M3 12.5h13.5a2.5 2.5 0 1 1-2.5 2.5" />
+            <path d="M3 17h7.5a2 2 0 1 1-2 2" />
+          </>
+        )}
+        {name === 'flower' && (
+          <>
+            <circle cx="12" cy="7.6" r="2.5" />
+            <circle cx="16.4" cy="12" r="2.5" />
+            <circle cx="12" cy="16.4" r="2.5" />
+            <circle cx="7.6" cy="12" r="2.5" />
+            <circle cx="12" cy="12" r="2" fill="currentColor" stroke="none" />
+          </>
+        )}
+        {name === 'heart' && (
+          <>
+            <path d="M12 20s-7-4.4-9.5-9C1 8 2 4.5 5.5 4 8 3.6 10 5 12 7c2-2 4-3.4 6.5-3 3.5.5 4.5 4 3 7-2.5 4.6-9.5 9-9.5 9Z" />
+            <path d="M5.5 12h2.8l1.4-2.3L12 14l1.3-2.6H18" />
+          </>
+        )}
+        {name === 'shield' && (
+          <>
+            <path d="M12 3l7 3v5.3c0 4.6-3 8.3-7 9.4-4-1.1-7-4.8-7-9.4V6Z" />
+            <path d="M8.5 12l2.3 2.3L15.5 9.5" />
+          </>
+        )}
+        {name === 'eye' && (
+          <>
+            <path d="M2.5 12S6 5.7 12 5.7 21.5 12 21.5 12 18 18.3 12 18.3 2.5 12 2.5 12Z" />
+            <circle cx="12" cy="12" r="3" />
+          </>
+        )}
+        {name === 'brain' && (
+          <>
+            <path d="M9 4.3a3 3 0 0 0-3 3v.3A3 3 0 0 0 4 10.6v.5a3 3 0 0 0 1.2 5.6A3 3 0 0 0 9 19.7Z" />
+            <path d="M15 4.3a3 3 0 0 1 3 3v.3a3 3 0 0 1 2 3.1v.5a3 3 0 0 1-1.2 5.6A3 3 0 0 1 15 19.7Z" />
+            <path d="M12 5v14.5" />
+          </>
+        )}
+        {name === 'sparkle' && (
+          <>
+            <path d="M12 3l1.6 5.4L19 10l-5.4 1.6L12 17l-1.6-5.4L5 10l5.4-1.6Z" />
+            <path d="M18.5 15.5l.5 1.8 1.8.5-1.8.5-.5 1.8-.5-1.8-1.8-.5 1.8-.5Z" fill="currentColor" stroke="none" />
+          </>
+        )}
+        {name === 'baby' && (
+          <>
+            <path d="M9.4 3h5.2l-.5 2.5h-4.2Z" />
+            <path d="M9 5.5h6v3.3a3 3 0 0 1-1 2.3v6.4a2 2 0 0 1-2 2h0a2 2 0 0 1-2-2v-6.4a3 3 0 0 1-1-2.3Z" />
+            <path d="M9 13h6M9 15.5h6" />
+          </>
+        )}
+        {name === 'chat' && (
+          <>
+            <rect x="4" y="5" width="16" height="10.5" rx="3" />
+            <path d="M9 15.5v3l-3.5-3" />
+          </>
+        )}
+        {name === 'doctor' && (
+          <>
+            <circle cx="12" cy="8.2" r="3.2" />
+            <path d="M5.3 20c.5-3.6 3-5.8 6.7-5.8s6.2 2.2 6.7 5.8" />
+            <path d="M17.3 4v3M15.8 5.5h3" />
+          </>
+        )}
+      </svg>
+    </span>
+  ) : (
+    <svg
+      class="group-icon"
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="1.7"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      aria-hidden="true"
+    >
+      {name === 'book' && (
+        <>
+          <path d="M4 5.5C6.5 4.5 9.5 4.7 12 6.3C14.5 4.7 17.5 4.5 20 5.5V18C17.5 17 14.5 17.2 12 18.8C9.5 17.2 6.5 17 4 18Z" />
+          <path d="M12 6.3V18.8" />
+        </>
+      )}
+      {name === 'cart' && (
+        <>
+          <path d="M3 4h2.2l2.1 10.2a1 1 0 0 0 1 .8h8.6a1 1 0 0 0 1-.8L19.5 8H6.4" />
+          <circle cx="9.5" cy="19" r="1.3" fill="currentColor" stroke="none" />
+          <circle cx="16.5" cy="19" r="1.3" fill="currentColor" stroke="none" />
+        </>
+      )}
+      {name === 'salad' && (
+        <>
+          <path d="M4 12h16" />
+          <path d="M5 12a7 7 0 0 0 14 0" />
+          <path d="M9.7 12c-.7-2.2 0-4 1.5-5.5" />
+          <path d="M12.3 12c0-2.3.7-4 2.4-5.5" />
+          <path d="M15 6.2c1 .2 1.6.9 1.8 1.9" />
+        </>
+      )}
+      {name === 'bone' && (
+        <>
+          <path d="M7.5 16.5L16.5 7.5" stroke-width="3.4" />
+          <circle cx="6.3" cy="15.3" r="1.8" fill="currentColor" stroke="none" />
+          <circle cx="8.7" cy="17.7" r="1.8" fill="currentColor" stroke="none" />
+          <circle cx="15.3" cy="6.3" r="1.8" fill="currentColor" stroke="none" />
+          <circle cx="17.7" cy="8.7" r="1.8" fill="currentColor" stroke="none" />
+        </>
+      )}
+      {name === 'droplet' && <path d="M12 3.3C12 3.3 6 10.5 6 15a6 6 0 0 0 12 0c0-4.5-6-11.7-6-11.7Z" />}
+      {name === 'sun' && (
+        <>
+          <circle cx="12" cy="12" r="4" />
+          <path d="M12 2.5v2.4M12 19.1v2.4M2.5 12h2.4M19.1 12h2.4M4.6 4.6l1.7 1.7M17.7 17.7l1.7 1.7M19.4 4.6l-1.7 1.7M6.3 17.7l-1.7 1.7" />
+        </>
+      )}
+      {name === 'egg' && <path d="M12 3C8.4 3 6 9 6 14a6 6 0 0 0 12 0c0-5-2.4-11-6-11Z" />}
+      {name === 'shell' && (
+        <>
+          <path d="M12 3c4.5 1 8 5.5 8 10.7 0 .3 0 .6-.1.8H4.1c-.1-.2-.1-.5-.1-.8C4 8.5 7.5 4 12 3Z" />
+          <path d="M12 3v11.5M8.7 4.3l1.6 10.2M15.3 4.3l-1.6 10.2" />
+          <path d="M4.3 14.5h15.4" />
+        </>
+      )}
+      {name === 'wave' && (
+        <>
+          <path d="M3 9c1.5-1.4 3-1.4 4.5 0s3 1.4 4.5 0 3-1.4 4.5 0 3 1.4 4.5 0" />
+          <path d="M3 15.5c1.5-1.4 3-1.4 4.5 0s3 1.4 4.5 0 3-1.4 4.5 0 3 1.4 4.5 0" />
+        </>
+      )}
+      {name === 'citrus' && (
+        <>
+          <circle cx="12" cy="12" r="8.5" />
+          <path d="M20.5 12H3.5M16.25 4.64L7.75 19.36M7.75 4.64L16.25 19.36" />
+        </>
+      )}
+      {name === 'leaf' && (
+        <>
+          <path d="M6 18C6 10 12 4 19 4c0 7-6 13-14 13-1 0-2-.1-3-.4Z" />
+          <path d="M6 18c2-2.3 5-4 8-6.8" />
+        </>
+      )}
+      {name === 'bacteria' && (
+        <>
+          <circle cx="12" cy="12" r="5" />
+          <circle cx="12" cy="12" r="1.5" fill="currentColor" stroke="none" />
+          <path d="M12 3.5v2.4M12 18.1v2.4M3.5 12h2.4M18.1 12h2.4M5.9 5.9l1.7 1.7M16.4 16.4l1.7 1.7M18.1 5.9l-1.7 1.7M7.6 16.4l-1.7 1.7" />
+        </>
+      )}
+      {name === 'thermometer' && (
+        <>
+          <path d="M12 4a2 2 0 0 0-2 2v8.3a4 4 0 1 0 4 0V6a2 2 0 0 0-2-2Z" />
+          <path d="M12 9v5.5" />
+        </>
+      )}
+      {name === 'capsule' && (
+        <>
+          <rect x="3.2" y="9.6" width="17.6" height="4.8" rx="2.4" transform="rotate(-30 12 12)" />
+          <path d="M12 8.5V15.5" transform="rotate(-30 12 12)" />
+        </>
+      )}
+      {name === 'stomach' && (
+        <>
+          <path d="M9 4c-1.4 0-2.4 1.1-2.4 2.4 0 .8.4 1.6 1 2-1.7.8-3 2.6-3 4.8 0 3.8 3 6.8 6.8 6.8 4.4 0 8.1-2.9 8.1-7.2 0-3.2-2-5.6-4.8-6.4.3-.4.5-1 .5-1.5C15.2 2.9 14 1.8 12.6 1.8" />
+          <path d="M13.5 10.2c1.3-.5 2.7 0 3.2 1.2" />
+        </>
+      )}
+      {name === 'wind' && (
+        <>
+          <path d="M3 8h9.5a2.5 2.5 0 1 0-2.5-2.5" />
+          <path d="M3 12.5h13.5a2.5 2.5 0 1 1-2.5 2.5" />
+          <path d="M3 17h7.5a2 2 0 1 1-2 2" />
+        </>
+      )}
+      {name === 'flower' && (
+        <>
+          <circle cx="12" cy="7.6" r="2.5" />
+          <circle cx="16.4" cy="12" r="2.5" />
+          <circle cx="12" cy="16.4" r="2.5" />
+          <circle cx="7.6" cy="12" r="2.5" />
+          <circle cx="12" cy="12" r="2" fill="currentColor" stroke="none" />
+        </>
+      )}
+      {name === 'heart' && (
+        <>
+          <path d="M12 20s-7-4.4-9.5-9C1 8 2 4.5 5.5 4 8 3.6 10 5 12 7c2-2 4-3.4 6.5-3 3.5.5 4.5 4 3 7-2.5 4.6-9.5 9-9.5 9Z" />
+          <path d="M5.5 12h2.8l1.4-2.3L12 14l1.3-2.6H18" />
+        </>
+      )}
+      {name === 'shield' && (
+        <>
+          <path d="M12 3l7 3v5.3c0 4.6-3 8.3-7 9.4-4-1.1-7-4.8-7-9.4V6Z" />
+          <path d="M8.5 12l2.3 2.3L15.5 9.5" />
+        </>
+      )}
+      {name === 'eye' && (
+        <>
+          <path d="M2.5 12S6 5.7 12 5.7 21.5 12 21.5 12 18 18.3 12 18.3 2.5 12 2.5 12Z" />
+          <circle cx="12" cy="12" r="3" />
+        </>
+      )}
+      {name === 'brain' && (
+        <>
+          <path d="M9 4.3a3 3 0 0 0-3 3v.3A3 3 0 0 0 4 10.6v.5a3 3 0 0 0 1.2 5.6A3 3 0 0 0 9 19.7Z" />
+          <path d="M15 4.3a3 3 0 0 1 3 3v.3a3 3 0 0 1 2 3.1v.5a3 3 0 0 1-1.2 5.6A3 3 0 0 1 15 19.7Z" />
+          <path d="M12 5v14.5" />
+        </>
+      )}
+      {name === 'sparkle' && (
+        <>
+          <path d="M12 3l1.6 5.4L19 10l-5.4 1.6L12 17l-1.6-5.4L5 10l5.4-1.6Z" />
+          <path d="M18.5 15.5l.5 1.8 1.8.5-1.8.5-.5 1.8-.5-1.8-1.8-.5 1.8-.5Z" fill="currentColor" stroke="none" />
+        </>
+      )}
+      {name === 'baby' && (
+        <>
+          <path d="M9.4 3h5.2l-.5 2.5h-4.2Z" />
+          <path d="M9 5.5h6v3.3a3 3 0 0 1-1 2.3v6.4a2 2 0 0 1-2 2h0a2 2 0 0 1-2-2v-6.4a3 3 0 0 1-1-2.3Z" />
+          <path d="M9 13h6M9 15.5h6" />
+        </>
+      )}
+      {name === 'chat' && (
+        <>
+          <rect x="4" y="5" width="16" height="10.5" rx="3" />
+          <path d="M9 15.5v3l-3.5-3" />
+        </>
+      )}
+      {name === 'doctor' && (
+        <>
+          <circle cx="12" cy="8.2" r="3.2" />
+          <path d="M5.3 20c.5-3.6 3-5.8 6.7-5.8s6.2 2.2 6.7 5.8" />
+          <path d="M17.3 4v3M15.8 5.5h3" />
+        </>
+      )}
+    </svg>
+  )
+}
