@@ -1304,7 +1304,9 @@ img {
   box-shadow: 0 0 0 4px rgb(21 128 61 / 0.18);
 }
 
-/* Chữ gợi ý chạy ngang trong ô tìm kiếm (thay cho placeholder tĩnh hay bị cắt chữ trên màn hình hẹp) */
+/* Chữ gợi ý hiện dần từng chữ kiểu đang gõ bàn phím (thay cho placeholder tĩnh hay bị cắt chữ trên màn
+   hình hẹp). Nội dung do script ở cuối trang gõ dần vào .search-placeholder-type; CSS chỉ lo vị trí,
+   màu chữ và con trỏ nhấp nháy ở cuối. */
 .search-placeholder-scroll {
   position: absolute;
   inset: 2px 0 2px 2px;
@@ -1313,36 +1315,44 @@ img {
   overflow: hidden;
   border-radius: 999px 0 0 999px;
   background: #fff;
+  padding-left: 1rem;
   pointer-events: none;
 }
 
-.search-placeholder-scroll span {
-  display: inline-block;
-  padding-left: 100%;
+.search-placeholder-type {
   white-space: nowrap;
   color: #757575;
-  animation: search-placeholder-scroll 14s linear infinite;
 }
 
-@keyframes search-placeholder-scroll {
-  from {
-    transform: translateX(0);
+.search-placeholder-type::after {
+  content: '';
+  display: inline-block;
+  width: 1px;
+  height: 1.05em;
+  margin-left: 1px;
+  vertical-align: -0.15em;
+  background: currentColor;
+  animation: search-placeholder-cursor 0.8s step-end infinite;
+}
+
+@keyframes search-placeholder-cursor {
+  0%, 100% {
+    opacity: 1;
   }
-  to {
-    transform: translateX(-100%);
+  50% {
+    opacity: 0;
   }
 }
 
-/* Ẩn chữ chạy khi ô đã có chữ hoặc đang được bấm vào, để không đè lên chữ người dùng gõ */
+/* Ẩn chữ gõ khi ô đã có chữ hoặc đang được bấm vào, để không đè lên chữ người dùng gõ */
 .header-search input:focus ~ .search-placeholder-scroll,
 .header-search input:not(:placeholder-shown) ~ .search-placeholder-scroll {
   display: none;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .search-placeholder-scroll span {
+  .search-placeholder-type::after {
     animation: none;
-    padding-left: 1rem;
   }
 }
 

@@ -136,10 +136,11 @@ const drawerSections: DrawerSection[] = [
       <label class="visually-hidden" for="header-q">Tìm sản phẩm hoặc bài viết</label>
       <div class="header-search-field">
         <input id="header-q" type="search" name="q" placeholder="Tìm kiếm..." autocomplete="off" />
-        <!-- Chữ gợi ý chạy ngang qua ô (che chữ placeholder thật ở trên), để đọc được hết câu dài trên
-             màn hình hẹp; tự ẩn khi ô có chữ hoặc đang được bấm vào, xem CSS .search-placeholder-scroll -->
+        <!-- Chữ gợi ý hiện dần từng chữ kiểu đang gõ bàn phím (che chữ placeholder thật ở trên), để đọc
+             được hết câu dài trên màn hình hẹp; tự ẩn khi ô có chữ hoặc đang được bấm vào (CSS), nội dung
+             do script bên dưới gõ vào — xem .search-placeholder-type -->
         <span class="search-placeholder-scroll" aria-hidden="true">
-          <span>Tìm sản phẩm, bài viết, câu hỏi về thuốc...</span>
+          <span class="search-placeholder-type" data-text="Tìm sản phẩm, bài viết, câu hỏi về thuốc..."></span>
         </span>
       </div>
       <button type="submit" aria-label="Tìm kiếm">
@@ -439,6 +440,44 @@ const drawerSections: DrawerSection[] = [
 
 <script>
   import { MAX_QTY, addToCart, cartCount } from '../lib/cart';
+
+  // Chữ gợi ý trong ô tìm kiếm: hiện dần từng chữ kiểu đang gõ bàn phím, gõ xong dừng một lúc rồi xóa
+  // dần và gõ lại (lặp lại mãi). Tắt hẳn hiệu ứng nếu người dùng chọn "giảm chuyển động" trên máy.
+  const typeTarget = document.querySelector<HTMLElement>('.search-placeholder-type');
+  const typeScroller = typeTarget?.closest<HTMLElement>('.search-placeholder-scroll');
+  if (typeTarget && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    const fullText = typeTarget.dataset.text ?? '';
+    let i = 0;
+    let deleting = false;
+    function tick() {
+      if (!typeTarget) return;
+      if (!deleting) {
+        i += 1;
+        typeTarget.textContent = fullText.slice(0, i);
+        // Cuộn theo con trỏ, giống ô nhập liệu thật tự cuộn khi chữ dài hơn bề rộng ô
+        if (typeScroller) typeScroller.scrollLeft = typeScroller.scrollWidth;
+        if (i >= fullText.length) {
+          deleting = true;
+          window.setTimeout(tick, 1800); // dừng một lúc khi gõ xong
+          return;
+        }
+        window.setTimeout(tick, 55);
+      } else {
+        i -= 1;
+        typeTarget.textContent = fullText.slice(0, i);
+        if (typeScroller) typeScroller.scrollLeft = typeScroller.scrollWidth;
+        if (i <= 0) {
+          deleting = false;
+          window.setTimeout(tick, 500); // dừng một lúc trước khi gõ lại
+          return;
+        }
+        window.setTimeout(tick, 28);
+      }
+    }
+    tick();
+  } else if (typeTarget) {
+    typeTarget.textContent = typeTarget.dataset.text ?? '';
+  }
 
   // Mở/đóng danh sách thả xuống bằng nút mũi tên (dùng cho điện thoại và bàn phím).
   // Trên máy tính, danh sách còn tự mở khi rê chuột (xử lý bằng CSS).
