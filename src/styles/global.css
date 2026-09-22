@@ -2403,6 +2403,111 @@ button.btn:not(.btn-outline) {
   display: block;
 }
 
+/* "Bệnh thường gặp theo mùa" ở trang chủ: tab theo bệnh, nội dung bên trái + sản phẩm hỗ trợ bên phải */
+.season-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1.25rem;
+}
+
+.season-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-height: 2.75rem;
+  padding: 0.5rem 1rem;
+  border: 2px solid var(--line);
+  border-radius: 999px;
+  background: #fff;
+  color: var(--ink);
+  font: inherit;
+  font-weight: 700;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.season-tab:hover {
+  border-color: var(--green-700);
+}
+
+.season-tab.active {
+  border-color: var(--green-700);
+  background: var(--green-50);
+  color: var(--green-900);
+}
+
+.season-panel {
+  display: none;
+}
+
+.season-panel.active {
+  display: block;
+}
+
+.season-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  padding: 1.25rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--green-50);
+}
+
+.season-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.6rem;
+}
+
+.season-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 3.25rem;
+  height: 3.25rem;
+  border-radius: 50%;
+  background: #fff;
+  color: var(--green-700);
+}
+
+.season-info p {
+  margin: 0;
+  color: var(--ink-soft);
+}
+
+.season-products {
+  min-width: 0;
+}
+
+.season-products .empty {
+  margin: 0;
+  color: var(--ink-soft);
+}
+
+.season-disclaimer {
+  margin: 0.9rem 0 0;
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+}
+
+@media (min-width: 56rem) {
+  .season-layout {
+    flex-direction: row;
+    align-items: stretch;
+  }
+
+  .season-info {
+    flex: 0 0 16rem;
+  }
+
+  .season-products {
+    flex: 1;
+  }
+}
+
 /* Video ngắn ở trang chủ: thẻ dọc kiểu reels trong khối cuộn ngang có sẵn (.carousel) */
 .video-card {
   flex: 0 0 10.5rem;

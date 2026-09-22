@@ -8,7 +8,7 @@ Trạng thái: 4 bài đã đăng ở dạng "bản xem thử" (khung vàng, `no
 
 Chủ website gửi ảnh trang chủ Long Châu có mục "Bệnh theo mùa" (Tiêu chảy cấp, Tay chân miệng, Cúm, Sốt xuất huyết), muốn có nội dung tương tự. Trước đó chuyên mục "Nhận biết bệnh" và "Phòng chống bệnh" đã bị xóa theo yêu cầu chủ website (tháng 9/2026). Thay vì tạo lại 2 chuyên mục đó hoặc thêm một chuyên mục mới (sẽ khiến thanh menu có 8 mục, dễ tràn), 4 bài này được gộp vào nhóm con của chuyên mục `an-uong` (đã đổi tên hiển thị thành "Bệnh & Góc Sức Khỏe" — xem CLAUDE.md). Nếu sau này thấy cách gộp này không hợp lý, có thể tách thành chuyên mục riêng.
 
-**Quan trọng:** không gắn các bài này với sản phẩm cụ thể nào đang bán trên site (đã cố ý không làm mục "Bệnh theo mùa kèm sản phẩm" như Long Châu, để tránh hiểu nhầm "sản phẩm X chữa được bệnh Y").
+**Cập nhật 22/9/2026:** theo yêu cầu chủ website, trang chủ giờ có thêm mục "Bệnh thường gặp theo mùa" (`src/lib/seasonal.ts`) hiện sản phẩm hỗ trợ liên quan cạnh mỗi bệnh (kiểu Long Châu). Chỉ gắn theo NHÓM sản phẩm chung (ví dụ "Tiêu hóa", "Đề kháng & miễn dịch"), không nói sản phẩm chữa được bệnh, và luôn có dòng nhắc "chỉ mang tính hỗ trợ, không phải thuốc". Xem chi tiết cách gắn ở CLAUDE.md, mục "Chuyên mục Bệnh & Góc Sức Khỏe". Vì hiện các nhóm sản phẩm liên quan đều chưa có sản phẩm thật, mục này đang hiện "đang được cập nhật" — nhờ dược sĩ xác nhận nhóm sản phẩm gắn với từng bệnh có hợp lý không khi có sản phẩm thật để gắn vào.
 
 ## Nguồn đã đối chiếu
 

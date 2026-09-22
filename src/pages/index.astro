@@ -10,6 +10,7 @@ import { categories } from '../lib/categories';
 import { departments, departmentSlugs, getProductGroups } from '../lib/departments';
 import { getPosts } from '../lib/posts';
 import { getProducts } from '../lib/products';
+import { seasonalTopics } from '../lib/seasonal';
 import { site } from '../lib/site';
 import { url } from '../lib/url';
 import { videos } from '../lib/videos';
@@ -36,6 +37,18 @@ const needTabsRaw = await Promise.all(
   ),
 );
 const needTabs = needTabsRaw.filter((tab) => tab.products.length > 0);
+
+// "Bệnh thường gặp theo mùa": mỗi tab là một bệnh (nhóm con của chuyên mục an-uong), kèm đoạn giới
+// thiệu ngắn và (nếu có khai báo) sản phẩm hỗ trợ thật thuộc nhóm liên quan. Xem src/lib/seasonal.ts.
+const seasonal = await Promise.all(
+  seasonalTopics.map(async (topic) => {
+    const group = categories['an-uong'].groups?.[topic.groupSlug];
+    const products = topic.productSource
+      ? (await getProducts(topic.productSource.department, topic.productSource.group)).slice(0, 4)
+      : [];
+    return { ...topic, group, products };
+  }),
+);
 ---
 
 <BaseLayout
@@ -107,6 +120,56 @@ const needTabs = needTabsRaw.filter((tab) => tab.products.length > 0);
         </a>
       </li>
     </ul>
+
+    <section aria-labelledby="benh-theo-mua">
+      <h2 class="section-title" id="benh-theo-mua">Bệnh thường gặp theo mùa</h2>
+      <div class="season-tabs" role="tablist">
+        {seasonal.map((topic, index) => topic.group && (
+          <button
+            type="button"
+            class={`season-tab${index === 0 ? ' active' : ''}`}
+            data-panel={`season-${index}`}
+            role="tab"
+            aria-selected={index === 0 ? 'true' : 'false'}
+          >
+            <GroupIcon icon={topic.group.icon} size={17} />
+            <span>{topic.group.name}</span>
+          </button>
+        ))}
+      </div>
+      {seasonal.map((topic, index) => topic.group && (
+        <div class={`season-panel${index === 0 ? ' active' : ''}`} data-panel={`season-${index}`} role="tabpanel">
+          <div class="season-layout">
+            <div class="season-info">
+              <span class="season-icon"><GroupIcon icon={topic.group.icon} size={36} /></span>
+              <p>{topic.summary}</p>
+              <a class="btn btn-outline" href={url(`/an-uong/${topic.postSlug}/`)}>Xem dấu hiệu &amp; cách chăm sóc</a>
+            </div>
+            <div class="season-products">
+              {topic.products.length > 0 ? (
+                <div class="carousel">
+                  <div class="carousel-track">
+                    {topic.products.map((product) => (
+                      <div class="carousel-item">
+                        <ProductCard product={product} />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <p class="empty">
+                  Sản phẩm hỗ trợ liên quan đang được cập nhật.{' '}
+                  <a href={site.zaloHref} target="_blank" rel="noopener noreferrer">Nhắn Zalo hỏi dược sĩ</a> nếu cần tư vấn ngay.
+                </p>
+              )}
+            </div>
+          </div>
+        </div>
+      ))}
+      <p class="season-disclaimer">
+        Sản phẩm gợi ý chỉ mang tính hỗ trợ, không phải thuốc và không thay thế khám, chẩn đoán hay điều trị của bác sĩ.
+      </p>
+    </section>
 
     {
       needTabs.length > 0 && (
@@ -252,6 +315,19 @@ const needTabs = needTabsRaw.filter((tab) => tab.products.length > 0);
         t.setAttribute('aria-selected', String(active));
       });
       document.querySelectorAll<HTMLElement>('.need-panel').forEach((p) => p.classList.toggle('active', p.dataset.panel === panel));
+    });
+  });
+
+  // Thẻ "Bệnh thường gặp theo mùa": bấm để chuyển bệnh đang xem
+  document.querySelectorAll<HTMLButtonElement>('.season-tab').forEach((tab) => {
+    tab.addEventListener('click', () => {
+      const panel = tab.dataset.panel;
+      document.querySelectorAll<HTMLElement>('.season-tab').forEach((t) => {
+        const active = t.dataset.panel === panel;
+        t.classList.toggle('active', active);
+        t.setAttribute('aria-selected', String(active));
+      });
+      document.querySelectorAll<HTMLElement>('.season-panel').forEach((p) => p.classList.toggle('active', p.dataset.panel === panel));
     });
   });
 </script>
