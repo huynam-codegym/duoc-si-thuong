@@ -1,6 +1,7 @@
 ---
 import { render } from 'astro:content';
 import { getImage } from 'astro:assets';
+import logo from '../../assets/logo.jpg';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import ShopShell from '../../components/ShopShell.astro';
 import ProductNotice from '../../components/ProductNotice.astro';
@@ -66,6 +67,11 @@ const videoThumb = videoThumbnail ? await getImage({ src: videoThumbnail, width:
 // Có video thì mặc định hiện video ngay khi vào trang (thay vì phải bấm mới thấy), ảnh sản phẩm lùi
 // thành lựa chọn kế tiếp trong dải ảnh nhỏ.
 const hasVideo = Boolean(video && videoThumb);
+// Logo + tên thương hiệu đè lên góc trên-trái khi đang xem video (chủ website yêu cầu tháng 9/2026,
+// vì video gửi lên chưa có sẵn logo). Đây là lớp phủ trên trang, KHÔNG chỉnh sửa vào file video gốc
+// (máy chạy Claude chưa cài công cụ dựng/ghép video) — đổi video khác thì logo vẫn tự hiện, không
+// phải làm lại. Ẩn/hiện tự động theo video đang ẩn hay hiện, xem CSS `.gallery-video-watermark`.
+const watermarkLogo = hasVideo ? await getImage({ src: logo, width: 80, height: 80, format: 'webp' }) : null;
 
 const jsonLd = {
   '@context': 'https://schema.org',
@@ -114,6 +120,14 @@ const jsonLd = {
                     <source src={url(video!)} />
                     Trình duyệt của bạn không hỗ trợ phát video này.
                   </video>
+                )
+              }
+              {
+                hasVideo && watermarkLogo && (
+                  <div class="gallery-video-watermark" aria-hidden="true">
+                    <img src={watermarkLogo.src} alt="" />
+                    <span>Dược Sĩ Thương</span>
+                  </div>
                 )
               }
               <div class="gallery-lens" id="galleryLens" aria-hidden="true"></div>

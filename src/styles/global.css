@@ -975,6 +975,42 @@ img {
   cursor: default;
 }
 
+/* Logo + tên thương hiệu đè lên góc trên-trái khi đang xem video (video gửi lên chưa có sẵn logo).
+   Chỉ hiện khi #galleryMainVideo đang KHÔNG bị ẩn — tự động theo, không cần thêm JS riêng vì đã dùng
+   luôn thuộc tính [hidden] mà script đổi ảnh/video đang quản lý (xem script cuối trang). */
+.gallery-video-watermark {
+  display: none;
+  position: absolute;
+  z-index: 2;
+  top: 0.7rem;
+  left: 0.7rem;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.3rem 0.7rem 0.3rem 0.3rem;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 0.88);
+  box-shadow: 0 1px 6px rgb(0 0 0 / 0.2);
+  pointer-events: none;
+}
+
+#galleryMainVideo:not([hidden]) ~ .gallery-video-watermark {
+  display: flex;
+}
+
+.gallery-video-watermark img {
+  width: 1.9rem;
+  height: 1.9rem;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.gallery-video-watermark span {
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: var(--green-900);
+  white-space: nowrap;
+}
+
 /* Khung kính lúp mỏng: đi theo chuột trên ảnh chính, cho biết đang phóng to đúng vùng nào */
 .gallery-lens {
   display: none;
