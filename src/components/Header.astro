@@ -161,26 +161,37 @@ const drawerSections: DrawerSection[] = [
     </ul>
     </div>
 
-    <a class="cart-link" href={url('/gio-hang/')} aria-label="Giỏ hàng">
-      <svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true" focusable="false">
-        <path
-          d="M3 4h2.2l2.1 10.2a1 1 0 0 0 1 .8h8.6a1 1 0 0 0 1-.8L19.5 8H6.4"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"></path>
-        <circle cx="9.5" cy="19" r="1.5" fill="currentColor"></circle>
-        <circle cx="16.5" cy="19" r="1.5" fill="currentColor"></circle>
-      </svg>
-      <span class="cart-label">Giỏ hàng</span>
-      <span class="cart-badge" id="cart-badge" hidden>0</span>
-    </a>
+    <div class="cart-wrap" id="cartWrap">
+      <a class="cart-link" href={url('/gio-hang/')} aria-label="Giỏ hàng">
+        <svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true" focusable="false">
+          <path
+            d="M3 4h2.2l2.1 10.2a1 1 0 0 0 1 .8h8.6a1 1 0 0 0 1-.8L19.5 8H6.4"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"></path>
+          <circle cx="9.5" cy="19" r="1.5" fill="currentColor"></circle>
+          <circle cx="16.5" cy="19" r="1.5" fill="currentColor"></circle>
+        </svg>
+        <span class="cart-label">Giỏ hàng</span>
+        <span class="cart-badge" id="cart-badge" hidden>0</span>
+      </a>
+    </div>
   </div>
 
-  <!-- Gợi ý hiện ngay khi gõ vào ô tìm kiếm (xem script cuối trang). Đặt NGOÀI .header-main (dải nền có
-       overflow:hidden để cắt icon lá trang trí) và định vị bằng toạ độ thật qua JS, không thì bị cắt mất. -->
+  <!-- Gợi ý hiện ngay khi gõ vào ô tìm kiếm, và khay xem nhanh giỏ hàng (rê chuột vào biểu tượng giỏ,
+       hoặc tự hiện ~2s sau khi bấm "Thêm vào giỏ"/"Chọn mua" — chỉ trên máy tính, xem script cuối trang).
+       Cả hai đặt NGOÀI .header-main (dải nền có overflow:hidden để cắt icon lá trang trí, xem ghi chú
+       "Bẫy đã gặp" ở CLAUDE.md) và tự định vị bằng toạ độ thật qua JS, không thì bị cắt mất. -->
   <div class="search-suggest" id="searchSuggest" role="listbox" aria-label="Gợi ý tìm kiếm" hidden></div>
+  <div class="cart-dropdown" id="cartDropdown" aria-label="Xem nhanh giỏ hàng" hidden>
+    <div class="cart-dropdown-list" id="cartDropdownList"></div>
+    <div class="cart-dropdown-foot">
+      <span id="cartDropdownCount"></span>
+      <a class="btn btn-sm" href={url('/gio-hang/')}>Xem giỏ hàng</a>
+    </div>
+  </div>
 
   <div class="navbar">
     <div class="container">
@@ -442,8 +453,41 @@ const drawerSections: DrawerSection[] = [
 
 <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 
+<!-- Khay chọn số lượng khi bấm "Chọn mua" trên thẻ sản phẩm — CHỈ trên điện thoại/máy tính bảng
+     (trang chi tiết sản phẩm đã có sẵn ô chọn số lượng riêng nên không cần khay này, xem script). -->
+<div class="cart-sheet-backdrop" id="cartSheetBackdrop" hidden></div>
+<div class="cart-sheet" id="cartSheet" role="dialog" aria-modal="true" aria-labelledby="cartSheetTitle" hidden>
+  <div class="cart-sheet-head">
+    <h2 id="cartSheetTitle">Chọn số lượng</h2>
+    <button type="button" class="cart-sheet-close" id="cartSheetClose" aria-label="Đóng">
+      <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false">
+        <path d="M5 5l14 14M19 5L5 19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path>
+      </svg>
+    </button>
+  </div>
+  <div class="cart-sheet-product">
+    <img id="cartSheetImg" src="" alt="" width="64" height="64" />
+    <div>
+      <p class="cart-sheet-name" id="cartSheetName"></p>
+      <p class="cart-sheet-price" id="cartSheetPrice"></p>
+    </div>
+  </div>
+  <div class="buy-qty">
+    <span id="cartSheetQtyLabel">Chọn số lượng</span>
+    <div class="qty" role="group" aria-labelledby="cartSheetQtyLabel">
+      <button type="button" class="qty-btn" id="cartSheetMinus" aria-label="Giảm số lượng">−</button>
+      <input id="cartSheetQty" type="number" min="1" max="20" value="1" inputmode="numeric" aria-labelledby="cartSheetQtyLabel" />
+      <button type="button" class="qty-btn" id="cartSheetPlus" aria-label="Tăng số lượng">+</button>
+    </div>
+  </div>
+  <div class="actions cart-sheet-actions">
+    <button type="button" class="btn btn-outline" id="cartSheetAdd">Thêm vào giỏ</button>
+    <button type="button" class="btn" id="cartSheetBuy">Mua ngay</button>
+  </div>
+</div>
+
 <script>
-  import { MAX_QTY, addToCart, cartCount } from '../lib/cart';
+  import { MAX_QTY, addToCart, cartCount, formatVnd, getCart, removeItem, type CartItem } from '../lib/cart';
   import { url } from '../lib/url';
 
   // Chữ gợi ý trong ô tìm kiếm: hiện dần từng chữ kiểu đang gõ bàn phím, gõ xong dừng một lúc rồi XÓA
@@ -672,10 +716,126 @@ const drawerSections: DrawerSection[] = [
     badge.hidden = count === 0;
   }
   updateBadge();
-  window.addEventListener('cart:change', updateBadge);
-  window.addEventListener('storage', updateBadge);
 
-  // Nút "Thêm vào giỏ" / "Mua ngay" ở mọi trang (thẻ sản phẩm, trang chi tiết)
+  // Từ 64rem trở lên coi là "máy tính" (khớp ngưỡng ẩn/hiện nút 3 gạch ở nơi khác trong file này):
+  // hiện khay xem nhanh giỏ hàng khi rê chuột / sau khi thêm vào giỏ. Dưới mức đó (điện thoại, máy
+  // tính bảng, không thao tác rê chuột) dùng khay chọn số lượng + thông báo dạng chữ đơn giản.
+  function isDesktop() {
+    return window.matchMedia('(min-width: 64rem)').matches;
+  }
+
+  // --- Khay xem nhanh giỏ hàng (rê chuột vào biểu tượng giỏ, hoặc tự hiện ~2s sau khi thêm sản phẩm) ---
+  // Đặt ngoài .header-main (xem ghi chú ở markup phía trên) nên không dùng CSS :hover lồng thẻ được,
+  // phải tự định vị bằng toạ độ thật (giống #searchSuggest) và tự bật/tắt bằng JS.
+  const cartWrap = document.getElementById('cartWrap');
+  const cartDropdown = document.getElementById('cartDropdown');
+  const cartDropdownList = document.getElementById('cartDropdownList');
+  const cartDropdownCount = document.getElementById('cartDropdownCount');
+
+  function positionCartDropdown() {
+    if (!cartDropdown || !cartWrap || !siteHeader) return;
+    const wrapRect = cartWrap.getBoundingClientRect();
+    const headerRect = siteHeader.getBoundingClientRect();
+    cartDropdown.style.top = `${wrapRect.bottom - headerRect.top + 8}px`;
+    cartDropdown.style.right = `${headerRect.right - wrapRect.right}px`;
+  }
+
+  function renderCartDropdown() {
+    if (!cartDropdownList || !cartDropdownCount) return;
+    const items = getCart();
+    cartDropdownList.innerHTML = '';
+    if (items.length === 0) {
+      const empty = document.createElement('p');
+      empty.className = 'cart-dropdown-empty';
+      empty.textContent = 'Giỏ hàng đang trống';
+      cartDropdownList.append(empty);
+    } else {
+      items.forEach((item: CartItem) => {
+        const row = document.createElement('div');
+        row.className = 'cart-dropdown-item';
+        const img = document.createElement('img');
+        img.src = item.image;
+        img.alt = '';
+        img.width = 44;
+        img.height = 44;
+        img.loading = 'lazy';
+        const info = document.createElement('div');
+        info.className = 'cart-dropdown-item-info';
+        const nameEl = document.createElement('p');
+        nameEl.className = 'cart-dropdown-item-name';
+        nameEl.textContent = item.name;
+        const priceEl = document.createElement('p');
+        priceEl.className = 'cart-dropdown-item-price';
+        priceEl.textContent = `${item.price !== null ? formatVnd(item.price) : 'Liên hệ'} · x${item.qty}${item.unit ? ' ' + item.unit : ''}`;
+        info.append(nameEl, priceEl);
+        const removeBtn = document.createElement('button');
+        removeBtn.type = 'button';
+        removeBtn.className = 'cart-dropdown-remove';
+        removeBtn.setAttribute('aria-label', `Xóa "${item.name}" khỏi giỏ hàng`);
+        removeBtn.dataset.removeId = item.id;
+        removeBtn.innerHTML =
+          '<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M4 7h16M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2m-9 0 1 13a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1l1-13" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+        row.append(img, info, removeBtn);
+        cartDropdownList.append(row);
+      });
+    }
+    cartDropdownCount.textContent = items.length ? `${cartCount(items)} sản phẩm` : '';
+  }
+
+  cartDropdownList?.addEventListener('click', (event) => {
+    const btn = (event.target as HTMLElement).closest<HTMLButtonElement>('[data-remove-id]');
+    if (!btn?.dataset.removeId) return;
+    removeItem(btn.dataset.removeId);
+    renderCartDropdown();
+  });
+
+  let cartHideTimer: number | undefined;
+  let cartCloseGrace: number | undefined;
+  function openCartDropdown() {
+    if (!cartDropdown || !isDesktop()) return;
+    renderCartDropdown();
+    positionCartDropdown();
+    cartDropdown.hidden = false;
+    requestAnimationFrame(() => cartDropdown.classList.add('open'));
+  }
+  function closeCartDropdown() {
+    if (!cartDropdown) return;
+    cartDropdown.classList.remove('open');
+    window.setTimeout(() => {
+      if (cartDropdown && !cartDropdown.classList.contains('open')) cartDropdown.hidden = true;
+    }, 200);
+  }
+  // Tự hiện khay ~2 giây sau khi thêm vào giỏ; không tự ẩn nếu chuột đang ở trên biểu tượng/khay.
+  function flashCartDropdown() {
+    if (!isDesktop()) return;
+    openCartDropdown();
+    clearTimeout(cartHideTimer);
+    cartHideTimer = window.setTimeout(() => {
+      if (!cartWrap?.matches(':hover') && !cartDropdown?.matches(':hover')) closeCartDropdown();
+    }, 2000);
+  }
+  [cartWrap, cartDropdown].forEach((el) => {
+    el?.addEventListener('mouseenter', () => {
+      if (!isDesktop()) return;
+      clearTimeout(cartCloseGrace);
+      clearTimeout(cartHideTimer);
+      openCartDropdown();
+    });
+    el?.addEventListener('mouseleave', () => {
+      clearTimeout(cartCloseGrace);
+      cartCloseGrace = window.setTimeout(closeCartDropdown, 150);
+    });
+  });
+  window.addEventListener('cart:change', () => {
+    updateBadge();
+    if (cartDropdown && !cartDropdown.hidden) renderCartDropdown();
+  });
+  window.addEventListener('storage', updateBadge);
+  window.addEventListener('resize', () => {
+    if (cartDropdown && !cartDropdown.hidden) positionCartDropdown();
+  });
+
+  // --- Thông báo dạng chữ, chỉ dùng trên điện thoại/máy tính bảng (máy tính dùng khay xem nhanh ở trên) ---
   const toast = document.getElementById('toast');
   let toastTimer: number | undefined;
   function showToast(message: string) {
@@ -686,18 +846,97 @@ const drawerSections: DrawerSection[] = [
     toastTimer = window.setTimeout(() => (toast.hidden = true), 2500);
   }
 
+  // --- Khay chọn số lượng khi bấm "Chọn mua" trên thẻ sản phẩm, chỉ trên điện thoại/máy tính bảng
+  // (trang chi tiết sản phẩm đã có sẵn ô chọn số lượng riêng ngay trên trang nên bỏ qua khay này) ---
+  const cartSheetBackdrop = document.getElementById('cartSheetBackdrop');
+  const cartSheet = document.getElementById('cartSheet');
+  const cartSheetImg = document.getElementById('cartSheetImg') as HTMLImageElement | null;
+  const cartSheetName = document.getElementById('cartSheetName');
+  const cartSheetPrice = document.getElementById('cartSheetPrice');
+  const cartSheetQty = document.getElementById('cartSheetQty') as HTMLInputElement | null;
+  let sheetProduct: Omit<CartItem, 'qty'> | null = null;
+
+  function openCartSheet(product: Omit<CartItem, 'qty'>) {
+    if (!cartSheet || !cartSheetBackdrop || !cartSheetImg || !cartSheetName || !cartSheetPrice || !cartSheetQty) return;
+    sheetProduct = product;
+    cartSheetImg.src = product.image;
+    cartSheetName.textContent = product.name;
+    cartSheetPrice.textContent = product.price !== null ? formatVnd(product.price) : 'Liên hệ';
+    cartSheetQty.value = '1';
+    cartSheetBackdrop.hidden = false;
+    cartSheet.hidden = false;
+    document.body.style.overflow = 'hidden';
+    requestAnimationFrame(() => {
+      cartSheetBackdrop.classList.add('open');
+      cartSheet.classList.add('open');
+    });
+  }
+  function closeCartSheet() {
+    if (!cartSheet || !cartSheetBackdrop) return;
+    cartSheet.classList.remove('open');
+    cartSheetBackdrop.classList.remove('open');
+    document.body.style.overflow = '';
+    window.setTimeout(() => {
+      if (cartSheet && !cartSheet.classList.contains('open')) {
+        cartSheet.hidden = true;
+        cartSheetBackdrop!.hidden = true;
+      }
+    }, 220);
+  }
+  function sheetQty(): number {
+    return cartSheetQty ? Math.min(MAX_QTY, Math.max(1, Math.floor(Number(cartSheetQty.value) || 1))) : 1;
+  }
+  document.getElementById('cartSheetMinus')?.addEventListener('click', () => {
+    if (cartSheetQty) cartSheetQty.value = String(Math.max(1, sheetQty() - 1));
+  });
+  document.getElementById('cartSheetPlus')?.addEventListener('click', () => {
+    if (cartSheetQty) cartSheetQty.value = String(Math.min(MAX_QTY, sheetQty() + 1));
+  });
+  document.getElementById('cartSheetClose')?.addEventListener('click', closeCartSheet);
+  cartSheetBackdrop?.addEventListener('click', closeCartSheet);
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && cartSheet && !cartSheet.hidden) closeCartSheet();
+  });
+  document.getElementById('cartSheetAdd')?.addEventListener('click', () => {
+    if (!sheetProduct) return;
+    addToCart(sheetProduct, sheetQty());
+    closeCartSheet();
+    showToast('Đã thêm vào giỏ hàng - hãy kiểm tra giỏ hàng');
+  });
+  document.getElementById('cartSheetBuy')?.addEventListener('click', () => {
+    if (!sheetProduct) return;
+    addToCart(sheetProduct, sheetQty());
+    location.href = url('/gio-hang/');
+  });
+
+  // --- Nút "Thêm vào giỏ" / "Chọn mua" / "Mua ngay" ở mọi trang (thẻ sản phẩm, trang chi tiết) ---
   document.addEventListener('click', (event) => {
     const button = (event.target as HTMLElement).closest<HTMLButtonElement>('[data-add-to-cart]');
     if (!button) return;
-    const { id, name, price, unit, image, goCart } = button.dataset;
+    const { id, name, price, unit, image, goCart, qtyInput: qtyInputSelector } = button.dataset;
     if (!id || !name) return;
-    const qtyInput = button.dataset.qtyInput ? document.querySelector<HTMLInputElement>(button.dataset.qtyInput) : null;
-    const qty = qtyInput ? Math.min(MAX_QTY, Math.max(1, Math.floor(Number(qtyInput.value) || 1))) : 1;
-    addToCart({ id, name, price: price ? Number(price) : null, unit: unit ?? '', image: image ?? '' }, qty);
+    const product = { id, name, price: price ? Number(price) : null, unit: unit ?? '', image: image ?? '' };
+
+    // Thẻ sản phẩm (nút "Chọn mua", không có ô chọn số lượng riêng) trên điện thoại/máy tính bảng:
+    // mở khay chọn số lượng thay vì thêm thẳng 1 sản phẩm. Trang chi tiết đã có ô chọn số lượng trên
+    // trang nên bỏ qua khay này ở mọi kích thước màn hình.
+    if (!isDesktop() && !qtyInputSelector) {
+      openCartSheet(product);
+      return;
+    }
+
+    const qtyInputEl = qtyInputSelector ? document.querySelector<HTMLInputElement>(qtyInputSelector) : null;
+    const qty = qtyInputEl ? Math.min(MAX_QTY, Math.max(1, Math.floor(Number(qtyInputEl.value) || 1))) : 1;
+    addToCart(product, qty);
+
     if (goCart !== undefined) {
       location.href = button.dataset.cartUrl ?? '/gio-hang/';
+      return;
+    }
+    if (isDesktop()) {
+      flashCartDropdown();
     } else {
-      showToast(`Đã thêm ${qty > 1 ? qty + ' x ' : ''}"${name}" vào giỏ hàng`);
+      showToast('Đã thêm vào giỏ hàng - hãy kiểm tra giỏ hàng');
     }
   });
 </script>
