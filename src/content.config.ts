@@ -67,6 +67,14 @@ const products = defineCollection({
         // Ảnh phụ (không bắt buộc): thêm góc chụp khác, ảnh cận cảnh... Cùng dùng chung imageAlt.
         // Trang chi tiết hiện thành dải ảnh nhỏ bên dưới ảnh chính, bấm để đổi ảnh chính.
         gallery: z.array(image()).optional(),
+        // Video ngắn giới thiệu sản phẩm (không bắt buộc): liên kết tới video CÓ THẬT đã đăng ở nơi
+        // khác (Facebook, YouTube, TikTok...) — site tĩnh, không tự lưu trữ video. Hiện làm ảnh ĐẦU
+        // TIÊN trong dải ảnh nhỏ ở trang chi tiết (trước cả ảnh sản phẩm), có biểu tượng ▶ đè lên;
+        // bấm vào mở video ở tab mới, không phát trong trang (không nhúng mã bên thứ ba). Cần cả
+        // `videoThumbnail` (ảnh đại diện) vì không tự lấy được khung hình đầu video từ các mạng xã
+        // hội (cần đăng nhập, link ảnh cũng hết hạn) — xem cách làm tương tự ở src/lib/videos.ts.
+        video: z.string().url().optional(),
+        videoThumbnail: image().optional(),
         // Số tiếp nhận hồ sơ công bố sản phẩm và số giấy xác nhận nội dung quảng cáo (nếu có); hiện ở trang chi tiết
         publicationNo: z.string().optional(),
         adConfirmationNo: z.string().optional(),
@@ -77,6 +85,10 @@ const products = defineCollection({
       .refine((product) => product.group in departments[product.department].groups, {
         message: 'group không có trong khu (department) này. Xem danh sách nhóm ở src/lib/departments.ts',
         path: ['group'],
+      })
+      .refine((product) => !product.video || Boolean(product.videoThumbnail), {
+        message: 'Sản phẩm có video thì bắt buộc có videoThumbnail (ảnh đại diện video)',
+        path: ['videoThumbnail'],
       }),
 });
 

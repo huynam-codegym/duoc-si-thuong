@@ -1007,6 +1007,29 @@ img {
   box-shadow: 0 0 0 1px var(--green-700);
 }
 
+/* Nút video ngắn (nếu có): mục đầu tiên trong dải ảnh nhỏ, ảnh đại diện + biểu tượng ▶ đè lên giữa.
+   Là thẻ <a> mở video thật ở tab mới, khác với các nút <button> đổi ảnh chính bên cạnh. */
+.gallery-thumb-video {
+  position: relative;
+  display: block;
+  text-decoration: none;
+}
+
+.gallery-thumb-play {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  background: rgb(0 0 0 / 0.35);
+  border-radius: 5px;
+}
+
+.gallery-thumb-play svg {
+  filter: drop-shadow(0 1px 2px rgb(0 0 0 / 0.5));
+}
+
 .product-gallery-zoom {
   display: none;
   position: absolute;

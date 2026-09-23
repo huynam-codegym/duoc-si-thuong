@@ -35,6 +35,8 @@ const {
   image,
   imageAlt,
   gallery,
+  video,
+  videoThumbnail,
   publicationNo,
   adConfirmationNo,
   updatedAt,
@@ -58,6 +60,9 @@ const galleryPhotos = await Promise.all(
     return { displaySrc: display.src, zoomSrc: zoom.src, width: display.attributes.width, height: display.attributes.height };
   }),
 );
+
+// Ảnh đại diện video (nếu có) — cùng cỡ hiển thị với ảnh thường, hiện làm mục ĐẦU TIÊN trong dải ảnh nhỏ
+const videoThumb = videoThumbnail ? await getImage({ src: videoThumbnail, width: 700, height: 700, format: 'webp' }) : null;
 
 const jsonLd = {
   '@context': 'https://schema.org',
@@ -103,8 +108,24 @@ const jsonLd = {
               <div class="gallery-lens" id="galleryLens" aria-hidden="true"></div>
             </div>
             {
-              galleryPhotos.length > 1 && (
-                <div class="product-gallery-thumbs" role="tablist" aria-label="Các ảnh khác của sản phẩm">
+              (galleryPhotos.length > 1 || (video && videoThumb)) && (
+                <div class="product-gallery-thumbs" role="tablist" aria-label="Các ảnh và video khác của sản phẩm">
+                  {video && videoThumb && (
+                    <a
+                      class="gallery-thumb gallery-thumb-video"
+                      href={video}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label={`Xem video ngắn về ${name} (mở tab mới)`}
+                    >
+                      <img src={videoThumb.src} alt="" />
+                      <span class="gallery-thumb-play" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" width="18" height="18">
+                          <path d="M8 5.5v13l11-6.5z" fill="currentColor" />
+                        </svg>
+                      </span>
+                    </a>
+                  )}
                   {galleryPhotos.map((photo, index) => (
                     <button
                       type="button"
@@ -244,11 +265,13 @@ const jsonLd = {
   // (vùng đang được phóng to) chiếm 1 / 2.2 chiều rộng/cao ảnh chính. Đổi số này thì đổi luôn CSS.
   const ZOOM_FACTOR = 2.2;
 
-  document.querySelectorAll<HTMLButtonElement>('.gallery-thumb').forEach((thumb) => {
+  // Chỉ chọn nút <button> đổi ảnh chính — KHÔNG chọn nút video (.gallery-thumb-video là thẻ <a> mở
+  // tab mới tới video thật, không có data-display/data-zoom, bấm vào không đổi ảnh chính).
+  document.querySelectorAll<HTMLButtonElement>('button.gallery-thumb').forEach((thumb) => {
     thumb.addEventListener('click', () => {
       if (galleryMainImg) galleryMainImg.src = thumb.dataset.display ?? '';
       galleryMain?.setAttribute('data-zoom', thumb.dataset.zoom ?? '');
-      document.querySelectorAll<HTMLButtonElement>('.gallery-thumb').forEach((t) => {
+      document.querySelectorAll<HTMLButtonElement>('button.gallery-thumb').forEach((t) => {
         const active = t === thumb;
         t.classList.toggle('active', active);
         t.setAttribute('aria-selected', String(active));
