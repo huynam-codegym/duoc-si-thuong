@@ -130,7 +130,11 @@ const jsonLd = {
               {flagCode && <img class="origin-flag" src={url(`/flags/${flagCode}.svg`)} alt="" width="16" height="12" loading="lazy" />}
               {origin}
             </span>
-            {brand && <span class="brand-line">Thương hiệu: <strong>{brand}</strong></span>}
+            {brand && (
+              <span class="brand-line">
+                Thương hiệu: <strong class="brand-name" title={brand}>{brand}</strong>
+              </span>
+            )}
           </p>
           <a class="tag" href={url(`/${departmentSlug}/nhom/${group}/`)}>{groupInfo.name}</a>
           <h1>{name}</h1>

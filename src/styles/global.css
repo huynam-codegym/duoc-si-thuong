@@ -1515,30 +1515,60 @@ button.btn:not(.btn-outline) {
   object-fit: cover;
 }
 
-/* Hàng xuất xứ + thương hiệu, hiện phía trên tiêu đề ở trang chi tiết sản phẩm */
+/* Hàng xuất xứ + thương hiệu, hiện phía trên tiêu đề ở trang chi tiết sản phẩm.
+   Luôn gói gọn 1 dòng: "Việt Nam" không xuống dòng, tên thương hiệu dài quá thì
+   cắt bớt kèm "…" (rê chuột/chạm giữ để xem tên đầy đủ qua thuộc tính title). */
 .origin-brand-row {
   display: inline-flex;
   align-items: center;
-  gap: 0.6rem;
+  flex-wrap: nowrap;
+  gap: 0.5rem;
+  max-width: 100%;
   margin: 0 0 0.6rem;
-  padding: 0.3rem 0.7rem;
+  padding: 0.3rem 0.6rem;
   border: 1px solid var(--green-100);
   border-radius: 0.4rem;
   background: #fff;
   color: #1a1a1a;
-  font-size: 0.85rem;
-  font-weight: 700;
+  font-size: 0.78rem;
+  font-weight: 600;
 }
 
 .origin-line {
   display: inline-flex;
   align-items: center;
-  gap: 0.3rem;
+  flex-shrink: 0;
+  gap: 0.25rem;
+  white-space: nowrap;
 }
 
 .brand-line {
-  padding-left: 0.6rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  min-width: 0;
+  padding-left: 0.5rem;
   border-left: 1px solid var(--green-100);
+  white-space: nowrap;
+}
+
+.brand-name {
+  display: inline-block;
+  max-width: 11rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  vertical-align: bottom;
+}
+
+@media (max-width: 30rem) {
+  .origin-brand-row {
+    font-size: 0.7rem;
+    padding: 0.25rem 0.5rem;
+  }
+  .brand-name {
+    max-width: 6rem;
+  }
 }
 
 .product-link {
