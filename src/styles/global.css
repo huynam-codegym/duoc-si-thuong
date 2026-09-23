@@ -896,8 +896,11 @@ img {
   overflow: hidden;
 }
 
+/* margin-top: auto đẩy cả khối giá + nhãn quy cách + nút xuống sát đáy thẻ, để thẳng hàng nhau giữa
+   các thẻ sản phẩm cạnh nhau dù tên/mô tả dài ngắn khác nhau (CSS grid kéo các thẻ cùng hàng cao
+   bằng nhau, margin-top: auto tận dụng khoảng trống thừa đó). */
 .product-price {
-  margin-top: 0.5rem !important;
+  margin-top: auto !important;
   font-size: 1.05rem !important;
   font-weight: 700;
   color: #c2410c !important;
@@ -907,6 +910,23 @@ img {
   font-size: 0.8rem;
   font-weight: 500;
   color: var(--ink-soft);
+}
+
+/* Quy cách ở THẺ sản phẩm (ví dụ "Hộp 2 vỉ x 15 viên") hiện thành nhãn nhỏ RIÊNG MỘT DÒNG dưới giá,
+   không còn nối liền bằng dấu "/" — tên riêng .product-card-unit, KHÔNG dùng lại .product-unit (đang
+   dùng ở trang chi tiết sản phẩm, kiểu hiển thị khác, nối liền sau giá) để tránh lặp lại đúng bẫy
+   trùng tên lớp CSS đã gặp trước đây (xem ghi chú .brand-name/.origin-brand-name trong CLAUDE.md).
+   Quy cách dài (nhiều sản phẩm nhập khẩu ghi rõ "Hộp 2 vỉ x 15 viên" thay vì chỉ "Hộp 30 viên") từng
+   làm dòng giá bị xuống dòng, lệch với các thẻ có quy cách ngắn bên cạnh. */
+.product-card-unit {
+  display: inline-block;
+  margin-top: 0.3rem;
+  padding: 0.15rem 0.6rem;
+  border-radius: 999px;
+  background: var(--green-50);
+  color: var(--ink-soft);
+  font-size: 0.78rem;
+  font-weight: 600;
 }
 
 .product-notice {

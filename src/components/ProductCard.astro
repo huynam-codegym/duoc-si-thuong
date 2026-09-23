@@ -29,10 +29,8 @@ const cartImage = await getImage({ src: image, width: 160, height: 160, format: 
     <h3>{name}</h3>
     <p>{summary}</p>
   </a>
-  <p class="product-price">
-    {formatPrice(price)}
-    {unit && <span class="product-unit"> / {unit}</span>}
-  </p>
+  <p class="product-price">{formatPrice(price)}</p>
+  {unit && <span class="product-card-unit">{unit}</span>}
   <button
     type="button"
     class="btn btn-add"
