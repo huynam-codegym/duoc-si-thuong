@@ -3121,26 +3121,37 @@ button.btn:not(.btn-outline) {
   }
 }
 
-/* Trên máy tính (≥77rem — cùng mốc "máy tính" dùng chung toàn site, xem mục "Bẫy kỹ thuật rem" và
-   isDesktop() ở Header.astro trong CLAUDE.md), các khối sản phẩm RỘNG (không áp dụng cho khối hẹp
-   trong "Bệnh thường gặp theo mùa", đánh dấu riêng .carousel-wide) đổi từ cuộn ngang + bấm mũi tên
-   sang LƯỚI 4 CỘT, xem hết tối đa 12 sản phẩm ngay không cần bấm (chủ website yêu cầu tháng 9/2026,
-   theo mẫu Long Châu gửi). Điện thoại/máy tính bảng vẫn giữ kiểu cuộn ngang + mũi tên như cũ. */
+/*
+ * Các khối sản phẩm RỘNG (không áp dụng cho khối hẹp trong "Bệnh thường gặp theo mùa", vẫn cuộn
+ * ngang như `.carousel` gốc ở trên — đánh dấu riêng bằng .carousel-wide) hiện thành LƯỚI thay vì cuộn
+ * ngang: 2 cột trên điện thoại/máy tính bảng, 4 cột trên máy tính (≥77rem — cùng mốc "máy tính" dùng
+ * chung toàn site, xem mục "Bẫy kỹ thuật rem" và isDesktop() ở Header.astro trong CLAUDE.md). Ban đầu
+ * chỉ hiện 16 sản phẩm (điện thoại) / 12 sản phẩm (máy tính), còn lại ẩn bằng thuộc tính `hidden` —
+ * bấm nút "Xem thêm sản phẩm" (script cuối trang) hiện thêm từng đợt, không cần bấm mũi tên/cuộn
+ * ngang nữa (chủ website yêu cầu tháng 9/2026, theo mẫu Long Châu gửi).
+ */
+.carousel-wide .carousel-track {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  overflow: visible;
+  scroll-snap-type: none;
+}
+
+.carousel-wide .carousel-item {
+  flex: none;
+  width: auto;
+  scroll-snap-align: none;
+}
+
 @media (min-width: 77rem) {
   .carousel-wide .carousel-track {
-    display: grid;
     grid-template-columns: repeat(4, 1fr);
-    overflow: visible;
   }
+}
 
-  .carousel-wide .carousel-item {
-    flex: none;
-    width: auto;
-  }
-
-  .carousel-wide .carousel-btn {
-    display: none;
-  }
+.carousel-more {
+  margin: 0.75rem 0 0;
+  text-align: center;
 }
 
 /* "Sản phẩm theo nhu cầu" ở trang chủ: thẻ bấm chuyển nhóm (không gắn theo tên bệnh cụ thể) */

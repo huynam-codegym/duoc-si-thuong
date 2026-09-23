@@ -56,3 +56,15 @@ Cùng nguồn/thương hiệu Vitabiotics như trên, thêm 2 sản phẩm dạn
 - **siro-osteocare xếp cùng nhóm "Canxi & Vitamin D"** như bản viên nén Osteocare (anh ghi đường dẫn nhắc cả "Vitamin & Khoáng chất" lẫn "Canxi & Vitamin D" — tôi hiểu là xếp vào nhóm "Canxi & Vitamin D" cho nhất quán với sản phẩm Osteocare viên đã có, vì site chỉ có 1 cấp nhóm, không lồng 2 cấp. Báo tôi nếu ý anh khác.
 - **siro-osteocare — liều dùng cho trẻ đọc rõ, không có điểm mơ hồ** như siro Feroglobin (nhãn ghi rõ theo từng mốc tuổi 1-3/4-8/từ 9 tuổi, khớp logic tăng dần theo tuổi).
 - Ảnh chính của cả 2 sản phẩm là ảnh chụp thật (chai + hộp trên nền trắng), không phải ảnh cắt từ quảng cáo.
+
+## wellbaby-multi-vitamin-liquid (tháng 9/2026) — ĐANG Ở DẠNG NHÁP, CẦN KIỂM TRA KỸ TRƯỚC KHI ĐĂNG
+
+Cùng thương hiệu Vitabiotics, nhưng đây là sản phẩm dành cho **trẻ từ 4 tháng đến 4 tuổi** — nhạy cảm hơn hẳn các sản phẩm trước (người lớn/trẻ lớn). Giá anh cho: 412.000đ/Chai. Tôi **chủ động để `draft: true`** (khác với 4 sản phẩm trước đã tự đăng luôn khi có giá) vì 2 lý do:
+
+1. **Không đọc rõ được nhãn phụ tiếng Việt** trên ảnh gửi (ảnh mờ hơn hẳn 4 sản phẩm trước, đặc biệt là số giấy tiếp nhận đăng ký bản công bố sản phẩm — để trống `publicationNo`, chưa dám đoán số). Thành phần và cách dùng tôi lấy từ **nhãn tiếng Anh** trên vỏ hộp (rõ hơn nhiều), nhưng chưa đối chiếu được với nhãn phụ tiếng Việt chính thức.
+2. **Sản phẩm cho trẻ nhỏ (kể cả trẻ 4-6 tháng tuổi)** — liều dùng, đối tượng dùng cần dược sĩ/bác sĩ nhi khoa xác nhận kỹ trước khi đăng, không nên tự động lên web chỉ vì đã có giá.
+
+**Việc anh cần làm trước khi đổi `draft: false`:**
+- Gửi ảnh rõ hơn (chụp thẳng, đủ sáng) của nhãn phụ tiếng Việt mặt sau hộp, đặc biệt đoạn "Số giấy tiếp nhận đăng ký bản công bố sản phẩm" và tên/địa chỉ nhà sản xuất, nhập khẩu.
+- Dược sĩ xác nhận lại liều dùng cho trẻ 4-6 tháng (2,5ml/ngày) và 7 tháng-4 tuổi (5ml/ngày) khớp đúng với nhãn phụ tiếng Việt (tôi lấy từ nhãn tiếng Anh, có thể lệch với bản dịch chính thức).
+- Xác nhận nhóm "Vitamin tổng hợp" là đúng ý anh cho sản phẩm này (đây rõ ràng là sản phẩm cho trẻ em, cũng có thể hợp với nhóm "Trẻ em" sẵn có — tôi để theo đúng đường dẫn anh ghi).

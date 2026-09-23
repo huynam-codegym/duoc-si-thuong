@@ -21,7 +21,9 @@ const latest = (await getPosts()).slice(0, 6);
 const shops = await Promise.all(
   departmentSlugs.map(async (slug) => {
     const products = await getProducts(slug);
-    return { slug, department: departments[slug], groups: getProductGroups(slug), featured: products.slice(0, 12) };
+    // Không giới hạn cứng ở đây nữa — trang chủ tự hiện 12 (máy tính)/16 (điện thoại) sản phẩm đầu,
+    // có nút "Xem thêm" tải tiếp theo từng đợt (xem script cuối trang và CSS .carousel-wide).
+    return { slug, department: departments[slug], groups: getProductGroups(slug), featured: products };
   }),
 );
 const activeShops = shops.filter((shop) => shop.featured.length > 0);
@@ -32,7 +34,7 @@ const needTabsRaw = await Promise.all(
   departmentSlugs.flatMap((deptSlug) =>
     getProductGroups(deptSlug).map(async ([groupSlug, group]) => {
       const products = await getProducts(deptSlug, groupSlug);
-      return { deptSlug, groupSlug, group, products: products.slice(0, 12) };
+      return { deptSlug, groupSlug, group, products };
     }),
   ),
 );
@@ -194,9 +196,6 @@ const seasonal = await Promise.all(
           {needTabs.map((tab, index) => (
             <div class={`need-panel${index === 0 ? ' active' : ''}`} data-panel={`need-${index}`} role="tabpanel">
               <div class="carousel carousel-wide">
-                {tab.products.length > 4 && (
-                  <button type="button" class="carousel-btn carousel-prev" data-dir="-1" aria-label="Xem sản phẩm trước">‹</button>
-                )}
                 <div class="carousel-track">
                   {tab.products.map((product) => (
                     <div class="carousel-item">
@@ -204,10 +203,12 @@ const seasonal = await Promise.all(
                     </div>
                   ))}
                 </div>
-                {tab.products.length > 4 && (
-                  <button type="button" class="carousel-btn carousel-next" data-dir="1" aria-label="Xem sản phẩm sau">›</button>
-                )}
               </div>
+              {tab.products.length > 12 && (
+                <p class="carousel-more">
+                  <button type="button" class="btn btn-outline carousel-more-btn">Xem thêm sản phẩm</button>
+                </p>
+              )}
               <p class="more">
                 <a class="btn btn-outline" href={url(`/${tab.deptSlug}/nhom/${tab.groupSlug}/`)}>
                   Xem tất cả {tab.group.name.toLowerCase()}
@@ -243,9 +244,6 @@ const seasonal = await Promise.all(
           <section aria-labelledby={`sp-${shop.slug}`}>
             <h2 class="section-title" id={`sp-${shop.slug}`}>{shop.department.name}</h2>
             <div class="carousel carousel-wide">
-              {shop.featured.length > 4 && (
-                <button type="button" class="carousel-btn carousel-prev" data-dir="-1" aria-label="Xem sản phẩm trước">‹</button>
-              )}
               <div class="carousel-track">
                 {shop.featured.map((product) => (
                   <div class="carousel-item">
@@ -253,10 +251,12 @@ const seasonal = await Promise.all(
                   </div>
                 ))}
               </div>
-              {shop.featured.length > 4 && (
-                <button type="button" class="carousel-btn carousel-next" data-dir="1" aria-label="Xem sản phẩm sau">›</button>
-              )}
             </div>
+            {shop.featured.length > 12 && (
+              <p class="carousel-more">
+                <button type="button" class="btn btn-outline carousel-more-btn">Xem thêm sản phẩm</button>
+              </p>
+            )}
             <p class="more">
               <a class="btn btn-outline" href={url(`/${shop.slug}/`)}>Xem tất cả {shop.department.name.toLowerCase()}</a>
             </p>
@@ -297,13 +297,29 @@ const seasonal = await Promise.all(
 </BaseLayout>
 
 <script>
-  // Nút mũi tên cho khối sản phẩm cuộn ngang (vuốt tay vẫn dùng được, nút chỉ là tiện thêm)
-  document.querySelectorAll<HTMLElement>('.carousel').forEach((carousel) => {
-    const track = carousel.querySelector<HTMLElement>('.carousel-track');
-    carousel.querySelectorAll<HTMLButtonElement>('.carousel-btn').forEach((button) => {
-      button.addEventListener('click', () => {
-        track?.scrollBy({ left: Number(button.dataset.dir) * (track.clientWidth * 0.8), behavior: 'smooth' });
-      });
+  // Khối sản phẩm RỘNG (.carousel-wide — không gồm khối hẹp trong "Bệnh thường gặp theo mùa"): hiện
+  // lưới, ban đầu chỉ hiện 12 sản phẩm (máy tính, ≥77rem) hoặc 16 sản phẩm (điện thoại/máy tính bảng),
+  // bấm "Xem thêm sản phẩm" thì hiện thêm đúng từng đó nữa mỗi lần, lặp lại tới khi hết. Cỡ trang chỉ
+  // tính MỘT LẦN lúc tải trang (đổi khổ màn hình giữa chừng không tính lại) — đơn giản, đủ dùng vì
+  // người dùng hiếm khi xoay ngang/dọc đúng lúc đang bấm "Xem thêm".
+  const PAGE_SIZE_DESKTOP = 12;
+  const PAGE_SIZE_MOBILE = 16;
+  const pageSize = window.matchMedia('(min-width: 77rem)').matches ? PAGE_SIZE_DESKTOP : PAGE_SIZE_MOBILE;
+  document.querySelectorAll<HTMLElement>('.carousel-wide').forEach((wide) => {
+    const items = Array.from(wide.querySelectorAll<HTMLElement>('.carousel-item'));
+    // Nút "Xem thêm" là phần tử em kế tiếp của .carousel-wide (thẻ <p class="carousel-more">), không
+    // nằm bên trong .carousel-wide — mỗi khối "Sản phẩm theo nhu cầu"/mỗi khu bán hàng có nút riêng.
+    const moreBtn = wide.nextElementSibling?.querySelector<HTMLButtonElement>('.carousel-more-btn');
+    if (items.length === 0) return;
+    let shown = pageSize;
+    function render() {
+      items.forEach((item, i) => (item.hidden = i >= shown));
+      if (moreBtn) moreBtn.hidden = shown >= items.length;
+    }
+    render();
+    moreBtn?.addEventListener('click', () => {
+      shown += pageSize;
+      render();
     });
   });
 
