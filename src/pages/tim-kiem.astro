@@ -136,7 +136,9 @@ import BaseLayout from '../layouts/BaseLayout.astro';
   let contentType = 'Sản phẩm';
   let sortDir: 'asc' | 'desc' | '' = '';
   const expandedGroups = new Set<string>();
-  const openGroups = new Set(['Chuyên mục']);
+  // Mở sẵn tất cả nhóm lọc ngay khi có kết quả (giống ảnh mẫu: nhiều nhóm mở cùng lúc, không chỉ 1 nhóm
+  // đầu tiên) — người dùng thấy hết lựa chọn ngay, không cần bấm mở từng nhóm.
+  const openGroups = new Set(FILTER_CATEGORIES);
   const activeFilters: Record<string, Set<string>> = Object.fromEntries(FILTER_CATEGORIES.map((c) => [c, new Set<string>()]));
 
   function stripTags(html: string): string {
