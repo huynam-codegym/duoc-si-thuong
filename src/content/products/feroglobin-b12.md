@@ -4,7 +4,7 @@ summary: "Viên nang phóng thích chậm bổ sung sắt, kẽm, đồng, acid 
 department: "thuc-pham-chuc-nang"
 group: "vitamin-khoang-chat"
 price: 363000
-unit: "Hộp 30 viên (2 vỉ x 15 viên)"
+unit: "Hộp 2 vỉ x 15 viên"
 brand: "Vitabiotics"
 origin: "Anh"
 dosageForm: "Viên nang (phóng thích chậm - Slow Release Delivery System)"

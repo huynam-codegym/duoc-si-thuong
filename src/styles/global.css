@@ -904,6 +904,7 @@ img {
   font-size: 1.05rem !important;
   font-weight: 700;
   color: #c2410c !important;
+  white-space: nowrap;
 }
 
 /* Chữ ngắn gọn kiểu "/ Hộp" ngay cạnh giá ở thẻ sản phẩm — nhỏ và nhạt hơn số tiền để không lấn giá */
@@ -924,9 +925,13 @@ img {
    dùng ở trang chi tiết sản phẩm, kiểu hiển thị khác, nối liền sau giá) để tránh lặp lại đúng bẫy
    trùng tên lớp CSS đã gặp trước đây (xem ghi chú .brand-name/.origin-brand-name trong CLAUDE.md).
    Quy cách dài (nhiều sản phẩm nhập khẩu ghi rõ "Hộp 2 vỉ x 15 viên" thay vì chỉ "Hộp 30 viên") từng
-   làm dòng giá bị xuống dòng, lệch với các thẻ có quy cách ngắn bên cạnh. */
+   làm dòng giá bị xuống dòng, lệch với các thẻ có quy cách ngắn bên cạnh. Luôn ép GỌN 1 DÒNG (không
+   cho xuống dòng, cắt bớt kèm "…" nếu quá dài) — cả dòng giá lẫn nhãn quy cách bên dưới đều cố định
+   đúng 1 dòng mỗi thẻ, để giá và nút "Chọn mua" luôn thẳng hàng nhau giữa các thẻ cạnh nhau, bất kể
+   quy cách dài ngắn khác nhau. */
 .product-card-unit {
   display: inline-block;
+  max-width: 100%;
   margin-top: 0.3rem;
   padding: 0.15rem 0.6rem;
   border-radius: 999px;
@@ -934,6 +939,9 @@ img {
   color: var(--ink-soft);
   font-size: 0.78rem;
   font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .product-notice {
