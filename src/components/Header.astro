@@ -789,6 +789,52 @@ const drawerSections: DrawerSection[] = [
     renderCartDropdown();
   });
 
+  // Ảnh sản phẩm "bay" từ chỗ vừa bấm về biểu tượng giỏ hàng, rồi mới hiện khay xem nhanh (xem hàm
+  // flyToCart bên dưới) — bỏ qua hiệu ứng bay nếu người dùng chọn "giảm chuyển động" trên máy (cùng
+  // cách kiểm tra như hiệu ứng gõ chữ ở ô tìm kiếm phía trên), khay xem nhanh vẫn hiện ngay lập tức.
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function flyToCart(imageSrc: string, fromEl: Element): Promise<void> {
+    if (!cartWrap || reduceMotion) return Promise.resolve();
+    const fromRect = fromEl.getBoundingClientRect();
+    const toRect = cartWrap.getBoundingClientRect();
+    if (fromRect.width === 0 || toRect.width === 0) return Promise.resolve();
+    const flyer = document.createElement('img');
+    flyer.src = imageSrc;
+    flyer.alt = '';
+    flyer.className = 'cart-fly';
+    flyer.style.left = `${fromRect.left}px`;
+    flyer.style.top = `${fromRect.top}px`;
+    flyer.style.width = `${fromRect.width}px`;
+    flyer.style.height = `${fromRect.height}px`;
+    document.body.append(flyer);
+    const dx = toRect.left + toRect.width / 2 - (fromRect.left + fromRect.width / 2);
+    const dy = toRect.top + toRect.height / 2 - (fromRect.top + fromRect.height / 2);
+    return new Promise((resolve) => {
+      requestAnimationFrame(() => {
+        flyer.style.transform = `translate(${dx}px, ${dy}px) scale(0.15)`;
+        flyer.style.opacity = '0.25';
+      });
+      let done = false;
+      const finish = () => {
+        if (done) return;
+        done = true;
+        flyer.remove();
+        resolve();
+      };
+      flyer.addEventListener('transitionend', finish, { once: true });
+      window.setTimeout(finish, 750); // phòng khi transitionend không bắn (ví dụ đổi tab lúc đang bay)
+    });
+  }
+  // Tìm ảnh sản phẩm gần nút vừa bấm để làm ảnh bay: ảnh trên thẻ sản phẩm, hoặc ảnh chính ở trang
+  // chi tiết sản phẩm (khu vực .product-gallery).
+  function findFlyImage(button: HTMLElement): { src: string; el: Element } | null {
+    const cardImg = button.closest('.product-card')?.querySelector<HTMLImageElement>('.product-thumb');
+    if (cardImg?.currentSrc || cardImg?.src) return { src: cardImg.currentSrc || cardImg.src, el: cardImg };
+    const galleryImg = document.getElementById('galleryMainImg') as HTMLImageElement | null;
+    if (galleryImg?.src) return { src: galleryImg.src, el: galleryImg };
+    return null;
+  }
+
   let cartHideTimer: number | undefined;
   let cartCloseGrace: number | undefined;
   function openCartDropdown() {
@@ -934,7 +980,12 @@ const drawerSections: DrawerSection[] = [
       return;
     }
     if (isDesktop()) {
-      flashCartDropdown();
+      const source = findFlyImage(button);
+      if (source) {
+        flyToCart(source.src, source.el).then(flashCartDropdown);
+      } else {
+        flashCartDropdown();
+      }
     } else {
       showToast('Đã thêm vào giỏ hàng - hãy kiểm tra giỏ hàng');
     }
