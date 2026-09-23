@@ -2061,6 +2061,14 @@ button.btn:not(.btn-outline) {
    Tên thương hiệu bằng chữ cũng ẩn đi (chỉ còn logo tròn) vì nút 3 gạch + logo + giỏ hàng
    không đủ chỗ cùng hàng nếu giữ cả chữ, làm giỏ hàng bị rớt xuống dòng riêng. */
 @media (max-width: 30rem) {
+  /* Bẫy đã gặp: ở khổ ~360px (Samsung Galaxy A55...), khoảng cách 1rem mặc định giữa nút 3 gạch/
+     logo/giỏ hàng (.header-main có gap cột 1rem) làm tổng bề ngang v dư đúng vài px, đủ để flexbox
+     đẩy giỏ hàng xuống dòng riêng — dù đo bằng rem tưởng thừa chỗ. Thu hẹp khoảng cách cột ở khổ này
+     để chắc chắn còn dư nhiều hơn, không chỉ vừa khít. */
+  .header-main {
+    column-gap: 0.4rem;
+  }
+
   .header-main .brand {
     gap: 0.4rem;
     font-size: 1.1rem;
@@ -2085,7 +2093,7 @@ button.btn:not(.btn-outline) {
   .cart-link {
     gap: 0;
     min-height: 2.5rem;
-    padding: 0.3rem;
+    padding: 0.2rem;
     border: 0;
   }
 
