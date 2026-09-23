@@ -793,9 +793,13 @@ const drawerSections: DrawerSection[] = [
   // flyToCart bên dưới) — bỏ qua hiệu ứng bay nếu người dùng chọn "giảm chuyển động" trên máy (cùng
   // cách kiểm tra như hiệu ứng gõ chữ ở ô tìm kiếm phía trên), khay xem nhanh vẫn hiện ngay lập tức.
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  function flyToCart(imageSrc: string, fromEl: Element): Promise<void> {
+  type Rect = { left: number; top: number; width: number; height: number };
+  // fromRect chụp SẴN lúc bấm (trước khi trang kịp cuộn) — không dùng lại phần tử sống, vì nếu trang
+  // đang cuộn lên đầu (xem waitScrollTop bên dưới) thì vị trí thật của phần tử đã đổi, ảnh sẽ bay từ
+  // chỗ sai. toRect (giỏ hàng) thì đọc TẠI THỜI ĐIỂM BẮT ĐẦU BAY (sau khi trang cuộn xong), vì biểu
+  // tượng giỏ hàng ở đầu trang chỉ hiện đúng chỗ sau khi cuộn lên xong.
+  function flyToCart(imageSrc: string, fromRect: Rect): Promise<void> {
     if (!cartWrap || reduceMotion) return Promise.resolve();
-    const fromRect = fromEl.getBoundingClientRect();
     const toRect = cartWrap.getBoundingClientRect();
     if (fromRect.width === 0 || toRect.width === 0) return Promise.resolve();
     const flyer = document.createElement('img');
@@ -826,13 +830,31 @@ const drawerSections: DrawerSection[] = [
     });
   }
   // Tìm ảnh sản phẩm gần nút vừa bấm để làm ảnh bay: ảnh trên thẻ sản phẩm, hoặc ảnh chính ở trang
-  // chi tiết sản phẩm (khu vực .product-gallery).
-  function findFlyImage(button: HTMLElement): { src: string; el: Element } | null {
+  // chi tiết sản phẩm (khu vực .product-gallery). Đọc luôn vị trí (rect) ngay tại đây, lúc phần tử
+  // còn chắc chắn ở đúng chỗ người dùng vừa thấy khi bấm.
+  function findFlyImage(button: HTMLElement): { src: string; rect: Rect } | null {
     const cardImg = button.closest('.product-card')?.querySelector<HTMLImageElement>('.product-thumb');
-    if (cardImg?.currentSrc || cardImg?.src) return { src: cardImg.currentSrc || cardImg.src, el: cardImg };
+    if (cardImg?.currentSrc || cardImg?.src) return { src: cardImg.currentSrc || cardImg.src, rect: cardImg.getBoundingClientRect() };
     const galleryImg = document.getElementById('galleryMainImg') as HTMLImageElement | null;
-    if (galleryImg?.src) return { src: galleryImg.src, el: galleryImg };
+    if (galleryImg?.src) return { src: galleryImg.src, rect: galleryImg.getBoundingClientRect() };
     return null;
+  }
+  // Nếu trang đang cuộn xuống (biểu tượng giỏ hàng ở đầu trang không còn trong khung nhìn), tự cuộn
+  // mượt lên đầu trang trước khi bay/hiện khay, để người dùng THẤY được cả hai — đúng điều đã yêu cầu.
+  function waitScrollTop(): Promise<void> {
+    if (window.scrollY <= 4) return Promise.resolve();
+    window.scrollTo({ top: 0, behavior: reduceMotion ? 'auto' : 'smooth' });
+    return new Promise((resolve) => {
+      const started = performance.now();
+      function check() {
+        if (window.scrollY <= 4 || performance.now() - started > 900) {
+          resolve();
+          return;
+        }
+        requestAnimationFrame(check);
+      }
+      requestAnimationFrame(check);
+    });
   }
 
   let cartHideTimer: number | undefined;
@@ -980,12 +1002,16 @@ const drawerSections: DrawerSection[] = [
       return;
     }
     if (isDesktop()) {
+      // Chụp ảnh + vị trí NGAY BÂY GIỜ (trước khi trang kịp cuộn), rồi mới cuộn lên đầu trang nếu
+      // cần — để lúc bay/hiện khay, biểu tượng giỏ hàng chắc chắn đang trong khung nhìn.
       const source = findFlyImage(button);
-      if (source) {
-        flyToCart(source.src, source.el).then(flashCartDropdown);
-      } else {
-        flashCartDropdown();
-      }
+      waitScrollTop().then(() => {
+        if (source) {
+          flyToCart(source.src, source.rect).then(flashCartDropdown);
+        } else {
+          flashCartDropdown();
+        }
+      });
     } else {
       showToast('Đã thêm vào giỏ hàng - hãy kiểm tra giỏ hàng');
     }
