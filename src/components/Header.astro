@@ -779,7 +779,9 @@ const drawerSections: DrawerSection[] = [
         cartDropdownList.append(row);
       });
     }
-    cartDropdownCount.textContent = items.length ? `${cartCount(items)} sản phẩm` : '';
+    // Đếm số LOẠI sản phẩm (số dòng), không phải tổng số lượng — 1 sản phẩm x3 vẫn là "1 sản phẩm".
+    // Tổng số lượng đã hiện riêng trên biểu tượng giỏ hàng (cart-badge).
+    cartDropdownCount.textContent = items.length ? `${items.length} sản phẩm` : '';
   }
 
   cartDropdownList?.addEventListener('click', (event) => {
