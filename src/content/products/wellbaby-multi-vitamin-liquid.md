@@ -21,10 +21,10 @@ gallery:
   - "../../assets/products/wellbaby-multi-vitamin-liquid/anh-8.jpg"
 video: "/videos/wellbaby-multi-vitamin-liquid/video.mp4"
 videoThumbnail: "../../assets/products/wellbaby-multi-vitamin-liquid/video-cover.jpg"
-publicationNo: ""
+publicationNo: "10643/2019/ĐKSP"
 adConfirmationNo: ""
 updatedAt: 2026-09-23
-draft: true
+draft: false
 ---
 
 ## Mô tả sản phẩm

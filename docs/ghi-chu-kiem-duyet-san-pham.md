@@ -57,7 +57,7 @@ Cùng nguồn/thương hiệu Vitabiotics như trên, thêm 2 sản phẩm dạn
 - **siro-osteocare — liều dùng cho trẻ đọc rõ, không có điểm mơ hồ** như siro Feroglobin (nhãn ghi rõ theo từng mốc tuổi 1-3/4-8/từ 9 tuổi, khớp logic tăng dần theo tuổi).
 - Ảnh chính của cả 2 sản phẩm là ảnh chụp thật (chai + hộp trên nền trắng), không phải ảnh cắt từ quảng cáo.
 
-## wellbaby-multi-vitamin-liquid (tháng 9/2026) — ĐANG Ở DẠNG NHÁP, CẦN KIỂM TRA KỸ TRƯỚC KHI ĐĂNG
+## wellbaby-multi-vitamin-liquid (tháng 9/2026) — ĐÃ ĐĂNG (anh gửi số công bố 10643/2019/ĐKSP, xác nhận đăng), vẫn cần dược sĩ rà lại
 
 Cùng thương hiệu Vitabiotics, nhưng đây là sản phẩm dành cho **trẻ từ 4 tháng đến 4 tuổi** — nhạy cảm hơn hẳn các sản phẩm trước (người lớn/trẻ lớn). Giá anh cho: 412.000đ/Chai. Tôi **chủ động để `draft: true`** (khác với 4 sản phẩm trước đã tự đăng luôn khi có giá) vì 2 lý do:
 
