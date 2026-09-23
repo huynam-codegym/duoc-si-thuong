@@ -35,6 +35,11 @@ const departmentData = {
         name: 'Vitamin & khoáng chất',
         description: 'Thực phẩm bổ sung vitamin và khoáng chất cho chế độ ăn hằng ngày.',
       },
+      'vitamin-tong-hop': {
+        icon: 'citrus',
+        name: 'Vitamin tổng hợp',
+        description: 'Thực phẩm bổ sung nhiều loại vitamin và khoáng chất cùng lúc trong một sản phẩm.',
+      },
       'de-khang': {
         icon: 'shield',
         name: 'Đề kháng & miễn dịch',

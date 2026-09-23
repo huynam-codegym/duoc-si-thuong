@@ -37,3 +37,14 @@ Nguồn: bạn gửi 3 ảnh chụp hộp và gói sản phẩm (mặt trước)
 **Những câu tôi giữ nguyên/diễn đạt lại từ bao bì**
 - Các công dụng ("bổ sung lợi khuẩn...", "cải thiện tình trạng biếng ăn...", "hỗ trợ cải thiện hệ vi sinh đường ruột...") đều ghi rõ "theo nhà sản xuất", đúng nguyên văn ý trên bao bì, không thêm claim mạnh hơn (không viết "chữa", "khỏi", "hiệu quả tuyệt đối").
 - Thêm lưu ý cho trẻ dưới 1 tuổi, người có bệnh nền, người dùng thuốc khác — theo nguyên tắc 7 trong CLAUDE.md, đây là lưu ý chung tôi thêm vào, dược sĩ cần xác nhận lại có đúng với sản phẩm này không.
+
+## feroglobin-b12, osteocare, siro-feroglobin-b12 (nhóm Vitabiotics, tháng 9/2026)
+
+Nguồn: anh gửi ảnh chụp nhãn tiếng Việt đầy đủ (mặt sau hộp/vỏ hộp) cho cả 3 sản phẩm — thành phần, cách dùng, đối tượng, số công bố, nhà sản xuất/nhập khẩu/phân phối đều chép trực tiếp từ ảnh nhãn, không tự suy đoán hay lấy từ nguồn khác. Cả 3 đều của thương hiệu Vitabiotics (Anh), nhập khẩu bởi Công ty TNHH VE Pharma (Việt Nam). Giá do anh cho: Feroglobin B12 (viên) 363.000đ/Hộp, Osteocare 257.000đ/Hộp, Siro Feroglobin B12 358.000đ/Chai.
+
+**Việc bạn cần làm**
+- **Đối chiếu lại với hộp/chai thật:** tôi đọc thông tin từ ảnh chụp (độ phân giải có hạn ở vài chỗ chữ nhỏ), nên vẫn cần dược sĩ cầm hộp/chai thật đối chiếu lại toàn bộ, đặc biệt các số liệu hàm lượng.
+- **Riêng Siro Feroglobin B12 — mục Cách dùng cho trẻ em cần kiểm tra kỹ:** nhãn ghi "Trẻ 3–12 tuổi: 1 thìa (10ml)/ngày" — chỉ 1 lần/ngày, không rõ có phải "1 thìa x 2-3 lần/ngày" (khớp với cách ghi trên nhãn tiếng Anh gốc, "1 teaspoonful 2-3 times daily") mà bị in/đọc nhầm hay không. Tôi đã transcribe đúng như đọc được trên ảnh và **đã thêm khuyến cáo hỏi bác sĩ/dược sĩ trước khi dùng cho trẻ nhỏ**, nhưng đây là liều dùng cho trẻ em nên **bắt buộc dược sĩ xác nhận lại đúng số lần/ngày với vỏ hộp thật** trước khi coi bài này là thông tin chính thức.
+- **Nhóm "Vitamin tổng hợp":** tôi tạo nhóm mới này theo ảnh mẫu anh gửi (breadcrumb "Trang chủ/Thực phẩm chức năng/Vitamin tổng hợp"), xếp Siro Feroglobin B12 vào đây dù thành phần chính là sắt — vì sản phẩm có tới 11+ vitamin/khoáng chất kết hợp nên xếp vào "tổng hợp" hợp lý, nhưng nếu anh muốn xếp vào nhóm "Vitamin & khoáng chất" hoặc một nhóm khác thì báo tôi đổi lại `group` trong file sản phẩm.
+- **Số công bố sản phẩm:** Feroglobin viên 9183/2019/ĐKSP, Osteocare 8615/2019/ĐKSP, Siro Feroglobin 8974/2019/ĐKSP — chép từ ảnh nhãn, chưa đối chiếu lại với cổng thông tin công bố sản phẩm của Bộ Y tế.
+- **Ảnh sản phẩm:** ảnh chính của cả 3 sản phẩm đều được cắt ra từ ảnh quảng cáo có sẵn (ảnh gốc có kèm chữ quảng cáo/so sánh mẫu cũ-mới), không phải ảnh chụp riêng trên nền trắng chuẩn — nếu nhà thuốc có ảnh chụp thật đẹp hơn, gửi để thay.

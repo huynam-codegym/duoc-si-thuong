@@ -23,7 +23,7 @@ import { url } from '../lib/url';
         <ul id="cart-list" class="cart-list"></ul>
         <div class="cart-total">
           <span>Tạm tính</span>
-          <strong id="cart-total">0 ₫</strong>
+          <strong id="cart-total">0đ</strong>
         </div>
         <p id="cart-unpriced" class="cart-note" hidden>
           Sản phẩm ghi "Liên hệ" chưa được tính vào tạm tính. Nhà thuốc sẽ báo giá khi xác nhận đơn.
@@ -140,7 +140,7 @@ import { url } from '../lib/url';
       emptyBox.hidden = items.length > 0 || !result.hidden;
       filledBox.hidden = items.length === 0 || !result.hidden;
       list.replaceChildren(...items.map(row));
-      // Giỏ chỉ có sản phẩm chưa có giá thì hiện "Liên hệ" thay vì "0 ₫"
+      // Giỏ chỉ có sản phẩm chưa có giá thì hiện "Liên hệ" thay vì "0đ"
       const total = cartTotal(items);
       totalEl.textContent = total === 0 && hasUnpriced(items) ? 'Liên hệ' : formatVnd(total);
       unpricedEl.hidden = !hasUnpriced(items);

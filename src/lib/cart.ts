@@ -98,6 +98,7 @@ export function hasUnpriced(items = getCart()): boolean {
   return items.some((item) => item.price === null);
 }
 
+// Chữ "đ" thường liền số, không phải ký hiệu "₫" (khớp cách hiện giá ở formatPrice trong products.ts)
 export function formatVnd(value: number): string {
-  return `${value.toLocaleString('vi-VN')} ₫`;
+  return `${value.toLocaleString('vi-VN')}đ`;
 }

@@ -16,9 +16,10 @@ export async function getProducts(department?: DepartmentSlug, group?: string): 
     .sort((a, b) => a.data.name.localeCompare(b.data.name, 'vi'));
 }
 
-/** Ví dụ 350000 -> "350.000 ₫". Không có giá thì trả "Liên hệ". */
+/** Ví dụ 350000 -> "350.000đ" (chữ "đ" thường, liền số, không phải ký hiệu "₫" có gạch ngang qua thân
+ * chữ dễ bị nhầm thành gạch chân — theo yêu cầu chủ website tháng 9/2026). Không có giá thì trả "Liên hệ". */
 export function formatPrice(price?: number): string {
-  return price === undefined ? 'Liên hệ' : `${price.toLocaleString('vi-VN')} ₫`;
+  return price === undefined ? 'Liên hệ' : `${price.toLocaleString('vi-VN')}đ`;
 }
 
 /** Khoảng giá dùng làm bộ lọc tìm kiếm (Pagefind). Không có giá thì trả undefined (không lọc được theo giá). */
