@@ -6,6 +6,7 @@ group: "tieu-hoa"
 price: 149000
 unit: "Hộp 20 gói x 5g"
 brand: "Lacto Biomin Gold+ (Bayer World)"
+origin: "Việt Nam"
 dosageForm: "Cốm vi sinh (dạng gói)"
 ingredients: "Theo bao bì: Bacillus clausii, Bacillus subtilis, Bacillus coagulans; canxi, magie, sắt; chất xơ, taurin; thymomodulin, betaglucan; lysin, kẽm, acid amin và các vitamin, khoáng chất khác (hàm lượng cụ thể từng chất chưa có trong ảnh gửi tới, sẽ bổ sung khi có ảnh mặt sau hộp)."
 image: "../../assets/products/com-vi-sinh-lacto-biomin-gold-hop-20-goi/anh.jpg"

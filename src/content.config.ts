@@ -55,7 +55,9 @@ const products = defineCollection({
         // Quy cách, ví dụ "Hộp 30 viên"
         unit: z.string().optional(),
         brand: z.string().optional(),
-        origin: z.string().optional(),
+        // Xuất xứ (bắt buộc từ tháng 9/2026, theo yêu cầu chủ website): hiện thành nhãn cờ ở góc ảnh
+        // thẻ sản phẩm (ProductCard, xem src/lib/flags.ts) và dòng "Xuất xứ" ở trang chi tiết.
+        origin: z.string().min(1, 'Sản phẩm phải điền xuất xứ (origin)'),
         // Dạng bào chế (ví dụ "Viên nang mềm") và thành phần đúng như trên nhãn, hiện trong bảng thông tin ở đầu trang
         dosageForm: z.string().optional(),
         ingredients: z.string().optional(),
