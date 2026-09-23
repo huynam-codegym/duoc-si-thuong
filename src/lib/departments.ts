@@ -76,6 +76,11 @@ const departmentData = {
         name: 'Xương khớp',
         description: 'Thực phẩm bổ sung dành cho người quan tâm đến sức khỏe xương và khớp.',
       },
+      'canxi-vitamin-d': {
+        icon: 'bone',
+        name: 'Canxi & Vitamin D',
+        description: 'Thực phẩm bổ sung canxi, vitamin D và các khoáng chất giúp xương chắc khỏe.',
+      },
       'phu-nu-me-bau': {
         icon: 'flower',
         name: 'Phụ nữ & mẹ bầu',

@@ -298,7 +298,7 @@ Chủ website yêu cầu (tháng 9/2026): 4 khu bán hàng riêng biệt, mỗi 
   - `/[department]/nhom/[group]/` — một nhóm trong khu.
   - `/[department]/[slug]/` — trang chi tiết một sản phẩm (route này và `[category]/[slug].astro` của bài viết cùng tồn tại vì slug khu và slug chuyên mục bài viết không trùng nhau; Astro build ra URL cụ thể nên không xung đột).
 - **Nhóm sản phẩm của từng khu (tháng 9/2026, tôi đặt tạm theo kiểu hiệu thuốc trực tuyến, chủ website có thể bớt hoặc đổi):**
-  - Thực phẩm chức năng (11 nhóm): vitamin & khoáng chất, đề kháng & miễn dịch, mắt & thị lực, tiêu hóa, thần kinh & trí nhớ, hỗ trợ làm đẹp, đường huyết, tim mạch, xương khớp, phụ nữ & mẹ bầu, trẻ em.
+  - Thực phẩm chức năng (12 nhóm): vitamin & khoáng chất, đề kháng & miễn dịch, mắt & thị lực, tiêu hóa, thần kinh & trí nhớ, hỗ trợ làm đẹp, đường huyết, tim mạch, xương khớp, **canxi & vitamin D** (thêm tháng 9/2026, chủ website yêu cầu tách riêng khỏi "Vitamin & khoáng chất" theo mẫu Long Châu gửi — cùng dùng icon `bone` với "Xương khớp"), phụ nữ & mẹ bầu, trẻ em.
   - Dược mỹ phẩm (5 nhóm): chăm sóc da mặt, chống nắng, trị mụn/thâm nám, dưỡng ẩm/phục hồi da, chăm sóc vùng mắt/môi.
   - Chăm sóc cá nhân (5 nhóm): vệ sinh răng miệng, chăm sóc tóc, sữa tắm/xà phòng, vệ sinh phụ nữ, khử mùi.
   - Thiết bị y tế (5 nhóm): máy đo huyết áp, máy đo đường huyết, nhiệt kế, khẩu trang/sát khuẩn, băng gạc/sơ cứu.
