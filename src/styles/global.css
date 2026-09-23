@@ -1485,10 +1485,33 @@ button.btn:not(.btn-outline) {
   border: 0;
 }
 
-/* Thẻ sản phẩm có nút Thêm vào giỏ */
+/* Thẻ sản phẩm có nút Chọn mua */
 .product-card {
   display: flex;
   flex-direction: column;
+}
+
+.product-thumb-wrap {
+  position: relative;
+}
+
+/* Nhãn xuất xứ đè lên góc trên-trái ảnh sản phẩm */
+.origin-badge {
+  position: absolute;
+  top: 0.5rem;
+  left: 0.5rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.15rem 0.45rem;
+  border: 1px solid var(--green-100);
+  border-radius: 999px;
+  background: #fff;
+  color: var(--green-900);
+  font-size: 0.72rem;
+  font-weight: 700;
+  line-height: 1.4;
+  box-shadow: 0 1px 4px rgb(0 0 0 / 0.12);
 }
 
 .product-link {

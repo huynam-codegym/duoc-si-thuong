@@ -9,14 +9,25 @@ interface Props {
 }
 
 const { product } = Astro.props;
-const { name, summary, department, group, price, unit, image, imageAlt } = product.data;
+const { name, summary, department, group, price, unit, origin, image, imageAlt } = product.data;
 // Ảnh nhỏ dùng trong giỏ hàng
 const cartImage = await getImage({ src: image, width: 160, height: 160, format: 'webp' });
 ---
 
 <div class="card product-card">
   <a class="product-link" href={url(`/${department}/${product.id}/`)}>
-    <Image class="product-thumb" src={image} alt={imageAlt} width={480} height={480} widths={[240, 480]} sizes="(min-width: 46rem) 14rem, 45vw" />
+    <div class="product-thumb-wrap">
+      <Image class="product-thumb" src={image} alt={imageAlt} width={480} height={480} widths={[240, 480]} sizes="(min-width: 46rem) 14rem, 45vw" />
+      {origin && (
+        <span class="origin-badge">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M5 3v18" />
+            <path d="M5 4h13l-3 4.5L18 13H5" />
+          </svg>
+          {origin}
+        </span>
+      )}
+    </div>
     <span class="tag">{departments[department].groups[group].name}</span>
     <h3>{name}</h3>
     <p>{summary}</p>
@@ -35,6 +46,6 @@ const cartImage = await getImage({ src: image, width: 160, height: 160, format: 
     data-unit={unit ?? ''}
     data-image={cartImage.src}
   >
-    Thêm vào giỏ
+    Chọn mua
   </button>
 </div>
