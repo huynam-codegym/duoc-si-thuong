@@ -3,6 +3,7 @@ name: "Viên uống Feroglobin B12 bổ sung Sắt, Kẽm, Acid Folic, Vitamin B
 summary: "Viên nang phóng thích chậm bổ sung sắt, kẽm, đồng, acid folic, vitamin B12 và B6 của Vitabiotics (Anh). Theo nhà sản xuất, hỗ trợ tăng khả năng tạo máu và tăng cường sức khỏe."
 department: "thuc-pham-chuc-nang"
 group: "vitamin-khoang-chat"
+price: 363000
 unit: "Hộp 30 viên (2 vỉ x 15 viên)"
 brand: "Vitabiotics"
 origin: "Anh"
@@ -24,7 +25,7 @@ videoThumbnail: "../../assets/products/feroglobin-b12/video-cover.jpg"
 publicationNo: "9183/2019/ĐKSP"
 adConfirmationNo: ""
 updatedAt: 2026-09-23
-draft: true
+draft: false
 ---
 
 ## Mô tả sản phẩm
