@@ -9,10 +9,11 @@ brand: "Tên thương hiệu"
 origin: "Việt Nam"
 image: "../../assets/products/san-pham-mau/anh.jpg"
 imageAlt: "Ảnh minh họa chỗ đặt ảnh sản phẩm: hộp sản phẩm màu trắng viền xanh lá"
-# Ví dụ minh họa trường video (không bắt buộc) — link video CÓ THẬT (Facebook/YouTube/TikTok...) và
-# ảnh đại diện của nó (bắt buộc đi kèm, xem ghi chú ở content.config.ts). Video hiện làm ảnh ĐẦU TIÊN
-# trong dải ảnh nhỏ, trước cả ảnh sản phẩm. Không có video thì xóa cả 2 dòng dưới đây.
-video: "https://www.facebook.com/reel/xxxxxxxxxxxxx"
+# Ví dụ minh họa trường video (không bắt buộc) — video TỰ TẢI LÊN, đặt file trong public/videos/
+# (KHÔNG phải link Facebook/YouTube), kèm ảnh đại diện/poster (bắt buộc đi kèm, xem content.config.ts).
+# Video hiện làm ảnh ĐẦU TIÊN trong dải ảnh nhỏ, phát ngay trên trang khi bấm vào. Không có video thì
+# xóa cả 2 dòng dưới đây.
+video: "/videos/san-pham-mau/video.mp4"
 videoThumbnail: "../../assets/products/san-pham-mau/anh.jpg"
 publicationNo: ""
 adConfirmationNo: ""

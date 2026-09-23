@@ -67,13 +67,16 @@ const products = defineCollection({
         // Ảnh phụ (không bắt buộc): thêm góc chụp khác, ảnh cận cảnh... Cùng dùng chung imageAlt.
         // Trang chi tiết hiện thành dải ảnh nhỏ bên dưới ảnh chính, bấm để đổi ảnh chính.
         gallery: z.array(image()).optional(),
-        // Video ngắn giới thiệu sản phẩm (không bắt buộc): liên kết tới video CÓ THẬT đã đăng ở nơi
-        // khác (Facebook, YouTube, TikTok...) — site tĩnh, không tự lưu trữ video. Hiện làm ảnh ĐẦU
-        // TIÊN trong dải ảnh nhỏ ở trang chi tiết (trước cả ảnh sản phẩm), có biểu tượng ▶ đè lên;
-        // bấm vào mở video ở tab mới, không phát trong trang (không nhúng mã bên thứ ba). Cần cả
-        // `videoThumbnail` (ảnh đại diện) vì không tự lấy được khung hình đầu video từ các mạng xã
-        // hội (cần đăng nhập, link ảnh cũng hết hạn) — xem cách làm tương tự ở src/lib/videos.ts.
-        video: z.string().url().optional(),
+        // Video ngắn giới thiệu sản phẩm (không bắt buộc) — video TỰ TẢI LÊN (file thật, không phải
+        // liên kết ra trang khác), phát ngay trên trang bằng thẻ <video> có sẵn của trình duyệt (không
+        // nhúng mã bên thứ ba). Đặt file trong `public/videos/<tên-sản-phẩm>/`, điền đường dẫn bắt đầu
+        // bằng "/videos/..." (KHÔNG dùng thư mục src/assets vì đó chỉ dành cho ảnh, Astro không xử lý
+        // video qua image()). Hiện làm ảnh ĐẦU TIÊN trong dải ảnh nhỏ ở trang chi tiết (trước cả ảnh
+        // sản phẩm), có biểu tượng ▶ đè lên; bấm vào đổi khung ảnh chính sang phát video (có sẵn nút
+        // play/tạm dừng/âm lượng của trình duyệt), bấm sang ảnh khác thì video tự dừng. Cần cả
+        // `videoThumbnail` (ảnh đại diện dùng làm ảnh chờ/poster) vì trình duyệt không tự trích khung
+        // hình đầu video ra làm ảnh thu nhỏ trong dải ảnh nhỏ.
+        video: z.string().startsWith('/videos/', 'video phải là đường dẫn cục bộ bắt đầu bằng "/videos/", không phải liên kết ra trang khác').optional(),
         videoThumbnail: image().optional(),
         // Số tiếp nhận hồ sơ công bố sản phẩm và số giấy xác nhận nội dung quảng cáo (nếu có); hiện ở trang chi tiết
         publicationNo: z.string().optional(),

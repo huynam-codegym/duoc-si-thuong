@@ -959,6 +959,22 @@ img {
   background: var(--green-50);
 }
 
+/* Video ngắn (nếu có) phát ngay trong khung ảnh chính, cùng cỡ với ảnh — không mở tab mới */
+.gallery-main-video {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1 / 1;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: #000;
+}
+
+/* Con trỏ "phóng to" chỉ hợp lý khi đang xem ảnh, không hợp khi đang xem video */
+.product-gallery-main:has(.gallery-main-video:not([hidden])) {
+  cursor: default;
+}
+
 /* Khung kính lúp mỏng: đi theo chuột trên ảnh chính, cho biết đang phóng to đúng vùng nào */
 .gallery-lens {
   display: none;
@@ -1008,11 +1024,10 @@ img {
 }
 
 /* Nút video ngắn (nếu có): mục đầu tiên trong dải ảnh nhỏ, ảnh đại diện + biểu tượng ▶ đè lên giữa.
-   Là thẻ <a> mở video thật ở tab mới, khác với các nút <button> đổi ảnh chính bên cạnh. */
+   Bấm vào đổi khung ảnh chính sang phát video (xem script cuối trang), không mở tab mới. */
 .gallery-thumb-video {
   position: relative;
   display: block;
-  text-decoration: none;
 }
 
 .gallery-thumb-play {

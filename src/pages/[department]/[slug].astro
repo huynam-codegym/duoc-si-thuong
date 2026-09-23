@@ -105,18 +105,27 @@ const jsonLd = {
           <div class="product-gallery-stage">
             <div class="product-gallery-main" id="galleryMain" data-zoom={galleryPhotos[0].zoomSrc}>
               <img id="galleryMainImg" src={galleryPhotos[0].displaySrc} alt={imageAlt} width={galleryPhotos[0].width} height={galleryPhotos[0].height} loading="eager" />
+              {
+                video && videoThumb && (
+                  <video id="galleryMainVideo" class="gallery-main-video" controls playsinline preload="none" poster={videoThumb.src} hidden>
+                    <source src={url(video)} />
+                    Trình duyệt của bạn không hỗ trợ phát video này.
+                  </video>
+                )
+              }
               <div class="gallery-lens" id="galleryLens" aria-hidden="true"></div>
             </div>
             {
               (galleryPhotos.length > 1 || (video && videoThumb)) && (
                 <div class="product-gallery-thumbs" role="tablist" aria-label="Các ảnh và video khác của sản phẩm">
                   {video && videoThumb && (
-                    <a
+                    <button
+                      type="button"
+                      id="galleryVideoThumb"
                       class="gallery-thumb gallery-thumb-video"
-                      href={video}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      aria-label={`Xem video ngắn về ${name} (mở tab mới)`}
+                      role="tab"
+                      aria-selected="false"
+                      aria-label={`Xem video ngắn về ${name}`}
                     >
                       <img src={videoThumb.src} alt="" />
                       <span class="gallery-thumb-play" aria-hidden="true">
@@ -124,7 +133,7 @@ const jsonLd = {
                           <path d="M8 5.5v13l11-6.5z" fill="currentColor" />
                         </svg>
                       </span>
-                    </a>
+                    </button>
                   )}
                   {galleryPhotos.map((photo, index) => (
                     <button
@@ -259,28 +268,60 @@ const jsonLd = {
   // (chỉ áp dụng khi có chuột thật, không hiện trên điện thoại/máy tính bảng vì không có "rê chuột").
   const galleryMain = document.getElementById('galleryMain');
   const galleryMainImg = document.getElementById('galleryMainImg') as HTMLImageElement | null;
+  const galleryMainVideo = document.getElementById('galleryMainVideo') as HTMLVideoElement | null;
+  const galleryVideoThumb = document.getElementById('galleryVideoThumb') as HTMLButtonElement | null;
   const galleryZoom = document.getElementById('galleryZoom');
   const galleryLens = document.getElementById('galleryLens') as HTMLElement | null;
   // Khớp với `background-size: 220%` của .product-gallery-zoom trong global.css: khung kính lúp
   // (vùng đang được phóng to) chiếm 1 / 2.2 chiều rộng/cao ảnh chính. Đổi số này thì đổi luôn CSS.
   const ZOOM_FACTOR = 2.2;
 
-  // Chỉ chọn nút <button> đổi ảnh chính — KHÔNG chọn nút video (.gallery-thumb-video là thẻ <a> mở
-  // tab mới tới video thật, không có data-display/data-zoom, bấm vào không đổi ảnh chính).
-  document.querySelectorAll<HTMLButtonElement>('button.gallery-thumb').forEach((thumb) => {
+  // Ảnh và video (nếu có) dùng CHUNG một khung hiển thị chính, đổi qua lại bằng cách ẩn/hiện —
+  // không phải mở tab mới. Chỉ chọn <button> đổi ảnh (KHÔNG gồm nút video, xử lý riêng bên dưới).
+  const photoThumbs = document.querySelectorAll<HTMLButtonElement>('button.gallery-thumb:not(.gallery-thumb-video)');
+
+  function setActiveThumb(thumb: HTMLButtonElement) {
+    photoThumbs.forEach((t) => {
+      t.classList.toggle('active', t === thumb);
+      t.setAttribute('aria-selected', String(t === thumb));
+    });
+    galleryVideoThumb?.classList.toggle('active', false);
+    galleryVideoThumb?.setAttribute('aria-selected', 'false');
+  }
+
+  photoThumbs.forEach((thumb) => {
     thumb.addEventListener('click', () => {
-      if (galleryMainImg) galleryMainImg.src = thumb.dataset.display ?? '';
+      // Đang phát video mà đổi sang ảnh thì dừng video lại trước, không để chạy ngầm không thấy
+      if (galleryMainVideo && !galleryMainVideo.hidden) {
+        galleryMainVideo.pause();
+        galleryMainVideo.hidden = true;
+      }
+      if (galleryMainImg) {
+        galleryMainImg.hidden = false;
+        galleryMainImg.src = thumb.dataset.display ?? '';
+      }
       galleryMain?.setAttribute('data-zoom', thumb.dataset.zoom ?? '');
-      document.querySelectorAll<HTMLButtonElement>('button.gallery-thumb').forEach((t) => {
-        const active = t === thumb;
-        t.classList.toggle('active', active);
-        t.setAttribute('aria-selected', String(active));
-      });
+      setActiveThumb(thumb);
     });
   });
 
+  galleryVideoThumb?.addEventListener('click', () => {
+    if (!galleryMainVideo || !galleryMainImg) return;
+    galleryMainImg.hidden = true;
+    galleryMainVideo.hidden = false;
+    photoThumbs.forEach((t) => {
+      t.classList.remove('active');
+      t.setAttribute('aria-selected', 'false');
+    });
+    galleryVideoThumb.classList.add('active');
+    galleryVideoThumb.setAttribute('aria-selected', 'true');
+  });
+
+  // Kính lúp chỉ áp dụng khi đang xem ẢNH — không có ý nghĩa với video, và data-zoom lúc đó vẫn giữ
+  // ảnh cũ nên rê chuột lên video sẽ đè một lớp ảnh phóng to sai lên trên nếu không chặn lại.
   if (galleryMain && galleryZoom && galleryLens && window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
     galleryMain.addEventListener('mouseenter', () => {
+      if (galleryMainImg?.hidden) return;
       galleryZoom.style.backgroundImage = `url(${galleryMain.getAttribute('data-zoom')})`;
       galleryZoom.classList.add('active');
       galleryLens.classList.add('active');
