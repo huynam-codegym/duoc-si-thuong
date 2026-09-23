@@ -6,6 +6,7 @@ import ShopShell from '../../components/ShopShell.astro';
 import ProductNotice from '../../components/ProductNotice.astro';
 import Disclaimer from '../../components/Disclaimer.astro';
 import { departments } from '../../lib/departments';
+import { originFlagCode } from '../../lib/flags';
 import { foldVietnamese, formatDate } from '../../lib/posts';
 import { formatPrice, getProducts, priceBucket } from '../../lib/products';
 import { site } from '../../lib/site';
@@ -44,6 +45,7 @@ const { Content, headings } = await render(product);
 const sections = headings.filter((heading) => heading.depth === 2);
 const department = departments[departmentSlug];
 const groupInfo = department.groups[group];
+const flagCode = originFlagCode(origin);
 const cartImage = await getImage({ src: image, width: 160, height: 160, format: 'webp' });
 const imageForSchema = await getImage({ src: image, width: 1200, height: 630, fit: 'cover', format: 'jpg' });
 
@@ -123,6 +125,13 @@ const jsonLd = {
           <div class="product-gallery-zoom" id="galleryZoom" aria-hidden="true"></div>
         </div>
         <div class="product-info">
+          <p class="origin-brand-row">
+            <span class="origin-line">
+              {flagCode && <img class="origin-flag" src={url(`/flags/${flagCode}.svg`)} alt="" width="16" height="12" loading="lazy" />}
+              {origin}
+            </span>
+            {brand && <span class="brand-line">Thương hiệu: <strong>{brand}</strong></span>}
+          </p>
           <a class="tag" href={url(`/${departmentSlug}/nhom/${group}/`)}>{groupInfo.name}</a>
           <h1>{name}</h1>
           <p class="lead">{summary}</p>
@@ -131,8 +140,6 @@ const jsonLd = {
             {unit && <span class="product-unit"> / {unit}</span>}
           </p>
           <dl class="product-facts">
-            {brand && (<><dt>Thương hiệu</dt><dd>{brand}</dd></>)}
-            {origin && (<><dt>Xuất xứ</dt><dd>{origin}</dd></>)}
             {dosageForm && (<><dt>Dạng bào chế</dt><dd>{dosageForm}</dd></>)}
             {ingredients && (<><dt>Thành phần</dt><dd>{ingredients}</dd></>)}
             {publicationNo && (<><dt>Số công bố sản phẩm</dt><dd>{publicationNo}</dd></>)}

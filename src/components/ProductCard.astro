@@ -18,15 +18,13 @@ const cartImage = await getImage({ src: image, width: 160, height: 160, format: 
 
 <div class="card product-card">
   <a class="product-link" href={url(`/${department}/${product.id}/`)}>
-    <div class="product-thumb-wrap">
-      <Image class="product-thumb" src={image} alt={imageAlt} width={480} height={480} widths={[240, 480]} sizes="(min-width: 46rem) 14rem, 45vw" />
-      {origin && (
-        <span class="origin-badge">
-          {flagCode && <img class="origin-flag" src={url(`/flags/${flagCode}.svg`)} alt="" width="16" height="12" loading="lazy" />}
-          {origin}
-        </span>
-      )}
-    </div>
+    {origin && (
+      <span class="origin-badge">
+        {flagCode && <img class="origin-flag" src={url(`/flags/${flagCode}.svg`)} alt="" width="16" height="12" loading="lazy" />}
+        {origin}
+      </span>
+    )}
+    <Image class="product-thumb" src={image} alt={imageAlt} width={480} height={480} widths={[240, 480]} sizes="(min-width: 46rem) 14rem, 45vw" />
     <span class="tag">{departments[department].groups[group].name}</span>
     <h3>{name}</h3>
     <p>{summary}</p>

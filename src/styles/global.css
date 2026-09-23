@@ -1491,26 +1491,20 @@ button.btn:not(.btn-outline) {
   flex-direction: column;
 }
 
-.product-thumb-wrap {
-  position: relative;
-}
-
-/* Nhãn xuất xứ đè lên góc trên-trái ảnh sản phẩm */
+/* Nhãn xuất xứ ở góc trái, phía trên ảnh sản phẩm (không đè lên ảnh) */
 .origin-badge {
-  position: absolute;
-  top: 0.5rem;
-  left: 0.5rem;
   display: inline-flex;
   align-items: center;
   gap: 0.3rem;
+  margin-bottom: 0.4rem;
   padding: 0.2rem 0.5rem;
+  border: 1px solid var(--green-100);
   border-radius: 0.3rem;
   background: #fff;
   color: #1a1a1a;
   font-size: 0.72rem;
   font-weight: 700;
   line-height: 1.4;
-  box-shadow: 0 1px 4px rgb(0 0 0 / 0.18);
 }
 
 .origin-flag {
@@ -1519,6 +1513,32 @@ button.btn:not(.btn-outline) {
   height: 0.75rem;
   border-radius: 0.15rem;
   object-fit: cover;
+}
+
+/* Hàng xuất xứ + thương hiệu, hiện phía trên tiêu đề ở trang chi tiết sản phẩm */
+.origin-brand-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin: 0 0 0.6rem;
+  padding: 0.3rem 0.7rem;
+  border: 1px solid var(--green-100);
+  border-radius: 0.4rem;
+  background: #fff;
+  color: #1a1a1a;
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.origin-line {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.brand-line {
+  padding-left: 0.6rem;
+  border-left: 1px solid var(--green-100);
 }
 
 .product-link {
