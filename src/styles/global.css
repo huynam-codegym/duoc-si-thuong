@@ -1808,7 +1808,10 @@ button.btn:not(.btn-outline) {
   white-space: nowrap;
 }
 
-.brand-name {
+/* Tên thương hiệu SẢN PHẨM trong .origin-brand-row (trang chi tiết sản phẩm) — đặt tên riêng
+   .origin-brand-name, KHÔNG dùng lại .brand-name vì lớp đó đã là tên thương hiệu website
+   ("Dược Sĩ Thương") ở đầu trang; dùng trùng tên đã từng làm tên website bị cắt "..." theo nhầm. */
+.origin-brand-name {
   display: inline-block;
   max-width: 11rem;
   overflow: hidden;
@@ -1822,7 +1825,7 @@ button.btn:not(.btn-outline) {
     font-size: 0.7rem;
     padding: 0.25rem 0.5rem;
   }
-  .brand-name {
+  .origin-brand-name {
     max-width: 6rem;
   }
 }
