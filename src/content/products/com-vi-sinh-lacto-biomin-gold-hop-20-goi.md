@@ -11,6 +11,10 @@ dosageForm: "Cốm vi sinh (dạng gói)"
 ingredients: "Theo bao bì: Bacillus clausii, Bacillus subtilis, Bacillus coagulans; canxi, magie, sắt; chất xơ, taurin; thymomodulin, betaglucan; lysin, kẽm, acid amin và các vitamin, khoáng chất khác (hàm lượng cụ thể từng chất chưa có trong ảnh gửi tới, sẽ bổ sung khi có ảnh mặt sau hộp)."
 image: "../../assets/products/com-vi-sinh-lacto-biomin-gold-hop-20-goi/anh.jpg"
 imageAlt: "Hộp cốm vi sinh Lacto Biomin Gold+ 20 gói x 5g, nền xanh dương, ghi thành phần Bacillus clausii, Bacillus subtilis, Bacillus coagulans, nguyên liệu nhập khẩu Mỹ"
+# TẠM THỜI để xem thử tính năng video — video mẫu (không phải video thật của sản phẩm này), chủ
+# website xem xong nhớ nhắn để xóa 2 dòng này hoặc thay bằng video thật.
+video: "/videos/com-vi-sinh-lacto-biomin-gold-hop-20-goi/video-tam.mp4"
+videoThumbnail: "../../assets/products/com-vi-sinh-lacto-biomin-gold-hop-20-goi/anh.jpg"
 gallery:
   - "../../assets/products/com-vi-sinh-lacto-biomin-gold-hop-20-goi/anh-goi-le.jpg"
   - "../../assets/products/com-vi-sinh-lacto-biomin-gold-hop-20-goi/anh-combo.jpg"
