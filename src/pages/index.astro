@@ -21,7 +21,7 @@ const latest = (await getPosts()).slice(0, 6);
 const shops = await Promise.all(
   departmentSlugs.map(async (slug) => {
     const products = await getProducts(slug);
-    return { slug, department: departments[slug], groups: getProductGroups(slug), featured: products.slice(0, 8) };
+    return { slug, department: departments[slug], groups: getProductGroups(slug), featured: products.slice(0, 12) };
   }),
 );
 const activeShops = shops.filter((shop) => shop.featured.length > 0);
@@ -32,7 +32,7 @@ const needTabsRaw = await Promise.all(
   departmentSlugs.flatMap((deptSlug) =>
     getProductGroups(deptSlug).map(async ([groupSlug, group]) => {
       const products = await getProducts(deptSlug, groupSlug);
-      return { deptSlug, groupSlug, group, products: products.slice(0, 8) };
+      return { deptSlug, groupSlug, group, products: products.slice(0, 12) };
     }),
   ),
 );
@@ -193,7 +193,7 @@ const seasonal = await Promise.all(
           </div>
           {needTabs.map((tab, index) => (
             <div class={`need-panel${index === 0 ? ' active' : ''}`} data-panel={`need-${index}`} role="tabpanel">
-              <div class="carousel">
+              <div class="carousel carousel-wide">
                 {tab.products.length > 4 && (
                   <button type="button" class="carousel-btn carousel-prev" data-dir="-1" aria-label="Xem sản phẩm trước">‹</button>
                 )}
@@ -242,7 +242,7 @@ const seasonal = await Promise.all(
 
           <section aria-labelledby={`sp-${shop.slug}`}>
             <h2 class="section-title" id={`sp-${shop.slug}`}>{shop.department.name}</h2>
-            <div class="carousel">
+            <div class="carousel carousel-wide">
               {shop.featured.length > 4 && (
                 <button type="button" class="carousel-btn carousel-prev" data-dir="-1" aria-label="Xem sản phẩm trước">‹</button>
               )}

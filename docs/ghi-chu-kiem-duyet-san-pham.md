@@ -48,3 +48,11 @@ Nguồn: anh gửi ảnh chụp nhãn tiếng Việt đầy đủ (mặt sau h�
 - **Nhóm "Vitamin tổng hợp":** tôi tạo nhóm mới này theo ảnh mẫu anh gửi (breadcrumb "Trang chủ/Thực phẩm chức năng/Vitamin tổng hợp"), xếp Siro Feroglobin B12 vào đây dù thành phần chính là sắt — vì sản phẩm có tới 11+ vitamin/khoáng chất kết hợp nên xếp vào "tổng hợp" hợp lý, nhưng nếu anh muốn xếp vào nhóm "Vitamin & khoáng chất" hoặc một nhóm khác thì báo tôi đổi lại `group` trong file sản phẩm.
 - **Số công bố sản phẩm:** Feroglobin viên 9183/2019/ĐKSP, Osteocare 8615/2019/ĐKSP, Siro Feroglobin 8974/2019/ĐKSP — chép từ ảnh nhãn, chưa đối chiếu lại với cổng thông tin công bố sản phẩm của Bộ Y tế.
 - **Ảnh sản phẩm:** ảnh chính của cả 3 sản phẩm đều được cắt ra từ ảnh quảng cáo có sẵn (ảnh gốc có kèm chữ quảng cáo/so sánh mẫu cũ-mới), không phải ảnh chụp riêng trên nền trắng chuẩn — nếu nhà thuốc có ảnh chụp thật đẹp hơn, gửi để thay.
+
+## siro-feroglobin-b12, siro-osteocare (tháng 9/2026)
+
+Cùng nguồn/thương hiệu Vitabiotics như trên, thêm 2 sản phẩm dạng siro. Giá anh cho: Siro Feroglobin B12 358.000đ/Chai, Siro Osteocare 311.000đ/Chai. Số công bố: Siro Feroglobin 8974/2019/ĐKSP, Siro Osteocare 9186/2019/ĐKSP.
+
+- **siro-osteocare xếp cùng nhóm "Canxi & Vitamin D"** như bản viên nén Osteocare (anh ghi đường dẫn nhắc cả "Vitamin & Khoáng chất" lẫn "Canxi & Vitamin D" — tôi hiểu là xếp vào nhóm "Canxi & Vitamin D" cho nhất quán với sản phẩm Osteocare viên đã có, vì site chỉ có 1 cấp nhóm, không lồng 2 cấp. Báo tôi nếu ý anh khác.
+- **siro-osteocare — liều dùng cho trẻ đọc rõ, không có điểm mơ hồ** như siro Feroglobin (nhãn ghi rõ theo từng mốc tuổi 1-3/4-8/từ 9 tuổi, khớp logic tăng dần theo tuổi).
+- Ảnh chính của cả 2 sản phẩm là ảnh chụp thật (chai + hộp trên nền trắng), không phải ảnh cắt từ quảng cáo.

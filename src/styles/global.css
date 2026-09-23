@@ -3121,6 +3121,28 @@ button.btn:not(.btn-outline) {
   }
 }
 
+/* Trên máy tính (≥77rem — cùng mốc "máy tính" dùng chung toàn site, xem mục "Bẫy kỹ thuật rem" và
+   isDesktop() ở Header.astro trong CLAUDE.md), các khối sản phẩm RỘNG (không áp dụng cho khối hẹp
+   trong "Bệnh thường gặp theo mùa", đánh dấu riêng .carousel-wide) đổi từ cuộn ngang + bấm mũi tên
+   sang LƯỚI 4 CỘT, xem hết tối đa 12 sản phẩm ngay không cần bấm (chủ website yêu cầu tháng 9/2026,
+   theo mẫu Long Châu gửi). Điện thoại/máy tính bảng vẫn giữ kiểu cuộn ngang + mũi tên như cũ. */
+@media (min-width: 77rem) {
+  .carousel-wide .carousel-track {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    overflow: visible;
+  }
+
+  .carousel-wide .carousel-item {
+    flex: none;
+    width: auto;
+  }
+
+  .carousel-wide .carousel-btn {
+    display: none;
+  }
+}
+
 /* "Sản phẩm theo nhu cầu" ở trang chủ: thẻ bấm chuyển nhóm (không gắn theo tên bệnh cụ thể) */
 .need-tabs {
   display: flex;
