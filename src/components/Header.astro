@@ -717,11 +717,13 @@ const drawerSections: DrawerSection[] = [
   }
   updateBadge();
 
-  // Từ 64rem trở lên coi là "máy tính" (khớp ngưỡng ẩn/hiện nút 3 gạch ở nơi khác trong file này):
-  // hiện khay xem nhanh giỏ hàng khi rê chuột / sau khi thêm vào giỏ. Dưới mức đó (điện thoại, máy
-  // tính bảng, không thao tác rê chuột) dùng khay chọn số lượng + thông báo dạng chữ đơn giản.
+  // Từ 77rem trở lên coi là "máy tính" — khớp đúng ngưỡng ẩn/hiện nút 3 gạch và thanh menu ngang
+  // (@media 76.99rem/77rem, xem mục "Bẫy kỹ thuật rem" trong CLAUDE.md; TRƯỚC ĐÂY nhầm dùng 64rem ở
+  // đây, lệch với ngưỡng thật khiến khổ 64-77rem vừa hiện menu ngăn kéo [coi là điện thoại] vừa hiện
+  // khay xem nhanh giỏ hàng kiểu máy tính — đã gộp về cùng một mốc): hiện khay xem nhanh giỏ hàng khi
+  // rê chuột / sau khi thêm vào giỏ. Dưới mức đó dùng khay chọn số lượng + thông báo dạng chữ đơn giản.
   function isDesktop() {
-    return window.matchMedia('(min-width: 64rem)').matches;
+    return window.matchMedia('(min-width: 77rem)').matches;
   }
 
   // --- Khay xem nhanh giỏ hàng (rê chuột vào biểu tượng giỏ, hoặc tự hiện ~2s sau khi thêm sản phẩm) ---
