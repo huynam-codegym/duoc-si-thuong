@@ -63,6 +63,9 @@ const galleryPhotos = await Promise.all(
 
 // Ảnh đại diện video (nếu có) — cùng cỡ hiển thị với ảnh thường, hiện làm mục ĐẦU TIÊN trong dải ảnh nhỏ
 const videoThumb = videoThumbnail ? await getImage({ src: videoThumbnail, width: 700, height: 700, format: 'webp' }) : null;
+// Có video thì mặc định hiện video ngay khi vào trang (thay vì phải bấm mới thấy), ảnh sản phẩm lùi
+// thành lựa chọn kế tiếp trong dải ảnh nhỏ.
+const hasVideo = Boolean(video && videoThumb);
 
 const jsonLd = {
   '@context': 'https://schema.org',
@@ -104,11 +107,11 @@ const jsonLd = {
         <div class="product-gallery">
           <div class="product-gallery-stage">
             <div class="product-gallery-main" id="galleryMain" data-zoom={galleryPhotos[0].zoomSrc}>
-              <img id="galleryMainImg" src={galleryPhotos[0].displaySrc} alt={imageAlt} width={galleryPhotos[0].width} height={galleryPhotos[0].height} loading="eager" />
+              <img id="galleryMainImg" src={galleryPhotos[0].displaySrc} alt={imageAlt} width={galleryPhotos[0].width} height={galleryPhotos[0].height} loading="eager" hidden={hasVideo} />
               {
-                video && videoThumb && (
-                  <video id="galleryMainVideo" class="gallery-main-video" controls playsinline preload="none" poster={videoThumb.src} hidden>
-                    <source src={url(video)} />
+                hasVideo && (
+                  <video id="galleryMainVideo" class="gallery-main-video" controls playsinline preload="none" poster={videoThumb!.src}>
+                    <source src={url(video!)} />
                     Trình duyệt của bạn không hỗ trợ phát video này.
                   </video>
                 )
@@ -116,18 +119,18 @@ const jsonLd = {
               <div class="gallery-lens" id="galleryLens" aria-hidden="true"></div>
             </div>
             {
-              (galleryPhotos.length > 1 || (video && videoThumb)) && (
+              (galleryPhotos.length > 1 || hasVideo) && (
                 <div class="product-gallery-thumbs" role="tablist" aria-label="Các ảnh và video khác của sản phẩm">
-                  {video && videoThumb && (
+                  {hasVideo && (
                     <button
                       type="button"
                       id="galleryVideoThumb"
-                      class="gallery-thumb gallery-thumb-video"
+                      class={`gallery-thumb gallery-thumb-video${hasVideo ? ' active' : ''}`}
                       role="tab"
-                      aria-selected="false"
+                      aria-selected="true"
                       aria-label={`Xem video ngắn về ${name}`}
                     >
-                      <img src={videoThumb.src} alt="" />
+                      <img src={videoThumb!.src} alt="" />
                       <span class="gallery-thumb-play" aria-hidden="true">
                         <svg viewBox="0 0 24 24" width="18" height="18">
                           <path d="M8 5.5v13l11-6.5z" fill="currentColor" />
@@ -138,11 +141,11 @@ const jsonLd = {
                   {galleryPhotos.map((photo, index) => (
                     <button
                       type="button"
-                      class={`gallery-thumb${index === 0 ? ' active' : ''}`}
+                      class={`gallery-thumb${index === 0 && !hasVideo ? ' active' : ''}`}
                       data-display={photo.displaySrc}
                       data-zoom={photo.zoomSrc}
                       role="tab"
-                      aria-selected={index === 0 ? 'true' : 'false'}
+                      aria-selected={index === 0 && !hasVideo ? 'true' : 'false'}
                       aria-label={`Xem ảnh ${index + 1}`}
                     >
                       <img src={photo.displaySrc} alt="" />
