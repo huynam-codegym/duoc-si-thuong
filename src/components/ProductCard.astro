@@ -12,6 +12,9 @@ interface Props {
 const { product } = Astro.props;
 const { name, summary, department, group, price, unit, origin, image, imageAlt } = product.data;
 const flagCode = origin && originFlagCode(origin);
+// Từ đầu tiên của quy cách (ví dụ "Hộp", "Chai", "Tuýp") hiện ngắn gọn ngay cạnh giá, kiểu "363.000 đ
+// / Hộp" — quy cách đầy đủ ("Hộp 30 viên (2 vỉ x 15 viên)") vẫn hiện riêng bên dưới dạng nhãn nhỏ.
+const unitType = unit?.split(' ')[0];
 // Ảnh nhỏ dùng trong giỏ hàng
 const cartImage = await getImage({ src: image, width: 160, height: 160, format: 'webp' });
 ---
@@ -29,7 +32,10 @@ const cartImage = await getImage({ src: image, width: 160, height: 160, format: 
     <h3>{name}</h3>
     <p>{summary}</p>
   </a>
-  <p class="product-price">{formatPrice(price)}</p>
+  <p class="product-price">
+    {formatPrice(price)}
+    {unitType && <span class="product-unit-type"> / {unitType}</span>}
+  </p>
   {unit && <span class="product-card-unit">{unit}</span>}
   <button
     type="button"

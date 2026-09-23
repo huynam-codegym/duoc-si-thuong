@@ -906,6 +906,13 @@ img {
   color: #c2410c !important;
 }
 
+/* Chữ ngắn gọn kiểu "/ Hộp" ngay cạnh giá ở thẻ sản phẩm — nhỏ và nhạt hơn số tiền để không lấn giá */
+.product-unit-type {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--ink-soft);
+}
+
 .product-unit {
   font-size: 0.8rem;
   font-weight: 500;
@@ -1852,10 +1859,15 @@ button.btn:not(.btn-outline) {
   border: 0;
 }
 
-/* Thẻ sản phẩm có nút Chọn mua */
+/* Thẻ sản phẩm có nút Chọn mua. `height: 100%` (cùng với margin-top: auto ở .product-price bên dưới)
+   để các thẻ cạnh nhau cao bằng nhau và giá/nút thẳng hàng — riêng dựa vào align-items: stretch mặc
+   định của flexbox KHÔNG đủ tin cậy trong khung .carousel-track (có overflow-x: auto, chiều cao
+   container tự auto theo nội dung), từng thấy thẻ có quy cách dài (2 dòng) bị cao hơn thẻ bên cạnh
+   dù bật align-items: stretch tường minh. */
 .product-card {
   display: flex;
   flex-direction: column;
+  height: 100%;
 }
 
 /* Nhãn xuất xứ ở góc trái, phía trên ảnh sản phẩm (không đè lên ảnh) */
@@ -3057,6 +3069,7 @@ button.btn:not(.btn-outline) {
 
 .carousel-track {
   display: flex;
+  align-items: stretch;
   gap: 1rem;
   overflow-x: auto;
   scroll-snap-type: x proximity;
