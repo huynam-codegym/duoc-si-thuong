@@ -67,6 +67,10 @@ const videoThumb = videoThumbnail ? await getImage({ src: videoThumbnail, width:
 // Có video thì mặc định hiện video ngay khi vào trang (thay vì phải bấm mới thấy), ảnh sản phẩm lùi
 // thành lựa chọn kế tiếp trong dải ảnh nhỏ.
 const hasVideo = Boolean(video && videoThumb);
+// Sản phẩm có nhiều ảnh: chỉ hiện sẵn 4 ảnh đầu trong dải ảnh nhỏ (không tính video), ảnh còn lại
+// nằm sau nút "Xem thêm N ảnh" — giống kiểu bộ ảnh trên Facebook, tránh dải ảnh nhỏ dài lê thê.
+const INLINE_PHOTO_COUNT = 4;
+const extraPhotoCount = Math.max(0, galleryPhotos.length - INLINE_PHOTO_COUNT);
 // Logo + tên thương hiệu đè lên góc trên-trái khi đang xem video (chủ website yêu cầu tháng 9/2026,
 // vì video gửi lên chưa có sẵn logo). Đây là lớp phủ trên trang, KHÔNG chỉnh sửa vào file video gốc
 // (máy chạy Claude chưa cài công cụ dựng/ghép video) — đổi video khác thì logo vẫn tự hiện, không
@@ -152,19 +156,37 @@ const jsonLd = {
                       </span>
                     </button>
                   )}
-                  {galleryPhotos.map((photo, index) => (
-                    <button
-                      type="button"
-                      class={`gallery-thumb${index === 0 && !hasVideo ? ' active' : ''}`}
-                      data-display={photo.displaySrc}
-                      data-zoom={photo.zoomSrc}
-                      role="tab"
-                      aria-selected={index === 0 && !hasVideo ? 'true' : 'false'}
-                      aria-label={`Xem ảnh ${index + 1}`}
-                    >
-                      <img src={photo.displaySrc} alt="" />
+                  {galleryPhotos.map((photo, index) => {
+                    const isExtra = index >= INLINE_PHOTO_COUNT;
+                    return (
+                      <button
+                        type="button"
+                        class={`gallery-thumb${index === 0 && !hasVideo ? ' active' : ''}${isExtra ? ' gallery-thumb-extra' : ''}`}
+                        data-display={photo.displaySrc}
+                        data-zoom={photo.zoomSrc}
+                        role="tab"
+                        aria-selected={index === 0 && !hasVideo ? 'true' : 'false'}
+                        aria-label={`Xem ảnh ${index + 1}`}
+                        hidden={isExtra}
+                      >
+                        <img src={photo.displaySrc} alt="" />
+                      </button>
+                    );
+                  })}
+                  {extraPhotoCount > 0 && (
+                    <button type="button" id="galleryMoreBtn" class="gallery-thumb gallery-thumb-more" aria-label={`Xem thêm ${extraPhotoCount} ảnh`}>
+                      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="4" width="18" height="15" rx="2" />
+                        <circle cx="8.5" cy="9.5" r="1.5" fill="currentColor" stroke="none" />
+                        <path d="M21 15l-5.5-5.5a1.5 1.5 0 0 0-2.1 0L4 19" />
+                      </svg>
+                      <span>
+                        Xem thêm
+                        <br />
+                        {extraPhotoCount} ảnh
+                      </span>
                     </button>
-                  ))}
+                  )}
                 </div>
               )
             }
@@ -294,8 +316,16 @@ const jsonLd = {
   const ZOOM_FACTOR = 2.2;
 
   // Ảnh và video (nếu có) dùng CHUNG một khung hiển thị chính, đổi qua lại bằng cách ẩn/hiện —
-  // không phải mở tab mới. Chỉ chọn <button> đổi ảnh (KHÔNG gồm nút video, xử lý riêng bên dưới).
-  const photoThumbs = document.querySelectorAll<HTMLButtonElement>('button.gallery-thumb:not(.gallery-thumb-video)');
+  // không phải mở tab mới. Chỉ chọn <button> đổi ảnh (KHÔNG gồm nút video và nút "Xem thêm", xử lý
+  // riêng bên dưới). querySelectorAll lấy CẢ các nút ảnh đang ẩn (.gallery-thumb-extra, thuộc tính
+  // hidden không loại chúng khỏi kết quả) nên bấm "Xem thêm" xong vẫn đổi ảnh được luôn, không cần
+  // gắn lại sự kiện.
+  const photoThumbs = document.querySelectorAll<HTMLButtonElement>('button.gallery-thumb:not(.gallery-thumb-video):not(.gallery-thumb-more)');
+  const galleryMoreBtn = document.getElementById('galleryMoreBtn') as HTMLButtonElement | null;
+  galleryMoreBtn?.addEventListener('click', () => {
+    document.querySelectorAll<HTMLButtonElement>('.gallery-thumb-extra').forEach((t) => (t.hidden = false));
+    galleryMoreBtn.hidden = true;
+  });
 
   function setActiveThumb(thumb: HTMLButtonElement) {
     photoThumbs.forEach((t) => {

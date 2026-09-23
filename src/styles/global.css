@@ -1066,6 +1066,21 @@ img {
   display: block;
 }
 
+/* Nút "Xem thêm N ảnh" (sản phẩm có nhiều hơn 4 ảnh): thay cho các ảnh từ thứ 5 trở đi, bấm vào
+   hiện hết ảnh còn lại ngay tại chỗ (không mở trang/khung riêng) rồi tự ẩn đi, xem script cuối trang. */
+.gallery-thumb-more {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.15rem;
+  color: var(--green-900);
+  font-size: 0.68rem;
+  font-weight: 700;
+  line-height: 1.2;
+  text-align: center;
+}
+
 .gallery-thumb-play {
   position: absolute;
   inset: 0;
