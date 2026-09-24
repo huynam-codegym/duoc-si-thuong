@@ -67,4 +67,26 @@ Cùng thương hiệu Vitabiotics, nhưng đây là sản phẩm dành cho **tr�
 **Việc anh cần làm trước khi đổi `draft: false`:**
 - Gửi ảnh rõ hơn (chụp thẳng, đủ sáng) của nhãn phụ tiếng Việt mặt sau hộp, đặc biệt đoạn "Số giấy tiếp nhận đăng ký bản công bố sản phẩm" và tên/địa chỉ nhà sản xuất, nhập khẩu.
 - Dược sĩ xác nhận lại liều dùng cho trẻ 4-6 tháng (2,5ml/ngày) và 7 tháng-4 tuổi (5ml/ngày) khớp đúng với nhãn phụ tiếng Việt (tôi lấy từ nhãn tiếng Anh, có thể lệch với bản dịch chính thức).
+
+## liveril (tháng 9/2026)
+
+Cùng thương hiệu Vitabiotics (Anh), nhập bởi VE Pharma. Nguồn: anh gửi ảnh quảng cáo (công dụng, xuất xứ, thành phần chính) và 1 ảnh nhãn phụ tiếng Việt đầy đủ ở mặt hộp, độ phân giải khá thấp (425x425px — đây là giới hạn thật của ảnh gửi, không phải do tôi nén). Giá anh cho: 441.000đ/Hộp. Tôi tạo mới nhóm **"Gan - Mật"** (icon tự vẽ mới, `liver`, vì trước đó site chưa có icon nào cho gan) theo đúng đường dẫn anh gửi.
+
+**Việc anh cần làm**
+- **Đối chiếu lại với hộp thật — đặc biệt quan trọng với sản phẩm này:** vì ảnh nhãn phụ chỉ 425x425px, tôi phải phóng to nhiều lần mới đọc được. Các thông tin sau đã đọc với độ tin cậy khá tốt sau khi phóng to (Công dụng, Cách dùng, Đối tượng sử dụng, số công bố 8719/2019/ĐKSP, Bảo quản) — nhưng **danh sách chi tiết 22 vitamin & khoáng chất khác kèm hàm lượng từng chất (ví dụ Vitamin C, L-Glutathione, kẽm, sắt, selen...) tôi CHƯA đưa số liệu chi tiết vào bài** vì đọc 2 lần cho ra 2 con số khác nhau ở một số chỗ (dấu hiệu ảnh quá mờ để đọc chính xác) — trường `ingredients` chỉ ghi 4 thành phần chính (Silymarin, Atiso, CoQ10, L-Carnitine) có độ tin cậy cao từ ảnh quảng cáo rõ nét, và ghi chung "cùng 22 vitamin & khoáng chất khác". Nếu muốn liệt kê đầy đủ hàm lượng từng chất, cần ảnh chụp rõ hơn hoặc đối chiếu hộp thật.
+- **Danh sách phụ liệu** (chất độn, chất bao, chất tạo màu...) trong trường `ingredients` cũng đọc từ ảnh mờ tương tự — nên xem là tham khảo, chưa chắc chắn 100%.
+- **Đối tượng sử dụng:** nhãn ghi "Người lớn từ 18 tuổi, bị các vấn đề về gan" — tôi viết lại thành "người trưởng thành... đang quan tâm hoặc gặp vấn đề về chức năng gan" kèm câu nhắc đi khám nếu nghi ngờ bệnh gan thật (tránh để người đọc tự chẩn đoán, theo nguyên tắc 2 trong CLAUDE.md).
+- **Ảnh sản phẩm:** ảnh chính và các ảnh phụ đều cắt/dùng từ ảnh quảng cáo và ảnh nhãn anh gửi, không phải ảnh chụp riêng của nhà thuốc.
+
+## pregnacare-plus-omega-3 (tháng 9/2026)
+
+Cùng thương hiệu Vitabiotics (Anh). Nguồn: anh gửi 16 ảnh (ảnh quảng cáo, ảnh vỉ thuốc, 2 ảnh nhãn phụ tiếng Việt riêng biệt trên 2 mặt hộp, bảng thành phần tiếng Anh rõ nét, tờ rơi giới thiệu thương hiệu). Giá anh cho: 584.000đ/Hộp. Tên gốc trên nhãn là **"Pregnacare Plus Omega-3"** — tên thư mục anh gửi ghi "Perage plus" chỉ là cách gõ tắt/nghe nhầm, tôi dùng đúng tên in trên hộp.
+
+**Việc anh cần làm**
+- **Độ tin cậy nội dung cao hơn Liveril:** sản phẩm này có bảng thành phần tiếng Anh rất rõ nét (ảnh riêng, độ phân giải tốt) và 2 ảnh nhãn phụ tiếng Việt đọc được sau khi phóng to, đối chiếu chéo 2 ảnh cho kết quả khớp nhau — nên trường `ingredients` đã ghi đầy đủ hàm lượng từng vitamin/khoáng chất. Vẫn nên đối chiếu lại với hộp thật cho chắc chắn trước khi coi là chính thức.
+- **Nhóm "Vitamin tổng hợp":** xếp theo đúng đường dẫn anh gửi. Lưu ý sản phẩm này **dành riêng cho phụ nữ mang thai/cho con bú**, về mặt nội dung sẽ hợp với nhóm có sẵn "Phụ nữ & mẹ bầu" hơn — nếu muốn chuyển nhóm, báo tôi đổi `group` trong file sản phẩm (chỉ 1 dòng, không ảnh hưởng nội dung khác).
+- **Số công bố sản phẩm:** 9184/2019/ĐKSP — đọc từ ảnh nhãn phụ tiếng Việt (đã phóng to, khá rõ), số này sát với số của Feroglobin viên (9183/2019/ĐKSP) nên hợp lý vì có thể cùng đợt nộp hồ sơ, nhưng vẫn nên đối chiếu lại với hộp thật.
+- **Lưu ý dị ứng cá và đậu nành:** tôi thêm câu cảnh báo này dựa trên dòng "Allergy Advice" đọc được trên bảng thành phần tiếng Anh (dầu cá trong viên nang, vitamin E nguồn gốc đậu nành/Soya) — dược sĩ xác nhận lại câu này diễn đạt đúng và đủ.
+- **Đây là sản phẩm "dual pack"** (2 loại viên dùng cùng ngày: 1 viên nén vỉ xanh + 1 viên nang Omega-3 vỉ hồng) — khác cấu trúc với các sản phẩm 1-loại-viên trước đó trên site; trang chi tiết hiện ghi rõ điều này ở mục "Cách dùng", nhờ dược sĩ đọc lại xem diễn đạt có dễ hiểu không.
+- **Ảnh sản phẩm:** dùng ảnh quảng cáo, ảnh vỉ thuốc và ảnh nhãn anh gửi (17 ảnh + video), không phải ảnh chụp riêng của nhà thuốc.
 - Xác nhận nhóm "Vitamin tổng hợp" là đúng ý anh cho sản phẩm này (đây rõ ràng là sản phẩm cho trẻ em, cũng có thể hợp với nhóm "Trẻ em" sẵn có — tôi để theo đúng đường dẫn anh ghi).

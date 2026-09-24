@@ -32,4 +32,5 @@ export type IconName =
   | 'comb'
   | 'firstaid'
   | 'search'
-  | 'flask';
+  | 'flask'
+  | 'liver';

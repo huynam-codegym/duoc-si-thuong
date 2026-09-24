@@ -55,6 +55,11 @@ const departmentData = {
         name: 'Tiêu hóa',
         description: 'Thực phẩm bổ sung như men vi sinh, chất xơ dành cho người quan tâm đến đường tiêu hóa.',
       },
+      'gan-mat': {
+        icon: 'liver',
+        name: 'Gan - Mật',
+        description: 'Thực phẩm bổ sung dành cho người quan tâm đến chức năng gan.',
+      },
       'than-kinh-nao': {
         icon: 'brain',
         name: 'Thần kinh & trí nhớ',
