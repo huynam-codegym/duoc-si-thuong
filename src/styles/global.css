@@ -3084,6 +3084,12 @@ button.btn:not(.btn-outline) {
   scroll-snap-type: x proximity;
   scrollbar-width: none;
   padding-block: 0.15rem;
+  /* .carousel-track là flex item bên trong .carousel (display:flex) — mặc định min-width:auto của
+     flex item không cho co xuống dưới kích thước nội dung, làm khối lưới 2/4 cột (.carousel-wide,
+     bên trong track lại là display:grid) tràn ra ngoài khung cha vài px ở một số khổ màn hình (ví dụ
+     iPhone 16, 393px) thay vì co vừa khít, khiến lưới lệch/tràn sang phải. min-width: 0 là cách sửa
+     chuẩn cho đúng bẫy này. */
+  min-width: 0;
 }
 
 .carousel-track::-webkit-scrollbar {
@@ -3131,6 +3137,18 @@ button.btn:not(.btn-outline) {
  * bấm nút "Xem thêm sản phẩm" (script cuối trang) hiện thêm từng đợt, không cần bấm mũi tên/cuộn
  * ngang nữa (chủ website yêu cầu tháng 9/2026, theo mẫu Long Châu gửi).
  */
+/* .carousel-wide không còn nút mũi tên (đã bỏ) nên không cần là flex container nữa — chuyển hẳn sang
+   display:block. Lý do: `.carousel` gốc là display:flex (để xếp nút mũi tên + track cùng hàng); nếu
+   giữ nguyên display:flex ở đây, `.carousel-track` bên trong (chính nó lại là display:grid) trở thành
+   MỘT FLEX ITEM lồng trong grid — dù đã có `min-width: 0` ở .carousel-track, phép tính bề rộng cột
+   `repeat(2, 1fr)` của grid vẫn có lúc lấy sai kích thước (đo được cột rộng ra ~180.6px×2 dù khung cha
+   chỉ còn 357px, tràn ra ngoài ~22px, tự thấy rõ nhất ở khổ 393px như iPhone 16) — một bẫy hiếm gặp khi
+   lồng flex + grid nhiều lớp, browser tính sai kích thước "khả dụng" cho grid con. Bỏ hẳn flex ở đây,
+   chỉ còn grid, là cách sửa chắc chắn nhất thay vì cố vá bằng min-width. */
+.carousel-wide {
+  display: block;
+}
+
 .carousel-wide .carousel-track {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -3141,7 +3159,14 @@ button.btn:not(.btn-outline) {
 .carousel-wide .carousel-item {
   flex: none;
   width: auto;
+  min-width: 0; /* item lưới cũng có min-width:auto ngầm định như flex item (bẫy tương tự, không chỉ
+    riêng .carousel-track) — nếu nội dung bên trong (thẻ sản phẩm) có phần không co được (ví dụ chữ dài
+    không ngắt dòng), cột 1fr sẽ nới rộng ra để vừa nội dung đó, làm lưới tràn ra ngoài khung cha. */
   scroll-snap-align: none;
+}
+
+.carousel-wide .carousel-item .product-card {
+  min-width: 0;
 }
 
 @media (min-width: 77rem) {
