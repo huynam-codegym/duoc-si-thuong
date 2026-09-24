@@ -297,31 +297,12 @@ const seasonal = await Promise.all(
 </BaseLayout>
 
 <script>
+  import { initProductLoadMoreGrids } from '../lib/product-grid';
+
   // Khối sản phẩm RỘNG (.carousel-wide — không gồm khối hẹp trong "Bệnh thường gặp theo mùa"): hiện
-  // lưới, ban đầu chỉ hiện 12 sản phẩm (máy tính, ≥77rem) hoặc 16 sản phẩm (điện thoại/máy tính bảng),
-  // bấm "Xem thêm sản phẩm" thì hiện thêm đúng từng đó nữa mỗi lần, lặp lại tới khi hết. Cỡ trang chỉ
-  // tính MỘT LẦN lúc tải trang (đổi khổ màn hình giữa chừng không tính lại) — đơn giản, đủ dùng vì
-  // người dùng hiếm khi xoay ngang/dọc đúng lúc đang bấm "Xem thêm".
-  const PAGE_SIZE_DESKTOP = 12;
-  const PAGE_SIZE_MOBILE = 16;
-  const pageSize = window.matchMedia('(min-width: 77rem)').matches ? PAGE_SIZE_DESKTOP : PAGE_SIZE_MOBILE;
-  document.querySelectorAll<HTMLElement>('.carousel-wide').forEach((wide) => {
-    const items = Array.from(wide.querySelectorAll<HTMLElement>('.carousel-item'));
-    // Nút "Xem thêm" là phần tử em kế tiếp của .carousel-wide (thẻ <p class="carousel-more">), không
-    // nằm bên trong .carousel-wide — mỗi khối "Sản phẩm theo nhu cầu"/mỗi khu bán hàng có nút riêng.
-    const moreBtn = wide.nextElementSibling?.querySelector<HTMLButtonElement>('.carousel-more-btn');
-    if (items.length === 0) return;
-    let shown = pageSize;
-    function render() {
-      items.forEach((item, i) => (item.hidden = i >= shown));
-      if (moreBtn) moreBtn.hidden = shown >= items.length;
-    }
-    render();
-    moreBtn?.addEventListener('click', () => {
-      shown += pageSize;
-      render();
-    });
-  });
+  // lưới 2/4 cột kèm nút "Xem thêm sản phẩm", dùng chung với trang khu bán hàng và trang nhóm sản
+  // phẩm — xem chi tiết cách hoạt động trong src/lib/product-grid.ts.
+  initProductLoadMoreGrids();
 
   // Thẻ "Sản phẩm theo nhu cầu": bấm để chuyển nhóm đang xem
   document.querySelectorAll<HTMLButtonElement>('.need-tab').forEach((tab) => {

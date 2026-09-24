@@ -30,12 +30,30 @@ const products = await getProducts(departmentSlug, groupSlug);
 
     {
       products.length > 0 ? (
-        <div class="grid product-grid">
-          {products.map((product) => <ProductCard product={product} />)}
-        </div>
+        <>
+          <div class="carousel carousel-wide">
+            <div class="carousel-track">
+              {products.map((product) => (
+                <div class="carousel-item">
+                  <ProductCard product={product} />
+                </div>
+              ))}
+            </div>
+          </div>
+          {products.length > 12 && (
+            <p class="carousel-more">
+              <button type="button" class="btn btn-outline carousel-more-btn">Xem thêm sản phẩm</button>
+            </p>
+          )}
+        </>
       ) : (
         <p class="empty">Nhóm này đang được cập nhật sản phẩm. Mời bạn quay lại sau hoặc nhắn Zalo để được tư vấn.</p>
       )
     }
   </ShopShell>
 </BaseLayout>
+
+<script>
+  import { initProductLoadMoreGrids } from '../../../lib/product-grid';
+  initProductLoadMoreGrids();
+</script>
