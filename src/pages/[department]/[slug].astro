@@ -245,6 +245,7 @@ const jsonLd = {
               data-id={product.id}
               data-name={name}
               data-price={price ?? ''}
+              data-original-price={discount !== undefined ? originalPrice : ''}
               data-unit={unit ?? ''}
               data-image={cartImage.src}
             >
@@ -258,6 +259,7 @@ const jsonLd = {
               data-id={product.id}
               data-name={name}
               data-price={price ?? ''}
+              data-original-price={discount !== undefined ? originalPrice : ''}
               data-unit={unit ?? ''}
               data-image={cartImage.src}
             >

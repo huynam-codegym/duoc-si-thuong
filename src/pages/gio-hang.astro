@@ -111,7 +111,16 @@ import { url } from '../lib/url';
       const info = el('div', 'cart-info');
       info.append(el('p', 'cart-name', item.name));
       if (item.unit) info.append(el('p', 'cart-unit', item.unit));
-      info.append(el('p', 'cart-price', item.price === null ? 'Liên hệ' : formatVnd(item.price)));
+      const priceRow = el('p', 'cart-price', item.price === null ? 'Liên hệ' : formatVnd(item.price));
+      // Giá gốc gạch ngang + nhãn "-X%", chỉ hiện khi sản phẩm đang khuyến mãi (originalPrice > price)
+      if (item.price !== null && item.originalPrice && item.originalPrice > item.price) {
+        const discount = Math.round((1 - item.price / item.originalPrice) * 100);
+        const badge = el('span', 'sale-badge', `-${discount}%`);
+        priceRow.append(' ', badge);
+        info.append(priceRow, el('p', 'product-price-original', formatVnd(item.originalPrice)));
+      } else {
+        info.append(priceRow);
+      }
 
       const qty = el('div', 'qty');
       const input = el('input');

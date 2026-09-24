@@ -8,6 +8,9 @@ export interface CartItem {
   name: string;
   /** null = sản phẩm "Liên hệ" (chưa có giá) */
   price: number | null;
+  /** Giá gốc trước khuyến mãi (không bắt buộc) — chỉ để HIỆN giá gạch ngang + nhãn "-X%" trong giỏ
+   * hàng, KHÔNG dùng để tính tiền (tạm tính luôn dựa trên `price`, xem cartTotal() bên dưới). */
+  originalPrice?: number | null;
   unit: string;
   image: string;
   qty: number;
@@ -27,6 +30,7 @@ function isItem(value: unknown): value is CartItem {
     typeof item.id === 'string' &&
     typeof item.name === 'string' &&
     (item.price === null || (typeof item.price === 'number' && item.price > 0)) &&
+    (item.originalPrice === undefined || item.originalPrice === null || (typeof item.originalPrice === 'number' && item.originalPrice > 0)) &&
     Number.isInteger(item.qty) &&
     item.qty > 0
   );
