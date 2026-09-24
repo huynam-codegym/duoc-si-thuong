@@ -1968,12 +1968,17 @@ button.btn:not(.btn-outline) {
   color: inherit;
 }
 
+/* padding-inline nhỏ lại + white-space: nowrap — từ khi thẻ sản phẩm đổi sang lưới 2 cột cố định
+   trên điện thoại (hẹp hơn hẳn kiểu auto-fill cũ), khoảng đệm ngang mặc định của .btn (1.4rem mỗi
+   bên) làm chữ "Chọn mua" không đủ chỗ, bị xuống 2 dòng ở khổ hẹp như iPhone SE (375px). */
 .btn-add {
   justify-content: center;
   width: 100%;
   min-height: 2.75rem;
   margin-top: 0.6rem;
   padding-block: 0.4rem;
+  padding-inline: 0.6rem;
+  white-space: nowrap;
 }
 
 /* Trang chủ */
