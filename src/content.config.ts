@@ -50,8 +50,12 @@ const products = defineCollection({
         // Khu bán hàng. Xem danh sách khu và nhóm ở src/lib/departments.ts
         department: z.enum(departmentSlugs),
         group: z.string(),
-        // Giá bán (VNĐ). Bỏ trống thì hiện "Liên hệ"
+        // Giá bán (VNĐ) — là giá THẬT SỰ tính tiền (nếu đang khuyến mãi thì đây là giá đã giảm). Bỏ trống thì hiện "Liên hệ"
         price: z.number().int().positive().optional(),
+        // Giá gốc trước khuyến mãi (không bắt buộc). Có điền và LỚN HƠN price thì trang tự hiện giá gốc
+        // gạch ngang kèm nhãn "-X%" (tự tính, xem discountPercent() ở src/lib/products.ts) ở thẻ sản phẩm
+        // và trang chi tiết. Không điền = không khuyến mãi, chỉ hiện giá thường.
+        originalPrice: z.number().int().positive().optional(),
         // Quy cách, ví dụ "Hộp 30 viên"
         unit: z.string().optional(),
         brand: z.string().optional(),
@@ -92,6 +96,10 @@ const products = defineCollection({
       .refine((product) => !product.video || Boolean(product.videoThumbnail), {
         message: 'Sản phẩm có video thì bắt buộc có videoThumbnail (ảnh đại diện video)',
         path: ['videoThumbnail'],
+      })
+      .refine((product) => !product.originalPrice || !product.price || product.originalPrice > product.price, {
+        message: 'originalPrice (giá gốc) phải lớn hơn price (giá bán) — nếu không thì không phải khuyến mãi',
+        path: ['originalPrice'],
       }),
 });
 

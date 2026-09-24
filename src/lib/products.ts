@@ -22,6 +22,13 @@ export function formatPrice(price?: number): string {
   return price === undefined ? 'Liên hệ' : `${price.toLocaleString('vi-VN')}đ`;
 }
 
+/** Phần trăm giảm giá (làm tròn), dùng cho nhãn "-X%" ở thẻ sản phẩm và trang chi tiết. Chỉ tính khi
+ * có originalPrice VÀ lớn hơn price (giá đang bán); không thì trả undefined (không phải khuyến mãi). */
+export function discountPercent(price?: number, originalPrice?: number): number | undefined {
+  if (price === undefined || originalPrice === undefined || originalPrice <= price) return undefined;
+  return Math.round((1 - price / originalPrice) * 100);
+}
+
 /** Khoảng giá dùng làm bộ lọc tìm kiếm (Pagefind). Không có giá thì trả undefined (không lọc được theo giá). */
 export function priceBucket(price?: number): string | undefined {
   if (price === undefined) return undefined;

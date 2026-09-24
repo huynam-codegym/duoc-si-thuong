@@ -9,7 +9,7 @@ import Disclaimer from '../../components/Disclaimer.astro';
 import { departments } from '../../lib/departments';
 import { originFlagCode } from '../../lib/flags';
 import { foldVietnamese, formatDate } from '../../lib/posts';
-import { formatPrice, getProducts, priceBucket } from '../../lib/products';
+import { discountPercent, formatPrice, getProducts, priceBucket } from '../../lib/products';
 import { site } from '../../lib/site';
 import { url } from '../../lib/url';
 
@@ -28,6 +28,7 @@ const {
   department: departmentSlug,
   group,
   price,
+  originalPrice,
   unit,
   brand,
   origin,
@@ -48,6 +49,7 @@ const { Content, headings } = await render(product);
 const sections = headings.filter((heading) => heading.depth === 2);
 const department = departments[departmentSlug];
 const groupInfo = department.groups[group];
+const discount = discountPercent(price, originalPrice);
 const flagCode = originFlagCode(origin);
 const cartImage = await getImage({ src: image, width: 160, height: 160, format: 'webp' });
 const imageForSchema = await getImage({ src: image, width: 1200, height: 630, fit: 'cover', format: 'jpg' });
@@ -212,6 +214,12 @@ const jsonLd = {
             {formatPrice(price)}
             {unit && <span class="product-unit"> / {unit}</span>}
           </p>
+          {discount !== undefined && (
+            <p class="product-price-compare">
+              <span class="product-price-original">{formatPrice(originalPrice)}</span>
+              <span class="sale-badge">-{discount}%</span>
+            </p>
+          )}
           <dl class="product-facts">
             {dosageForm && (<><dt>Dạng bào chế</dt><dd>{dosageForm}</dd></>)}
             {ingredients && (<><dt>Thành phần</dt><dd>{ingredients}</dd></>)}

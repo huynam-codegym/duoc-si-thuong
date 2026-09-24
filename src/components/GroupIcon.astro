@@ -219,6 +219,28 @@ const { icon: name, size = 20, badge = false, badgeSize = size + 20 } = Astro.pr
             <path d="M15.3 9c1.1.2 1.9 1.1 2 2.3" />
           </>
         )}
+        {name === 'grid' && (
+          <>
+            <rect x="3.5" y="3.5" width="7.2" height="7.2" rx="1.5" />
+            <rect x="13.3" y="3.5" width="7.2" height="7.2" rx="1.5" />
+            <rect x="3.5" y="13.3" width="7.2" height="7.2" rx="1.5" />
+            <rect x="13.3" y="13.3" width="7.2" height="7.2" rx="1.5" />
+          </>
+        )}
+        {name === 'target' && (
+          <>
+            <circle cx="12" cy="12" r="8.3" />
+            <circle cx="12" cy="12" r="4.5" />
+            <circle cx="12" cy="12" r="1" fill="currentColor" stroke="none" />
+          </>
+        )}
+        {name === 'calendar' && (
+          <>
+            <rect x="3.5" y="5" width="17" height="15.5" rx="2.3" />
+            <path d="M3.5 9.8h17" />
+            <path d="M8 3v4M16 3v4" />
+          </>
+        )}
       </svg>
     </span>
   ) : (
@@ -421,6 +443,28 @@ const { icon: name, size = 20, badge = false, badgeSize = size + 20 } = Astro.pr
         <>
           <path d="M4.3 10.8C4 7 6.8 3.8 10.5 3.4c1.3-.1 2 .5 2.8.5.9 0 1.7-.8 2.8-.6 3.3.6 5.4 3.8 5.1 7.7-.4 5-4.3 8.5-9.1 8.5S4.7 15.8 4.3 10.8Z" />
           <path d="M15.3 9c1.1.2 1.9 1.1 2 2.3" />
+        </>
+      )}
+      {name === 'grid' && (
+        <>
+          <rect x="3.5" y="3.5" width="7.2" height="7.2" rx="1.5" />
+          <rect x="13.3" y="3.5" width="7.2" height="7.2" rx="1.5" />
+          <rect x="3.5" y="13.3" width="7.2" height="7.2" rx="1.5" />
+          <rect x="13.3" y="13.3" width="7.2" height="7.2" rx="1.5" />
+        </>
+      )}
+      {name === 'target' && (
+        <>
+          <circle cx="12" cy="12" r="8.3" />
+          <circle cx="12" cy="12" r="4.5" />
+          <circle cx="12" cy="12" r="1" fill="currentColor" stroke="none" />
+        </>
+      )}
+      {name === 'calendar' && (
+        <>
+          <rect x="3.5" y="5" width="17" height="15.5" rx="2.3" />
+          <path d="M3.5 9.8h17" />
+          <path d="M8 3v4M16 3v4" />
         </>
       )}
     </svg>

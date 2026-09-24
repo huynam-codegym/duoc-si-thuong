@@ -89,4 +89,15 @@ Cùng thương hiệu Vitabiotics (Anh). Nguồn: anh gửi 16 ảnh (ảnh qu�
 - **Lưu ý dị ứng cá và đậu nành:** tôi thêm câu cảnh báo này dựa trên dòng "Allergy Advice" đọc được trên bảng thành phần tiếng Anh (dầu cá trong viên nang, vitamin E nguồn gốc đậu nành/Soya) — dược sĩ xác nhận lại câu này diễn đạt đúng và đủ.
 - **Đây là sản phẩm "dual pack"** (2 loại viên dùng cùng ngày: 1 viên nén vỉ xanh + 1 viên nang Omega-3 vỉ hồng) — khác cấu trúc với các sản phẩm 1-loại-viên trước đó trên site; trang chi tiết hiện ghi rõ điều này ở mục "Cách dùng", nhờ dược sĩ đọc lại xem diễn đạt có dễ hiểu không.
 - **Ảnh sản phẩm:** dùng ảnh quảng cáo, ảnh vỉ thuốc và ảnh nhãn anh gửi (17 ảnh + video), không phải ảnh chụp riêng của nhà thuốc.
-- Xác nhận nhóm "Vitamin tổng hợp" là đúng ý anh cho sản phẩm này (đây rõ ràng là sản phẩm cho trẻ em, cũng có thể hợp với nhóm "Trẻ em" sẵn có — tôi để theo đúng đường dẫn anh ghi).
+
+## pregnacare-max (tháng 9/2026)
+
+Cùng thương hiệu Vitabiotics (Anh), cùng dòng sản phẩm với Pregnacare Plus Omega-3 ở trên nhưng là bản **"Max" — công thức nâng cao hơn** (có thêm canxi 500mg/ngày và dùng acid folic dạng L-Methylfolate thay vì chỉ acid folic thường). Nguồn: anh gửi 13 ảnh (ảnh quảng cáo, ảnh vỉ thuốc, 2 ảnh nhãn phụ tiếng Việt — ảnh thứ 2 rõ hơn hẳn ảnh đầu nên tôi dùng ảnh đó để đối chiếu số liệu, bảng thành phần tiếng Anh rõ nét, tờ rơi giới thiệu thương hiệu). Giá anh cho: 495.000đ/Hộp, khuyến mãi -10% từ giá gốc 550.000đ.
+
+**Việc anh cần làm**
+- **Đây là sản phẩm khuyến mãi ĐẦU TIÊN của site** (tính năng `originalPrice`/nhãn "-X%" mới thêm) — kiểm tra lại giao diện thẻ sản phẩm và trang chi tiết đúng như ảnh mẫu anh gửi. Đợt khuyến mãi có hạn kết thúc hay không tôi chưa rõ nên **chưa thêm dòng chữ kiểu "áp dụng đến ngày..."** — nếu khuyến mãi có ngày kết thúc cụ thể, báo tôi bổ sung.
+- **Độ tin cậy nội dung:** cao, tương tự Pregnacare Plus — có bảng thành phần tiếng Anh rõ nét và ảnh nhãn phụ tiếng Việt thứ 2 (ảnh 13) đọc rất rõ sau khi phóng to, khớp với bảng tiếng Anh. Vẫn nên đối chiếu lại với hộp thật cho chắc chắn.
+- **Số công bố sản phẩm:** 1475/2024/ĐKSP — đọc từ ảnh nhãn phụ tiếng Việt rõ (ảnh 13, đã phóng to), khác hẳn dải số 2019 của các sản phẩm Vitabiotics trước đó (hợp lý vì có thể đăng ký sau). Ảnh nhãn đầu tiên (ảnh 10) mờ hơn nên lúc đầu tôi đọc nhầm ra một số gần giống nhưng khác — nếu có sản phẩm Vitabiotics nào sau này chỉ có 1 ảnh nhãn mờ mà không có ảnh đối chiếu, nên xin ảnh rõ hơn thay vì tự tin dùng số đọc được từ ảnh mờ.
+- **Nhóm "Vitamin tổng hợp":** xếp theo đúng đường dẫn anh gửi, cùng lưu ý như Pregnacare Plus — sản phẩm dành riêng cho phụ nữ mang thai/cho con bú, có thể hợp với nhóm "Phụ nữ & mẹ bầu" hơn.
+- **Lưu ý dị ứng và cảnh báo:** thêm cảnh báo dị ứng cá/đậu nành/có thể lẫn các loại hạt (đọc từ nhãn: "được sản xuất tại một cơ sở có thể chế biến các loại hạt"), cảnh báo vitamin K với thuốc chống đông máu, và cảnh báo sản phẩm có chứa sắt cần để xa tầm tay trẻ em (đọc trực tiếp từ nhãn, không phải tôi tự suy đoán).
+- **Ảnh sản phẩm:** dùng ảnh quảng cáo, ảnh vỉ thuốc và ảnh nhãn anh gửi (13 ảnh + video), không phải ảnh chụp riêng của nhà thuốc. Video chưa có sẵn logo (khác với video Liveril/Pregnacare Plus có sẵn khung tên "Dược Sĩ Thương") nhưng trang tự phủ logo lên như các sản phẩm có video khác, không cần làm gì thêm.

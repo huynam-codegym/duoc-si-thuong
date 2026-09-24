@@ -123,8 +123,100 @@ const seasonal = await Promise.all(
       </li>
     </ul>
 
+    {
+      /* Thứ tự trang chủ (tháng 9/2026, chủ website yêu cầu): khu bán hàng (Thực phẩm chức năng...) lên
+         đầu, "Bệnh thường gặp theo mùa" xuống dưới "Sản phẩm theo nhu cầu" — đổi chỗ so với trước đó. */
+      activeShops.map((shop) => (
+        <>
+          <section aria-labelledby={`danh-muc-${shop.slug}`}>
+            <h2 class="section-title" id={`danh-muc-${shop.slug}`}>
+              <GroupIcon icon="grid" size={22} /> Danh mục {shop.department.name.toLowerCase()}
+            </h2>
+            <ul class="cat-tiles">
+              {shop.groups.map(([groupSlug, group]) => (
+                <li>
+                  <a href={url(`/${shop.slug}/nhom/${groupSlug}/`)}>
+                    <span class="tile-icon" aria-hidden="true">
+                      <GroupIcon icon={group.icon} size={26} badge badgeSize={52} />
+                    </span>
+                    <span>{group.name}</span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </section>
+
+          <section aria-labelledby={`sp-${shop.slug}`}>
+            <h2 class="section-title" id={`sp-${shop.slug}`}><GroupIcon icon="cart" size={22} /> {shop.department.name}</h2>
+            <div class="carousel carousel-wide">
+              <div class="carousel-track">
+                {shop.featured.map((product) => (
+                  <div class="carousel-item">
+                    <ProductCard product={product} />
+                  </div>
+                ))}
+              </div>
+            </div>
+            {shop.featured.length > 12 && (
+              <p class="carousel-more">
+                <button type="button" class="btn btn-outline carousel-more-btn">Xem thêm sản phẩm</button>
+              </p>
+            )}
+            <p class="more">
+              <a class="btn btn-outline" href={url(`/${shop.slug}/`)}>Xem tất cả {shop.department.name.toLowerCase()}</a>
+            </p>
+          </section>
+        </>
+      ))
+    }
+
+    {
+      needTabs.length > 0 && (
+        <section aria-labelledby="theo-nhu-cau">
+          <h2 class="section-title" id="theo-nhu-cau"><GroupIcon icon="target" size={22} /> Sản phẩm theo nhu cầu</h2>
+          <div class="need-tabs" role="tablist">
+            {needTabs.map((tab, index) => (
+              <button
+                type="button"
+                class={`need-tab${index === 0 ? ' active' : ''}`}
+                data-panel={`need-${index}`}
+                role="tab"
+                aria-selected={index === 0 ? 'true' : 'false'}
+              >
+                <GroupIcon icon={tab.group.icon} size={17} />
+                <span>{tab.group.name}</span>
+              </button>
+            ))}
+          </div>
+          {needTabs.map((tab, index) => (
+            <div class={`need-panel${index === 0 ? ' active' : ''}`} data-panel={`need-${index}`} role="tabpanel">
+              <div class="carousel carousel-wide">
+                <div class="carousel-track">
+                  {tab.products.map((product) => (
+                    <div class="carousel-item">
+                      <ProductCard product={product} />
+                    </div>
+                  ))}
+                </div>
+              </div>
+              {tab.products.length > 12 && (
+                <p class="carousel-more">
+                  <button type="button" class="btn btn-outline carousel-more-btn">Xem thêm sản phẩm</button>
+                </p>
+              )}
+              <p class="more">
+                <a class="btn btn-outline" href={url(`/${tab.deptSlug}/nhom/${tab.groupSlug}/`)}>
+                  Xem tất cả {tab.group.name.toLowerCase()}
+                </a>
+              </p>
+            </div>
+          ))}
+        </section>
+      )
+    }
+
     <section aria-labelledby="benh-theo-mua">
-      <h2 class="section-title" id="benh-theo-mua">Bệnh thường gặp theo mùa</h2>
+      <h2 class="section-title" id="benh-theo-mua"><GroupIcon icon="calendar" size={22} /> Bệnh thường gặp theo mùa</h2>
       <div class="season-card">
         <div class="season-tabs" role="tablist">
           {seasonal.map((topic, index) => topic.group && (
@@ -174,96 +266,6 @@ const seasonal = await Promise.all(
         Sản phẩm gợi ý chỉ mang tính hỗ trợ, không phải thuốc và không thay thế khám, chẩn đoán hay điều trị của bác sĩ.
       </p>
     </section>
-
-    {
-      needTabs.length > 0 && (
-        <section aria-labelledby="theo-nhu-cau">
-          <h2 class="section-title" id="theo-nhu-cau">Sản phẩm theo nhu cầu</h2>
-          <div class="need-tabs" role="tablist">
-            {needTabs.map((tab, index) => (
-              <button
-                type="button"
-                class={`need-tab${index === 0 ? ' active' : ''}`}
-                data-panel={`need-${index}`}
-                role="tab"
-                aria-selected={index === 0 ? 'true' : 'false'}
-              >
-                <GroupIcon icon={tab.group.icon} size={17} />
-                <span>{tab.group.name}</span>
-              </button>
-            ))}
-          </div>
-          {needTabs.map((tab, index) => (
-            <div class={`need-panel${index === 0 ? ' active' : ''}`} data-panel={`need-${index}`} role="tabpanel">
-              <div class="carousel carousel-wide">
-                <div class="carousel-track">
-                  {tab.products.map((product) => (
-                    <div class="carousel-item">
-                      <ProductCard product={product} />
-                    </div>
-                  ))}
-                </div>
-              </div>
-              {tab.products.length > 12 && (
-                <p class="carousel-more">
-                  <button type="button" class="btn btn-outline carousel-more-btn">Xem thêm sản phẩm</button>
-                </p>
-              )}
-              <p class="more">
-                <a class="btn btn-outline" href={url(`/${tab.deptSlug}/nhom/${tab.groupSlug}/`)}>
-                  Xem tất cả {tab.group.name.toLowerCase()}
-                </a>
-              </p>
-            </div>
-          ))}
-        </section>
-      )
-    }
-
-    {
-      activeShops.map((shop) => (
-        <>
-          <section aria-labelledby={`danh-muc-${shop.slug}`}>
-            <h2 class="section-title" id={`danh-muc-${shop.slug}`}>
-              Danh mục {shop.department.name.toLowerCase()}
-            </h2>
-            <ul class="cat-tiles">
-              {shop.groups.map(([groupSlug, group]) => (
-                <li>
-                  <a href={url(`/${shop.slug}/nhom/${groupSlug}/`)}>
-                    <span class="tile-icon" aria-hidden="true">
-                      <GroupIcon icon={group.icon} size={26} badge badgeSize={52} />
-                    </span>
-                    <span>{group.name}</span>
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </section>
-
-          <section aria-labelledby={`sp-${shop.slug}`}>
-            <h2 class="section-title" id={`sp-${shop.slug}`}>{shop.department.name}</h2>
-            <div class="carousel carousel-wide">
-              <div class="carousel-track">
-                {shop.featured.map((product) => (
-                  <div class="carousel-item">
-                    <ProductCard product={product} />
-                  </div>
-                ))}
-              </div>
-            </div>
-            {shop.featured.length > 12 && (
-              <p class="carousel-more">
-                <button type="button" class="btn btn-outline carousel-more-btn">Xem thêm sản phẩm</button>
-              </p>
-            )}
-            <p class="more">
-              <a class="btn btn-outline" href={url(`/${shop.slug}/`)}>Xem tất cả {shop.department.name.toLowerCase()}</a>
-            </p>
-          </section>
-        </>
-      ))
-    }
 
     {videos.length > 0 && <VideoSection videos={videos} />}
 

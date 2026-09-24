@@ -33,4 +33,7 @@ export type IconName =
   | 'firstaid'
   | 'search'
   | 'flask'
-  | 'liver';
+  | 'liver'
+  | 'grid'
+  | 'target'
+  | 'calendar';

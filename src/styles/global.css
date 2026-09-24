@@ -494,8 +494,15 @@ img {
 }
 
 .section-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
   margin: 2.5rem 0 1rem;
   font-size: 1.4rem;
+}
+
+.section-title .group-icon {
+  color: var(--green-700);
 }
 
 .grid {
@@ -1869,9 +1876,59 @@ button.btn:not(.btn-outline) {
    container tự auto theo nội dung), từng thấy thẻ có quy cách dài (2 dòng) bị cao hơn thẻ bên cạnh
    dù bật align-items: stretch tường minh. */
 .product-card {
+  position: relative;
   display: flex;
   flex-direction: column;
   height: 100%;
+}
+
+/* Nhãn giảm giá "-X%" (hiện khi sản phẩm có originalPrice lớn hơn price, xem discountPercent() trong
+   src/lib/products.ts). Dùng chung 1 kiểu màu đỏ cho cả thẻ sản phẩm và trang chi tiết — đỏ để khách
+   nhận ra ngay là khuyến mãi, khác hẳn màu vàng/hổ phách của khung cảnh báo y khoa (--warn-bg) nên
+   không gây nhầm lẫn với lưu ý sức khỏe. */
+.sale-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.15rem 0.55rem;
+  border-radius: 999px;
+  background: #dc2626;
+  color: #fff;
+  font-size: 0.78rem;
+  font-weight: 800;
+  line-height: 1.4;
+  white-space: nowrap;
+}
+
+/* Ở thẻ sản phẩm: đè lên góc trên-phải ảnh thay vì nằm giữa dòng (.product-card đã có position: relative) */
+.sale-badge-card {
+  position: absolute;
+  top: 0.6rem;
+  right: 0.6rem;
+  z-index: 1;
+  box-shadow: 0 1px 4px rgb(0 0 0 / 0.2);
+}
+
+/* Giá gốc gạch ngang, hiện ngay dưới giá đang bán khi có khuyến mãi */
+.product-price-original {
+  margin: 0.1rem 0 0;
+  color: var(--ink-soft);
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-decoration: line-through;
+}
+
+/* Hàng "giá gốc gạch ngang + nhãn -X%" ở trang chi tiết sản phẩm (khác thẻ sản phẩm: nằm ngang, không đè lên ảnh) */
+.product-price-compare {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem;
+  margin: -0.4rem 0 0.75rem;
+}
+
+.product-price-compare .product-price-original {
+  margin: 0;
+  font-size: 1.1rem;
 }
 
 /* Nhãn xuất xứ ở góc trái, phía trên ảnh sản phẩm (không đè lên ảnh) */
