@@ -469,7 +469,11 @@ const drawerSections: DrawerSection[] = [
     <img id="cartSheetImg" src="" alt="" width="64" height="64" />
     <div>
       <p class="cart-sheet-name" id="cartSheetName"></p>
-      <p class="cart-sheet-price" id="cartSheetPrice"></p>
+      <p class="cart-sheet-price">
+        <span id="cartSheetPrice"></span>
+        <span id="cartSheetSaleBadge" class="sale-badge" hidden></span>
+      </p>
+      <p class="product-price-original" id="cartSheetOriginalPrice" hidden></p>
     </div>
   </div>
   <div class="buy-qty">
@@ -925,15 +929,33 @@ const drawerSections: DrawerSection[] = [
   const cartSheetImg = document.getElementById('cartSheetImg') as HTMLImageElement | null;
   const cartSheetName = document.getElementById('cartSheetName');
   const cartSheetPrice = document.getElementById('cartSheetPrice');
+  const cartSheetSaleBadge = document.getElementById('cartSheetSaleBadge');
+  const cartSheetOriginalPrice = document.getElementById('cartSheetOriginalPrice');
   const cartSheetQty = document.getElementById('cartSheetQty') as HTMLInputElement | null;
   let sheetProduct: Omit<CartItem, 'qty'> | null = null;
 
-  function openCartSheet(product: Omit<CartItem, 'qty'>) {
+  // originalPrice chỉ dùng để HIỆN (giá gốc gạch ngang + nhãn -X%) trong khay này, không lưu vào giỏ
+  // hàng (giỏ chỉ cần price — giá thật sự tính tiền, xem CLAUDE.md mục "Giá khuyến mãi"). Tự tính %
+  // giảm ngay tại đây thay vì import discountPercent() từ lib/products.ts vì file đó có `import ...
+  // from 'astro:content'` ở đầu — import vào script chạy ở trình duyệt sẽ lỗi build ServerOnlyModule.
+  function openCartSheet(product: Omit<CartItem, 'qty'>, originalPrice?: number) {
     if (!cartSheet || !cartSheetBackdrop || !cartSheetImg || !cartSheetName || !cartSheetPrice || !cartSheetQty) return;
     sheetProduct = product;
     cartSheetImg.src = product.image;
     cartSheetName.textContent = product.name;
     cartSheetPrice.textContent = product.price !== null ? formatVnd(product.price) : 'Liên hệ';
+    const discount =
+      product.price !== null && originalPrice && originalPrice > product.price
+        ? Math.round((1 - product.price / originalPrice) * 100)
+        : null;
+    if (cartSheetSaleBadge) {
+      cartSheetSaleBadge.hidden = discount === null;
+      cartSheetSaleBadge.textContent = discount !== null ? `-${discount}%` : '';
+    }
+    if (cartSheetOriginalPrice) {
+      cartSheetOriginalPrice.hidden = discount === null;
+      cartSheetOriginalPrice.textContent = discount !== null && originalPrice ? formatVnd(originalPrice) : '';
+    }
     cartSheetQty.value = '1';
     cartSheetBackdrop.hidden = false;
     cartSheet.hidden = false;
@@ -973,6 +995,8 @@ const drawerSections: DrawerSection[] = [
     if (!sheetProduct) return;
     addToCart(sheetProduct, sheetQty());
     closeCartSheet();
+    // Cuộn lên đầu trang để thấy biểu tượng giỏ hàng (đã cập nhật số lượng) ngay sau khi thêm.
+    waitScrollTop();
     showToast('Đã thêm vào giỏ hàng - hãy kiểm tra giỏ hàng');
   });
   document.getElementById('cartSheetBuy')?.addEventListener('click', () => {
@@ -985,7 +1009,7 @@ const drawerSections: DrawerSection[] = [
   document.addEventListener('click', (event) => {
     const button = (event.target as HTMLElement).closest<HTMLButtonElement>('[data-add-to-cart]');
     if (!button) return;
-    const { id, name, price, unit, image, goCart, qtyInput: qtyInputSelector } = button.dataset;
+    const { id, name, price, originalPrice, unit, image, goCart, qtyInput: qtyInputSelector } = button.dataset;
     if (!id || !name) return;
     const product = { id, name, price: price ? Number(price) : null, unit: unit ?? '', image: image ?? '' };
 
@@ -993,7 +1017,7 @@ const drawerSections: DrawerSection[] = [
     // mở khay chọn số lượng thay vì thêm thẳng 1 sản phẩm. Trang chi tiết đã có ô chọn số lượng trên
     // trang nên bỏ qua khay này ở mọi kích thước màn hình.
     if (!isDesktop() && !qtyInputSelector) {
-      openCartSheet(product);
+      openCartSheet(product, originalPrice ? Number(originalPrice) : undefined);
       return;
     }
 
@@ -1017,6 +1041,8 @@ const drawerSections: DrawerSection[] = [
         }
       });
     } else {
+      // Cuộn lên đầu trang để thấy biểu tượng giỏ hàng (đã cập nhật số lượng) ngay sau khi thêm.
+      waitScrollTop();
       showToast('Đã thêm vào giỏ hàng - hãy kiểm tra giỏ hàng');
     }
   });

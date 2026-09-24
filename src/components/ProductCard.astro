@@ -47,6 +47,7 @@ const cartImage = await getImage({ src: image, width: 160, height: 160, format: 
     data-id={product.id}
     data-name={name}
     data-price={price ?? ''}
+    data-original-price={discount !== undefined ? originalPrice : ''}
     data-unit={unit ?? ''}
     data-image={cartImage.src}
   >
