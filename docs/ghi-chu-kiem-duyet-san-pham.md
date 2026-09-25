@@ -101,3 +101,24 @@ Cùng thương hiệu Vitabiotics (Anh), cùng dòng sản phẩm với Pregnaca
 - **Nhóm "Vitamin tổng hợp":** xếp theo đúng đường dẫn anh gửi, cùng lưu ý như Pregnacare Plus — sản phẩm dành riêng cho phụ nữ mang thai/cho con bú, có thể hợp với nhóm "Phụ nữ & mẹ bầu" hơn.
 - **Lưu ý dị ứng và cảnh báo:** thêm cảnh báo dị ứng cá/đậu nành/có thể lẫn các loại hạt (đọc từ nhãn: "được sản xuất tại một cơ sở có thể chế biến các loại hạt"), cảnh báo vitamin K với thuốc chống đông máu, và cảnh báo sản phẩm có chứa sắt cần để xa tầm tay trẻ em (đọc trực tiếp từ nhãn, không phải tôi tự suy đoán).
 - **Ảnh sản phẩm:** dùng ảnh quảng cáo, ảnh vỉ thuốc và ảnh nhãn anh gửi (13 ảnh + video), không phải ảnh chụp riêng của nhà thuốc. Video chưa có sẵn logo (khác với video Liveril/Pregnacare Plus có sẵn khung tên "Dược Sĩ Thương") nhưng trang tự phủ logo lên như các sản phẩm có video khác, không cần làm gì thêm.
+
+## visionace-original (tháng 9/2026)
+
+Cùng thương hiệu Vitabiotics (Anh), nhập bởi VE Pharma. Tên thư mục anh gửi ghi "Visionase", tên thật in trên hộp là **Visionace Original** — tôi dùng đúng tên trên hộp. Giá anh cho: 432.000đ/Hộp. Xếp vào nhóm sẵn có **"Mắt & thị lực"** (anh ghi "Mắt - Thị lực" — tôi hiểu là cùng nhóm này, không tạo nhóm trùng; báo tôi nếu muốn đổi tên nhóm).
+
+**Việc anh cần làm**
+- **SỐ CÔNG BỐ SẢN PHẨM ĐỂ TRỐNG (`publicationNo`):** chỉ có 1 ảnh nhãn phụ tiếng Việt, rất mờ (425x425px). Tôi đọc được dạng "1737/2024/ĐKSP" nhưng chữ số ở giữa không chắc chắn (hai lần phóng to cho cùng kết quả nhưng vẫn có thể nhầm 1/7). Đây là số đăng ký chính thức nên **không dám điền đoán** (nguyên tắc 1 và 10 trong CLAUDE.md). Anh đọc số trên hộp thật rồi báo lại, hoặc gửi ảnh nhãn rõ hơn để tôi điền.
+- **Chỉ ghi 4 thành phần chính + "19 vitamin & khoáng chất khác"** (đọc rõ từ ảnh quảng cáo: vitamin A 300mcg RE, lutein 4mg, kẽm 15mg, chiết xuất việt quất 60mg). Bảng hàm lượng chi tiết từng vitamin trên nhãn phụ mờ nên tôi không đưa vào (cùng cách xử lý như Liveril). Dược sĩ đối chiếu hộp thật nếu muốn liệt kê đầy đủ.
+- **Cảnh báo đọc từ nhãn phụ tiếng Việt (đã phóng to, khá rõ):** vitamin A không dùng khi có thai/có khả năng có thai; hỏi ý kiến bác sĩ nếu động kinh, bệnh tuyến giáp, bệnh tan máu bẩm sinh; có sắt; không phù hợp trẻ em; vitamin E nguồn gốc đậu nành; cơ sở sản xuất có thể chế biến các loại hạt. Nhờ dược sĩ xác nhận diễn đạt đúng.
+- **Cách dùng "1 viên/ngày sau ăn":** khớp với chữ trên vỉ thuốc (ONE PER DAY WITH YOUR MAIN MEAL) và nhãn phụ.
+- **Ảnh chính:** cắt từ ảnh quảng cáo (không phải ảnh chụp riêng của nhà thuốc).
+
+## pregnacare-breast-feeding (tháng 9/2026)
+
+Cùng dòng Pregnacare của Vitabiotics, dành cho **phụ nữ đang cho con bú** (sau sinh). Giá anh cho: 712.000đ/Hộp. Xếp nhóm "Vitamin tổng hợp" theo đúng đường dẫn anh gửi (giống Pregnacare Plus/Max — nội dung sẽ hợp với nhóm "Phụ nữ & mẹ bầu" hơn, báo tôi nếu muốn chuyển).
+
+**Việc anh cần làm**
+- **Độ tin cậy nội dung cao:** ảnh nhãn phụ tiếng Việt (ảnh 8) đọc rất rõ sau khi phóng to — toàn bộ hàm lượng từng vi chất, cách dùng, cảnh báo, số công bố **10645/2019/ĐKSP** đều chép trực tiếp từ đây, khớp với ảnh quảng cáo (canxi 700mg/2 viên = 350mg x 2; DHA 300mg; EPA 60mg). Vẫn nên đối chiếu hộp thật.
+- **Hàm lượng ghi theo TỪNG VIÊN nén** (đúng như nhãn tiếng Việt); ảnh quảng cáo ghi theo 2 viên (liều dùng hằng ngày) — bài có ghi rõ cả hai cách để không nhầm.
+- **Cảnh báo:** động kinh, bệnh tuyến giáp, bệnh nhiễm sắc tố sắt, vitamin K với thuốc chống đông (warfarin), sắt với trẻ nhỏ — đều đọc từ nhãn. Câu cảnh báo dị ứng cá là lưu ý chung tôi thêm vì viên nang từ dầu cá, dược sĩ xác nhận lại.
+- **Ảnh chính:** cắt từ ảnh quảng cáo (không phải ảnh chụp riêng của nhà thuốc).
