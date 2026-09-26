@@ -554,6 +554,23 @@ img {
   font-weight: 600;
 }
 
+/* Nhãn nhóm trên thẻ sản phẩm: luôn 1 dòng, tên nhóm dài quá thì cắt bớt kèm "…" (không xuống 2 dòng làm
+   thẻ cao lên, lệch với thẻ bên cạnh); trên điện thoại chữ nhỏ lại một chút cho hiện được nhiều chữ hơn. */
+.product-card .tag {
+  max-width: 100%;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  vertical-align: top;
+}
+
+@media (max-width: 30rem) {
+  .product-card .tag {
+    padding: 0.05rem 0.5rem;
+    font-size: 0.66rem;
+  }
+}
+
 .tag-group {
   margin-left: 0.4rem;
   background: #fff;

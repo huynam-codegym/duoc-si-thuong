@@ -124,28 +124,11 @@ const seasonal = await Promise.all(
     </ul>
 
     {
-      /* Thứ tự trang chủ (tháng 9/2026, chủ website yêu cầu): khu bán hàng (Thực phẩm chức năng...) lên
-         đầu, "Bệnh thường gặp theo mùa" xuống dưới "Sản phẩm theo nhu cầu" — đổi chỗ so với trước đó. */
+      /* Thứ tự trang chủ (tháng 9/2026, chủ website yêu cầu): khu bán hàng lên đầu; trong mỗi khu, phần sản
+         phẩm ("[Tên khu]") đứng TRÊN phần "Danh mục [khu]"; "Bệnh thường gặp theo mùa" nằm dưới "Sản phẩm theo
+         nhu cầu". */
       activeShops.map((shop) => (
         <>
-          <section aria-labelledby={`danh-muc-${shop.slug}`}>
-            <h2 class="section-title" id={`danh-muc-${shop.slug}`}>
-              <GroupIcon icon="grid" size={22} /> Danh mục {shop.department.name.toLowerCase()}
-            </h2>
-            <ul class="cat-tiles">
-              {shop.groups.map(([groupSlug, group]) => (
-                <li>
-                  <a href={url(`/${shop.slug}/nhom/${groupSlug}/`)}>
-                    <span class="tile-icon" aria-hidden="true">
-                      <GroupIcon icon={group.icon} size={26} badge badgeSize={52} />
-                    </span>
-                    <span>{group.name}</span>
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </section>
-
           <section aria-labelledby={`sp-${shop.slug}`}>
             <h2 class="section-title" id={`sp-${shop.slug}`}><GroupIcon icon="cart" size={22} /> {shop.department.name}</h2>
             <div class="carousel carousel-wide">
@@ -165,6 +148,24 @@ const seasonal = await Promise.all(
             <p class="more">
               <a class="btn btn-outline" href={url(`/${shop.slug}/`)}>Xem tất cả {shop.department.name.toLowerCase()}</a>
             </p>
+          </section>
+
+          <section aria-labelledby={`danh-muc-${shop.slug}`}>
+            <h2 class="section-title" id={`danh-muc-${shop.slug}`}>
+              <GroupIcon icon="grid" size={22} /> Danh mục {shop.department.name.toLowerCase()}
+            </h2>
+            <ul class="cat-tiles">
+              {shop.groups.map(([groupSlug, group]) => (
+                <li>
+                  <a href={url(`/${shop.slug}/nhom/${groupSlug}/`)}>
+                    <span class="tile-icon" aria-hidden="true">
+                      <GroupIcon icon={group.icon} size={26} badge badgeSize={52} />
+                    </span>
+                    <span>{group.name}</span>
+                  </a>
+                </li>
+              ))}
+            </ul>
           </section>
         </>
       ))
