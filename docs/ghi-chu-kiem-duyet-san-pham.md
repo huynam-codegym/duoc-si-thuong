@@ -122,3 +122,15 @@ Cùng dòng Pregnacare của Vitabiotics, dành cho **phụ nữ đang cho con b
 - **Hàm lượng ghi theo TỪNG VIÊN nén** (đúng như nhãn tiếng Việt); ảnh quảng cáo ghi theo 2 viên (liều dùng hằng ngày) — bài có ghi rõ cả hai cách để không nhầm.
 - **Cảnh báo:** động kinh, bệnh tuyến giáp, bệnh nhiễm sắc tố sắt, vitamin K với thuốc chống đông (warfarin), sắt với trẻ nhỏ — đều đọc từ nhãn. Câu cảnh báo dị ứng cá là lưu ý chung tôi thêm vì viên nang từ dầu cá, dược sĩ xác nhận lại.
 - **Ảnh chính:** cắt từ ảnh quảng cáo (không phải ảnh chụp riêng của nhà thuốc).
+
+## doppelherz-aktiv-vital-pregna, doppelherz-aktiv-anti-stress, doppelherz-aktiv-omega-3 (tháng 9/2026)
+
+Thương hiệu **Doppelherz (Đức)**, sản xuất bởi Queisser Pharma GmbH & Co. KG (Flensburg), do **Công ty CP Mastertran** chịu trách nhiệm/nhập khẩu/phân phối. Khác 9 sản phẩm Vitabiotics ở trên (không có video, chỉ có ảnh — theo yêu cầu). Giá anh cho: Vital Pregna 375.000đ, Anti Stress 349.000đ, Omega-3 335.000đ (đều Hộp 30 viên). Số công bố: 7218/2019/ĐKSP, 4045/2023/ĐKSP, 6764/2022/ĐKSP.
+
+**Việc anh cần làm**
+- **Ảnh — đã LOẠI các ảnh quảng cáo có logo "Nhà thuốc Long Châu":** trong mỗi thư mục anh gửi, các ảnh banner (công dụng, cách dùng, thành phần...) đều in logo Long Châu ở góc trên. Theo nguyên tắc của site (không dùng ảnh/thương hiệu của website khác), tôi **chỉ dùng ảnh hộp, ảnh vỉ thuốc và ảnh nhãn phụ sạch** (mỗi sản phẩm 5 ảnh). Nếu nhà thuốc có banner của chính mình hoặc của hãng/nhà phân phối (Mastertran) không có logo bên thứ ba, gửi để bổ sung. Nhờ anh cũng kiểm tra bản quyền các ảnh hộp/vỉ này (nguồn ảnh có vẻ lấy từ trang khác).
+- **Anti Stress — công dụng KHÔNG phải "bổ não, cải thiện trí nhớ":** anh ghi đường dẫn "Thần kinh não / Bổ não - cải thiện trí nhớ", nhưng nhãn chỉ ghi "hỗ trợ giảm căng thẳng và hỗ trợ khả năng tập trung". Tôi viết đúng theo nhãn, không ghi "cải thiện trí nhớ" (không có trên nhãn, vi phạm nguyên tắc 1 và 4). Xếp nhóm sẵn có "Thần kinh & trí nhớ".
+- **Nhóm "Vitamin tổng hợp" cho Vital Pregna và Omega-3:** xếp theo đúng đường dẫn anh gửi. Vital Pregna (dành cho phụ nữ mang thai/cho con bú) hợp nhóm "Phụ nữ & mẹ bầu" hơn; Omega-3 (dầu cá) hợp nhóm "Tim mạch" hơn — báo tôi nếu muốn chuyển.
+- **Độ tin cậy nội dung cao:** nhãn phụ tiếng Việt của cả 3 sản phẩm đọc rõ sau khi phóng to (hàm lượng, cách dùng, cảnh báo, số công bố đều chép từ nhãn). Vẫn nên đối chiếu hộp thật.
+- **Omega-3:** hàm lượng nhãn ghi theo **2 viên** (liều 1 ngày), bài giữ đúng cách ghi này. Câu lưu ý thuốc chống đông/phẫu thuật là kiến thức chung tôi thêm (không in trên nhãn), đã ghi rõ trong bài — dược sĩ cần xác nhận.
+- **Anti Stress:** cảnh báo tương tác (thuốc chống đông coumarin, thuốc chuyển hóa ở gan), không dùng cho trẻ em/thanh thiếu niên/phụ nữ có thai/cho con bú — đều đọc từ nhãn (chữ nhỏ, đã phóng to).
