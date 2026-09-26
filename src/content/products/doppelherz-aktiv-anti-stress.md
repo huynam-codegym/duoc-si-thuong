@@ -16,6 +16,9 @@ gallery:
   - "../../assets/products/doppelherz-aktiv-anti-stress/anh-3.jpg"
   - "../../assets/products/doppelherz-aktiv-anti-stress/anh-4.jpg"
   - "../../assets/products/doppelherz-aktiv-anti-stress/anh-5.jpg"
+  - "../../assets/products/doppelherz-aktiv-anti-stress/anh-6.jpg"
+  - "../../assets/products/doppelherz-aktiv-anti-stress/anh-7.jpg"
+  - "../../assets/products/doppelherz-aktiv-anti-stress/anh-8.jpg"
 publicationNo: "4045/2023/ĐKSP"
 adConfirmationNo: ""
 updatedAt: 2026-09-27

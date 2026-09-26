@@ -16,6 +16,9 @@ gallery:
   - "../../assets/products/doppelherz-aktiv-omega-3/anh-3.jpg"
   - "../../assets/products/doppelherz-aktiv-omega-3/anh-4.jpg"
   - "../../assets/products/doppelherz-aktiv-omega-3/anh-5.jpg"
+  - "../../assets/products/doppelherz-aktiv-omega-3/anh-6.jpg"
+  - "../../assets/products/doppelherz-aktiv-omega-3/anh-7.jpg"
+  - "../../assets/products/doppelherz-aktiv-omega-3/anh-8.jpg"
 publicationNo: "6764/2022/ĐKSP"
 adConfirmationNo: ""
 updatedAt: 2026-09-27

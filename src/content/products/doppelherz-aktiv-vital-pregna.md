@@ -16,6 +16,9 @@ gallery:
   - "../../assets/products/doppelherz-aktiv-vital-pregna/anh-3.jpg"
   - "../../assets/products/doppelherz-aktiv-vital-pregna/anh-4.jpg"
   - "../../assets/products/doppelherz-aktiv-vital-pregna/anh-5.jpg"
+  - "../../assets/products/doppelherz-aktiv-vital-pregna/anh-6.jpg"
+  - "../../assets/products/doppelherz-aktiv-vital-pregna/anh-7.jpg"
+  - "../../assets/products/doppelherz-aktiv-vital-pregna/anh-8.jpg"
 publicationNo: "7218/2019/ĐKSP"
 adConfirmationNo: ""
 updatedAt: 2026-09-27
