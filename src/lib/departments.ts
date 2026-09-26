@@ -91,6 +91,11 @@ const departmentData = {
         name: 'Canxi & Vitamin D',
         description: 'Thực phẩm bổ sung canxi, vitamin D và các khoáng chất giúp xương chắc khỏe.',
       },
+      'sinh-ly-noi-tiet-to': {
+        icon: 'flower',
+        name: 'Sinh lý - Nội tiết tố',
+        description: 'Thực phẩm bổ sung dành cho phụ nữ quan tâm đến cân bằng nội tiết tố, giai đoạn tiền mãn kinh và mãn kinh.',
+      },
       'phu-nu-me-bau': {
         icon: 'flower',
         name: 'Phụ nữ & mẹ bầu',
