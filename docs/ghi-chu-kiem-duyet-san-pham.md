@@ -152,3 +152,5 @@ Thương hiệu Doppelherz (Đức), sản xuất bởi Queisser Pharma, do Côn
 - **Mg+Ca+D3, Coenzyme Q10:** một số câu lưu ý (bệnh thận/sỏi thận, thuốc chống đông) là lưu ý chung tôi thêm, đã ghi rõ trong bài — dược sĩ xác nhận.
 - **Kinder Optima:** dạng "cốm" theo cách gọi trên banner/tài liệu; nhãn ghi "hạt cốm" đổ trực tiếp lên lưỡi. Có chất tạo ngọt sucralose và lecithin đậu nành; cảnh báo dùng quá liều có thể nhuận tràng đọc từ nhãn.
 - **Độ tin cậy nội dung:** cao (nhãn phụ tiếng Việt đọc rõ sau khi phóng to). Vẫn nên đối chiếu hộp thật.
+
+**Cập nhật (chủ website xác nhận số công bố):** Coenzyme Q10 = 8117/2019/ĐKSP, Kinder Omega-3 Syrup = 2876/2018/ĐKSP — đã điền vào , mục "số công bố để trống" ở trên không còn áp dụng cho 2 sản phẩm này.

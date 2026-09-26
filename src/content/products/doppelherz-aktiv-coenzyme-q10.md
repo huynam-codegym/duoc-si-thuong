@@ -19,7 +19,7 @@ gallery:
   - "../../assets/products/doppelherz-aktiv-coenzyme-q10/anh-6.jpg"
   - "../../assets/products/doppelherz-aktiv-coenzyme-q10/anh-7.jpg"
   - "../../assets/products/doppelherz-aktiv-coenzyme-q10/anh-8.jpg"
-publicationNo: ""
+publicationNo: "8117/2019/ĐKSP"
 adConfirmationNo: ""
 updatedAt: 2026-09-27
 draft: false

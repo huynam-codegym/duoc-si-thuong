@@ -18,7 +18,7 @@ gallery:
   - "../../assets/products/doppelherz-kinder-omega-3-syrup/anh-5.jpg"
   - "../../assets/products/doppelherz-kinder-omega-3-syrup/anh-6.jpg"
   - "../../assets/products/doppelherz-kinder-omega-3-syrup/anh-7.jpg"
-publicationNo: ""
+publicationNo: "2876/2018/ĐKSP"
 adConfirmationNo: ""
 updatedAt: 2026-09-27
 draft: false
