@@ -154,3 +154,17 @@ Thương hiệu Doppelherz (Đức), sản xuất bởi Queisser Pharma, do Côn
 - **Độ tin cậy nội dung:** cao (nhãn phụ tiếng Việt đọc rõ sau khi phóng to). Vẫn nên đối chiếu hộp thật.
 
 **Cập nhật (chủ website xác nhận số công bố):** Coenzyme Q10 = 8117/2019/ĐKSP, Kinder Omega-3 Syrup = 2876/2018/ĐKSP — đã điền vào trường publicationNo, mục "số công bố để trống" ở trên không còn áp dụng cho 2 sản phẩm này.
+
+## smartbibi-zinc, biolizin-syrup (tháng 9/2026)
+
+Hai sản phẩm bổ sung kẽm cho trẻ, không video (theo yêu cầu). Giá anh cho: Smartbibi Zinc 275.000đ (chai 30ml), Biolizin 315.000đ (chai 50ml). Cả hai xếp nhóm sẵn có **"Vitamin & khoáng chất"** (anh ghi thêm "Kẽm - Magie" — site chỉ có 1 cấp nhóm, không có nhóm con nên tôi không tạo nhóm "Kẽm - Magie"; báo tôi nếu muốn tạo nhóm riêng). Cả hai cũng hợp nhóm "Trẻ em".
+
+**Ảnh:** như các đợt trước, **bỏ hết banner có logo Nhà thuốc Long Châu**; mỗi sản phẩm có 3 banner tự thiết kế mang logo Dược Sĩ Thương (chỉ dùng thông tin trên nhãn) đặt sau ảnh chính, tiếp theo là ảnh chai/hộp/nhãn phụ anh gửi (nhờ anh kiểm tra bản quyền ảnh này).
+
+**Việc anh cần làm**
+- **Smartbibi Zinc — số công bố ĐỂ TRỐNG và thiếu thông tin nhà nhập khẩu:** tờ nhãn phụ tiếng Việt anh gửi không in số công bố, tên nhà sản xuất, đơn vị nhập khẩu/phân phối. Tôi chỉ ghi được "sản xuất tại Ý" (theo chữ "Made in Italy" trên hộp, thương hiệu Smartbibi/Gricar). Anh gửi ảnh mặt bên/sau hộp hoặc số công bố + tên đơn vị nhập khẩu để tôi điền.
+- **Smartbibi Zinc — hàm lượng ghi theo 6ml, liều uống là 2ml:** đúng như nhãn (bảng thành phần "trong mỗi 6ml", liều "2ml/lần"). Bài giữ nguyên cách ghi này; dược sĩ nên xác nhận với vỏ hộp thật vì dễ gây hiểu nhầm cho người đọc.
+- **Biolizin — số công bố 7176/2021/ĐKSP** đọc rõ từ 2 ảnh nhãn (tờ hướng dẫn và nhãn hộp), khớp nhau. Xuất xứ Tây Ban Nha (HC Clover Productos y Servicios, S.L); nhập khẩu: Công ty CP Kinh doanh và Phát triển Hòa Bình; phân phối: Công ty TNHH Dược Hunmed.
+- **Biolizin — liều theo tuổi (3–6 tháng: 1ml; 6–12 tháng: 2ml; 1–4 tuổi: 2,5ml; từ 5 tuổi và người lớn: 5ml mỗi ngày)** chép đúng nhãn kèm khuyến cáo hỏi bác sĩ/dược sĩ; đây là sản phẩm cho cả trẻ sơ sinh từ 3 tháng nên **dược sĩ cần xác nhận lại** trước khi coi là chính thức.
+- **Tôi đã diễn đạt lại các câu đối tượng trên nhãn có ý bệnh lý** ("thiếu kẽm, tiêu chảy, suy dinh dưỡng...") thành "có nhu cầu bổ sung kẽm", "gầy yếu, biếng ăn, sức đề kháng kém" và thêm câu khuyên đi khám nếu triệu chứng kéo dài (nguyên tắc 2, 4). Câu công dụng "hỗ trợ cải thiện biếng ăn, chậm lớn ở trẻ thiếu kẽm" của Smartbibi in trên nhãn nên giữ, ghi rõ "theo nhà sản xuất".
+- **Chất làm ngọt:** cả hai có chất làm ngọt tổng hợp (Smartbibi: sucralose, natri cyclamat; Biolizin: sucralose, acesulfame K) — đã ghi trong thành phần/lưu ý.
