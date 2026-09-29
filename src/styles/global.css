@@ -2532,6 +2532,41 @@ button.btn:not(.btn-outline) {
   color: var(--ink-soft);
 }
 
+/* Ô nhỏ (tile) cho nhóm con của một nhóm cha (xem `childGroups` trong departments.ts), hiện ngay trên
+   "Sản phẩm trong nhóm" khi rê chuột vào tab nhóm cha — cùng kiểu ô tròn icon với .cat-tiles (trang
+   chủ) và .shop-flyout (menu trái khu bán hàng), để 3 nơi nhất quán nhau. */
+.mega-subgroups {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(6.5rem, 1fr));
+  gap: 0.6rem;
+  margin: 0 0 0.75rem;
+  padding: 0 0 0.75rem;
+  border-bottom: 1px solid var(--line);
+  list-style: none;
+}
+
+.mega-subgroups a {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.6rem 0.4rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: #fff;
+  color: var(--ink);
+  font-size: 0.78rem;
+  font-weight: 600;
+  text-align: center;
+  line-height: 1.25;
+  text-decoration: none;
+}
+
+.mega-subgroups a:hover {
+  border-color: var(--green-700);
+  background: var(--green-50);
+}
+
 .mega-products {
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));

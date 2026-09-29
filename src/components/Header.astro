@@ -60,8 +60,15 @@ const shopMenus = await Promise.all(
   departmentSlugs.map(async (departmentSlug) => {
     const department = departments[departmentSlug];
     const groupEntries = getProductGroups(departmentSlug);
+    // Gộp nhóm con vào nhóm cha (xem `childGroups` trong departments.ts) — cùng cách làm với menu bên
+    // trái ShopShell.astro, để "Vitamin tổng hợp"/"Canxi & Vitamin D" không còn là tab riêng trong menu
+    // lớn nữa mà chỉ hiện dạng ô nhỏ (tile) bên trong khung của "Vitamin & khoáng chất" (chủ website
+    // yêu cầu tháng 9/2026, theo đúng mẫu Long Châu: rê chuột vào nhóm cha thấy tile nhóm con phía trên
+    // "Sản phẩm trong nhóm").
+    const childSlugs = new Set(groupEntries.flatMap(([, group]) => group.childGroups ?? []));
+    const topGroupEntries = groupEntries.filter(([slug]) => !childSlugs.has(slug));
     const megaProducts = new Map<string, MegaProduct[]>();
-    for (const [slug] of groupEntries) {
+    for (const [slug] of topGroupEntries) {
       const inGroup = allProducts.filter((product) => product.data.department === departmentSlug && product.data.group === slug).slice(0, 5);
       megaProducts.set(
         slug,
@@ -75,7 +82,7 @@ const shopMenus = await Promise.all(
         ),
       );
     }
-    return { departmentSlug, department, groupEntries, megaProducts, href: url(`/${departmentSlug}/`) };
+    return { departmentSlug, department, groupEntries, topGroupEntries, megaProducts, href: url(`/${departmentSlug}/`) };
   }),
 );
 
@@ -198,7 +205,7 @@ const drawerSections: DrawerSection[] = [
       <nav class="site-nav" aria-label="Chuyên mục">
         <ul>
           {
-            shopMenus.map(({ departmentSlug, department, groupEntries, megaProducts, href }) => (
+            shopMenus.map(({ departmentSlug, department, topGroupEntries, megaProducts, href }) => (
               <li class="has-sub">
                 <a href={href} aria-current={current.startsWith(href) ? 'page' : undefined}>{department.name}</a>
                 <button
@@ -221,7 +228,7 @@ const drawerSections: DrawerSection[] = [
                       </a>
                     </li>
                     {
-                      groupEntries.map(([slug, group], index) => (
+                      topGroupEntries.map(([slug, group], index) => (
                         <li>
                           <a
                             class={`mega-tab${index === 0 ? ' active' : ''}`}
@@ -239,14 +246,32 @@ const drawerSections: DrawerSection[] = [
                   </ul>
                   <div class="mega-panels">
                     {
-                      groupEntries.map(([slug, group], index) => {
+                      topGroupEntries.map(([slug, group], index) => {
                         const list = megaProducts.get(slug) ?? [];
+                        const children = (group.childGroups ?? []).filter((childSlug) => department.groups[childSlug]);
                         return (
                           <section class={`mega-panel${index === 0 ? ' active' : ''}`} data-panel={slug} aria-label={group.name}>
                             <p class="mega-panel-head">
                               <strong>{group.name}</strong>
                               <a href={url(`/${departmentSlug}/nhom/${slug}/`)}>Xem tất cả ›</a>
                             </p>
+                            {children.length > 0 && (
+                              <ul class="mega-subgroups">
+                                {children.map((childSlug) => {
+                                  const child = department.groups[childSlug];
+                                  return (
+                                    <li>
+                                      <a href={url(`/${departmentSlug}/nhom/${childSlug}/`)}>
+                                        <span class="tile-icon" aria-hidden="true">
+                                          <GroupIcon icon={child.icon} size={22} badge badgeSize={44} />
+                                        </span>
+                                        <span>{child.name}</span>
+                                      </a>
+                                    </li>
+                                  );
+                                })}
+                              </ul>
+                            )}
                             {list.length > 0 ? (
                               <>
                                 <p class="mega-panel-sub">Sản phẩm trong nhóm</p>
