@@ -910,16 +910,20 @@ img {
 .shop-flyout a {
   display: flex;
   align-items: center;
-  gap: 0.6rem;
-  min-height: 2.4rem;
-  padding: 0.35rem 0.6rem;
-  border-radius: 10px;
+  gap: 0.75rem;
+  min-height: 3.6rem;
+  padding: 0.6rem 0.9rem;
+  border-radius: 12px;
   background: #fff;
   border: 1px solid var(--line);
   color: var(--ink);
-  font-size: 0.88rem;
+  font-size: 0.9rem;
   font-weight: 500;
   text-decoration: none;
+}
+
+.shop-flyout .sub-icon {
+  width: 1.9rem;
 }
 
 .shop-flyout a:hover,
@@ -2225,9 +2229,9 @@ button.btn:not(.btn-outline) {
    và .mega-subgroups — xem ghi chú `childTileImages`/`child.image` ở Header.astro/ShopShell.astro):
    ảnh + tên nằm CHUNG MỘT HÀNG như mọi dòng khác trong menu, không bo tròn kiểu huy hiệu. */
 .sub-icon img {
-  width: 22px;
-  height: 22px;
-  border-radius: 4px;
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
   object-fit: cover;
   background: var(--green-50);
 }
@@ -2554,10 +2558,10 @@ button.btn:not(.btn-outline) {
    chủ) và .shop-flyout (menu trái khu bán hàng), để 3 nơi nhất quán nhau. */
 .mega-subgroups {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr));
-  gap: 0.25rem 0.75rem;
-  margin: 0 0 0.75rem;
-  padding: 0 0 0.75rem;
+  grid-template-columns: repeat(auto-fill, minmax(12.5rem, 1fr));
+  gap: 0.6rem 0.75rem;
+  margin: 0 0 0.9rem;
+  padding: 0 0 0.9rem;
   border-bottom: 1px solid var(--line);
   list-style: none;
 }
@@ -2565,15 +2569,20 @@ button.btn:not(.btn-outline) {
 .mega-subgroups a {
   display: flex;
   align-items: center;
-  gap: 0.6rem;
-  padding: 0.4rem 0.5rem;
-  border-radius: 10px;
+  gap: 0.75rem;
+  min-height: 3.6rem;
+  padding: 0.6rem 0.9rem;
+  border-radius: 12px;
   background: #fff;
   border: 1px solid var(--line);
   color: var(--ink);
-  font-size: 0.88rem;
+  font-size: 0.9rem;
   font-weight: 500;
   text-decoration: none;
+}
+
+.mega-subgroups .sub-icon {
+  width: 1.9rem;
 }
 
 .mega-subgroups a:hover {

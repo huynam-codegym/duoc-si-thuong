@@ -87,7 +87,7 @@ const topGroups = allGroups.filter(([slug]) => !childSlugs.has(slug));
                           <a href={url(`/${departmentSlug}/nhom/${child.slug}/`)} aria-current={current === child.slug ? 'page' : undefined}>
                             <span class="sub-icon" aria-hidden="true">
                               {child.image ? (
-                                <Image src={child.image} alt="" width={22} height={22} />
+                                <Image src={child.image} alt="" width={32} height={32} />
                               ) : (
                                 <GroupIcon icon={child.group.icon} size={17} />
                               )}
