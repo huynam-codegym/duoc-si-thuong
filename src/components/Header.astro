@@ -90,7 +90,7 @@ const shopMenus = await Promise.all(
       const first = allProducts
         .filter((product) => product.data.department === departmentSlug && product.data.group === childSlug)
         .sort((a, b) => a.data.name.localeCompare(b.data.name, 'vi'))[0];
-      if (first) childTileImages.set(childSlug, (await getImage({ src: first.data.image, width: 88, height: 88, format: 'webp' })).src);
+      if (first) childTileImages.set(childSlug, (await getImage({ src: first.data.image, width: 44, height: 44, format: 'webp' })).src);
     }
     return { departmentSlug, department, groupEntries, topGroupEntries, megaProducts, childTileImages, href: url(`/${departmentSlug}/`) };
   }),
@@ -273,11 +273,11 @@ const drawerSections: DrawerSection[] = [
                                   return (
                                     <li>
                                       <a href={url(`/${departmentSlug}/nhom/${childSlug}/`)}>
-                                        <span class="tile-icon" aria-hidden="true">
+                                        <span class="sub-icon" aria-hidden="true">
                                           {childImage ? (
-                                            <img src={childImage} alt="" width="44" height="44" loading="lazy" />
+                                            <img src={childImage} alt="" width="22" height="22" loading="lazy" />
                                           ) : (
-                                            <GroupIcon icon={child.icon} size={22} badge badgeSize={44} />
+                                            <GroupIcon icon={child.icon} size={17} />
                                           )}
                                         </span>
                                         <span>{child.name}</span>

@@ -85,11 +85,11 @@ const topGroups = allGroups.filter(([slug]) => !childSlugs.has(slug));
                       {children.map((child) => (
                         <li>
                           <a href={url(`/${departmentSlug}/nhom/${child.slug}/`)} aria-current={current === child.slug ? 'page' : undefined}>
-                            <span class="tile-icon" aria-hidden="true">
+                            <span class="sub-icon" aria-hidden="true">
                               {child.image ? (
-                                <Image src={child.image} alt="" width={44} height={44} />
+                                <Image src={child.image} alt="" width={22} height={22} />
                               ) : (
-                                <GroupIcon icon={child.group.icon} size={22} badge badgeSize={44} />
+                                <GroupIcon icon={child.group.icon} size={17} />
                               )}
                             </span>
                             <span>{child.group.name}</span>
