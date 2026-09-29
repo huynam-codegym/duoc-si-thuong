@@ -18,6 +18,13 @@ const products = await getProducts(departmentSlug);
 const counts = new Map<string, number>();
 for (const product of products) counts.set(product.data.group, (counts.get(product.data.group) ?? 0) + 1);
 const isAll = Astro.url.pathname === url(`/${departmentSlug}/`);
+
+// Menu trái gộp nhóm con vào nhóm cha (xem ghi chú `childGroups` trong departments.ts): nhóm nào đã
+// được một nhóm khác nhận làm "con" thì không hiện lại thành dòng riêng ở cấp ngoài cùng, chỉ hiện
+// lồng bên trong nhóm cha (rê chuột/bấm mũi tên để mở).
+const allGroups = getProductGroups(departmentSlug);
+const childSlugs = new Set(allGroups.flatMap(([, group]) => group.childGroups ?? []));
+const topGroups = allGroups.filter(([slug]) => !childSlugs.has(slug));
 ---
 
 <div class="container shop">
@@ -39,17 +46,52 @@ const isAll = Astro.url.pathname === url(`/${departmentSlug}/`);
           </a>
         </li>
         {
-          getProductGroups(departmentSlug).map(([slug, group]) => (
-            <li>
-              <a href={url(`/${departmentSlug}/nhom/${slug}/`)} aria-current={current === slug ? 'page' : undefined}>
-                <span class="sub-icon" aria-hidden="true">
-                  <GroupIcon icon={group.icon} size={17} />
-                </span>
-                <span>{group.name}</span>
-                <span class="shop-count">{counts.get(slug) ?? 0}</span>
-              </a>
-            </li>
-          ))
+          topGroups.map(([slug, group]) => {
+            const children = (group.childGroups ?? []).filter((childSlug) => department.groups[childSlug]);
+            const hasChildren = children.length > 0;
+            const isChildCurrent = children.includes(current ?? '');
+            return (
+              <li class={hasChildren ? `shop-parent${isChildCurrent ? ' open' : ''}` : undefined}>
+                <a href={url(`/${departmentSlug}/nhom/${slug}/`)} aria-current={current === slug ? 'page' : undefined}>
+                  <span class="sub-icon" aria-hidden="true">
+                    <GroupIcon icon={group.icon} size={17} />
+                  </span>
+                  <span>{group.name}</span>
+                  <span class="shop-count">{counts.get(slug) ?? 0}</span>
+                </a>
+                {hasChildren && (
+                  <>
+                    <button
+                      type="button"
+                      class="shop-sub-toggle"
+                      aria-expanded={isChildCurrent ? 'true' : 'false'}
+                      aria-label={`Xem nhóm con của ${group.name}`}
+                    >
+                      <svg viewBox="0 0 12 12" aria-hidden="true" focusable="false">
+                        <path d="M2 4l4 4 4-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                      </svg>
+                    </button>
+                    <ul class="shop-flyout">
+                      {children.map((childSlug) => {
+                        const child = department.groups[childSlug];
+                        return (
+                          <li>
+                            <a href={url(`/${departmentSlug}/nhom/${childSlug}/`)} aria-current={current === childSlug ? 'page' : undefined}>
+                              <span class="sub-icon" aria-hidden="true">
+                                <GroupIcon icon={child.icon} size={17} />
+                              </span>
+                              <span>{child.name}</span>
+                              <span class="shop-count">{counts.get(childSlug) ?? 0}</span>
+                            </a>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  </>
+                )}
+              </li>
+            );
+          })
         }
       </ul>
     </nav>
@@ -67,5 +109,27 @@ const isAll = Astro.url.pathname === url(`/${departmentSlug}/`);
     const open = !side!.classList.contains('open');
     side!.classList.toggle('open', open);
     toggle.setAttribute('aria-expanded', String(open));
+  });
+
+  // Nhóm cha có nhóm con (xem `childGroups` trong departments.ts): bấm mũi tên để mở/đóng nhóm con —
+  // dùng cho điện thoại/máy tính bảng và bàn phím. Trên máy tính (có chuột), danh sách con còn tự mở
+  // khi rê chuột vào nhóm cha (xử lý bằng CSS `:hover`, xem `.shop-parent:hover > .shop-flyout`).
+  const parents = document.querySelectorAll<HTMLElement>('.shop-parent');
+  function setParentOpen(item: HTMLElement, open: boolean) {
+    item.classList.toggle('open', open);
+    item.querySelector('.shop-sub-toggle')?.setAttribute('aria-expanded', String(open));
+  }
+  parents.forEach((item) => {
+    item.querySelector('.shop-sub-toggle')?.addEventListener('click', () => {
+      setParentOpen(item, !item.classList.contains('open'));
+    });
+  });
+  document.addEventListener('click', (event) => {
+    parents.forEach((item) => {
+      if (!item.contains(event.target as Node)) setParentOpen(item, false);
+    });
+  });
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') parents.forEach((item) => setParentOpen(item, false));
   });
 </script>

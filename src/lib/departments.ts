@@ -17,6 +17,16 @@ export interface ProductGroup {
   icon: IconName;
   name: string;
   description: string;
+  /**
+   * Slug của các nhóm KHÁC nên "lồng" dưới nhóm này khi hiện ở **menu bên trái khu bán hàng**
+   * (`ShopShell.astro`) — chủ website yêu cầu tháng 9/2026, để menu trái gọn lại thay vì liệt kê
+   * phẳng hết mọi nhóm. Rê chuột (máy tính) hoặc bấm mũi tên (điện thoại/máy tính bảng) vào nhóm
+   * cha mới hiện các nhóm con này. CHỈ ảnh hưởng cách hiện menu trái — trang nhóm, breadcrumb, menu
+   * lớn ở đầu trang, "Danh mục [khu]" ở trang chủ, bộ lọc tìm kiếm... vẫn dùng danh sách `groups`
+   * phẳng như cũ, không đổi gì (sản phẩm gắn `group` là slug nhóm con, không phải nhóm cha).
+   * Nhóm con liệt kê ở đây sẽ TỰ ẨN khỏi danh sách phẳng ở menu trái (chỉ hiện lồng bên trong cha).
+   */
+  childGroups?: string[];
 }
 
 export interface Department {
@@ -34,6 +44,7 @@ const departmentData = {
         icon: 'citrus',
         name: 'Vitamin & khoáng chất',
         description: 'Thực phẩm bổ sung vitamin và khoáng chất cho chế độ ăn hằng ngày.',
+        childGroups: ['vitamin-tong-hop', 'canxi-vitamin-d'],
       },
       'vitamin-tong-hop': {
         icon: 'citrus',

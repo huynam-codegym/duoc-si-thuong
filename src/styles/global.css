@@ -860,6 +860,91 @@ img {
   color: var(--ink-soft);
 }
 
+/* Nhóm cha có nhóm con ở menu trái (xem `childGroups` trong departments.ts, ví dụ "Vitamin & khoáng
+   chất" gộp "Vitamin tổng hợp" và "Canxi & Vitamin D") — chủ website yêu cầu tháng 9/2026, để menu
+   trái gọn lại thay vì liệt kê phẳng hết mọi nhóm. Mặc định (điện thoại/máy tính bảng, hoặc máy tính
+   không có chuột thật): bấm mũi tên mở/đóng danh sách con NGAY DƯỚI, kiểu accordion thụt vào. */
+.shop-parent {
+  position: relative;
+}
+
+.shop-parent > a {
+  padding-right: 2.4rem;
+}
+
+.shop-sub-toggle {
+  position: absolute;
+  top: 0.15rem;
+  right: 0.15rem;
+  width: 2.4rem;
+  height: 2.4rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  background: none;
+  color: var(--ink-soft);
+  cursor: pointer;
+}
+
+.shop-sub-toggle svg {
+  width: 12px;
+  height: 12px;
+  transition: transform 0.15s;
+}
+
+.shop-parent.open > .shop-sub-toggle svg {
+  transform: rotate(180deg);
+}
+
+.shop-flyout {
+  display: none;
+  margin: 0.2rem 0 0.3rem 1.6rem;
+  padding: 0;
+  list-style: none;
+  border-left: 2px solid var(--green-100);
+}
+
+.shop-flyout a {
+  min-height: 2.4rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.shop-parent.open > .shop-flyout {
+  display: block;
+}
+
+/* Máy tính có chuột thật: rê chuột vào nhóm cha cũng mở được (không chỉ bấm mũi tên), hiện thành
+   khung nổi bên phải thay vì thụt vào, giống kiểu menu lớn ở đầu trang (.mega-menu). */
+@media (min-width: 48rem) and (hover: hover) {
+  .shop-parent:hover > .shop-flyout,
+  .shop-parent:has(:focus-visible) > .shop-flyout {
+    display: block;
+    position: absolute;
+    top: -0.4rem;
+    left: 100%;
+    z-index: 60;
+    margin: 0;
+    padding: 0.4rem;
+    min-width: 14rem;
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    box-shadow: 0 12px 32px rgb(0 0 0 / 0.18);
+  }
+
+  /* Vùng đệm để chuột đi từ nhóm cha sang khung nổi không bị mất hover */
+  .shop-parent:hover > .shop-flyout::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: -0.6rem;
+    width: 0.6rem;
+  }
+}
+
 .shop-main {
   min-width: 0;
 }
