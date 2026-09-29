@@ -2215,6 +2215,18 @@ button.btn:not(.btn-outline) {
   line-height: 1;
 }
 
+/* Ô tile nhóm con (.shop-flyout, .mega-subgroups) ưu tiên hiện ẢNH SẢN PHẨM thật thay vì icon khi
+   nhóm đó đã có sản phẩm (xem ghi chú `childTileImages`/`child.image` ở Header.astro/ShopShell.astro) —
+   bo tròn giống khung icon cũ (`.group-icon-badge`) để đổi qua đổi lại không bị lệch bố cục. */
+.tile-icon img {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  object-fit: cover;
+  background: var(--green-50);
+  border: 1px solid var(--line);
+}
+
 .more {
   margin: 1rem 0 0;
   text-align: center;

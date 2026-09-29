@@ -82,7 +82,17 @@ const shopMenus = await Promise.all(
         ),
       );
     }
-    return { departmentSlug, department, groupEntries, topGroupEntries, megaProducts, href: url(`/${departmentSlug}/`) };
+    // Ô tile của nhóm con hiện ẢNH SẢN PHẨM thật (sản phẩm đầu tiên theo thứ tự tên trong nhóm đó —
+    // nhóm chưa có sản phẩm thì tạm dùng lại icon đường nét ở phần render bên dưới), giống mẫu Long
+    // Châu chủ website gửi (chủ website yêu cầu tháng 9/2026: đổi từ icon sang ảnh sản phẩm).
+    const childTileImages = new Map<string, string>();
+    for (const childSlug of childSlugs) {
+      const first = allProducts
+        .filter((product) => product.data.department === departmentSlug && product.data.group === childSlug)
+        .sort((a, b) => a.data.name.localeCompare(b.data.name, 'vi'))[0];
+      if (first) childTileImages.set(childSlug, (await getImage({ src: first.data.image, width: 88, height: 88, format: 'webp' })).src);
+    }
+    return { departmentSlug, department, groupEntries, topGroupEntries, megaProducts, childTileImages, href: url(`/${departmentSlug}/`) };
   }),
 );
 
@@ -205,7 +215,7 @@ const drawerSections: DrawerSection[] = [
       <nav class="site-nav" aria-label="Chuyên mục">
         <ul>
           {
-            shopMenus.map(({ departmentSlug, department, topGroupEntries, megaProducts, href }) => (
+            shopMenus.map(({ departmentSlug, department, topGroupEntries, megaProducts, childTileImages, href }) => (
               <li class="has-sub">
                 <a href={href} aria-current={current.startsWith(href) ? 'page' : undefined}>{department.name}</a>
                 <button
@@ -259,11 +269,16 @@ const drawerSections: DrawerSection[] = [
                               <ul class="mega-subgroups">
                                 {children.map((childSlug) => {
                                   const child = department.groups[childSlug];
+                                  const childImage = childTileImages.get(childSlug);
                                   return (
                                     <li>
                                       <a href={url(`/${departmentSlug}/nhom/${childSlug}/`)}>
                                         <span class="tile-icon" aria-hidden="true">
-                                          <GroupIcon icon={child.icon} size={22} badge badgeSize={44} />
+                                          {childImage ? (
+                                            <img src={childImage} alt="" width="44" height="44" loading="lazy" />
+                                          ) : (
+                                            <GroupIcon icon={child.icon} size={22} badge badgeSize={44} />
+                                          )}
                                         </span>
                                         <span>{child.name}</span>
                                       </a>

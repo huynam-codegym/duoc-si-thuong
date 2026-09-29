@@ -1,6 +1,7 @@
 ---
 // Khung của một khu bán hàng (Thực phẩm chức năng, Dược mỹ phẩm, Chăm sóc cá nhân, Thiết bị y tế):
 // menu nhóm sản phẩm ở bên trái, nội dung ở bên phải. Trên điện thoại menu gập lại thành nút bấm "Danh mục sản phẩm".
+import { Image } from 'astro:assets';
 import GroupIcon from './GroupIcon.astro';
 import { departments, getProductGroups, type DepartmentSlug } from '../lib/departments';
 import { getProducts } from '../lib/products';
@@ -47,9 +48,18 @@ const topGroups = allGroups.filter(([slug]) => !childSlugs.has(slug));
         </li>
         {
           topGroups.map(([slug, group]) => {
-            const children = (group.childGroups ?? []).filter((childSlug) => department.groups[childSlug]);
+            // Ô nhỏ (tile) của nhóm con hiện ẢNH SẢN PHẨM thật (sản phẩm đầu tiên theo thứ tự tên trong
+            // nhóm đó — nhóm chưa có sản phẩm nào thì tạm dùng lại icon đường nét), theo đúng mẫu Long
+            // Châu chủ website gửi (chủ website yêu cầu tháng 9/2026: đổi từ icon sang ảnh sản phẩm).
+            const children = (group.childGroups ?? [])
+              .filter((childSlug) => department.groups[childSlug])
+              .map((childSlug) => ({
+                slug: childSlug,
+                group: department.groups[childSlug],
+                image: products.find((product) => product.data.group === childSlug)?.data.image,
+              }));
             const hasChildren = children.length > 0;
-            const isChildCurrent = children.includes(current ?? '');
+            const isChildCurrent = children.some((child) => child.slug === (current ?? ''));
             return (
               <li class={hasChildren ? `shop-parent${isChildCurrent ? ' open' : ''}` : undefined}>
                 <a href={url(`/${departmentSlug}/nhom/${slug}/`)} aria-current={current === slug ? 'page' : undefined}>
@@ -72,19 +82,20 @@ const topGroups = allGroups.filter(([slug]) => !childSlugs.has(slug));
                       </svg>
                     </button>
                     <ul class="shop-flyout">
-                      {children.map((childSlug) => {
-                        const child = department.groups[childSlug];
-                        return (
-                          <li>
-                            <a href={url(`/${departmentSlug}/nhom/${childSlug}/`)} aria-current={current === childSlug ? 'page' : undefined}>
-                              <span class="tile-icon" aria-hidden="true">
-                                <GroupIcon icon={child.icon} size={22} badge badgeSize={44} />
-                              </span>
-                              <span>{child.name}</span>
-                            </a>
-                          </li>
-                        );
-                      })}
+                      {children.map((child) => (
+                        <li>
+                          <a href={url(`/${departmentSlug}/nhom/${child.slug}/`)} aria-current={current === child.slug ? 'page' : undefined}>
+                            <span class="tile-icon" aria-hidden="true">
+                              {child.image ? (
+                                <Image src={child.image} alt="" width={44} height={44} />
+                              ) : (
+                                <GroupIcon icon={child.group.icon} size={22} badge badgeSize={44} />
+                              )}
+                            </span>
+                            <span>{child.group.name}</span>
+                          </a>
+                        </li>
+                      ))}
                     </ul>
                   </>
                 )}
