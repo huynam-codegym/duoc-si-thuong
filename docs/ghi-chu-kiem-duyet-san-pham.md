@@ -182,3 +182,15 @@ Hai sản phẩm bổ sung kẽm cho trẻ, không video (theo yêu cầu). Giá
 **Nội dung đã diễn đạt lại/bỏ bớt theo nguyên tắc nội dung sức khỏe:** nhãn tiếng Anh có các câu khẳng định như "dedicated to care", marketing chung — bài chỉ giữ phần công dụng/thành phần/cách dùng cụ thể, không đưa nguyên văn các câu quảng cáo mang tính cảm tính. Từ "hypoallergenic" (hạn chế gây dị ứng) giữ nguyên nghĩa gốc, không dịch thành "không gây dị ứng" (dịch vậy là khẳng định tuyệt đối, sai với ý gốc — đúng nguyên tắc 4 không hứa hẹn tuyệt đối).
 
 **Cần dược sĩ xác nhận:** đây là sản phẩm dùng cho trẻ sơ sinh — nhờ dược sĩ đối chiếu lại với vỏ hộp thật (nhất là phần "Lưu ý" và độ tuổi phù hợp) trước khi coi là nội dung chính thức.
+
+## cetaphil-baby-gentle-wash-shampoo (tháng 9/2026)
+
+**Sản phẩm thứ 2 trong nhóm "Sữa tắm gội em bé"** — cùng thương hiệu Cetaphil (Galderma), sản xuất tại Đức, nhưng khác dòng (Gentle Wash & Shampoo, không phải bản Organic Calendula đã thêm trước đó). Anh cho giá gốc 240.000đ, giá giảm 205.000đ (chai 400ml) — tự hiện nhãn "-15%".
+
+**Nguồn nội dung:** 8 ảnh anh gửi (`Downloads/0903/Cetaphil Baby Gentle Wash/`) — ảnh 1 (mặt trước), ảnh 7 (mặt sau, tiếng Anh) và ảnh 8 (nhãn phụ tiếng Việt) là ảnh sạch, không logo bên thứ ba, dùng làm ảnh chính và gallery. Ảnh 2–6 có logo "Nhà thuốc Long Châu" — không dùng, thay bằng 3 banner tự thiết kế (logo Dược Sĩ Thương) như các sản phẩm trước.
+
+**Xuất xứ, đơn vị chịu trách nhiệm:** giống hệt sản phẩm Cetaphil Organic Calendula (đọc từ nhãn phụ tiếng Việt, ảnh 8) — Đức, Công ty TNHH Galderma Việt Nam.
+
+**Số công bố ĐỂ TRỐNG:** nhãn phụ có mã "GVNAW-060665-100424" (khác mã của sản phẩm Organic Calendula) — cùng lý do như sản phẩm trước, không đúng định dạng số công bố mỹ phẩm Việt Nam nên không điền, tránh ghi sai.
+
+**Điểm khác so với bản Organic Calendula:** nhãn ghi rõ "công thức 2 trong 1" (dùng chung cho da và tóc) và thành phần chính là glycerin + panthenol (không có chiết xuất hoa cúc/lô hội như bản kia) — bài viết theo đúng nhãn, không dùng chung nội dung giữa 2 sản phẩm.
