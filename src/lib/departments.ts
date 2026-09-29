@@ -153,31 +153,59 @@ const departmentData = {
   'cham-soc-ca-nhan': {
     name: 'Chăm sóc cá nhân',
     description: 'Sản phẩm vệ sinh và chăm sóc cá nhân dùng hằng ngày cho cả gia đình.',
+    // 10 nhóm (tháng 9/2026, theo đúng ảnh menu Long Châu chủ website gửi) — thay cho 5 nhóm trước đó
+    // (không tách riêng "Chăm sóc tóc" nữa vì ảnh mẫu không có mục này; muốn thêm lại thì tạo nhóm mới,
+    // không cần sửa code khác). Đặt tên nhóm giữ nguyên như ảnh mẫu, không đổi ý.
     groups: {
-      've-sinh-rang-mieng': {
+      'ho-tro-tinh-duc': {
+        icon: 'rings',
+        name: 'Hỗ trợ tình dục',
+        description: 'Sản phẩm hỗ trợ đời sống tình dục cho người trưởng thành.',
+      },
+      'thuc-pham-do-uong': {
+        icon: 'cup',
+        name: 'Thực phẩm - Đồ uống',
+        description: 'Thực phẩm và đồ uống dùng hằng ngày cho cả gia đình.',
+      },
+      'cham-soc-rang-mieng': {
         icon: 'tooth',
-        name: 'Vệ sinh răng miệng',
+        name: 'Chăm sóc răng miệng',
         description: 'Kem đánh răng, nước súc miệng và dụng cụ vệ sinh răng miệng.',
       },
-      'cham-soc-toc': {
-        icon: 'comb',
-        name: 'Chăm sóc tóc',
-        description: 'Dầu gội, dầu xả và sản phẩm chăm sóc tóc, da đầu.',
+      'tinh-dau-huong-lieu': {
+        icon: 'vial',
+        name: 'Tinh dầu & Hương liệu các loại',
+        description: 'Tinh dầu, hương liệu dùng để thư giãn và tạo hương cho không gian sống.',
       },
-      'sua-tam-xa-phong': {
-        icon: 'droplet',
-        name: 'Sữa tắm, xà phòng',
-        description: 'Sản phẩm làm sạch cơ thể hằng ngày.',
+      'thiet-bi-lam-dep': {
+        icon: 'wand',
+        name: 'Thiết bị làm đẹp',
+        description: 'Thiết bị hỗ trợ chăm sóc da, tóc tại nhà.',
       },
-      've-sinh-phu-nu': {
+      'cham-soc-vung-kin': {
         icon: 'flower',
-        name: 'Vệ sinh phụ nữ',
-        description: 'Dung dịch và sản phẩm vệ sinh dành cho phụ nữ.',
+        name: 'Chăm sóc vùng kín',
+        description: 'Dung dịch và sản phẩm vệ sinh vùng kín.',
       },
-      'khu-mui': {
-        icon: 'wind',
-        name: 'Khử mùi',
-        description: 'Sản phẩm khử mùi và giữ cơ thể thơm mát.',
+      'cham-soc-me-va-be': {
+        icon: 'baby',
+        name: 'Chăm sóc mẹ và bé',
+        description: 'Sản phẩm chăm sóc dành cho mẹ sau sinh và trẻ nhỏ.',
+      },
+      'ho-tro-dieu-tri-da': {
+        icon: 'sparkle',
+        name: 'Hỗ trợ điều trị da cơ thể',
+        description: 'Sản phẩm hỗ trợ các vấn đề về da cơ thể như khô da, rạn da.',
+      },
+      'ta-bim': {
+        icon: 'diaper',
+        name: 'Tã - bỉm',
+        description: 'Tã, bỉm cho trẻ em và người lớn.',
+      },
+      've-sinh-hang-ngay': {
+        icon: 'droplet',
+        name: 'Vệ sinh hàng ngày',
+        description: 'Sữa tắm, xà phòng và sản phẩm vệ sinh cơ thể hằng ngày.',
       },
     },
   },

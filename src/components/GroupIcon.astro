@@ -241,6 +241,38 @@ const { icon: name, size = 20, badge = false, badgeSize = size + 20 } = Astro.pr
             <path d="M8 3v4M16 3v4" />
           </>
         )}
+        {name === 'rings' && (
+          <>
+            <circle cx="9" cy="12" r="6" />
+            <circle cx="15" cy="12" r="6" />
+          </>
+        )}
+        {name === 'cup' && (
+          <>
+            <path d="M5 6h11v9a4 4 0 0 1-4 4H9a4 4 0 0 1-4-4Z" />
+            <path d="M16 9h1.5a2.5 2.5 0 0 1 0 5H16" />
+            <path d="M8 3.3c0 1-1 1-1 2M12 3.3c0 1-1 1-1 2" />
+          </>
+        )}
+        {name === 'vial' && (
+          <>
+            <rect x="8.5" y="9" width="7" height="11" rx="2" />
+            <path d="M11 9V6a1 1 0 0 1 1-1v0a1 1 0 0 1 1 1v3" />
+            <circle cx="12" cy="3.3" r="1.6" />
+          </>
+        )}
+        {name === 'wand' && (
+          <>
+            <circle cx="17" cy="7" r="3.2" />
+            <path d="M14.7 9.3L5 19" />
+          </>
+        )}
+        {name === 'diaper' && (
+          <>
+            <path d="M4 9c0-1 .8-1.8 1.8-1.8h12.4A1.8 1.8 0 0 1 20 9v3c0 4-3.5 7.3-8 8-4.5-.7-8-4-8-8Z" />
+            <path d="M4 11h2M18 11h2" />
+          </>
+        )}
       </svg>
     </span>
   ) : (
@@ -465,6 +497,38 @@ const { icon: name, size = 20, badge = false, badgeSize = size + 20 } = Astro.pr
           <rect x="3.5" y="5" width="17" height="15.5" rx="2.3" />
           <path d="M3.5 9.8h17" />
           <path d="M8 3v4M16 3v4" />
+        </>
+      )}
+      {name === 'rings' && (
+        <>
+          <circle cx="9" cy="12" r="6" />
+          <circle cx="15" cy="12" r="6" />
+        </>
+      )}
+      {name === 'cup' && (
+        <>
+          <path d="M5 6h11v9a4 4 0 0 1-4 4H9a4 4 0 0 1-4-4Z" />
+          <path d="M16 9h1.5a2.5 2.5 0 0 1 0 5H16" />
+          <path d="M8 3.3c0 1-1 1-1 2M12 3.3c0 1-1 1-1 2" />
+        </>
+      )}
+      {name === 'vial' && (
+        <>
+          <rect x="8.5" y="9" width="7" height="11" rx="2" />
+          <path d="M11 9V6a1 1 0 0 1 1-1v0a1 1 0 0 1 1 1v3" />
+          <circle cx="12" cy="3.3" r="1.6" />
+        </>
+      )}
+      {name === 'wand' && (
+        <>
+          <circle cx="17" cy="7" r="3.2" />
+          <path d="M14.7 9.3L5 19" />
+        </>
+      )}
+      {name === 'diaper' && (
+        <>
+          <path d="M4 9c0-1 .8-1.8 1.8-1.8h12.4A1.8 1.8 0 0 1 20 9v3c0 4-3.5 7.3-8 8-4.5-.7-8-4-8-8Z" />
+          <path d="M4 11h2M18 11h2" />
         </>
       )}
     </svg>

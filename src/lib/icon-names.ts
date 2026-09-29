@@ -36,4 +36,9 @@ export type IconName =
   | 'liver'
   | 'grid'
   | 'target'
-  | 'calendar';
+  | 'calendar'
+  | 'rings'
+  | 'cup'
+  | 'vial'
+  | 'wand'
+  | 'diaper';
