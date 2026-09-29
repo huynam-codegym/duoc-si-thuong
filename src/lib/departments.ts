@@ -191,6 +191,14 @@ const departmentData = {
         icon: 'baby',
         name: 'Chăm sóc mẹ và bé',
         description: 'Sản phẩm chăm sóc dành cho mẹ sau sinh và trẻ nhỏ.',
+        // Nhóm con đầu tiên của khu Chăm sóc cá nhân (tháng 9/2026, chủ website yêu cầu): menu trái/
+        // menu lớn chỉ hiện 1 dòng "Chăm sóc mẹ và bé", rê chuột mới hiện "Sữa tắm gội em bé" bên phải.
+        childGroups: ['sua-tam-goi-em-be'],
+      },
+      'sua-tam-goi-em-be': {
+        icon: 'droplet',
+        name: 'Sữa tắm gội em bé',
+        description: 'Sữa tắm gội dịu nhẹ dành cho trẻ sơ sinh và trẻ nhỏ.',
       },
       'ho-tro-dieu-tri-da': {
         icon: 'sparkle',

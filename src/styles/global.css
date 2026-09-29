@@ -977,6 +977,15 @@ img {
   .shop-side {
     position: sticky;
     top: 1rem;
+    /* `position: sticky` tự tạo NGỮ CẢNH XẾP LỚP (stacking context) riêng cho .shop-side, nên
+       z-index:60 của .shop-flyout bên trong chỉ so được với các phần tử KHÁC CŨNG Ở TRONG
+       .shop-side — không so được với .shop-main (thẻ sản phẩm) nằm ngoài. Kết quả: nhóm cha nào
+       nằm thấp trong danh sách (ngang hàng với lưới sản phẩm) thì khay nổi bị thẻ sản phẩm đè
+       lên, dù z-index của khay đã rất cao. Chỉ lộ ra khi khu có nhiều nhóm (ví dụ "Chăm sóc mẹ
+       và bé" ở khu Chăm sóc cá nhân, hàng thứ 7/10) — khu ít nhóm hơn thì khay nổi tình cờ không
+       chạm tới lưới sản phẩm nên không thấy lỗi. Cho .shop-side một z-index rõ ràng để cả khối
+       (kể cả khay nổi bên trong) luôn nổi trên .shop-main, bất kể thứ tự trong DOM. */
+    z-index: 5;
   }
 
   .shop-side-toggle {

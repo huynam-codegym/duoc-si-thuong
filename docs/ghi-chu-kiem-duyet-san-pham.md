@@ -168,3 +168,17 @@ Hai sản phẩm bổ sung kẽm cho trẻ, không video (theo yêu cầu). Giá
 - **Biolizin — liều theo tuổi (3–6 tháng: 1ml; 6–12 tháng: 2ml; 1–4 tuổi: 2,5ml; từ 5 tuổi và người lớn: 5ml mỗi ngày)** chép đúng nhãn kèm khuyến cáo hỏi bác sĩ/dược sĩ; đây là sản phẩm cho cả trẻ sơ sinh từ 3 tháng nên **dược sĩ cần xác nhận lại** trước khi coi là chính thức.
 - **Tôi đã diễn đạt lại các câu đối tượng trên nhãn có ý bệnh lý** ("thiếu kẽm, tiêu chảy, suy dinh dưỡng...") thành "có nhu cầu bổ sung kẽm", "gầy yếu, biếng ăn, sức đề kháng kém" và thêm câu khuyên đi khám nếu triệu chứng kéo dài (nguyên tắc 2, 4). Câu công dụng "hỗ trợ cải thiện biếng ăn, chậm lớn ở trẻ thiếu kẽm" của Smartbibi in trên nhãn nên giữ, ghi rõ "theo nhà sản xuất".
 - **Chất làm ngọt:** cả hai có chất làm ngọt tổng hợp (Smartbibi: sucralose, natri cyclamat; Biolizin: sucralose, acesulfame K) — đã ghi trong thành phần/lưu ý.
+
+## cetaphil-baby-wash-shampoo-calendula (tháng 9/2026)
+
+**Sản phẩm đầu tiên của khu Chăm sóc cá nhân.** Sữa tắm gội Cetaphil Baby dịu nhẹ với hoa cúc Calendula hữu cơ, thương hiệu Cetaphil (Galderma), sản xuất tại Đức. Anh cho giá gốc 290.000đ, giá giảm 240.000đ (chai 400ml) — tự hiện nhãn "-17%". Xếp vào nhóm con mới **"Sữa tắm gội em bé"** (gộp dưới nhóm cha "Chăm sóc mẹ và bé" ở menu trái, xem `childGroups` trong `departments.ts`).
+
+**Nguồn nội dung:** 7 ảnh anh gửi (`Downloads/0903/Cetaphil Organic Calendula/`) — ảnh 1 (mặt trước chai) và ảnh 6 (mặt sau chai, tiếng Anh) là ảnh chụp sản phẩm sạch, không có logo bên thứ ba, dùng trực tiếp làm ảnh chính và ảnh gallery. Ảnh 7 là nhãn phụ tiếng Việt (rõ, đầy đủ thông tin pháp lý) — dùng làm nguồn chính cho công dụng, cách dùng, xuất xứ, đơn vị chịu trách nhiệm. Ảnh 2–5 đều có logo "Nhà thuốc Long Châu" nên **không dùng** — đã tự thiết kế lại 3 banner (logo Dược Sĩ Thương) chỉ dùng thông tin đọc được trên nhãn thật (công dụng, thành phần chính, cách dùng), thay cho các ảnh đó.
+
+**Xuất xứ và đơn vị chịu trách nhiệm:** đọc rõ từ nhãn phụ tiếng Việt (ảnh 7) — "Nước sản xuất: Đức", "Công ty chịu trách nhiệm đưa sản phẩm ra thị trường: Công ty TNHH Galderma Việt Nam, Phòng 16.02-06, Tầng 16, Số 33 Lê Duẩn, Phường Bến Nghé, Quận 1, TP. Hồ Chí Minh".
+
+**Số công bố ĐỂ TRỐNG:** nhãn phụ chỉ có dòng mã "GVNAW-060713-100424" ở cuối — không đúng định dạng số tiếp nhận công bố mỹ phẩm của Việt Nam (thường dạng số/năm/CBMP-XX), nhiều khả năng là mã lô sản xuất hoặc mã tham chiếu nội bộ của nhà phân phối, không phải số công bố — nên không điền vào `publicationNo` để tránh ghi sai (nguyên tắc 1, 10). Nếu anh có số công bố mỹ phẩm thật (thường tra được trên cổng thông tin mỹ phẩm của Cục Quản lý Dược), gửi để tôi điền.
+
+**Nội dung đã diễn đạt lại/bỏ bớt theo nguyên tắc nội dung sức khỏe:** nhãn tiếng Anh có các câu khẳng định như "dedicated to care", marketing chung — bài chỉ giữ phần công dụng/thành phần/cách dùng cụ thể, không đưa nguyên văn các câu quảng cáo mang tính cảm tính. Từ "hypoallergenic" (hạn chế gây dị ứng) giữ nguyên nghĩa gốc, không dịch thành "không gây dị ứng" (dịch vậy là khẳng định tuyệt đối, sai với ý gốc — đúng nguyên tắc 4 không hứa hẹn tuyệt đối).
+
+**Cần dược sĩ xác nhận:** đây là sản phẩm dùng cho trẻ sơ sinh — nhờ dược sĩ đối chiếu lại với vỏ hộp thật (nhất là phần "Lưu ý" và độ tuổi phù hợp) trước khi coi là nội dung chính thức.
