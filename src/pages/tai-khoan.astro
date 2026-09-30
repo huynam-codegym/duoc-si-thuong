@@ -1,0 +1,255 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout
+  title="Tài khoản của tôi"
+  description="Đăng nhập hoặc tạo tài khoản để lưu thông tin nhận hàng và xem lại các đơn đã đặt."
+  noindex
+>
+  <div class="container account-page">
+    <section class="hero shop-hero">
+      <h1>Tài khoản của tôi</h1>
+    </section>
+
+    <p id="account-loading">Đang tải...</p>
+
+    <div id="auth-box" class="order" hidden>
+      <div class="account-tabs" role="tablist">
+        <button type="button" role="tab" class="account-tab active" data-tab="login" aria-selected="true">Đăng nhập</button>
+        <button type="button" role="tab" class="account-tab" data-tab="register" aria-selected="false">Đăng ký</button>
+      </div>
+
+      <form id="login-form" novalidate>
+        <label>
+          Email
+          <input type="email" name="email" autocomplete="email" required />
+        </label>
+        <label>
+          Mật khẩu
+          <input type="password" name="password" autocomplete="current-password" minlength="6" required />
+        </label>
+        <div class="account-form-actions">
+          <button type="submit" class="btn">Đăng nhập</button>
+          <button type="button" id="forgot-password" class="btn-link">Quên mật khẩu?</button>
+        </div>
+        <p class="order-error" role="alert" hidden></p>
+      </form>
+
+      <form id="register-form" novalidate hidden>
+        <label>
+          Email
+          <input type="email" name="email" autocomplete="email" required />
+        </label>
+        <label>
+          Mật khẩu
+          <input type="password" name="password" autocomplete="new-password" minlength="6" required />
+        </label>
+        <p class="order-lead">Mật khẩu ít nhất 6 ký tự. Sau khi đăng ký, kiểm tra email (kể cả mục Spam) để bấm xác nhận trước khi đăng nhập.</p>
+        <button type="submit" class="btn">Đăng ký</button>
+        <p class="order-error" role="alert" hidden></p>
+      </form>
+
+      <p class="account-message" id="auth-message" hidden></p>
+    </div>
+
+    <div id="account-box" hidden>
+      <p class="account-greeting">
+        Xin chào, <strong id="account-email"></strong> ·
+        <button type="button" id="logout-btn" class="btn-link">Đăng xuất</button>
+      </p>
+
+      <section class="order" aria-labelledby="profile-title">
+        <h2 id="profile-title">Thông tin của tôi</h2>
+        <p class="order-lead">Lưu sẵn thông tin để lần sau đặt hàng nhanh hơn.</p>
+        <form id="profile-form" novalidate>
+          <label>
+            Họ và tên
+            <input type="text" name="full_name" autocomplete="name" maxlength="80" />
+          </label>
+          <label>
+            Số điện thoại
+            <input type="tel" name="phone" autocomplete="tel" inputmode="tel" pattern="(0|[+]84)[0-9]{9}" title="Số điện thoại 10 chữ số, ví dụ 0912345678" />
+          </label>
+          <label>
+            Địa chỉ nhận hàng
+            <input type="text" name="address" autocomplete="street-address" maxlength="200" />
+          </label>
+          <button type="submit" class="btn">Lưu thông tin</button>
+        </form>
+        <p class="account-message" id="profile-message" hidden></p>
+      </section>
+
+      <section aria-labelledby="orders-title">
+        <h2 id="orders-title">Lịch sử đơn hàng</h2>
+        <p class="order-lead">Chỉ hiện các đơn đặt khi bạn đã đăng nhập. Đơn đặt lúc chưa đăng nhập không lưu ở đây.</p>
+        <p id="orders-empty" hidden>Bạn chưa có đơn hàng nào lưu trong tài khoản.</p>
+        <ul id="orders-list" class="orders-list"></ul>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    import { supabase } from '../lib/supabase';
+    import { formatVnd } from '../lib/cart';
+
+    const loading = document.getElementById('account-loading')!;
+    const authBox = document.getElementById('auth-box')!;
+    const accountBox = document.getElementById('account-box')!;
+    const loginForm = document.getElementById('login-form') as HTMLFormElement;
+    const registerForm = document.getElementById('register-form') as HTMLFormElement;
+    const authMessage = document.getElementById('auth-message')!;
+    const accountEmail = document.getElementById('account-email')!;
+    const profileForm = document.getElementById('profile-form') as HTMLFormElement;
+    const profileMessage = document.getElementById('profile-message')!;
+    const ordersList = document.getElementById('orders-list')!;
+    const ordersEmpty = document.getElementById('orders-empty')!;
+
+    // Dịch một số lỗi Supabase thường gặp sang tiếng Việt dễ hiểu hơn cho người dùng
+    function friendlyError(message: string): string {
+      if (message.includes('Invalid login credentials')) return 'Email hoặc mật khẩu không đúng.';
+      if (message.includes('User already registered')) return 'Email này đã có tài khoản — hãy đăng nhập hoặc bấm "Quên mật khẩu?".';
+      if (message.includes('Password should be at least')) return 'Mật khẩu cần ít nhất 6 ký tự.';
+      if (message.includes('Email not confirmed')) return 'Email chưa được xác nhận — kiểm tra hộp thư (kể cả mục Spam) và bấm xác nhận trước.';
+      return 'Có lỗi xảy ra, vui lòng thử lại. (' + message + ')';
+    }
+
+    function showFormError(form: HTMLFormElement, message: string) {
+      const box = form.querySelector<HTMLElement>('.order-error')!;
+      box.textContent = message;
+      box.hidden = false;
+    }
+
+    // Chuyển đổi tab Đăng nhập/Đăng ký
+    document.querySelectorAll<HTMLButtonElement>('.account-tab').forEach((tab) => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll<HTMLButtonElement>('.account-tab').forEach((t) => {
+          t.classList.toggle('active', t === tab);
+          t.setAttribute('aria-selected', String(t === tab));
+        });
+        loginForm.hidden = tab.dataset.tab !== 'login';
+        registerForm.hidden = tab.dataset.tab !== 'register';
+        authMessage.hidden = true;
+      });
+    });
+
+    loginForm.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const data = new FormData(loginForm);
+      const { error } = await supabase.auth.signInWithPassword({
+        email: String(data.get('email')).trim(),
+        password: String(data.get('password')),
+      });
+      if (error) showFormError(loginForm, friendlyError(error.message));
+    });
+
+    registerForm.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const data = new FormData(registerForm);
+      const { error } = await supabase.auth.signUp({
+        email: String(data.get('email')).trim(),
+        password: String(data.get('password')),
+      });
+      if (error) {
+        showFormError(registerForm, friendlyError(error.message));
+        return;
+      }
+      registerForm.reset();
+      authMessage.textContent = 'Đã gửi email xác nhận. Kiểm tra hộp thư (kể cả mục Spam) và bấm xác nhận, sau đó quay lại đăng nhập.';
+      authMessage.hidden = false;
+    });
+
+    document.getElementById('forgot-password')!.addEventListener('click', async () => {
+      const email = String(new FormData(loginForm).get('email') ?? '').trim();
+      if (!email) {
+        showFormError(loginForm, 'Nhập email trước, rồi bấm "Quên mật khẩu?" để nhận liên kết đặt lại.');
+        return;
+      }
+      const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo: window.location.origin + '/tai-khoan/' });
+      authMessage.textContent = error ? friendlyError(error.message) : 'Đã gửi email hướng dẫn đặt lại mật khẩu (nếu email này có tài khoản).';
+      authMessage.hidden = false;
+    });
+
+    document.getElementById('logout-btn')!.addEventListener('click', async () => {
+      await supabase.auth.signOut();
+    });
+
+    profileForm.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (!user) return;
+      const data = new FormData(profileForm);
+      const { error } = await supabase
+        .from('profiles')
+        .update({
+          full_name: String(data.get('full_name') ?? '').trim(),
+          phone: String(data.get('phone') ?? '').trim(),
+          address: String(data.get('address') ?? '').trim(),
+        })
+        .eq('id', user.id);
+      profileMessage.textContent = error ? friendlyError(error.message) : 'Đã lưu thông tin.';
+      profileMessage.hidden = false;
+    });
+
+    function orderRow(order: { id: string; created_at: string; total: number | null; status: string; payment_method: string; items: { name: string; qty: number }[] }) {
+      const li = document.createElement('li');
+      li.className = 'order-row';
+      const date = new Date(order.created_at).toLocaleDateString('vi-VN');
+      const paymentLabel: Record<string, string> = {
+        cod: 'Tiền mặt khi nhận hàng',
+        bank: 'Chuyển khoản ngân hàng',
+        momo: 'Ví MoMo',
+        visa: 'Thẻ Visa/Mastercard',
+      };
+      const statusLabel: Record<string, string> = { moi: 'Mới đặt', dang_giao: 'Đang giao', hoan_tat: 'Hoàn tất', huy: 'Đã hủy' };
+      const itemText = order.items.map((item) => `${item.name} x${item.qty}`).join(', ');
+      li.innerHTML = `
+        <div class="order-row-head">
+          <span>${date}</span>
+          <span class="order-status">${statusLabel[order.status] ?? order.status}</span>
+        </div>
+        <p class="order-row-items">${itemText}</p>
+        <p class="order-row-foot">${order.total ? formatVnd(order.total) : 'Liên hệ'} · ${paymentLabel[order.payment_method] ?? order.payment_method}</p>
+      `;
+      return li;
+    }
+
+    async function loadAccount(userId: string, email: string) {
+      accountEmail.textContent = email;
+      const { data: profile } = await supabase.from('profiles').select('full_name, phone, address').eq('id', userId).single();
+      if (profile) {
+        (profileForm.elements.namedItem('full_name') as HTMLInputElement).value = profile.full_name ?? '';
+        (profileForm.elements.namedItem('phone') as HTMLInputElement).value = profile.phone ?? '';
+        (profileForm.elements.namedItem('address') as HTMLInputElement).value = profile.address ?? '';
+      }
+      const { data: orders } = await supabase.from('orders').select('*').eq('user_id', userId).order('created_at', { ascending: false });
+      ordersList.replaceChildren();
+      if (orders && orders.length > 0) {
+        ordersEmpty.hidden = true;
+        ordersList.append(...orders.map(orderRow));
+      } else {
+        ordersEmpty.hidden = false;
+      }
+    }
+
+    async function render() {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      loading.hidden = true;
+      if (session?.user) {
+        authBox.hidden = true;
+        accountBox.hidden = false;
+        await loadAccount(session.user.id, session.user.email ?? '');
+      } else {
+        authBox.hidden = false;
+        accountBox.hidden = true;
+      }
+    }
+
+    supabase.auth.onAuthStateChange(() => render());
+    render();
+  </script>
+</BaseLayout>

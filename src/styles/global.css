@@ -1386,6 +1386,33 @@ img {
   outline-offset: 1px;
 }
 
+.order-payment {
+  display: grid;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0.9rem 1rem;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+}
+
+.order-payment legend {
+  padding: 0 0.3rem;
+  font-weight: 700;
+}
+
+.order-radio {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 400;
+}
+
+.order-radio input {
+  width: 1.15rem;
+  height: 1.15rem;
+}
+
 .order .order-consent {
   grid-template-columns: auto 1fr;
   align-items: start;
@@ -1469,6 +1496,16 @@ img {
 .cart-wrap {
   order: 2;
   position: relative;
+  display: inline-flex;
+}
+
+/* Cùng cấp với .cart-wrap (order:2), đặt trước trong DOM nên luôn hiện TRƯỚC giỏ hàng khi hai bên
+   cùng order — không cần khai báo order riêng cho từng mốc màn hình (xem .cart-wrap/.search-wrap
+   để hiểu cách `order` đổi theo @media). Ẩn hẳn ở màn hình ≤30rem (xem @media max-width:30rem) vì
+   hàng đầu trang ở khổ đó đã kín chỗ (nút 3 gạch/ô tìm kiếm/giỏ hàng) — nút "Tài khoản" chuyển vào
+   ngăn kéo (.mobile-drawer) cho khổ máy đó. */
+.account-wrap {
+  order: 2;
   display: inline-flex;
 }
 
@@ -2462,6 +2499,11 @@ button.btn:not(.btn-outline) {
     display: none;
   }
 
+  /* Nhường chỗ cho ô tìm kiếm (xem ghi chú ở .account-wrap) — vào ngăn kéo (mobile-drawer) thay vào. */
+  .header-main .account-wrap {
+    display: none;
+  }
+
   .header-main .search-wrap {
     order: 1;
     /* flex-basis 0% (không phải "auto"): với "auto", trình duyệt tính kích thước ban đầu của ô
@@ -3229,6 +3271,9 @@ button.btn:not(.btn-outline) {
 
 .mobile-drawer-foot {
   flex: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
   padding: 1rem;
   border-top: 1px solid var(--line);
 }
@@ -4164,4 +4209,107 @@ button.btn:not(.btn-outline) {
   .search-pill-row {
     display: flex;
   }
+}
+
+/* Trang Tài khoản (đăng nhập/đăng ký, hồ sơ, lịch sử đơn hàng) — dùng lại khung .order (nền xanh nhạt,
+   label/input/nút đã có sẵn kiểu dáng từ form đặt hàng ở giỏ hàng) cho đỡ viết trùng CSS. */
+.account-page .order {
+  max-width: 32rem;
+  margin-inline: 0;
+}
+
+.account-tabs {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  border-bottom: 1px solid var(--line);
+}
+
+.account-tab {
+  padding: 0.6rem 1rem;
+  border: 0;
+  border-bottom: 3px solid transparent;
+  background: none;
+  font: inherit;
+  font-weight: 700;
+  color: var(--ink-soft);
+  cursor: pointer;
+}
+
+.account-tab.active {
+  color: var(--green-900);
+  border-bottom-color: var(--green-700);
+}
+
+.account-form-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.btn-link {
+  border: 0;
+  background: none;
+  padding: 0;
+  color: var(--green-700);
+  font: inherit;
+  font-weight: 600;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.btn-link:hover {
+  color: var(--green-900);
+}
+
+.account-message {
+  margin: 0.75rem 0 0;
+  padding: 0.5rem 0.75rem;
+  border-radius: 8px;
+  background: var(--green-50);
+  color: var(--green-900);
+  font-size: 0.9rem;
+}
+
+.account-greeting {
+  margin: 0 0 1.5rem;
+  font-size: 1.05rem;
+}
+
+.orders-list {
+  display: grid;
+  gap: 0.75rem;
+  margin: 1rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.order-row {
+  padding: 0.9rem 1.1rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: #fff;
+}
+
+.order-row-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  font-weight: 700;
+}
+
+.order-status {
+  color: var(--green-700);
+}
+
+.order-row-items {
+  margin: 0.4rem 0;
+  color: var(--ink-soft);
+  font-size: 0.92rem;
+}
+
+.order-row-foot {
+  margin: 0;
+  font-weight: 600;
 }

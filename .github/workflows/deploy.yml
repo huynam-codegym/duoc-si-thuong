@@ -23,6 +23,12 @@ jobs:
       - uses: withastro/action@v3
         with:
           node-version: 20
+        env:
+          # Đăng nhập/tài khoản khách (Supabase) — khóa "anon/publishable", không phải bí mật, nhưng
+          # vẫn lấy từ Repository variables (Settings > Secrets and variables > Actions > Variables)
+          # thay vì viết thẳng vào code, theo đúng quy ước "dùng biến môi trường" của dự án.
+          PUBLIC_SUPABASE_URL: ${{ vars.PUBLIC_SUPABASE_URL }}
+          PUBLIC_SUPABASE_ANON_KEY: ${{ vars.PUBLIC_SUPABASE_ANON_KEY }}
 
   deploy:
     needs: build
