@@ -1410,13 +1410,26 @@ img {
    ví dụ "Please check this box..." — chủ website yêu cầu đổi sang tiếng Việt, kiểu viền đỏ + chữ đỏ
    dưới ô, chuẩn phổ biến ở các website khác). `grid-column: 1/-1` để dòng lỗi luôn chiếm hết bề
    ngang dù nằm trong `.order-grid-2` (2 cột) hay ngoài lưới (không ảnh hưởng gì, chỉ có tác dụng khi
-   cha là grid). */
+   cha là grid).
+   Phần tử này giờ được đặt SẴN trong HTML (`gio-hang.astro`), không phải JS tự tạo mới lúc có lỗi
+   như bản đầu — bản đầu chèn thêm 1 dòng vào giữa layout mỗi khi có lỗi, đẩy các ô bên dưới (và cả
+   ô cùng hàng trong `.order-grid-2`) nhảy xuống dưới, chủ website không muốn (khác hẳn với trước khi
+   bấm "Hoàn tất"). Sửa bằng cách LUÔN dành sẵn chỗ (dùng `min-height` + ẩn bằng `visibility:hidden`
+   chứ không phải thuộc tính `hidden`/`display:none`), nên bấm gửi bị lỗi chỉ đổi màu chữ hiện lên
+   đúng chỗ đã có sẵn, không đẩy ô nào cả — JS chỉ còn việc đổi `textContent` và bật lớp `is-visible`. */
 .field-error {
   grid-column: 1 / -1;
-  margin: -0.4rem 0 0;
+  margin: 0;
+  min-height: 1.2em;
   color: #b91c1c;
   font-size: 0.85rem;
   font-weight: 600;
+  line-height: 1.2;
+  visibility: hidden;
+}
+
+.field-error.is-visible {
+  visibility: visible;
 }
 
 .field-invalid {

@@ -30,6 +30,7 @@ import { url } from '../lib/url';
             <label>
               Họ và tên người đặt
               <input type="text" name="orderer_name" autocomplete="name" required maxlength="80" data-error-required="Vui lòng nhập họ và tên người đặt." />
+              <span class="field-error" data-for="orderer_name" role="alert"></span>
             </label>
             <label>
               Số điện thoại
@@ -44,11 +45,13 @@ import { url } from '../lib/url';
                 data-error-required="Vui lòng nhập số điện thoại người đặt."
                 data-error-pattern="Số điện thoại chưa đúng, ví dụ 0912345678."
               />
+              <span class="field-error" data-for="orderer_phone" role="alert"></span>
             </label>
           </div>
           <label>
             Email (không bắt buộc)
             <input type="email" name="orderer_email" autocomplete="email" maxlength="120" data-error-type="Email chưa đúng định dạng." />
+            <span class="field-error" data-for="orderer_email" role="alert"></span>
           </label>
         </section>
 
@@ -58,6 +61,7 @@ import { url } from '../lib/url';
             <label>
               Họ và tên người nhận
               <input type="text" name="recipient_name" autocomplete="name" required maxlength="80" data-error-required="Vui lòng nhập họ và tên người nhận." />
+              <span class="field-error" data-for="recipient_name" role="alert"></span>
             </label>
             <label>
               Số điện thoại
@@ -72,11 +76,13 @@ import { url } from '../lib/url';
                 data-error-required="Vui lòng nhập số điện thoại người nhận."
                 data-error-pattern="Số điện thoại chưa đúng, ví dụ 0912345678."
               />
+              <span class="field-error" data-for="recipient_phone" role="alert"></span>
             </label>
           </div>
           <label>
             Địa chỉ nhận hàng
             <input type="text" name="address" autocomplete="street-address" required maxlength="200" data-error-required="Vui lòng nhập địa chỉ nhận hàng." />
+            <span class="field-error" data-for="address" role="alert"></span>
           </label>
           <label>
             Ghi chú (không bắt buộc)
@@ -130,6 +136,7 @@ import { url } from '../lib/url';
             Tôi đồng ý để nhà thuốc dùng thông tin trên để liên hệ và giao hàng. Không gửi số CCCD, mật khẩu hay
             thông tin thẻ ngân hàng qua form này.
           </span>
+          <span class="field-error" data-for="consent" role="alert"></span>
         </label>
       </div>
 
@@ -307,24 +314,19 @@ import { url } from '../lib/url';
 
     function clearFieldError(field: Validatable) {
       field.classList.remove('field-invalid');
-      const holder = field.closest('label');
-      const msg = holder?.parentElement?.querySelector<HTMLElement>(`.field-error[data-for="${field.name}"]`);
-      if (msg) msg.hidden = true;
+      const msg = form.querySelector<HTMLElement>(`.field-error[data-for="${field.name}"]`);
+      if (msg) {
+        msg.classList.remove('is-visible');
+        msg.textContent = '';
+      }
     }
 
     function showFieldError(field: Validatable, message: string) {
       field.classList.add('field-invalid');
-      const holder = field.closest('label');
-      if (!holder?.parentElement) return;
-      let msg = holder.parentElement.querySelector<HTMLElement>(`.field-error[data-for="${field.name}"]`);
-      if (!msg) {
-        msg = el('p', 'field-error', '');
-        msg.dataset.for = field.name;
-        msg.setAttribute('role', 'alert');
-        holder.insertAdjacentElement('afterend', msg);
-      }
+      const msg = form.querySelector<HTMLElement>(`.field-error[data-for="${field.name}"]`);
+      if (!msg) return;
       msg.textContent = message;
-      msg.hidden = false;
+      msg.classList.add('is-visible');
     }
 
     function validateForm(): boolean {
