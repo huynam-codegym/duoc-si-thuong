@@ -175,7 +175,9 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       } catch {
         // không sao, chỉ là sẽ không hiện toast sau khi quay về
       }
-      await supabase.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: window.location.origin + '/tai-khoan/' } });
+      // Chủ website yêu cầu tháng 9/2026: đăng nhập Google xong quay về TRANG CHỦ (không phải trang
+      // này) — khớp với nút Google trong modal ở Header.astro, xem ghi chú ở đó về Redirect URLs.
+      await supabase.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: window.location.origin + '/' } });
     });
 
     loginForm.addEventListener('submit', async (event) => {
