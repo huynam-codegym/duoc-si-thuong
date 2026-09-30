@@ -2526,12 +2526,12 @@ button.btn:not(.btn-outline) {
     display: none;
   }
 
-  /* Chủ website yêu cầu tháng 9/2026: hiện lại nút đăng nhập ngay trên hàng đầu trang ở điện thoại/
-     máy tính bảng (trước đó ẩn hẳn, chỉ vào được qua ngăn kéo) — đặt NGAY SAU nút 3 gạch (chỗ logo cũ,
-     đã ẩn ở khổ này), trước ô tìm kiếm. Dùng lại đúng kiểu rút gọn còn icon của .cart-link (chung
-     class, xem khối `.cart-link{...}` ngay phía trên) nên không cần viết CSS thu gọn riêng. */
+  /* Nhường chỗ cho ô tìm kiếm (xem ghi chú ở .account-wrap) — chủ website yêu cầu tháng 9/2026: nút
+     đăng nhập KHÔNG hiện sẵn ở hàng đầu trang trên điện thoại/máy tính bảng (đã thử, chủ website yêu
+     cầu đổi lại) mà chỉ hiện BÊN TRONG khay mở ra khi bấm nút 3 gạch, giống đúng mẫu Long Châu gửi —
+     xem `.mobile-drawer-account` trong Header.astro/global.css. */
   .header-main .account-wrap {
-    order: 0;
+    display: none;
   }
 
   .header-main .search-wrap {
@@ -3166,6 +3166,56 @@ button.btn:not(.btn-outline) {
   flex: none;
   padding: 0.85rem 1rem;
   border-bottom: 1px solid var(--line);
+}
+
+/* Khối đăng nhập nổi bật ngay đầu ngăn kéo (chủ website yêu cầu tháng 9/2026, theo mẫu Long Châu:
+   bấm nút 3 gạch mở ngăn kéo thì thấy lời mời đăng nhập ngay, không phải đào sâu xuống mới thấy).
+   Bấm vào mở modal đăng nhập (#account-modal, xem JS ở Header.astro) — không phải link chuyển
+   trang, để không phải rời khỏi trang đang xem chỉ để đăng nhập. */
+.mobile-drawer-account {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  flex: none;
+  padding: 1rem;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  background: var(--green-50);
+  color: var(--ink);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.mobile-drawer-account-icon {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 50%;
+  background: #fff;
+  color: var(--green-700);
+}
+
+.mobile-drawer-account-label {
+  display: block;
+  font-weight: 700;
+  color: var(--green-900);
+}
+
+.mobile-drawer-account-sub {
+  display: block;
+  font-size: 0.8rem;
+  color: var(--ink-soft);
+}
+
+.mobile-drawer-account-arrow {
+  flex: none;
+  margin-left: auto;
+  color: var(--ink-soft);
 }
 
 .mobile-drawer-brand {

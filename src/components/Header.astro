@@ -452,6 +452,21 @@ const drawerSections: DrawerSection[] = [
           </svg>
         </button>
       </div>
+      <button type="button" class="mobile-drawer-account" id="mobile-drawer-account">
+        <span class="mobile-drawer-account-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" focusable="false">
+            <circle cx="12" cy="8.5" r="3.5" fill="none" stroke="currentColor" stroke-width="2" />
+            <path d="M4.5 20c.7-4 3.6-6.5 7.5-6.5s6.8 2.5 7.5 6.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+          </svg>
+        </span>
+        <span>
+          <span class="mobile-drawer-account-label" id="mobile-drawer-account-label">Đăng nhập</span>
+          <span class="mobile-drawer-account-sub">để lưu thông tin và xem lại đơn hàng</span>
+        </span>
+        <svg class="mobile-drawer-account-arrow" viewBox="0 0 12 12" width="14" height="14" aria-hidden="true" focusable="false">
+          <path d="M4 2l4 4-4 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+      </button>
       <nav class="mobile-drawer-nav" aria-label="Menu chính">
         <ul>
           {
@@ -493,7 +508,6 @@ const drawerSections: DrawerSection[] = [
         </ul>
       </nav>
       <div class="mobile-drawer-foot">
-        <a class="btn btn-outline" href={url('/tai-khoan/')}>Tài khoản của tôi</a>
         <a class="btn" href={site.zaloHref} target="_blank" rel="noopener noreferrer">
           Nhắn Zalo tư vấn: {site.phone}
         </a>
@@ -1266,16 +1280,25 @@ const drawerSections: DrawerSection[] = [
     return user.email?.split('@')[0] ?? 'Tài khoản';
   }
 
-  // Cập nhật ngay lúc tải trang và mỗi khi trạng thái đăng nhập đổi.
+  // Cập nhật ngay lúc tải trang và mỗi khi trạng thái đăng nhập đổi — cả nút đầu trang (máy tính) lẫn
+  // khối đăng nhập đầu ngăn kéo (điện thoại/máy tính bảng, #mobile-drawer-account) đều dùng chung.
+  const mobileDrawerAccountLabel = document.getElementById('mobile-drawer-account-label');
   async function refreshAccountLabel() {
-    if (!accountLabel) return;
     const {
       data: { session },
     } = await supabase.auth.getSession();
-    accountLabel.textContent = session?.user ? await resolveDisplayName(session.user) : 'Đăng nhập';
+    const text = session?.user ? await resolveDisplayName(session.user) : 'Đăng nhập';
+    if (accountLabel) accountLabel.textContent = text;
+    if (mobileDrawerAccountLabel) mobileDrawerAccountLabel.textContent = text;
   }
   supabase.auth.onAuthStateChange(() => refreshAccountLabel());
   refreshAccountLabel();
+
+  document.getElementById('mobile-drawer-account')?.addEventListener('click', () => {
+    // Không đóng ngăn kéo trước — modal (z-index cao hơn) hiện đè lên trên, giống đúng mẫu Long Châu
+    // (ngăn kéo vẫn thấy mờ mờ phía sau khung đăng nhập).
+    openAccountModal();
+  });
 
   // Bẫy đã gặp: TOAST đăng nhập/đăng xuất trước đây đặt trong onAuthStateChange, dựa vào sự kiện
   // 'SIGNED_IN'/'SIGNED_OUT' — nhưng site là NHIỀU TRANG (mỗi lần chuyển trang là tải lại toàn bộ,
