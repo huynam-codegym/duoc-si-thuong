@@ -2026,21 +2026,37 @@ img {
 
 /* Thanh menu có 7 mục nên tự xuống dòng gọn gàng trên hầu hết màn hình (khung nội dung rộng tối đa 68rem, xem .container) */
 
+/* Toast (thông báo ngắn, ví dụ "Đã thêm vào giỏ hàng", "Bạn đã đăng nhập thành công") — chủ website
+   yêu cầu tháng 9/2026: trượt vào từ góc trên bên phải màn hình (thay vì hiện giữa cạnh dưới như
+   trước), tự ẩn sau khoảng 2 giây. Đặt góc TRÊN (không phải dưới) để tránh đè lên biểu tượng Zalo nổi
+   ở góc dưới-phải (.zalo-float, cũng right/bottom 1rem). z-index cao hơn cả modal đăng nhập (200) để
+   toast vẫn thấy được ngay cả khi vừa đóng modal. */
 .toast {
   position: fixed;
-  left: 50%;
-  bottom: 5.5rem;
-  z-index: 100;
-  max-width: 90vw;
+  top: 6rem;
+  right: 1rem;
+  z-index: 300;
+  max-width: min(90vw, 22rem);
   padding: 0.7rem 1.1rem;
   border-radius: var(--radius);
   background: var(--green-900);
   color: #fff;
   font-size: 0.9rem;
   font-weight: 600;
-  text-align: center;
-  transform: translateX(-50%);
+  text-align: left;
   box-shadow: 0 6px 20px rgb(0 0 0 / 0.25);
+  animation: toast-slide-in 0.25s ease;
+}
+
+@keyframes toast-slide-in {
+  from {
+    transform: translateX(120%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
 }
 
 button.btn {

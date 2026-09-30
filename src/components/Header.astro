@@ -1047,7 +1047,7 @@ const drawerSections: DrawerSection[] = [
     toast.textContent = message;
     toast.hidden = false;
     clearTimeout(toastTimer);
-    toastTimer = window.setTimeout(() => (toast.hidden = true), 2500);
+    toastTimer = window.setTimeout(() => (toast.hidden = true), 2000);
   }
 
   // --- Khay chọn số lượng khi bấm "Chọn mua" trên thẻ sản phẩm, chỉ trên điện thoại/máy tính bảng
@@ -1238,6 +1238,21 @@ const drawerSections: DrawerSection[] = [
       modalGuest.hidden = false;
     }
   }
+
+  // Đăng nhập Google/OAuth là CHUYỂN HƯỚNG (rời trang sang Google rồi quay lại), không phải một lệnh
+  // gọi chờ kết quả như đăng nhập email — nên nếu Google/Supabase báo lỗi (ví dụ phiên hết hạn, tài
+  // khoản bị từ chối...), lỗi đó nằm trong ĐƯỜNG DẪN lúc quay về (dạng "#error=...&error_description=
+  // ...") chứ không trả ra qua form, và trước đây site không đọc phần này — khiến người dùng thấy như
+  // "bấm không có gì xảy ra" dù thực ra có lỗi. Đọc và hiện lỗi này ra bằng toast, đồng thời dọn sạch
+  // đường dẫn để tải lại trang không hiện lại lỗi cũ.
+  (function showOAuthErrorIfAny() {
+    const hashParams = new URLSearchParams(window.location.hash.replace(/^#/, ''));
+    const queryParams = new URLSearchParams(window.location.search);
+    const description = hashParams.get('error_description') || queryParams.get('error_description');
+    if (!description) return;
+    showToast(description.replace(/\+/g, ' '));
+    window.history.replaceState(null, '', window.location.pathname);
+  })();
 
   // Đổi chữ nút đầu trang: "Đăng nhập" khi chưa có tài khoản; đã đăng nhập thì hiện TÊN (CSS tự
   // cắt bớt kèm "…" nếu dài, xem .cart-link .account-label). Ưu tiên tên Google trả về (đăng nhập
