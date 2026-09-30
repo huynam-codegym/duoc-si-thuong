@@ -98,6 +98,13 @@ export function cartTotal(items = getCart()): number {
   return items.reduce((sum, item) => sum + (item.price ?? 0) * item.qty, 0);
 }
 
+/** Tổng tiền TRƯỚC khuyến mãi (dùng giá gốc `originalPrice` nếu sản phẩm đang giảm giá, không thì
+ * dùng `price` như bình thường) — để hiện dòng "Tổng tiền"/"Giảm giá trực tiếp" ở trang giỏ hàng,
+ * chỉ dùng số liệu THẬT đã có sẵn (giá khuyến mãi từng sản phẩm), không bịa thêm. */
+export function cartOriginalTotal(items = getCart()): number {
+  return items.reduce((sum, item) => sum + (item.originalPrice ?? item.price ?? 0) * item.qty, 0);
+}
+
 export function hasUnpriced(items = getCart()): boolean {
   return items.some((item) => item.price === null);
 }

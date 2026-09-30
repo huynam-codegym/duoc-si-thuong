@@ -22,9 +22,6 @@ import { url } from '../lib/url';
         <section aria-labelledby="cart-items-title">
           <h2 id="cart-items-title">Danh sách sản phẩm</h2>
           <ul id="cart-list" class="cart-list"></ul>
-          <p id="cart-unpriced" class="cart-note" hidden>
-            Sản phẩm ghi "Liên hệ" chưa được tính vào tạm tính. Nhà thuốc sẽ báo giá khi xác nhận đơn.
-          </p>
         </section>
 
         <section class="order" aria-labelledby="orderer-title">
@@ -118,11 +115,32 @@ import { url } from '../lib/url';
 
       <aside class="checkout-summary" aria-labelledby="checkout-summary-title">
         <h2 id="checkout-summary-title" class="visually-hidden">Tổng cộng</h2>
+        <div class="checkout-summary-lines">
+          <div class="checkout-summary-line">
+            <span>Tổng tiền</span>
+            <span id="cart-original-total">0đ</span>
+          </div>
+          <div class="checkout-summary-line" id="cart-discount-row" hidden>
+            <span>Giảm giá trực tiếp</span>
+            <span class="checkout-summary-discount" id="cart-discount">-0đ</span>
+          </div>
+          <div class="checkout-summary-line">
+            <span>Giảm giá voucher</span>
+            <span>0đ</span>
+          </div>
+          <div class="checkout-summary-line">
+            <span>Phí vận chuyển</span>
+            <span>Nhà thuốc báo sau</span>
+          </div>
+        </div>
         <div class="checkout-summary-row">
-          <span>Tạm tính</span>
+          <span>Thành tiền</span>
           <strong id="cart-total">0đ</strong>
         </div>
-        <p class="cart-note">Giá chưa gồm phí giao hàng. Nhà thuốc sẽ xác nhận lại giá, phí giao và cách thanh toán trước khi giao.</p>
+        <p id="cart-unpriced" class="cart-note" hidden>
+          Sản phẩm ghi "Liên hệ" chưa được tính vào tổng tiền. Nhà thuốc sẽ báo giá khi xác nhận đơn.
+        </p>
+        <p class="cart-note">Giá chưa gồm phí giao hàng. Nhà thuốc sẽ xác nhận lại giá, phí giao và cách thanh toán trước khi giao. Site chưa hỗ trợ mã giảm giá.</p>
         <button type="submit" class="btn checkout-submit">Hoàn tất</button>
         <p class="order-error" role="alert" hidden></p>
       </aside>
@@ -132,13 +150,16 @@ import { url } from '../lib/url';
   </div>
 
   <script>
-    import { MAX_QTY, cartTotal, clearCart, formatVnd, getCart, hasUnpriced, removeItem, setQty, type CartItem } from '../lib/cart';
+    import { MAX_QTY, cartOriginalTotal, cartTotal, clearCart, formatVnd, getCart, hasUnpriced, removeItem, setQty, type CartItem } from '../lib/cart';
     import { supabase } from '../lib/supabase';
 
     const emptyBox = document.getElementById('cart-empty')!;
     const form = document.getElementById('order-form') as HTMLFormElement;
     const list = document.getElementById('cart-list')!;
     const totalEl = document.getElementById('cart-total')!;
+    const originalTotalEl = document.getElementById('cart-original-total')!;
+    const discountRowEl = document.getElementById('cart-discount-row')!;
+    const discountEl = document.getElementById('cart-discount')!;
     const unpricedEl = document.getElementById('cart-unpriced')!;
     const result = document.getElementById('order-result')!;
     const error = form.querySelector<HTMLElement>('.order-error')!;
@@ -212,8 +233,17 @@ import { url } from '../lib/url';
       list.replaceChildren(...items.map(row));
       // Giỏ chỉ có sản phẩm chưa có giá thì hiện "Liên hệ" thay vì "0đ"
       const total = cartTotal(items);
-      totalEl.textContent = total === 0 && hasUnpriced(items) ? 'Liên hệ' : formatVnd(total);
-      unpricedEl.hidden = !hasUnpriced(items);
+      const originalTotal = cartOriginalTotal(items);
+      const discount = originalTotal - total;
+      const unpriced = hasUnpriced(items);
+      totalEl.textContent = total === 0 && unpriced ? 'Liên hệ' : formatVnd(total);
+      originalTotalEl.textContent = originalTotal === 0 && unpriced ? 'Liên hệ' : formatVnd(originalTotal);
+      // "Giảm giá trực tiếp" chỉ hiện khi THẬT SỰ có sản phẩm đang khuyến mãi trong giỏ (originalPrice
+      // > price) — không phải dòng cố định luôn hiện, tránh hiện "-0đ" thừa khi giỏ không có sản
+      // phẩm khuyến mãi nào.
+      discountRowEl.hidden = discount <= 0;
+      if (discount > 0) discountEl.textContent = `-${formatVnd(discount)}`;
+      unpricedEl.hidden = !unpriced;
     }
 
     list.addEventListener('click', (event) => {

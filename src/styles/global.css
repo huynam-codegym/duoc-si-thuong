@@ -1367,6 +1367,7 @@ img {
 
 .order input[type='text'],
 .order input[type='tel'],
+.order input[type='email'],
 .order input[type='number'],
 .order textarea {
   width: 100%;
@@ -2522,11 +2523,37 @@ button.btn:not(.btn-outline) {
   background: var(--green-50);
 }
 
+/* Các dòng chi tiết (Tổng tiền/Giảm giá trực tiếp/Giảm giá voucher/Phí vận chuyển) phía TRÊN dòng
+   "Thành tiền" — chủ website yêu cầu tháng 9/2026, theo mẫu Long Châu. Chỉ dùng số liệu THẬT đã có
+   (originalPrice từng sản phẩm cho "Giảm giá trực tiếp"); "Giảm giá voucher" luôn 0đ (chưa có hệ
+   thống mã giảm giá) và "Phí vận chuyển" ghi chữ thay vì số — KHÔNG ghi "Miễn phí"/"0đ" vì chưa biết
+   thật, ghi "Miễn phí" khi chưa chắc sẽ là lời hứa sai (xem nguyên tắc nội dung ở CLAUDE.md). */
+.checkout-summary-lines {
+  display: grid;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px dashed var(--green-100);
+  font-size: 0.9rem;
+}
+
+.checkout-summary-line {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.checkout-summary-discount {
+  color: #c2410c;
+  font-weight: 600;
+}
+
 .checkout-summary-row {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
   font-size: 1.1rem;
+  font-weight: 700;
 }
 
 .checkout-summary-row strong {
