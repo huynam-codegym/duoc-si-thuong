@@ -4313,3 +4313,160 @@ button.btn:not(.btn-outline) {
   margin: 0;
   font-weight: 600;
 }
+
+/* Modal đăng nhập nhanh (nút "Tài khoản" ở đầu trang) — khung nổi CHÍNH GIỮA màn hình (khác
+   .mobile-drawer trượt từ cạnh), theo đúng kiểu popup đăng nhập Long Châu chủ website gửi. */
+.account-modal[hidden] {
+  display: none;
+}
+
+.account-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.account-modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgb(20 40 25 / 0.55);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.account-modal.open .account-modal-backdrop {
+  opacity: 1;
+}
+
+.account-modal-panel {
+  position: relative;
+  width: 100%;
+  max-width: 26rem;
+  max-height: 90vh;
+  overflow-y: auto;
+  background: #fff;
+  border-radius: var(--radius);
+  padding: 2rem 1.75rem 1.75rem;
+  box-shadow: 0 20px 60px rgb(0 0 0 / 0.3);
+  transform: scale(0.96);
+  opacity: 0;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.account-modal.open .account-modal-panel {
+  transform: scale(1);
+  opacity: 1;
+}
+
+.account-modal-panel h2 {
+  margin: 0 0 1rem;
+  text-align: center;
+}
+
+.account-modal-close {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  width: 2.25rem;
+  height: 2.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: 8px;
+  background: none;
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.account-modal-close:hover {
+  background: var(--green-50);
+}
+
+.btn-google {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  width: 100%;
+  min-height: 3rem;
+  border: 1px solid #9ca3af;
+  border-radius: 999px;
+  background: #fff;
+  color: var(--ink);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.btn-google:hover {
+  background: var(--green-50);
+}
+
+.account-modal-divider {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 1.1rem 0;
+  color: var(--ink-soft);
+  font-size: 0.85rem;
+}
+
+.account-modal-divider::before,
+.account-modal-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--line);
+}
+
+.account-modal-panel form {
+  display: grid;
+  gap: 0.9rem;
+  margin-top: 0.5rem;
+}
+
+.account-modal-panel label {
+  display: grid;
+  gap: 0.25rem;
+  font-weight: 600;
+}
+
+.account-modal-panel input[type='email'],
+.account-modal-panel input[type='password'] {
+  width: 100%;
+  min-height: 2.75rem;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #9ca3af;
+  border-radius: 8px;
+  background: #fff;
+  font: inherit;
+  font-weight: 400;
+  color: var(--ink);
+}
+
+.account-modal-panel input:focus-visible {
+  outline: 3px solid var(--green-700);
+  outline-offset: 1px;
+}
+
+.account-modal-panel button.btn {
+  width: 100%;
+  justify-content: center;
+  border: 0;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+#modal-user {
+  text-align: center;
+}
+
+#modal-user .btn {
+  margin-bottom: 0.75rem;
+}
