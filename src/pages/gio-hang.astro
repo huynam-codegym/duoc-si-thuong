@@ -17,65 +17,116 @@ import { url } from '../lib/url';
       <a class="btn" href={url('/')}>Xem sản phẩm</a>
     </div>
 
-    <div id="cart-filled" class="cart-layout" hidden>
-      <section aria-labelledby="cart-items-title">
-        <h2 id="cart-items-title" class="visually-hidden">Sản phẩm trong giỏ</h2>
-        <ul id="cart-list" class="cart-list"></ul>
-        <div class="cart-total">
-          <span>Tạm tính</span>
-          <strong id="cart-total">0đ</strong>
-        </div>
-        <p id="cart-unpriced" class="cart-note" hidden>
-          Sản phẩm ghi "Liên hệ" chưa được tính vào tạm tính. Nhà thuốc sẽ báo giá khi xác nhận đơn.
-        </p>
-        <p class="cart-note">Giá chưa gồm phí giao hàng. Nhà thuốc sẽ xác nhận lại giá, phí giao và cách thanh toán trước khi giao.</p>
-      </section>
+    <form id="order-form" class="checkout-layout" data-endpoint={site.orderEndpoint} data-zalo={site.zaloHref} novalidate hidden>
+      <div class="checkout-main">
+        <section aria-labelledby="cart-items-title">
+          <h2 id="cart-items-title">Danh sách sản phẩm</h2>
+          <ul id="cart-list" class="cart-list"></ul>
+          <p id="cart-unpriced" class="cart-note" hidden>
+            Sản phẩm ghi "Liên hệ" chưa được tính vào tạm tính. Nhà thuốc sẽ báo giá khi xác nhận đơn.
+          </p>
+        </section>
 
-      <section class="order" id="dat-hang" aria-labelledby="dat-hang-tieu-de">
-        <h2 id="dat-hang-tieu-de">Thông tin nhận hàng</h2>
-        <form id="order-form" data-endpoint={site.orderEndpoint} data-zalo={site.zaloHref} novalidate>
+        <section class="order" aria-labelledby="orderer-title">
+          <h2 id="orderer-title">Thông tin người đặt</h2>
+          <div class="order-grid-2">
+            <label>
+              Họ và tên người đặt
+              <input type="text" name="orderer_name" autocomplete="name" required maxlength="80" />
+            </label>
+            <label>
+              Số điện thoại
+              <input type="tel" name="orderer_phone" autocomplete="tel" inputmode="tel" required pattern="(0|[+]84)[0-9]{9}" title="Số điện thoại 10 chữ số, ví dụ 0912345678" placeholder="Ví dụ: 0912345678" />
+            </label>
+          </div>
           <label>
-            Họ và tên
-            <input type="text" name="name" autocomplete="name" required maxlength="80" />
+            Email (không bắt buộc)
+            <input type="email" name="orderer_email" autocomplete="email" maxlength="120" />
           </label>
-          <label>
-            Số điện thoại
-            <input type="tel" name="phone" autocomplete="tel" inputmode="tel" required pattern="(0|[+]84)[0-9]{9}" title="Số điện thoại 10 chữ số, ví dụ 0912345678" placeholder="Ví dụ: 0912345678" />
-          </label>
+        </section>
+
+        <section class="order" aria-labelledby="recipient-title">
+          <h2 id="recipient-title">Thông tin nhận hàng</h2>
+          <div class="order-grid-2">
+            <label>
+              Họ và tên người nhận
+              <input type="text" name="recipient_name" autocomplete="name" required maxlength="80" />
+            </label>
+            <label>
+              Số điện thoại
+              <input type="tel" name="recipient_phone" autocomplete="tel" inputmode="tel" required pattern="(0|[+]84)[0-9]{9}" title="Số điện thoại 10 chữ số, ví dụ 0912345678" placeholder="Ví dụ: 0912345678" />
+            </label>
+          </div>
           <label>
             Địa chỉ nhận hàng
             <input type="text" name="address" autocomplete="street-address" required maxlength="200" />
           </label>
           <label>
             Ghi chú (không bắt buộc)
-            <textarea name="note" rows="3" maxlength="500"></textarea>
+            <textarea name="note" rows="3" maxlength="500" placeholder="Ví dụ: Hãy gọi cho tôi 15 phút trước khi giao"></textarea>
           </label>
+          <label class="order-radio order-hide-name">
+            <input type="checkbox" name="hide_product_name" />
+            Ẩn tên sản phẩm khi giao hàng (nhà thuốc sẽ ghi chung chung trên bao bì)
+          </label>
+        </section>
 
-          <fieldset class="order-payment">
-            <legend>Hình thức thanh toán</legend>
-            <label class="order-radio"><input type="radio" name="payment_method" value="cod" checked /> Tiền mặt khi nhận hàng</label>
-            <label class="order-radio"><input type="radio" name="payment_method" value="bank" /> Chuyển khoản ngân hàng</label>
-            <label class="order-radio"><input type="radio" name="payment_method" value="momo" /> Ví MoMo</label>
-            <label class="order-radio"><input type="radio" name="payment_method" value="visa" /> Thẻ Visa/Mastercard</label>
+        <section class="order" aria-labelledby="payment-title">
+          <h2 id="payment-title">Chọn phương thức thanh toán</h2>
+          <fieldset class="payment-list">
+            <legend class="visually-hidden">Hình thức thanh toán</legend>
+            <label class="payment-option">
+              <input type="radio" name="payment_method" value="cod" checked />
+              <span class="payment-icon payment-icon-cod" aria-hidden="true">đ</span>
+              <span>Thanh toán tiền mặt khi nhận hàng</span>
+            </label>
+            <label class="payment-option">
+              <input type="radio" name="payment_method" value="bank" />
+              <span class="payment-icon payment-icon-bank" aria-hidden="true">QR</span>
+              <span>Thanh toán bằng chuyển khoản (QR Code)</span>
+            </label>
+            <label class="payment-option">
+              <input type="radio" name="payment_method" value="momo" />
+              <span class="payment-icon payment-icon-momo" aria-hidden="true">M</span>
+              <span>Thanh toán bằng ví MoMo</span>
+            </label>
+            <label class="payment-option">
+              <input type="radio" name="payment_method" value="zalopay" />
+              <span class="payment-icon payment-icon-zalopay" aria-hidden="true">Z</span>
+              <span>Thanh toán bằng ví ZaloPay</span>
+            </label>
+            <label class="payment-option">
+              <input type="radio" name="payment_method" value="visa" />
+              <span class="payment-icon payment-icon-visa" aria-hidden="true">V</span>
+              <span>Thanh toán bằng thẻ quốc tế (Visa, Master...)</span>
+            </label>
           </fieldset>
           <p class="order-lead">Với hình thức khác tiền mặt, nhà thuốc sẽ liên hệ hướng dẫn thanh toán cụ thể trước khi giao hàng. Site chưa thu tiền trực tiếp qua thẻ/ví trên trang.</p>
+        </section>
 
-          <!-- Ô chống thư rác: người thật không thấy và không điền -->
-          <input type="text" name="_gotcha" tabindex="-1" autocomplete="off" class="order-trap" aria-hidden="true" />
+        <!-- Ô chống thư rác: người thật không thấy và không điền -->
+        <input type="text" name="_gotcha" tabindex="-1" autocomplete="off" class="order-trap" aria-hidden="true" />
 
-          <label class="order-consent">
-            <input type="checkbox" name="consent" required />
-            <span>
-              Tôi đồng ý để nhà thuốc dùng thông tin trên để liên hệ và giao hàng. Không gửi số CCCD, mật khẩu hay
-              thông tin thẻ ngân hàng qua form này.
-            </span>
-          </label>
+        <label class="order-consent">
+          <input type="checkbox" name="consent" required />
+          <span>
+            Tôi đồng ý để nhà thuốc dùng thông tin trên để liên hệ và giao hàng. Không gửi số CCCD, mật khẩu hay
+            thông tin thẻ ngân hàng qua form này.
+          </span>
+        </label>
+      </div>
 
-          <button type="submit" class="btn">Gửi đơn đặt hàng</button>
-          <p class="order-error" role="alert" hidden></p>
-        </form>
-      </section>
-    </div>
+      <aside class="checkout-summary" aria-labelledby="checkout-summary-title">
+        <h2 id="checkout-summary-title" class="visually-hidden">Tổng cộng</h2>
+        <div class="checkout-summary-row">
+          <span>Tạm tính</span>
+          <strong id="cart-total">0đ</strong>
+        </div>
+        <p class="cart-note">Giá chưa gồm phí giao hàng. Nhà thuốc sẽ xác nhận lại giá, phí giao và cách thanh toán trước khi giao.</p>
+        <button type="submit" class="btn checkout-submit">Hoàn tất</button>
+        <p class="order-error" role="alert" hidden></p>
+      </aside>
+    </form>
 
     <div class="order-result cart-done" id="order-result" role="status" hidden></div>
   </div>
@@ -85,11 +136,10 @@ import { url } from '../lib/url';
     import { supabase } from '../lib/supabase';
 
     const emptyBox = document.getElementById('cart-empty')!;
-    const filledBox = document.getElementById('cart-filled')!;
+    const form = document.getElementById('order-form') as HTMLFormElement;
     const list = document.getElementById('cart-list')!;
     const totalEl = document.getElementById('cart-total')!;
     const unpricedEl = document.getElementById('cart-unpriced')!;
-    const form = document.getElementById('order-form') as HTMLFormElement;
     const result = document.getElementById('order-result')!;
     const error = form.querySelector<HTMLElement>('.order-error')!;
 
@@ -158,7 +208,7 @@ import { url } from '../lib/url';
     function render() {
       const items = getCart();
       emptyBox.hidden = items.length > 0 || !result.hidden;
-      filledBox.hidden = items.length === 0 || !result.hidden;
+      form.hidden = items.length === 0 || !result.hidden;
       list.replaceChildren(...items.map(row));
       // Giỏ chỉ có sản phẩm chưa có giá thì hiện "Liên hệ" thay vì "0đ"
       const total = cartTotal(items);
@@ -187,7 +237,7 @@ import { url } from '../lib/url';
     function showResult(nodes: Node[]) {
       result.replaceChildren(...nodes);
       result.hidden = false;
-      filledBox.hidden = true;
+      form.hidden = true;
       emptyBox.hidden = true;
       result.scrollIntoView({ block: 'start' });
     }
@@ -204,18 +254,24 @@ import { url } from '../lib/url';
       const total = cartTotal(items);
       const paymentLabels: Record<string, string> = {
         cod: 'Tiền mặt khi nhận hàng',
-        bank: 'Chuyển khoản ngân hàng',
+        bank: 'Chuyển khoản ngân hàng (QR Code)',
         momo: 'Ví MoMo',
+        zalopay: 'Ví ZaloPay',
         visa: 'Thẻ Visa/Mastercard',
       };
       const paymentMethod = String(data.get('payment_method') ?? 'cod');
+      const hideProductName = data.get('hide_product_name') === 'on';
       const order = {
         items: items.map((item) => ({ id: item.id, name: item.name, qty: item.qty, price: item.price })),
         total,
-        name: String(data.get('name')).trim(),
-        phone: String(data.get('phone')).trim(),
+        ordererName: String(data.get('orderer_name')).trim(),
+        ordererPhone: String(data.get('orderer_phone')).trim(),
+        ordererEmail: String(data.get('orderer_email') ?? '').trim(),
+        name: String(data.get('recipient_name')).trim(),
+        phone: String(data.get('recipient_phone')).trim(),
         address: String(data.get('address')).trim(),
         note: String(data.get('note') ?? '').trim(),
+        hideProductName,
         paymentMethod,
         page: location.href,
       };
@@ -227,10 +283,11 @@ import { url } from '../lib/url';
         'ĐẶT HÀNG',
         ...lines,
         `Tạm tính: ${formatVnd(total)}${hasUnpriced(items) ? ' (chưa gồm sản phẩm liên hệ giá)' : ''}`,
-        `Họ tên: ${order.name}`,
-        `Số điện thoại: ${order.phone}`,
+        `Người đặt: ${order.ordererName} - ${order.ordererPhone}${order.ordererEmail ? ` - ${order.ordererEmail}` : ''}`,
+        `Người nhận: ${order.name} - ${order.phone}`,
         `Địa chỉ: ${order.address}`,
         order.note && `Ghi chú: ${order.note}`,
+        hideProductName && 'Yêu cầu ẩn tên sản phẩm khi giao hàng',
         `Thanh toán: ${paymentLabels[paymentMethod] ?? paymentMethod}`,
       ]
         .filter(Boolean)
@@ -253,6 +310,10 @@ import { url } from '../lib/url';
             payment_method: paymentMethod,
             items: order.items,
             total,
+            orderer_name: order.ordererName,
+            orderer_phone: order.ordererPhone,
+            orderer_email: order.ordererEmail || null,
+            hide_product_name: hideProductName,
           });
         }
       } catch {

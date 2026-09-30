@@ -1386,22 +1386,9 @@ img {
   outline-offset: 1px;
 }
 
-.order-payment {
-  display: grid;
-  gap: 0.5rem;
-  margin: 0;
-  padding: 0.9rem 1rem;
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  background: #fff;
-}
-
-.order-payment legend {
-  padding: 0 0.3rem;
-  font-weight: 700;
-}
-
-.order-radio {
+/* Cùng bẫy độ ưu tiên CSS với .payment-option (xem ghi chú ở .payment-list .payment-option):
+   .order label{display:grid} thắng .order-radio một mình, phải viết .order .order-radio. */
+.order .order-radio {
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -1411,6 +1398,93 @@ img {
 .order-radio input {
   width: 1.15rem;
   height: 1.15rem;
+}
+
+.order-hide-name {
+  margin-top: 0.75rem;
+  font-size: 0.9rem;
+}
+
+/* 2 ô cùng hàng (họ tên + số điện thoại) trong "Thông tin người đặt"/"Thông tin nhận hàng" — tự
+   xuống 1 cột trên điện thoại hẹp. */
+.order-grid-2 {
+  display: grid;
+  gap: 0.9rem;
+}
+
+@media (min-width: 30rem) {
+  .order-grid-2 {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+/* Danh sách "Chọn phương thức thanh toán" dạng hàng có ô tròn màu (tự thiết kế, không chép logo
+   thật) + tên, thay cho danh sách radio kiểu chữ đơn thuần — theo mẫu Long Châu chủ website gửi. */
+.payment-list {
+  display: grid;
+  gap: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+/* .order label{display:grid} (kiểu dùng chung cho mọi label trong khung .order) có độ ưu tiên CSS
+   cao hơn .payment-option 1 mình (2 lớp so với 1 lớp) — phải viết .payment-list .payment-option để
+   thắng, không thì input/icon/chữ bị xếp dọc thay vì nằm ngang 1 hàng. */
+.payment-list .payment-option {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.85rem 0.5rem;
+  border-bottom: 1px solid var(--line);
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.payment-option:last-child {
+  border-bottom: 0;
+}
+
+.payment-option input {
+  width: 1.25rem;
+  height: 1.25rem;
+  flex: none;
+}
+
+.payment-icon {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 8px;
+  color: #fff;
+  font-size: 0.8rem;
+  font-weight: 800;
+}
+
+.payment-icon-cod {
+  background: var(--green-700);
+  border-radius: 50%;
+}
+
+.payment-icon-bank {
+  background: #2563eb;
+}
+
+.payment-icon-momo {
+  background: #a50064;
+  border-radius: 50%;
+}
+
+.payment-icon-zalopay {
+  background: #0068ff;
+  border-radius: 50%;
+}
+
+.payment-icon-visa {
+  background: #1a1f71;
 }
 
 .order .order-consent {
@@ -2306,22 +2380,33 @@ button.btn:not(.btn-outline) {
 }
 
 /* Giỏ hàng */
-.cart-layout {
+/* Trang giỏ hàng/đặt hàng (tháng 9/2026, theo mẫu Long Châu chủ website gửi): CỘT CHÍNH bên trái
+   (danh sách sản phẩm, thông tin người đặt/người nhận, phương thức thanh toán — cuộn bình thường)
+   và cột TÓM TẮT bên phải (tạm tính + nút "Hoàn tất", dính lại khi cuộn) — trước đó cả khối "Thông
+   tin nhận hàng" nằm bên phải, giờ chỉ còn phần tóm tắt/nút gửi ở đó, giống đúng bố cục thanh toán
+   Long Châu. `<form>` chính là container grid luôn (không còn `<div class="cart-layout">` bọc
+   ngoài), gộp cả `.checkout-main` và `.checkout-summary` làm 2 item con. */
+.checkout-layout {
   display: grid;
   gap: 1.5rem;
   margin-bottom: 2rem;
 }
 
+.checkout-main {
+  display: grid;
+  gap: 1.5rem;
+  min-width: 0;
+}
+
 @media (min-width: 60rem) {
-  .cart-layout {
-    grid-template-columns: 1fr 26rem;
+  .checkout-layout {
+    grid-template-columns: 1fr 22rem;
     align-items: start;
   }
 
-  .cart-layout .order {
+  .checkout-summary {
     position: sticky;
     top: 1rem;
-    margin-top: 0;
   }
 }
 
@@ -2430,20 +2515,33 @@ button.btn:not(.btn-outline) {
   cursor: pointer;
 }
 
-.cart-total {
+.checkout-summary {
+  padding: 1.25rem;
+  border: 2px solid var(--green-100);
+  border-radius: var(--radius);
+  background: var(--green-50);
+}
+
+.checkout-summary-row {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
-  margin-top: 1rem;
-  padding: 0.9rem 1rem;
-  border-radius: var(--radius);
-  background: var(--green-50);
   font-size: 1.1rem;
 }
 
-.cart-total strong {
+.checkout-summary-row strong {
   font-size: 1.4rem;
   color: #c2410c;
+}
+
+.checkout-submit {
+  width: 100%;
+  justify-content: center;
+  margin-top: 1rem;
+  border: 0;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
 }
 
 .cart-note {
