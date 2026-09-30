@@ -1266,10 +1266,7 @@ const drawerSections: DrawerSection[] = [
     return user.email?.split('@')[0] ?? 'Tài khoản';
   }
 
-  // Cập nhật ngay lúc tải trang và mỗi khi trạng thái đăng nhập đổi (đăng nhập/đăng xuất ở modal
-  // hoặc ở trang /tai-khoan/ đều bắn sự kiện này vì cùng dùng chung 1 client Supabase). Toast cũng
-  // đặt ở đây (không đặt trùng ở tai-khoan.astro) vì Header có mặt trên MỌI trang kể cả /tai-khoan/,
-  // nếu đặt cả 2 nơi thì trên trang /tai-khoan/ sự kiện sẽ bắn tới cả 2 nơi, hiện toast 2 lần.
+  // Cập nhật ngay lúc tải trang và mỗi khi trạng thái đăng nhập đổi.
   async function refreshAccountLabel() {
     if (!accountLabel) return;
     const {
@@ -1277,12 +1274,32 @@ const drawerSections: DrawerSection[] = [
     } = await supabase.auth.getSession();
     accountLabel.textContent = session?.user ? await resolveDisplayName(session.user) : 'Đăng nhập';
   }
-  supabase.auth.onAuthStateChange((event) => {
-    refreshAccountLabel();
-    if (event === 'SIGNED_IN') showToast('Bạn đã đăng nhập thành công');
-    if (event === 'SIGNED_OUT') showToast('Bạn đã đăng xuất thành công');
-  });
+  supabase.auth.onAuthStateChange(() => refreshAccountLabel());
   refreshAccountLabel();
+
+  // Bẫy đã gặp: TOAST đăng nhập/đăng xuất trước đây đặt trong onAuthStateChange, dựa vào sự kiện
+  // 'SIGNED_IN'/'SIGNED_OUT' — nhưng site là NHIỀU TRANG (mỗi lần chuyển trang là tải lại toàn bộ,
+  // không phải SPA), nên script này chạy lại từ đầu ở MỖI trang, đăng ký một listener MỚI mỗi lần.
+  // Đăng nhập Google xong quay về /tai-khoan/, bấm logo sang trang chủ ngay sau đó: trang chủ tải
+  // lại, listener mới này đôi khi vẫn nhận được 'SIGNED_IN' (do lúc đó phiên vừa được xác lập/làm
+  // mới trong Supabase còn đang xử lý dở khi trang cũ bị rời đi) dù người dùng không hề đăng nhập gì
+  // thêm — hiện toast "đăng nhập thành công" sai một lần nữa. Đã sửa: KHÔNG còn hiện toast theo sự
+  // kiện chung nữa, mà hiện NGAY tại nơi hành động thật sự xảy ra (submit form thành công, hoặc cờ
+  // đánh dấu "vừa quay về từ Google" — xem 2 chỗ bên dưới) để chắc chắn chỉ hiện đúng 1 lần.
+  const OAUTH_PENDING_KEY = 'duocsithuong-oauth-pending';
+  (function showToastAfterOAuthReturn() {
+    let pending: string | null = null;
+    try {
+      pending = sessionStorage.getItem(OAUTH_PENDING_KEY);
+      sessionStorage.removeItem(OAUTH_PENDING_KEY);
+    } catch {
+      // trình duyệt chặn sessionStorage (ví dụ cửa sổ ẩn danh) thì thôi, không báo toast cũng không sao
+    }
+    if (pending !== 'login') return;
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session?.user) showToast('Bạn đã đăng nhập thành công');
+    });
+  })();
 
   document.querySelectorAll<HTMLButtonElement>('[data-modal-tab]').forEach((tab) => {
     tab.addEventListener('click', () => {
@@ -1311,6 +1328,11 @@ const drawerSections: DrawerSection[] = [
     // như trước đây sẽ bị Supabase âm thầm từ chối nếu bấm đăng nhập từ trang KHÁC /tai-khoan/ (ví dụ
     // trang chủ), không báo lỗi rõ ràng, trông như "bấm không có gì xảy ra". Luôn quay về /tai-khoan/
     // sau khi đăng nhập Google thành công, khớp với nút Google ở chính trang đó (tai-khoan.astro).
+    try {
+      sessionStorage.setItem(OAUTH_PENDING_KEY, 'login');
+    } catch {
+      // không sao, chỉ là sẽ không hiện toast sau khi quay về — không ảnh hưởng việc đăng nhập
+    }
     await supabase.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: window.location.origin + '/tai-khoan/' } });
   });
 
@@ -1330,6 +1352,7 @@ const drawerSections: DrawerSection[] = [
     }
     modalLoginForm.reset();
     closeAccountModal();
+    showToast('Bạn đã đăng nhập thành công');
   });
 
   modalRegisterForm?.addEventListener('submit', async (event) => {
@@ -1380,5 +1403,6 @@ const drawerSections: DrawerSection[] = [
       // đã bỏ qua
     }
     closeAccountModal();
+    showToast('Bạn đã đăng xuất thành công');
   });
 </script>

@@ -130,6 +130,32 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       box.hidden = false;
     }
 
+    // Toast dùng chung 1 khung #toast với Header.astro (cùng có mặt trên trang này) — mỗi script
+    // giữ hàm riêng vì Astro không chia sẻ code chạy trình duyệt giữa component/trang. Cùng khóa
+    // sessionStorage OAUTH_PENDING_KEY với Header.astro để chỉ báo "đăng nhập thành công" ĐÚNG 1 LẦN
+    // sau khi quay về từ Google (xem ghi chú đầy đủ ở Header.astro).
+    const OAUTH_PENDING_KEY = 'duocsithuong-oauth-pending';
+    function showToast(message: string) {
+      const toast = document.getElementById('toast');
+      if (!toast) return;
+      toast.textContent = message;
+      toast.hidden = false;
+      window.setTimeout(() => (toast.hidden = true), 2000);
+    }
+    (function showToastAfterOAuthReturn() {
+      let pending: string | null = null;
+      try {
+        pending = sessionStorage.getItem(OAUTH_PENDING_KEY);
+        sessionStorage.removeItem(OAUTH_PENDING_KEY);
+      } catch {
+        // không sao, chỉ là sẽ không hiện toast
+      }
+      if (pending !== 'login') return;
+      supabase.auth.getSession().then(({ data: { session } }) => {
+        if (session?.user) showToast('Bạn đã đăng nhập thành công');
+      });
+    })();
+
     // Chuyển đổi tab Đăng nhập/Đăng ký
     document.querySelectorAll<HTMLButtonElement>('.account-tab').forEach((tab) => {
       tab.addEventListener('click', () => {
@@ -144,6 +170,11 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     });
 
     document.getElementById('google-login-btn')!.addEventListener('click', async () => {
+      try {
+        sessionStorage.setItem(OAUTH_PENDING_KEY, 'login');
+      } catch {
+        // không sao, chỉ là sẽ không hiện toast sau khi quay về
+      }
       await supabase.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: window.location.origin + '/tai-khoan/' } });
     });
 
@@ -154,7 +185,11 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         email: String(data.get('email')).trim(),
         password: String(data.get('password')),
       });
-      if (error) showFormError(loginForm, friendlyError(error.message));
+      if (error) {
+        showFormError(loginForm, friendlyError(error.message));
+        return;
+      }
+      showToast('Bạn đã đăng nhập thành công');
     });
 
     registerForm.addEventListener('submit', async (event) => {
@@ -192,6 +227,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       } catch {
         // đã bỏ qua, vẫn để onAuthStateChange bên dưới cập nhật lại giao diện
       }
+      showToast('Bạn đã đăng xuất thành công');
     });
 
     profileForm.addEventListener('submit', async (event) => {
