@@ -1306,7 +1306,12 @@ const drawerSections: DrawerSection[] = [
   }
 
   document.getElementById('google-login-btn')?.addEventListener('click', async () => {
-    await supabase.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: window.location.href } });
+    // CHỈ được dùng URL đã khai báo trong Supabase Dashboard > Authentication > URL Configuration >
+    // Redirect URLs (hiện chỉ có ".../tai-khoan/") — dùng URL trang hiện tại (window.location.href)
+    // như trước đây sẽ bị Supabase âm thầm từ chối nếu bấm đăng nhập từ trang KHÁC /tai-khoan/ (ví dụ
+    // trang chủ), không báo lỗi rõ ràng, trông như "bấm không có gì xảy ra". Luôn quay về /tai-khoan/
+    // sau khi đăng nhập Google thành công, khớp với nút Google ở chính trang đó (tai-khoan.astro).
+    await supabase.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: window.location.origin + '/tai-khoan/' } });
   });
 
   modalLoginForm?.addEventListener('submit', async (event) => {
