@@ -1509,6 +1509,17 @@ img {
   display: inline-flex;
 }
 
+/* Tên khách sau khi đăng nhập (nút "Tài khoản" đầu trang) cắt bớt kèm "…" nếu dài, không làm vỡ
+   khung nút pill. */
+#account-label {
+  display: inline-block;
+  max-width: 7rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  vertical-align: middle;
+}
+
 .cart-link {
   position: relative;
   display: inline-flex;

@@ -1239,17 +1239,34 @@ const drawerSections: DrawerSection[] = [
     }
   }
 
-  // Đổi chữ nút đầu trang: "Đăng nhập" khi chưa có tài khoản, "Tài khoản" khi đã đăng nhập.
+  // Đổi chữ nút đầu trang: "Đăng nhập" khi chưa có tài khoản; đã đăng nhập thì hiện TÊN (CSS tự
+  // cắt bớt kèm "…" nếu dài, xem .cart-link .account-label). Ưu tiên tên Google trả về (đăng nhập
+  // Google), sau đó tới họ tên đã lưu trong hồ sơ (bảng profiles), cuối cùng mới dùng phần trước
+  // "@" của email — không có gì thì mới hiện chữ "Tài khoản" chung chung.
+  async function resolveDisplayName(user: { id: string; email?: string; user_metadata?: Record<string, unknown> }): Promise<string> {
+    const metaName = user.user_metadata?.full_name ?? user.user_metadata?.name;
+    if (typeof metaName === 'string' && metaName.trim()) return metaName.trim();
+    const { data: profile } = await supabase.from('profiles').select('full_name').eq('id', user.id).single();
+    if (profile?.full_name?.trim()) return profile.full_name.trim();
+    return user.email?.split('@')[0] ?? 'Tài khoản';
+  }
+
   // Cập nhật ngay lúc tải trang và mỗi khi trạng thái đăng nhập đổi (đăng nhập/đăng xuất ở modal
-  // hoặc ở trang /tai-khoan/ đều bắn sự kiện này vì cùng dùng chung 1 client Supabase).
+  // hoặc ở trang /tai-khoan/ đều bắn sự kiện này vì cùng dùng chung 1 client Supabase). Toast cũng
+  // đặt ở đây (không đặt trùng ở tai-khoan.astro) vì Header có mặt trên MỌI trang kể cả /tai-khoan/,
+  // nếu đặt cả 2 nơi thì trên trang /tai-khoan/ sự kiện sẽ bắn tới cả 2 nơi, hiện toast 2 lần.
   async function refreshAccountLabel() {
     if (!accountLabel) return;
     const {
       data: { session },
     } = await supabase.auth.getSession();
-    accountLabel.textContent = session?.user ? 'Tài khoản' : 'Đăng nhập';
+    accountLabel.textContent = session?.user ? await resolveDisplayName(session.user) : 'Đăng nhập';
   }
-  supabase.auth.onAuthStateChange(() => refreshAccountLabel());
+  supabase.auth.onAuthStateChange((event) => {
+    refreshAccountLabel();
+    if (event === 'SIGNED_IN') showToast('Bạn đã đăng nhập thành công');
+    if (event === 'SIGNED_OUT') showToast('Bạn đã đăng xuất thành công');
+  });
   refreshAccountLabel();
 
   document.querySelectorAll<HTMLButtonElement>('[data-modal-tab]').forEach((tab) => {
@@ -1291,8 +1308,8 @@ const drawerSections: DrawerSection[] = [
       box.hidden = false;
       return;
     }
+    modalLoginForm.reset();
     closeAccountModal();
-    location.reload();
   });
 
   modalRegisterForm?.addEventListener('submit', async (event) => {
@@ -1336,12 +1353,12 @@ const drawerSections: DrawerSection[] = [
   document.getElementById('modal-logout-btn')?.addEventListener('click', async () => {
     // scope:'local' chỉ xóa phiên đăng nhập lưu trong trình duyệt này, không cần chờ gọi mạng thành
     // công — tránh bị "treo" (không đăng xuất được) nếu mạng chập chờn lúc bấm. Bọc try/catch để dù
-    // lỗi mạng cũng luôn tải lại trang, không để người dùng kẹt lại màn hình đã đăng nhập.
+    // lỗi mạng cũng luôn coi như đã đăng xuất, không để người dùng kẹt lại màn hình đã đăng nhập.
     try {
       await supabase.auth.signOut({ scope: 'local' });
     } catch {
-      // đã bỏ qua, vẫn tải lại trang bên dưới
+      // đã bỏ qua
     }
-    location.reload();
+    closeAccountModal();
   });
 </script>
