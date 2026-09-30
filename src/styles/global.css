@@ -2526,9 +2526,12 @@ button.btn:not(.btn-outline) {
     display: none;
   }
 
-  /* Nhường chỗ cho ô tìm kiếm (xem ghi chú ở .account-wrap) — vào ngăn kéo (mobile-drawer) thay vào. */
+  /* Chủ website yêu cầu tháng 9/2026: hiện lại nút đăng nhập ngay trên hàng đầu trang ở điện thoại/
+     máy tính bảng (trước đó ẩn hẳn, chỉ vào được qua ngăn kéo) — đặt NGAY SAU nút 3 gạch (chỗ logo cũ,
+     đã ẩn ở khổ này), trước ô tìm kiếm. Dùng lại đúng kiểu rút gọn còn icon của .cart-link (chung
+     class, xem khối `.cart-link{...}` ngay phía trên) nên không cần viết CSS thu gọn riêng. */
   .header-main .account-wrap {
-    display: none;
+    order: 0;
   }
 
   .header-main .search-wrap {
