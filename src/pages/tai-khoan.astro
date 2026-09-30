@@ -185,7 +185,13 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     });
 
     document.getElementById('logout-btn')!.addEventListener('click', async () => {
-      await supabase.auth.signOut();
+      // scope:'local' chỉ xóa phiên đăng nhập trong trình duyệt này, không cần chờ mạng — tránh treo
+      // nút nếu mạng chập chờn (xem ghi chú tương tự ở Header.astro).
+      try {
+        await supabase.auth.signOut({ scope: 'local' });
+      } catch {
+        // đã bỏ qua, vẫn để onAuthStateChange bên dưới cập nhật lại giao diện
+      }
     });
 
     profileForm.addEventListener('submit', async (event) => {

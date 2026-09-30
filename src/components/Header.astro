@@ -184,7 +184,7 @@ const drawerSections: DrawerSection[] = [
           <circle cx="12" cy="8.5" r="3.5" fill="none" stroke="currentColor" stroke-width="2" />
           <path d="M4.5 20c.7-4 3.6-6.5 7.5-6.5s6.8 2.5 7.5 6.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
         </svg>
-        <span class="cart-label">Tài khoản</span>
+        <span class="cart-label" id="account-label">Đăng nhập</span>
       </a>
     </div>
 
@@ -1186,6 +1186,7 @@ const drawerSections: DrawerSection[] = [
   // Modal đăng nhập nhanh (nút "Tài khoản" ở đầu trang) — bấm vào mở modal ngay tại trang đang xem
   // thay vì chuyển sang /tai-khoan/ (chỉ chuyển trang khi bấm "Xem tài khoản của tôi" bên trong modal).
   const accountTrigger = document.getElementById('account-trigger') as HTMLAnchorElement | null;
+  const accountLabel = document.getElementById('account-label');
   const accountModal = document.getElementById('account-modal');
   const modalLoading = document.getElementById('modal-loading');
   const modalGuest = document.getElementById('modal-guest');
@@ -1237,6 +1238,19 @@ const drawerSections: DrawerSection[] = [
       modalGuest.hidden = false;
     }
   }
+
+  // Đổi chữ nút đầu trang: "Đăng nhập" khi chưa có tài khoản, "Tài khoản" khi đã đăng nhập.
+  // Cập nhật ngay lúc tải trang và mỗi khi trạng thái đăng nhập đổi (đăng nhập/đăng xuất ở modal
+  // hoặc ở trang /tai-khoan/ đều bắn sự kiện này vì cùng dùng chung 1 client Supabase).
+  async function refreshAccountLabel() {
+    if (!accountLabel) return;
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+    accountLabel.textContent = session?.user ? 'Tài khoản' : 'Đăng nhập';
+  }
+  supabase.auth.onAuthStateChange(() => refreshAccountLabel());
+  refreshAccountLabel();
 
   document.querySelectorAll<HTMLButtonElement>('[data-modal-tab]').forEach((tab) => {
     tab.addEventListener('click', () => {
@@ -1320,8 +1334,14 @@ const drawerSections: DrawerSection[] = [
   });
 
   document.getElementById('modal-logout-btn')?.addEventListener('click', async () => {
-    await supabase.auth.signOut();
-    closeAccountModal();
+    // scope:'local' chỉ xóa phiên đăng nhập lưu trong trình duyệt này, không cần chờ gọi mạng thành
+    // công — tránh bị "treo" (không đăng xuất được) nếu mạng chập chờn lúc bấm. Bọc try/catch để dù
+    // lỗi mạng cũng luôn tải lại trang, không để người dùng kẹt lại màn hình đã đăng nhập.
+    try {
+      await supabase.auth.signOut({ scope: 'local' });
+    } catch {
+      // đã bỏ qua, vẫn tải lại trang bên dưới
+    }
     location.reload();
   });
 </script>
