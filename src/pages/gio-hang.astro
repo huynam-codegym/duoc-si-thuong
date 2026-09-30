@@ -29,16 +29,26 @@ import { url } from '../lib/url';
           <div class="order-grid-2">
             <label>
               Họ và tên người đặt
-              <input type="text" name="orderer_name" autocomplete="name" required maxlength="80" />
+              <input type="text" name="orderer_name" autocomplete="name" required maxlength="80" data-error-required="Vui lòng nhập họ và tên người đặt." />
             </label>
             <label>
               Số điện thoại
-              <input type="tel" name="orderer_phone" autocomplete="tel" inputmode="tel" required pattern="(0|[+]84)[0-9]{9}" title="Số điện thoại 10 chữ số, ví dụ 0912345678" placeholder="Ví dụ: 0912345678" />
+              <input
+                type="tel"
+                name="orderer_phone"
+                autocomplete="tel"
+                inputmode="tel"
+                required
+                pattern="(0|[+]84)[0-9]{9}"
+                placeholder="Ví dụ: 0912345678"
+                data-error-required="Vui lòng nhập số điện thoại người đặt."
+                data-error-pattern="Số điện thoại chưa đúng, ví dụ 0912345678."
+              />
             </label>
           </div>
           <label>
             Email (không bắt buộc)
-            <input type="email" name="orderer_email" autocomplete="email" maxlength="120" />
+            <input type="email" name="orderer_email" autocomplete="email" maxlength="120" data-error-type="Email chưa đúng định dạng." />
           </label>
         </section>
 
@@ -47,16 +57,26 @@ import { url } from '../lib/url';
           <div class="order-grid-2">
             <label>
               Họ và tên người nhận
-              <input type="text" name="recipient_name" autocomplete="name" required maxlength="80" />
+              <input type="text" name="recipient_name" autocomplete="name" required maxlength="80" data-error-required="Vui lòng nhập họ và tên người nhận." />
             </label>
             <label>
               Số điện thoại
-              <input type="tel" name="recipient_phone" autocomplete="tel" inputmode="tel" required pattern="(0|[+]84)[0-9]{9}" title="Số điện thoại 10 chữ số, ví dụ 0912345678" placeholder="Ví dụ: 0912345678" />
+              <input
+                type="tel"
+                name="recipient_phone"
+                autocomplete="tel"
+                inputmode="tel"
+                required
+                pattern="(0|[+]84)[0-9]{9}"
+                placeholder="Ví dụ: 0912345678"
+                data-error-required="Vui lòng nhập số điện thoại người nhận."
+                data-error-pattern="Số điện thoại chưa đúng, ví dụ 0912345678."
+              />
             </label>
           </div>
           <label>
             Địa chỉ nhận hàng
-            <input type="text" name="address" autocomplete="street-address" required maxlength="200" />
+            <input type="text" name="address" autocomplete="street-address" required maxlength="200" data-error-required="Vui lòng nhập địa chỉ nhận hàng." />
           </label>
           <label>
             Ghi chú (không bắt buộc)
@@ -105,7 +125,7 @@ import { url } from '../lib/url';
         <input type="text" name="_gotcha" tabindex="-1" autocomplete="off" class="order-trap" aria-hidden="true" />
 
         <label class="order-consent">
-          <input type="checkbox" name="consent" required />
+          <input type="checkbox" name="consent" required data-error-required="Vui lòng đồng ý để nhà thuốc liên hệ và giao hàng trước khi gửi đơn." />
           <span>
             Tôi đồng ý để nhà thuốc dùng thông tin trên để liên hệ và giao hàng. Không gửi số CCCD, mật khẩu hay
             thông tin thẻ ngân hàng qua form này.
@@ -272,10 +292,68 @@ import { url } from '../lib/url';
       result.scrollIntoView({ block: 'start' });
     }
 
+    // Kiểm tra hợp lệ TỰ VIẾT (thay cho cảnh báo mặc định của trình duyệt, ví dụ "Please check this
+    // box..." bằng tiếng Anh) — đọc thông báo tiếng Việt riêng cho từng ô từ thuộc tính
+    // data-error-required/data-error-pattern/data-error-type đặt sẵn trên input, hiện thành viền đỏ
+    // + dòng chữ nhỏ màu đỏ ngay dưới ô, đúng kiểu chuẩn phổ biến ở các website khác.
+    type Validatable = HTMLInputElement | HTMLTextAreaElement;
+
+    function fieldErrorMessage(field: Validatable): string {
+      if (field.validity.valueMissing) return field.dataset.errorRequired ?? 'Vui lòng điền thông tin này.';
+      if (field.validity.patternMismatch) return field.dataset.errorPattern ?? 'Thông tin chưa đúng định dạng.';
+      if (field.validity.typeMismatch) return field.dataset.errorType ?? 'Thông tin chưa đúng định dạng.';
+      return field.validationMessage;
+    }
+
+    function clearFieldError(field: Validatable) {
+      field.classList.remove('field-invalid');
+      const holder = field.closest('label');
+      const msg = holder?.parentElement?.querySelector<HTMLElement>(`.field-error[data-for="${field.name}"]`);
+      if (msg) msg.hidden = true;
+    }
+
+    function showFieldError(field: Validatable, message: string) {
+      field.classList.add('field-invalid');
+      const holder = field.closest('label');
+      if (!holder?.parentElement) return;
+      let msg = holder.parentElement.querySelector<HTMLElement>(`.field-error[data-for="${field.name}"]`);
+      if (!msg) {
+        msg = el('p', 'field-error', '');
+        msg.dataset.for = field.name;
+        msg.setAttribute('role', 'alert');
+        holder.insertAdjacentElement('afterend', msg);
+      }
+      msg.textContent = message;
+      msg.hidden = false;
+    }
+
+    function validateForm(): boolean {
+      let firstInvalid: Validatable | null = null;
+      form.querySelectorAll<Validatable>('input, textarea').forEach((field) => {
+        if (field.type === 'hidden' || field.name === '_gotcha' || field.name === 'payment_method') return;
+        clearFieldError(field);
+        if (!field.checkValidity()) {
+          showFieldError(field, fieldErrorMessage(field));
+          if (!firstInvalid) firstInvalid = field;
+        }
+      });
+      if (firstInvalid) {
+        (firstInvalid as Validatable).focus();
+        (firstInvalid as Validatable).scrollIntoView({ block: 'center', behavior: 'smooth' });
+      }
+      return !firstInvalid;
+    }
+
+    // Xóa lỗi ngay khi khách bắt đầu sửa lại ô đó, không cần đợi bấm gửi lần nữa mới hết đỏ
+    form.addEventListener('input', (event) => {
+      const field = event.target as Validatable;
+      if (field.matches('input, textarea')) clearFieldError(field);
+    });
+
     form.addEventListener('submit', async (event) => {
       event.preventDefault();
       error.hidden = true;
-      if (!form.reportValidity()) return;
+      if (!validateForm()) return;
       const data = new FormData(form);
       if (data.get('_gotcha')) return; // thư rác
 

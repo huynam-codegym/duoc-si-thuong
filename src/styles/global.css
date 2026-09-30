@@ -1406,6 +1406,24 @@ img {
   font-size: 0.9rem;
 }
 
+/* Thông báo lỗi riêng từng ô (tháng 9/2026, thay cho cảnh báo mặc định tiếng Anh của trình duyệt,
+   ví dụ "Please check this box..." — chủ website yêu cầu đổi sang tiếng Việt, kiểu viền đỏ + chữ đỏ
+   dưới ô, chuẩn phổ biến ở các website khác). `grid-column: 1/-1` để dòng lỗi luôn chiếm hết bề
+   ngang dù nằm trong `.order-grid-2` (2 cột) hay ngoài lưới (không ảnh hưởng gì, chỉ có tác dụng khi
+   cha là grid). */
+.field-error {
+  grid-column: 1 / -1;
+  margin: -0.4rem 0 0;
+  color: #b91c1c;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.field-invalid {
+  border-color: #b91c1c !important;
+  outline-color: #b91c1c;
+}
+
 /* 2 ô cùng hàng (họ tên + số điện thoại) trong "Thông tin người đặt"/"Thông tin nhận hàng" — tự
    xuống 1 cột trên điện thoại hẹp. */
 .order-grid-2 {
