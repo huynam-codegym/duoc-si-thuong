@@ -1,0 +1,172 @@
+<!--
+  Template email "Xác nhận đơn hàng" gửi cho KHÁCH sau khi đặt hàng ở /gio-hang/.
+
+  ĐÂY LÀ BẢN THIẾT KẾ THAM KHẢO (nguồn thiết kế gốc) — chủ website đã chọn gửi email thật qua
+  Supabase Edge Function + Resend (tháng 9/2026, xem CLAUDE.md mục "Gửi email xác nhận đơn hàng"),
+  nên bản THỰC SỰ dùng để gửi là hàm `renderCustomerEmail()` viết lại bằng JS trong
+  `supabase/functions/send-order-email/index.ts` (không đọc trực tiếp file này, vì Edge Function cần
+  chèn dữ liệu thật bằng JS thay vì thay thế {{biến}} kiểu template-string đơn giản). Hai nơi
+  ĐANG CÙNG MỘT THIẾT KẾ — đổi giao diện email thì sửa cả 2 nơi cho khớp nhau, hoặc chỉ cần sửa trong
+  Edge Function (nơi thật sự chạy) rồi cập nhật lại file này cho đúng tài liệu. File này vẫn hữu ích
+  nếu sau này đổi sang dịch vụ khác (EmailJS/Formspree autoresponder...) cần dán HTML kiểu
+  {{biến}} vào khung soạn thảo có sẵn của dịch vụ đó.
+
+  Quy ước biến (đặt tên theo kiểu EmailJS/Handlebars đơn giản — CHỈ thay thế chuỗi, không có vòng
+  lặp/điều kiện trong chính template, để tương thích với nhiều dịch vụ gửi mail nhất): những phần có
+  thể thay đổi hình dạng (danh sách sản phẩm, dòng giảm giá, dòng ghi chú) được build sẵn thành 1
+  chuỗi HTML nhỏ ở phía JS rồi chèn nguyên khối qua {{items_html}}/{{discount_row_html}}/{{note_row_html}},
+  không dùng {{#each}}.
+
+  Biến cần điền khi gửi thật:
+    {{order_id}}            Mã đơn (ví dụ id đơn trong Supabase, hoặc số thứ tự tự đặt)
+    {{order_date}}           Ngày giờ đặt, định dạng Việt Nam (ví dụ "30/09/2026 16:20")
+    {{orderer_name}}         Họ tên người đặt
+    {{items_html}}           Chuỗi HTML các dòng <tr> sản phẩm (xem mẫu trong <tbody> bên dưới)
+    {{subtotal}}              Tổng tiền gốc, đã format kiểu "100.000đ"
+    {{discount_row_html}}    Chuỗi HTML dòng "Giảm giá trực tiếp" — để RỖNG nếu đơn không có khuyến mãi
+                              (giống quy tắc ở trang giỏ hàng: chỉ hiện khi > 0, không hiện "-0đ" thừa)
+    {{total}}                 Thành tiền, đã format
+    {{recipient_name}}       Họ tên người nhận
+    {{recipient_phone}}      SĐT người nhận
+    {{address}}               Địa chỉ nhận hàng
+    {{note_row_html}}        Chuỗi HTML dòng "Ghi chú" — để RỖNG nếu khách không ghi chú gì
+    {{payment_method_label}} Tên hình thức thanh toán (ví dụ "Tiền mặt khi nhận hàng")
+    {{shop_phone}}            Số điện thoại nhà thuốc, lấy từ src/lib/site.ts (0988 283 415)
+    {{year}}                  Năm hiện tại, cho dòng bản quyền
+-->
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Xác nhận đơn hàng - Dược Sĩ Thương</title>
+  </head>
+  <body style="margin: 0; padding: 0; background: #f0fdf4; font-family: Arial, Helvetica, sans-serif">
+    <!-- Bảng ngoài để canh giữa, kiểu chuẩn cho email (Outlook/Gmail không hỗ trợ flex/grid) -->
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background: #f0fdf4; padding: 24px 0">
+      <tr>
+        <td align="center">
+          <table
+            role="presentation"
+            width="600"
+            cellpadding="0"
+            cellspacing="0"
+            style="width: 600px; max-width: 92%; background: #ffffff; border-radius: 12px; overflow: hidden; border: 1px solid #dcfce7"
+          >
+            <!-- Header thương hiệu -->
+            <tr>
+              <td style="background: #15803d; padding: 24px 32px; text-align: center">
+                <span style="color: #ffffff; font-size: 22px; font-weight: 700; letter-spacing: 0.2px">Dược Sĩ Thương</span>
+                <br />
+                <span style="color: #bbf7d0; font-size: 13px">Nhà Thuốc Nhật Minh</span>
+              </td>
+            </tr>
+
+            <!-- Nội dung chính -->
+            <tr>
+              <td style="padding: 32px 32px 8px">
+                <h1 style="margin: 0 0 12px; font-size: 20px; color: #14532d">Cảm ơn bạn đã đặt hàng!</h1>
+                <p style="margin: 0 0 20px; font-size: 15px; line-height: 1.6; color: #374151">
+                  Chào <strong>{{orderer_name}}</strong>, Dược Sĩ Thương đã nhận được đơn hàng
+                  <strong>#{{order_id}}</strong> vào {{order_date}}.
+                </p>
+
+                <!-- Nhắc rõ đây chỉ là email GHI NHẬN đơn, chưa phải xác nhận thanh toán/giao hàng — đúng
+                     nguyên tắc site chưa xử lý thanh toán thật (xem CLAUDE.md, mục "Giỏ hàng và đặt hàng") -->
+                <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background: #fefce8; border: 1px solid #fde68a; border-radius: 8px; margin-bottom: 24px">
+                  <tr>
+                    <td style="padding: 12px 16px; font-size: 13px; line-height: 1.6; color: #854d0e">
+                      Đây là email <strong>ghi nhận đơn</strong>, chưa phải hóa đơn thanh toán. Nhà thuốc sẽ gọi tới số
+                      <strong>{{recipient_phone}}</strong> để xác nhận lại giá, phí giao hàng và cách thanh toán trước khi giao.
+                    </td>
+                  </tr>
+                </table>
+
+                <h2 style="margin: 0 0 10px; font-size: 15px; color: #14532d">Sản phẩm đã đặt</h2>
+                <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse: collapse; margin-bottom: 4px">
+                  <thead>
+                    <tr style="background: #f0fdf4">
+                      <th align="left" style="padding: 8px; font-size: 12px; color: #166534; border-bottom: 1px solid #dcfce7">Sản phẩm</th>
+                      <th align="center" style="padding: 8px; font-size: 12px; color: #166534; border-bottom: 1px solid #dcfce7">SL</th>
+                      <th align="right" style="padding: 8px; font-size: 12px; color: #166534; border-bottom: 1px solid #dcfce7">Thành tiền</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <!-- {{items_html}}: mỗi sản phẩm 1 dòng theo mẫu sau -->
+                    <tr style="border-bottom: 1px solid #f3f4f6">
+                      <td style="padding: 10px 8px; font-size: 14px; color: #111827">Tên sản phẩm</td>
+                      <td align="center" style="padding: 10px 8px; font-size: 14px; color: #111827">1</td>
+                      <td align="right" style="padding: 10px 8px; font-size: 14px; color: #111827; white-space: nowrap">100.000đ</td>
+                    </tr>
+                  </tbody>
+                </table>
+
+                <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin: 12px 0 24px">
+                  <tr>
+                    <td style="padding: 4px 0; font-size: 14px; color: #4b5563">Tổng tiền</td>
+                    <td align="right" style="padding: 4px 0; font-size: 14px; color: #4b5563">{{subtotal}}</td>
+                  </tr>
+                  <!-- {{discount_row_html}}: rỗng nếu không có khuyến mãi, có thì chèn 1 dòng <tr> giống mẫu:
+                       <tr><td style="padding:4px 0;font-size:14px;color:#4b5563">Giảm giá trực tiếp</td>
+                       <td align="right" style="padding:4px 0;font-size:14px;color:#dc2626">-30.000đ</td></tr> -->
+                  <tr>
+                    <td style="padding: 4px 0; font-size: 14px; color: #4b5563">Giảm giá voucher</td>
+                    <td align="right" style="padding: 4px 0; font-size: 14px; color: #4b5563">0đ</td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 4px 0; font-size: 14px; color: #4b5563">Phí vận chuyển</td>
+                    <td align="right" style="padding: 4px 0; font-size: 14px; color: #4b5563">Nhà thuốc báo sau</td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 10px 0 0; border-top: 2px solid #15803d; font-size: 16px; font-weight: 700; color: #14532d">Thành tiền</td>
+                    <td align="right" style="padding: 10px 0 0; border-top: 2px solid #15803d; font-size: 16px; font-weight: 700; color: #14532d">{{total}}</td>
+                  </tr>
+                </table>
+
+                <h2 style="margin: 0 0 8px; font-size: 15px; color: #14532d">Thông tin nhận hàng</h2>
+                <p style="margin: 0 0 20px; font-size: 14px; line-height: 1.7; color: #374151">
+                  {{recipient_name}} — {{recipient_phone}}<br />
+                  {{address}}
+                  <!-- {{note_row_html}}: rỗng nếu không có ghi chú, có thì chèn 1 dòng:
+                       <br /><span style="color:#6b7280">Ghi chú: Hãy gọi trước khi giao</span> -->
+                </p>
+
+                <h2 style="margin: 0 0 8px; font-size: 15px; color: #14532d">Hình thức thanh toán</h2>
+                <p style="margin: 0 0 24px; font-size: 14px; color: #374151">
+                  {{payment_method_label}}. Với hình thức khác tiền mặt, nhà thuốc sẽ liên hệ hướng dẫn thanh toán cụ thể — site
+                  chưa thu tiền trực tuyến qua thẻ/ví.
+                </p>
+
+                <!-- Khung liên hệ, dùng màu cam giống điểm nhấn "Bấm để nhắn Zalo" ở trang chủ để đồng bộ thương hiệu -->
+                <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background: #fff7ed; border: 1px solid #fed7aa; border-radius: 8px; margin-bottom: 20px">
+                  <tr>
+                    <td style="padding: 14px 16px">
+                      <strong style="color: #c2410c; font-size: 14px">Cần hỗ trợ hoặc muốn đổi đơn?</strong>
+                      <p style="margin: 6px 0 0; font-size: 13px; color: #7c2d12; line-height: 1.6">
+                        Nhắn Zalo cho dược sĩ: <a href="https://zalo.me/0988283415" style="color: #c2410c; font-weight: 600">zalo.me/0988283415</a>
+                        hoặc gọi {{shop_phone}}.
+                      </p>
+                    </td>
+                  </tr>
+                </table>
+
+                <p style="margin: 0 0 24px; font-size: 12px; line-height: 1.6; color: #9ca3af">
+                  Thông tin sản phẩm chỉ mang tính tham khảo, không thay thế chẩn đoán hay tư vấn của bác sĩ/dược sĩ. Hãy hỏi ý kiến
+                  bác sĩ hoặc dược sĩ trước khi dùng nếu bạn đang có bệnh nền, mang thai hoặc cho con bú.
+                </p>
+              </td>
+            </tr>
+
+            <!-- Footer -->
+            <tr>
+              <td style="background: #f9fafb; padding: 16px 32px; text-align: center; border-top: 1px solid #f3f4f6">
+                <p style="margin: 0; font-size: 12px; color: #9ca3af">© {{year}} Dược Sĩ Thương — Nhà Thuốc Nhật Minh</p>
+                <p style="margin: 4px 0 0; font-size: 12px; color: #9ca3af">Email này gửi tự động vì bạn vừa đặt hàng tại duocsithuong.com</p>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>

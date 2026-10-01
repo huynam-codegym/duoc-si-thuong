@@ -17,7 +17,7 @@ import { url } from '../lib/url';
       <a class="btn" href={url('/')}>Xem sản phẩm</a>
     </div>
 
-    <form id="order-form" class="checkout-layout" data-endpoint={site.orderEndpoint} data-zalo={site.zaloHref} novalidate hidden>
+    <form id="order-form" class="checkout-layout" data-zalo={site.zaloHref} novalidate hidden>
       <div class="checkout-main">
         <section aria-labelledby="cart-items-title">
           <h2 id="cart-items-title">Danh sách sản phẩm</h2>
@@ -362,18 +362,18 @@ import { url } from '../lib/url';
       const items = getCart();
       if (items.length === 0) return;
       const total = cartTotal(items);
-      const paymentLabels: Record<string, string> = {
-        cod: 'Tiền mặt khi nhận hàng',
-        bank: 'Chuyển khoản ngân hàng (QR Code)',
-        momo: 'Ví MoMo',
-        zalopay: 'Ví ZaloPay',
-        visa: 'Thẻ Visa/Mastercard',
-      };
+      const originalTotal = cartOriginalTotal(items);
       const paymentMethod = String(data.get('payment_method') ?? 'cod');
       const hideProductName = data.get('hide_product_name') === 'on';
+      // Mã đơn chỉ để khách/nhà thuốc tiện nhắc tới nhau (ví dụ qua điện thoại), không phải khóa
+      // chính lưu trong cơ sở dữ liệu nào — sinh ngay ở trình duyệt, đủ dùng vì site chưa có hệ
+      // thống quản lý đơn hàng thật.
+      const orderId = `${Date.now().toString(36)}${Math.random().toString(36).slice(2, 5)}`.toUpperCase();
       const order = {
+        orderId,
         items: items.map((item) => ({ id: item.id, name: item.name, qty: item.qty, price: item.price })),
         total,
+        originalTotal,
         ordererName: String(data.get('orderer_name')).trim(),
         ordererPhone: String(data.get('orderer_phone')).trim(),
         ordererEmail: String(data.get('orderer_email') ?? '').trim(),
@@ -383,29 +383,11 @@ import { url } from '../lib/url';
         note: String(data.get('note') ?? '').trim(),
         hideProductName,
         paymentMethod,
-        page: location.href,
       };
-      const lines = items.map((item, index) => {
-        const price = item.price === null ? 'Liên hệ' : `${formatVnd(item.price)} = ${formatVnd(item.price * item.qty)}`;
-        return `${index + 1}. ${item.name} x${item.qty} - ${price}`;
-      });
-      const text = [
-        'ĐẶT HÀNG',
-        ...lines,
-        `Tạm tính: ${formatVnd(total)}${hasUnpriced(items) ? ' (chưa gồm sản phẩm liên hệ giá)' : ''}`,
-        `Người đặt: ${order.ordererName} - ${order.ordererPhone}${order.ordererEmail ? ` - ${order.ordererEmail}` : ''}`,
-        `Người nhận: ${order.name} - ${order.phone}`,
-        `Địa chỉ: ${order.address}`,
-        order.note && `Ghi chú: ${order.note}`,
-        hideProductName && 'Yêu cầu ẩn tên sản phẩm khi giao hàng',
-        `Thanh toán: ${paymentLabels[paymentMethod] ?? paymentMethod}`,
-      ]
-        .filter(Boolean)
-        .join('\n');
 
       // Khách đã đăng nhập (Tài khoản của tôi) thì lưu thêm 1 bản vào tài khoản để xem lại sau —
-      // không thay thế luồng gửi đơn hiện có (Zalo/Formspree) bên dưới, chỉ lưu thêm song song.
-      // Lỗi ở đây (ví dụ mất mạng) không được chặn việc gửi đơn chính.
+      // không thay thế việc gửi email bên dưới, chỉ lưu thêm song song. Lỗi ở đây (ví dụ mất mạng)
+      // không được chặn việc gửi đơn chính.
       try {
         const {
           data: { session },
@@ -430,46 +412,34 @@ import { url } from '../lib/url';
         // không chặn việc gửi đơn chính nếu lưu vào tài khoản thất bại
       }
 
-      const endpoint = form.dataset.endpoint;
-      if (endpoint) {
-        try {
-          const response = await fetch(endpoint, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-            body: JSON.stringify(order),
-          });
-          if (!response.ok) throw new Error(String(response.status));
-          clearCart();
-          showResult([el('p', undefined, 'Đã gửi đơn. Nhà thuốc sẽ liên hệ với bạn qua số điện thoại đã để lại để xác nhận. Cảm ơn bạn!')]);
-        } catch {
-          error.textContent = 'Chưa gửi được đơn. Bạn vui lòng thử lại hoặc nhắn Zalo cho nhà thuốc.';
-          error.hidden = false;
-        }
-        return;
-      }
-
-      // Chưa có địa chỉ nhận đơn: mở Zalo (mở ngay trong lúc bấm nút để trình duyệt không chặn) và chép sẵn nội dung đơn
-      window.open(form.dataset.zalo, '_blank', 'noopener');
-      navigator.clipboard?.writeText(text).catch(() => {});
-      const done = el('button', 'btn', 'Tôi đã gửi xong, xóa giỏ hàng');
-      done.type = 'button';
-      done.addEventListener('click', () => {
+      // Gửi đơn thật qua Edge Function "send-order-email" (Supabase + Resend) — function tự gửi 2
+      // email: báo nhà thuốc (luôn gửi, đây là kênh DUY NHẤT nhà thuốc biết có đơn mới, thay cho
+      // luồng mở Zalo thủ công trước đây) và xác nhận cho khách (chỉ khi khách có điền email, ô này
+      // không bắt buộc). Xem supabase/functions/send-order-email/index.ts và CLAUDE.md để biết cách
+      // thiết lập Resend/deploy function.
+      try {
+        const { data: result, error: invokeError } = await supabase.functions.invoke('send-order-email', { body: order });
+        if (invokeError) throw invokeError;
         clearCart();
-        location.reload();
-      });
-      const back = el('button', 'btn btn-outline', 'Quay lại giỏ hàng');
-      back.type = 'button';
-      back.addEventListener('click', () => {
-        result.hidden = true;
-        render();
-      });
-      const actions = el('div', 'actions');
-      actions.append(done, back);
-      showResult([
-        el('p', undefined, 'Đơn của bạn đã được soạn sẵn. Hãy dán nội dung dưới đây vào khung chat Zalo của nhà thuốc rồi bấm gửi:'),
-        el('pre', undefined, text),
-        actions,
-      ]);
+        const message = result?.customerEmailSent
+          ? `Đã gửi đơn thành công! Mã đơn #${orderId}. Chúng tôi đã gửi email xác nhận tới ${order.ordererEmail}, nhà thuốc sẽ gọi điện xác nhận lại trước khi giao.`
+          : `Đã gửi đơn thành công! Mã đơn #${orderId}. Nhà thuốc sẽ gọi tới số ${order.phone} để xác nhận lại trước khi giao.`;
+        showResult([el('p', undefined, message)]);
+      } catch {
+        error.innerHTML = '';
+        error.append(
+          el('span', undefined, 'Chưa gửi được đơn, có thể do mạng chập chờn. Bạn vui lòng thử lại hoặc '),
+          (() => {
+            const a = el('a', undefined, 'nhắn Zalo cho nhà thuốc');
+            a.setAttribute('href', form.dataset.zalo ?? '');
+            a.setAttribute('target', '_blank');
+            a.setAttribute('rel', 'noopener');
+            return a;
+          })(),
+          el('span', undefined, '.'),
+        );
+        error.hidden = false;
+      }
     });
   </script>
 </BaseLayout>
