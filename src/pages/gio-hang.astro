@@ -291,6 +291,15 @@ import { url } from '../lib/url';
     window.addEventListener('storage', render);
     render();
 
+    // Khách đã đăng nhập (Google hoặc email/mật khẩu) thì tự điền sẵn email tài khoản vào ô "Email
+    // (không bắt buộc)" — để đơn vẫn gửi được email xác nhận dù khách không tự gõ gì, mà vẫn CHO SỬA
+    // (không khóa ô lại) vì khách có thể muốn dùng email khác hoặc bỏ trống. Chỉ điền khi ô đang
+    // trống, không ghi đè nếu khách đã gõ gì đó trước khi phần này tải xong.
+    const ordererEmailInput = form.querySelector<HTMLInputElement>('[name="orderer_email"]')!;
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session?.user?.email && !ordererEmailInput.value) ordererEmailInput.value = session.user.email;
+    });
+
     function showResult(nodes: Node[]) {
       result.replaceChildren(...nodes);
       result.hidden = false;

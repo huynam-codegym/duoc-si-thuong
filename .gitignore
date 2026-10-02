@@ -5,3 +5,6 @@ dist/
 .env.*
 npm-debug.log*
 .DS_Store
+# Supabase CLI: cache cục bộ (project ref, version, pooler url...) của máy đã link, không phải bí mật
+# nhưng cũng không cần commit - máy khác chạy `supabase link` lại là có.
+supabase/.temp/
