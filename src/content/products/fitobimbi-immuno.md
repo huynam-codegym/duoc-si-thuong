@@ -17,7 +17,7 @@ gallery:
   - "../../assets/products/fitobimbi-immuno/anh-4.jpg"
   - "../../assets/products/fitobimbi-immuno/anh-5.jpg"
   - "../../assets/products/fitobimbi-immuno/anh-6.jpg"
-publicationNo: ""
+publicationNo: "2660/2020/ĐKSP"
 adConfirmationNo: ""
 updatedAt: 2026-10-05
 draft: false
