@@ -108,6 +108,14 @@ import { url } from '../lib/url';
               <span class="payment-icon payment-icon-bank" aria-hidden="true">QR</span>
               <span>Thanh toán bằng chuyển khoản (QR Code)</span>
             </label>
+            <div id="bank-qr-box" class="bank-qr-box" hidden>
+              <img id="bank-qr-img" alt="Mã QR chuyển khoản Techcombank, số tài khoản 19033499418015, chủ tài khoản NGUYEN THI THUONG" width="220" height="220" loading="lazy" />
+              <p class="bank-qr-caption">
+                Techcombank · STK <strong>19033499418015</strong><br />
+                Chủ TK: <strong>NGUYEN THI THUONG</strong>
+              </p>
+              <p class="bank-qr-note">Số tiền trên mã QR là tạm tính, có thể đổi khi nhà thuốc xác nhận lại. Vui lòng đợi nhà thuốc gọi xác nhận trước khi chuyển khoản.</p>
+            </div>
             <label class="payment-option">
               <input type="radio" name="payment_method" value="momo" />
               <span class="payment-icon payment-icon-momo" aria-hidden="true">M</span>
@@ -299,6 +307,31 @@ import { url } from '../lib/url';
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session?.user?.email && !ordererEmailInput.value) ordererEmailInput.value = session.user.email;
     });
+
+    // Mã QR chuyển khoản (VietQR, dịch vụ tạo ảnh QR chuẩn liên ngân hàng Việt Nam miễn phí, không
+    // cần đăng ký/khóa API — chỉ cần ghép URL ảnh) — hiện ra khi khách chọn "Chuyển khoản (QR Code)".
+    // Thông tin tài khoản do chủ website cung cấp trực tiếp (tháng 10/2026), xem CLAUDE.md.
+    const BANK_BIN = '970407'; // Mã ngân hàng Techcombank theo chuẩn VietQR/Napas
+    const BANK_ACCOUNT = '19033499418015';
+    const BANK_ACCOUNT_NAME = 'NGUYEN THI THUONG';
+    const bankQrBox = document.getElementById('bank-qr-box')!;
+    const bankQrImg = document.getElementById('bank-qr-img') as HTMLImageElement;
+
+    function updateBankQr() {
+      const selected = form.querySelector<HTMLInputElement>('[name="payment_method"]:checked')?.value;
+      bankQrBox.hidden = selected !== 'bank';
+      if (selected !== 'bank') return;
+      // Số tiền chỉ là tạm tính (giống "Thành tiền" ở khung tóm tắt) — dòng nhắc bên dưới mã QR đã
+      // nói rõ khách cần đợi nhà thuốc xác nhận lại trước khi chuyển, không tự gán ý "giá cuối cùng".
+      const total = cartTotal(getCart());
+      const amount = total > 0 ? String(total) : '';
+      const addInfo = 'Thanh toan don hang Duoc Si Thuong';
+      bankQrImg.src = `https://img.vietqr.io/image/${BANK_BIN}-${BANK_ACCOUNT}-qr_only.png?amount=${amount}&addInfo=${encodeURIComponent(addInfo)}&accountName=${encodeURIComponent(BANK_ACCOUNT_NAME)}`;
+    }
+
+    form.querySelectorAll<HTMLInputElement>('[name="payment_method"]').forEach((radio) => radio.addEventListener('change', updateBankQr));
+    window.addEventListener('cart:change', updateBankQr);
+    updateBankQr();
 
     function showResult(nodes: Node[]) {
       result.replaceChildren(...nodes);
