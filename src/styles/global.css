@@ -1761,6 +1761,57 @@ img {
   background: var(--green-50);
 }
 
+/* Lịch sử tìm kiếm (hiện khi bấm vào ô tìm kiếm lúc chưa gõ gì, xem renderHistory() trong Header.astro) */
+.search-suggest-history-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 1rem;
+  border-bottom: 1px solid var(--line);
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--ink-soft);
+}
+
+.search-suggest-clear {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--green-700);
+  font: inherit;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* .search-suggest a{display:block} (1 lớp + 1 thẻ) có độ ưu tiên CSS thấp hơn 2 lớp cộng lại — viết
+   .search-suggest .search-suggest-history-item (2 lớp) để thắng, không dùng !important. Cùng bẫy độ
+   ưu tiên đã ghi ở .payment-list .payment-option/.order .order-radio. */
+.search-suggest .search-suggest-history-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.search-suggest-remove {
+  flex: none;
+  width: 1.5rem;
+  height: 1.5rem;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  color: var(--ink-soft);
+  font-size: 1.1rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.search-suggest-remove:hover {
+  background: var(--green-100);
+  color: var(--ink);
+}
+
 .btn-sm {
   min-height: 2.2rem;
   padding: 0.4rem 0.9rem;

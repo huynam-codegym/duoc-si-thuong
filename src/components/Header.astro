@@ -628,6 +628,7 @@ const drawerSections: DrawerSection[] = [
   import { MAX_QTY, addToCart, cartCount, formatVnd, getCart, removeItem, type CartItem } from '../lib/cart';
   import { url } from '../lib/url';
   import { supabase } from '../lib/supabase';
+  import { clearSearchHistory, getSearchHistory, removeSearchHistory } from '../lib/search-history';
 
   // Chữ gợi ý trong ô tìm kiếm: hiện dần từng chữ kiểu đang gõ bàn phím, gõ xong dừng một lúc rồi XÓA
   // HẾT NGAY một lần (không xóa dần từng chữ), dừng một lúc rồi gõ lại từ đầu (lặp lại mãi). Tắt hẳn
@@ -699,6 +700,58 @@ const drawerSections: DrawerSection[] = [
       searchSuggest.innerHTML = '';
     }
 
+    // Bấm vào ô tìm kiếm lúc CHƯA gõ gì (hoặc xóa hết chữ) thì hiện lại các từ khóa đã tìm gần đây
+    // (localStorage, xem src/lib/search-history.ts) — gõ đủ 2 ký tự trở lên thì đổi sang gợi ý kết
+    // quả thật như cũ (xem trình xử lý sự kiện `input` bên dưới).
+    function renderHistory() {
+      const terms = getSearchHistory();
+      if (terms.length === 0) {
+        hideSuggest();
+        return;
+      }
+      searchSuggest.innerHTML = '';
+      const head = document.createElement('div');
+      head.className = 'search-suggest-history-head';
+      const label = document.createElement('span');
+      label.textContent = 'Tìm kiếm gần đây';
+      const clearBtn = document.createElement('button');
+      clearBtn.type = 'button';
+      clearBtn.className = 'search-suggest-clear';
+      clearBtn.textContent = 'Xóa tất cả';
+      clearBtn.addEventListener('click', () => {
+        clearSearchHistory();
+        hideSuggest();
+      });
+      head.append(label, clearBtn);
+      searchSuggest.append(head);
+
+      terms.forEach((term) => {
+        const a = document.createElement('a');
+        a.href = url(`/tim-kiem/?q=${encodeURIComponent(term)}`);
+        a.className = 'search-suggest-history-item';
+        a.setAttribute('role', 'option');
+        const text = document.createElement('span');
+        text.textContent = term;
+        const remove = document.createElement('button');
+        remove.type = 'button';
+        remove.className = 'search-suggest-remove';
+        remove.setAttribute('aria-label', `Xóa "${term}" khỏi lịch sử tìm kiếm`);
+        remove.textContent = '×';
+        // Nút xóa nằm TRONG thẻ <a> (để cùng hàng với chữ) nên phải chặn sự kiện click nổi lên <a>,
+        // không thì bấm xóa lại vô tình điều hướng sang trang tìm kiếm.
+        remove.addEventListener('click', (event) => {
+          event.preventDefault();
+          event.stopPropagation();
+          removeSearchHistory(term);
+          renderHistory();
+        });
+        a.append(text, remove);
+        searchSuggest.append(a);
+      });
+      positionSuggest();
+      searchSuggest.hidden = false;
+    }
+
     function stripTags(html: string): string {
       const div = document.createElement('div');
       div.innerHTML = html;
@@ -746,16 +799,19 @@ const drawerSections: DrawerSection[] = [
       const term = searchInput.value.trim();
       window.clearTimeout(debounceTimer);
       if (term.length < 2) {
-        hideSuggest();
+        renderHistory();
         return;
       }
       debounceTimer = window.setTimeout(() => runSearch(term), 200);
     });
     searchInput.addEventListener('focus', loadPagefind);
     searchInput.addEventListener('focus', () => {
-      if (searchInput.value.trim().length >= 2 && searchSuggest.innerHTML) {
+      const term = searchInput.value.trim();
+      if (term.length >= 2 && searchSuggest.innerHTML) {
         positionSuggest();
         searchSuggest.hidden = false;
+      } else if (term.length < 2) {
+        renderHistory();
       }
     });
     document.addEventListener('click', (event) => {

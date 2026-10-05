@@ -96,6 +96,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 
 <script>
   import { url } from '../lib/url';
+  import { addSearchHistory } from '../lib/search-history';
 
   // Trang tìm kiếm tự xây bằng chỉ mục Pagefind (không dùng khung PagefindUI đóng gói sẵn) để khớp đúng
   // giao diện chủ website gửi (ảnh Long Châu, tháng 9/2026): không có ô nhập từ khóa thứ hai (chỉ ô đầu
@@ -403,6 +404,10 @@ import BaseLayout from '../layouts/BaseLayout.astro';
   }
 
   if (query) {
+    // Lưu lịch sử NGAY khi vào trang có từ khóa — gom đủ mọi lối vào (gõ Enter/bấm nút ở ô đầu trang,
+    // bấm "Xem tất cả kết quả", bấm từ khóa gợi ý, dán link trực tiếp...) về đúng 1 chỗ duy nhất, không
+    // phải cài lại cho từng nơi có thể dẫn tới trang này.
+    addSearchHistory(query);
     if (intro) intro.textContent = `Kết quả tìm kiếm cho "${query}". Đổi từ khóa ở ô tìm kiếm đầu trang.`;
     if (typeRow) typeRow.hidden = false;
     if (tabs) tabs.hidden = false;
