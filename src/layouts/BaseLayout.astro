@@ -4,6 +4,7 @@ import { getImage } from 'astro:assets';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import ZaloFloat from '../components/ZaloFloat.astro';
+import FaqChat from '../components/FaqChat.astro';
 import { url } from '../lib/url';
 
 interface Props {
@@ -58,5 +59,6 @@ const ogImage = new URL(shareImage ? shareImage.src : url('/og-image.jpg'), Astr
     </main>
     <Footer />
     <ZaloFloat />
+    <FaqChat />
   </body>
 </html>

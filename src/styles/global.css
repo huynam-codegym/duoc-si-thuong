@@ -253,27 +253,181 @@ img {
   }
 }
 
-/* Khung chat với dược sĩ ở trang Hỏi đáp */
-.chat-panel {
-  margin-bottom: 2rem;
-  padding: 1.25rem 1.5rem;
-  border: 1px solid var(--green-100);
+/* Khung "Hỏi đáp nhanh" nổi (tháng 10/2026) — KHÔNG phải AI thật, chỉ so khớp từ khóa với danh sách
+   có sẵn (xem src/lib/faq.ts, src/components/FaqChat.astro). Nút tròn đặt ngay TRÊN nút Zalo nổi,
+   cùng cột phải — 1rem ở đây = 18px (html{font-size:112.5%}), ZaloFloat cao 56px/bottom 1rem nên
+   chiếm tới 74px tính từ đáy màn hình; đặt nút này từ 5rem (90px) trở lên để không chồng lên nhau. */
+.faq-chat-toggle {
+  position: fixed;
+  right: 1rem;
+  bottom: 5rem;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--green-700);
+  color: #fff;
+  box-shadow: 0 4px 10px rgb(0 0 0 / 0.28);
+  cursor: pointer;
+  transition: transform 0.15s;
+}
+
+.faq-chat-toggle:hover {
+  transform: scale(1.08);
+}
+
+.faq-chat-panel {
+  position: fixed;
+  right: 1rem;
+  bottom: 9rem;
+  z-index: 90;
+  display: flex;
+  flex-direction: column;
+  width: min(92vw, 22rem);
+  max-height: min(70vh, 34rem);
+  border: 1px solid var(--line);
   border-radius: var(--radius);
+  background: #fff;
+  box-shadow: 0 10px 30px rgb(0 0 0 / 0.2);
+  overflow: hidden;
+}
+
+.faq-chat-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1rem;
+  background: var(--green-700);
+  color: #fff;
+}
+
+.faq-chat-head strong {
+  font-size: 1rem;
+}
+
+.faq-chat-close {
+  display: flex;
+  padding: 0.2rem;
+  border: 0;
+  background: none;
+  color: #fff;
+  cursor: pointer;
+}
+
+.faq-chat-disclaimer {
+  margin: 0;
+  padding: 0.5rem 1rem;
+  border-bottom: 1px solid var(--line);
+  background: var(--warn-bg);
+  color: #854d0e;
+  font-size: 0.78rem;
+}
+
+.faq-chat-messages {
+  flex: 1 1 auto;
+  min-height: 8rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  overflow-y: auto;
+}
+
+.faq-chat-bubble {
+  max-width: 85%;
+  margin: 0;
+  padding: 0.55rem 0.8rem;
+  border-radius: 12px;
+  font-size: 0.88rem;
+  line-height: 1.5;
+}
+
+.faq-chat-bubble-bot {
+  align-self: flex-start;
+  border-bottom-left-radius: 2px;
+  background: var(--green-50);
+  color: var(--ink);
+}
+
+.faq-chat-bubble-user {
+  align-self: flex-end;
+  border-bottom-right-radius: 2px;
+  background: var(--green-700);
+  color: #fff;
+}
+
+.faq-chat-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  padding: 0 1rem 0.6rem;
+}
+
+.faq-chip {
+  padding: 0.35rem 0.7rem;
+  border: 1px solid var(--green-700);
+  border-radius: 999px;
+  background: #fff;
+  color: var(--green-700);
+  font-size: 0.78rem;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+}
+
+.faq-chip:hover {
   background: var(--green-50);
 }
 
-.chat-panel h2 {
-  margin: 0 0 0.5rem;
-  font-size: 1.3rem;
+.faq-chat-form {
+  display: flex;
+  gap: 0.5rem;
+  padding: 0.6rem 1rem;
+  border-top: 1px solid var(--line);
 }
 
-.chat-panel p {
-  margin: 0.5rem 0;
+.faq-chat-form input {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #9ca3af;
+  border-radius: 8px;
+  font: inherit;
 }
 
-.chat-panel .notice {
-  font-size: 0.85rem;
-  color: var(--ink-soft);
+.faq-chat-form button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  border: 0;
+  border-radius: 8px;
+  background: var(--green-700);
+  color: #fff;
+  cursor: pointer;
+}
+
+.faq-chat-zalo {
+  display: block;
+  padding: 0.6rem 1rem;
+  border-top: 1px solid var(--line);
+  background: var(--green-50);
+  color: var(--green-700);
+  font-size: 0.82rem;
+  font-weight: 600;
+  text-align: center;
+  text-decoration: none;
+}
+
+@media print {
+  .faq-chat-toggle,
+  .faq-chat-panel {
+    display: none;
+  }
 }
 
 /* Thẻ thông tin (không bấm được) */

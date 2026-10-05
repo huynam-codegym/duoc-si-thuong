@@ -1,0 +1,125 @@
+---
+import { site } from '../lib/site';
+
+// Khung chat "hỏi đáp dựng sẵn" nổi ở mọi trang (tháng 10/2026, chủ website yêu cầu) — KHÔNG phải AI
+// thật, chỉ so khớp từ khóa với danh sách câu hỏi có sẵn trong src/lib/faq.ts, chạy hoàn toàn trên
+// trình duyệt, không gọi dịch vụ ngoài nào nên không tốn phí. Luôn có lối thoát sang Zalo (nút cố định
+// cuối khung + câu trả lời mặc định khi không khớp được câu nào) để khách vẫn liên hệ được người thật.
+---
+
+<button type="button" class="faq-chat-toggle" id="faqChatToggle" aria-haspopup="dialog" aria-expanded="false" aria-controls="faqChatPanel" aria-label="Mở hỏi đáp nhanh">
+  <svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true" focusable="false">
+    <path
+      d="M4 5h16a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H9l-4.5 3.5A.5.5 0 0 1 3.7 20V17h-.7a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1z"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="1.8"
+      stroke-linejoin="round"></path>
+    <circle cx="8.5" cy="11" r="1" fill="currentColor"></circle>
+    <circle cx="12" cy="11" r="1" fill="currentColor"></circle>
+    <circle cx="15.5" cy="11" r="1" fill="currentColor"></circle>
+  </svg>
+</button>
+
+<div class="faq-chat-panel" id="faqChatPanel" role="dialog" aria-modal="false" aria-label="Hỏi đáp nhanh" hidden>
+  <div class="faq-chat-head">
+    <strong>Hỏi đáp nhanh</strong>
+    <button type="button" class="faq-chat-close" id="faqChatClose" aria-label="Đóng">
+      <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false">
+        <path d="M5 5l14 14M19 5L5 19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path>
+      </svg>
+    </button>
+  </div>
+  <p class="faq-chat-disclaimer">Câu trả lời dựng sẵn, không phải tư vấn y tế. Trường hợp khẩn cấp, hãy gọi <strong>115</strong>.</p>
+  <div class="faq-chat-messages" id="faqChatMessages"></div>
+  <div class="faq-chat-chips" id="faqChatChips"></div>
+  <form class="faq-chat-form" id="faqChatForm">
+    <label class="visually-hidden" for="faqChatInput">Nhập câu hỏi</label>
+    <input id="faqChatInput" type="text" placeholder="Nhập câu hỏi của bạn..." autocomplete="off" />
+    <button type="submit" aria-label="Gửi câu hỏi">
+      <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false">
+        <path d="M4 12h15M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+      </svg>
+    </button>
+  </form>
+  <a class="faq-chat-zalo" href={site.zaloHref} target="_blank" rel="noopener noreferrer">
+    Cần hỗ trợ thêm? Nhắn Zalo cho dược sĩ ›
+  </a>
+</div>
+
+<script>
+  import { FAQ_ITEMS, matchFaq } from '../lib/faq';
+
+  const toggle = document.getElementById('faqChatToggle')!;
+  const panel = document.getElementById('faqChatPanel')!;
+  const closeBtn = document.getElementById('faqChatClose')!;
+  const messages = document.getElementById('faqChatMessages')!;
+  const chips = document.getElementById('faqChatChips')!;
+  const form = document.getElementById('faqChatForm') as HTMLFormElement;
+  const input = document.getElementById('faqChatInput') as HTMLInputElement;
+
+  function addMessage(text: string, from: 'bot' | 'user') {
+    const bubble = document.createElement('p');
+    bubble.className = `faq-chat-bubble faq-chat-bubble-${from}`;
+    bubble.textContent = text;
+    messages.append(bubble);
+    messages.scrollTop = messages.scrollHeight;
+  }
+
+  // Dải câu hỏi gợi ý bấm nhanh — đổi ngẫu nhiên 4 câu mỗi lần hiện để khách thấy đa dạng câu hỏi có
+  // sẵn hơn là luôn 4 câu đầu tiên, không ảnh hưởng gì tới việc so khớp (chỉ là gợi ý bấm nhanh).
+  function renderChips() {
+    chips.innerHTML = '';
+    const shuffled = [...FAQ_ITEMS].sort(() => Math.random() - 0.5).slice(0, 4);
+    shuffled.forEach((item) => {
+      const chip = document.createElement('button');
+      chip.type = 'button';
+      chip.className = 'faq-chip';
+      chip.textContent = item.question;
+      chip.addEventListener('click', () => ask(item.question));
+      chips.append(chip);
+    });
+  }
+
+  function ask(text: string) {
+    const trimmed = text.trim();
+    if (!trimmed) return;
+    addMessage(trimmed, 'user');
+    input.value = '';
+    const match = matchFaq(trimmed);
+    window.setTimeout(() => {
+      if (match) {
+        addMessage(match.answer, 'bot');
+      } else {
+        addMessage('Mình chưa có câu trả lời dựng sẵn cho câu hỏi này. Bạn nhắn Zalo cho dược sĩ (nút bên dưới) để được hỗ trợ trực tiếp nhé.', 'bot');
+      }
+      renderChips();
+    }, 300); // trễ ngắn để cảm giác như đang "trả lời", không phải chỉ là tra bảng tức thì
+  }
+
+  let opened = false;
+  function openPanel() {
+    panel.hidden = false;
+    toggle.setAttribute('aria-expanded', 'true');
+    if (!opened) {
+      opened = true;
+      addMessage('Chào bạn! Mình là khung hỏi đáp nhanh của Dược Sĩ Thương. Bạn chọn câu hỏi bên dưới hoặc tự gõ câu hỏi nhé.', 'bot');
+      renderChips();
+    }
+    window.setTimeout(() => input.focus(), 50);
+  }
+  function closePanel() {
+    panel.hidden = true;
+    toggle.setAttribute('aria-expanded', 'false');
+  }
+
+  toggle.addEventListener('click', () => (panel.hidden ? openPanel() : closePanel()));
+  closeBtn.addEventListener('click', closePanel);
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && !panel.hidden) closePanel();
+  });
+  form.addEventListener('submit', (event) => {
+    event.preventDefault();
+    ask(input.value);
+  });
+</script>
