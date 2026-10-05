@@ -3,6 +3,7 @@ name: "Fitobimbi Omega Junior - Siro hỗ trợ phát triển não bộ, bổ su
 summary: "Siro bổ sung dầu hạt lý chua đen giàu Omega-3, Omega-6 cùng vitamin E và vitamin B6 của thương hiệu Fitobimbi (Pharmalife Research, Ý), dùng được từ khi trẻ ăn dặm và cả người lớn. Theo nhà sản xuất, hỗ trợ phát triển não bộ và chức năng màng tế bào."
 department: "thuc-pham-chuc-nang"
 group: "bo-nao-cai-thien-tri-nho"
+price: 390000
 unit: "Chai 30ml"
 brand: "Fitobimbi"
 origin: "Ý"
