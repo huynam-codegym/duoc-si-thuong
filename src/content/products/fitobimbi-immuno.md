@@ -1,6 +1,6 @@
 ---
 name: "Fitobimbi Immuno - Siro bổ sung kẽm, đồng và chiết xuất thảo dược hỗ trợ tăng đề kháng cho trẻ (Chai 200ml)"
-summary: "Siro cô đặc bổ sung kẽm, đồng, vitamin B6 và chiết xuất hoàng kỳ, sâm Siberia, tầm xuân của thương hiệu Fitobimbi (Pharmalife Research, Ý), dành cho trẻ từ 6 tháng tuổi. Theo nhà sản xuất, hỗ trợ tăng cường sức đề kháng cho trẻ."
+summary: "Siro cô đặc bổ sung kẽm, đồng, vitamin B6, vitamin E và chiết xuất hoàng kỳ, sâm Siberia, tầm xuân của thương hiệu Fitobimbi (Pharmalife Research, Ý), dành cho trẻ từ 6 tháng tuổi. Theo nhà sản xuất, hỗ trợ tăng cường sức đề kháng cho trẻ."
 department: "thuc-pham-chuc-nang"
 group: "de-khang"
 price: 385000
@@ -8,7 +8,7 @@ unit: "Chai 200ml"
 brand: "Fitobimbi"
 origin: "Ý"
 dosageForm: "Siro (dung dịch uống dạng cô đặc)"
-ingredients: "Theo nhãn, trong 100ml: Chiết xuất rễ hoàng kỳ (Astragalus) 0,9g, Chiết xuất quả tầm xuân (Rosa canina) 0,72g, Kẽm gluconat 188,9mg, Đồng gluconat 17,9mg, Chiết xuất rễ sâm Siberia (Eleutherococcus) 0,03g. Nhãn còn ghi có vitamin B6 (hàm lượng không có trong hình ảnh nhãn đã nhận, cần đối chiếu thêm trước khi đăng). Không chứa lactose, gluten; chứng nhận phù hợp cho người ăn chay (Vegan)."
+ingredients: "Theo nhãn, trong 100ml: Chiết xuất rễ Hoàng kỳ (Astragalus membranaceus) 0,9g, Chiết xuất quả Tầm xuân (Rosa canina) 0,72g, Chiết xuất rễ Sâm Siberia (Eleutherococcus senticosus) 0,03g, Kẽm Gluconat (13,23%) 188,9mg (tương đương kẽm 25mg), Đồng Gluconat (14%) 17,9mg (tương đương đồng 2,51mg), Vitamin E (DL-alpha-tocopherylacetat 50%) 50mg (tương đương vitamin E 25mg), Vitamin B6 (Pyridoxin hydroclorid 82%) 4,3mg (tương đương vitamin B6 3,52mg). Tá dược: nước khử khoáng, fructose, nước ép táo cô đặc, potassium sorbat, citric acid vừa đủ 100ml. Không chứa lactose, gluten; chứng nhận phù hợp cho người ăn chay (Vegan)."
 image: "../../assets/products/fitobimbi-immuno/anh.jpg"
 imageAlt: "Chai và hộp Fitobimbi Immuno 200ml, hình chú gấu hiệp sĩ, ghi Concentrato Fluido, Astragalo ed Eleuterococco, Zinco, Rame, Vitamina B6"
 gallery:
@@ -33,12 +33,14 @@ draft: false
 
 Theo nhãn, trong 100ml:
 
-- Chiết xuất rễ hoàng kỳ (Astragalus): 0,9g
-- Chiết xuất quả tầm xuân (Rosa canina): 0,72g
-- Kẽm gluconat: 188,9mg
-- Đồng gluconat: 17,9mg
-- Chiết xuất rễ sâm Siberia (Eleutherococcus): 0,03g
-- Vitamin B6 (hàm lượng cần đối chiếu thêm với nhãn phụ tiếng Việt)
+- Chiết xuất rễ Hoàng kỳ (Astragalus membranaceus): 0,9g
+- Chiết xuất quả Tầm xuân (Rosa canina): 0,72g
+- Chiết xuất rễ Sâm Siberia (Eleutherococcus senticosus): 0,03g
+- Kẽm Gluconat (13,23%): 188,9mg (tương đương kẽm 25mg)
+- Đồng Gluconat (14%): 17,9mg (tương đương đồng 2,51mg)
+- Vitamin E (DL-alpha-tocopherylacetat 50%): 50mg (tương đương vitamin E 25mg)
+- Vitamin B6 (Pyridoxin hydroclorid 82%): 4,3mg (tương đương vitamin B6 3,52mg)
+- Tá dược: nước khử khoáng, fructose, nước ép táo cô đặc, potassium sorbat, citric acid vừa đủ 100ml
 
 Không chứa lactose, gluten. Sản phẩm có chứng nhận phù hợp cho người ăn chay (Vegan).
 
