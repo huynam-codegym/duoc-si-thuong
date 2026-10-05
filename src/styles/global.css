@@ -338,12 +338,21 @@ img {
 }
 
 .faq-chat-bubble {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
   max-width: 85%;
   margin: 0;
   padding: 0.55rem 0.8rem;
   border-radius: 12px;
   font-size: 0.88rem;
   line-height: 1.5;
+}
+
+.faq-chat-bubble-text {
+  margin: 0;
+  white-space: pre-wrap;
+  word-break: break-word;
 }
 
 .faq-chat-bubble-bot {
@@ -360,14 +369,74 @@ img {
   color: #fff;
 }
 
+/* Khung chat là <p class="faq-chat-bubble faq-chat-bubble-bot"> cho tin hệ thống (addSystemMessage,
+   ví dụ "Đang kết nối...") — vẫn phải canh đúng kiểu dù không đi qua renderBubble() (không có display:flex
+   ở trên vì đó chỉ là 1 dòng chữ, không có ảnh/trạng thái con bên trong). */
+p.faq-chat-bubble {
+  display: block;
+}
+
+.faq-chat-status {
+  align-self: flex-end;
+  font-size: 0.68rem;
+  opacity: 0.8;
+}
+
+.faq-chat-attachment-image {
+  display: block;
+  max-width: 100%;
+  max-height: 12rem;
+  border-radius: 8px;
+  cursor: zoom-in;
+  object-fit: cover;
+}
+
+.faq-chat-attachment-audio {
+  width: 100%;
+  max-width: 14rem;
+}
+
+.faq-chat-attachment-file {
+  display: inline-block;
+  color: inherit;
+  text-decoration: underline;
+  word-break: break-all;
+}
+
+.faq-chat-attach-preview {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.4rem 1rem;
+  border-top: 1px solid var(--line);
+  background: var(--green-50);
+  font-size: 0.8rem;
+  color: var(--ink);
+}
+
+.faq-chat-attach-preview span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.faq-chat-attach-preview button {
+  flex: 0 0 auto;
+  border: 0;
+  background: none;
+  color: var(--ink-soft);
+  cursor: pointer;
+}
+
 .faq-chat-form {
   display: flex;
-  gap: 0.5rem;
+  gap: 0.4rem;
   padding: 0.6rem 1rem;
   border-top: 1px solid var(--line);
 }
 
-.faq-chat-form input {
+.faq-chat-form input[type='text'] {
   flex: 1 1 auto;
   min-width: 0;
   padding: 0.5rem 0.75rem;
@@ -380,12 +449,41 @@ img {
   display: flex;
   align-items: center;
   justify-content: center;
+  flex: 0 0 auto;
   width: 2.5rem;
   border: 0;
   border-radius: 8px;
   background: var(--green-700);
   color: #fff;
   cursor: pointer;
+}
+
+/* Độ ưu tiên CSS: ".faq-chat-form button" (1 lớp + 1 thẻ) có độ ưu tiên CAO HƠN ".faq-chat-icon-btn"
+   đứng một mình (chỉ 1 lớp) — nếu chỉ viết ".faq-chat-icon-btn{...}" thì màu nền/chữ vẫn bị quy tắc
+   kia "cướp" (ra nút xanh đặc, icon trắng gần như biến mất), dù border đổi đúng. Phải thêm 1 lớp cha
+   (".faq-chat-form .faq-chat-icon-btn") để thắng độ ưu tiên — cùng bài học đã ghi trong CLAUDE.md ở
+   trang giỏ hàng (".order label"/".payment-option"). */
+.faq-chat-form .faq-chat-icon-btn {
+  background: #fff;
+  border: 1px solid var(--line);
+  color: var(--green-700);
+}
+
+.faq-chat-form .faq-chat-icon-btn.is-recording {
+  background: #fef2f2;
+  border-color: #fecaca;
+  color: #dc2626;
+  animation: faq-chat-pulse 1.1s infinite;
+}
+
+@keyframes faq-chat-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
 }
 
 .faq-chat-zalo {
@@ -403,14 +501,21 @@ img {
 /* Trang quản trị tin nhắn /admin/tin-nhan/ (chỉ dược sĩ/chủ website đăng nhập xem được) */
 .admin-inbox {
   display: grid;
-  grid-template-columns: 18rem 1fr;
+  /* minmax(0, 1fr), KHÔNG phải "1fr" trơn — track lưới "1fr" mặc định có min-width:auto (co giãn
+     theo NỘI DUNG bên trong, không theo khung chứa), nên khi khung chat (.admin-thread-form, nhiều
+     nút + ô nhập) rộng hơn màn hình điện thoại, cả cột ".admin-inbox-thread" bị đẩy rộng theo, tràn
+     ra ngoài .container (đo được 433px trong khung 375px) thay vì co lại và cho nội dung bên trong tự
+     xử lý tràn/co giãn — cùng họ bẫy với "flex-basis:auto" đã ghi ở mục khác trong CLAUDE.md, chỉ khác
+     là ở CSS Grid. Bài học: mọi "1fr" lưới có khả năng chứa nội dung rộng/khó co (form nhiều nút, bảng
+     dữ liệu...) nên viết "minmax(0, 1fr)" để chủ động, không đợi phát hiện qua ảnh chụp thật. */
+  grid-template-columns: 18rem minmax(0, 1fr);
   gap: 1rem;
   margin-top: 1.5rem;
 }
 
 @media (max-width: 48rem) {
   .admin-inbox {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 
@@ -456,6 +561,26 @@ img {
   color: var(--ink-soft);
 }
 
+.admin-conv-item.has-unread strong {
+  font-weight: 800;
+}
+
+.admin-conv-unread-dot {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.1rem;
+  height: 1.1rem;
+  margin-left: 0.4rem;
+  padding: 0 0.3rem;
+  border-radius: 999px;
+  background: #dc2626;
+  color: #fff;
+  font-size: 0.68rem;
+  font-weight: 700;
+  vertical-align: middle;
+}
+
 .admin-inbox-thread {
   display: flex;
   flex-direction: column;
@@ -491,12 +616,21 @@ img {
 }
 
 .admin-thread-bubble {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
   max-width: 75%;
   margin: 0;
   padding: 0.55rem 0.8rem;
   border-radius: 12px;
   font-size: 0.9rem;
   line-height: 1.5;
+}
+
+.admin-thread-bubble-text {
+  margin: 0;
+  white-space: pre-wrap;
+  word-break: break-word;
 }
 
 .admin-thread-bubble-customer {
@@ -512,20 +646,104 @@ img {
   color: #fff;
 }
 
+.admin-thread-status {
+  align-self: flex-end;
+  font-size: 0.68rem;
+  opacity: 0.8;
+}
+
+.admin-thread-attachment-image {
+  display: block;
+  max-width: 100%;
+  max-height: 14rem;
+  border-radius: 8px;
+  cursor: zoom-in;
+  object-fit: cover;
+}
+
+.admin-thread-attachment-audio {
+  width: 100%;
+  max-width: 16rem;
+}
+
+.admin-thread-attachment-file {
+  display: inline-block;
+  color: inherit;
+  text-decoration: underline;
+  word-break: break-all;
+}
+
+.admin-thread-attach-preview {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.4rem 1rem;
+  border-top: 1px solid var(--line);
+  background: var(--green-50);
+  font-size: 0.82rem;
+}
+
+.admin-thread-attach-preview span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.admin-thread-attach-preview button {
+  flex: 0 0 auto;
+  border: 0;
+  background: none;
+  color: var(--ink-soft);
+  cursor: pointer;
+}
+
 .admin-thread-form {
   display: flex;
-  gap: 0.5rem;
+  gap: 0.4rem;
   padding: 0.75rem 1rem;
   border-top: 1px solid var(--line);
 }
 
-.admin-thread-form input {
+.admin-thread-form input[type='text'] {
   flex: 1 1 auto;
   min-width: 0;
   padding: 0.5rem 0.75rem;
   border: 1px solid #9ca3af;
   border-radius: 8px;
   font: inherit;
+}
+
+.admin-thread-icon-btn {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  width: 2.2rem;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--green-700);
+  cursor: pointer;
+}
+
+/* Nút "Gửi" ở đây dùng chung class .btn (viên thuốc lớn, min-height 3rem, padding 1.4rem — hợp cho
+   nút kêu gọi hành động đứng riêng) nhưng giờ cùng hàng với 3 phần tử khác (2 nút icon + ô nhập) trên
+   khung hẹp (điện thoại) — kích thước mặc định của .btn khiến cả hàng vượt quá bề rộng khung, đẩy nút
+   "Gửi" tràn ra ngoài thay vì co lại (các nút icon/ô nhập không có min-width:0 "toàn phần" nên trình
+   duyệt không ép toàn hàng co vừa). Thu nhỏ riêng cho khung chat này, không đụng tới .btn dùng ở nơi
+   khác (nút kêu gọi hành động đứng riêng vẫn giữ nguyên to). */
+.admin-thread-form .btn {
+  flex: 0 0 auto;
+  min-height: auto;
+  padding: 0.5rem 0.9rem;
+}
+
+.admin-thread-icon-btn.is-recording {
+  background: #fef2f2;
+  border-color: #fecaca;
+  color: #dc2626;
+  animation: faq-chat-pulse 1.1s infinite;
 }
 
 @media print {

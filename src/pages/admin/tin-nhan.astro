@@ -30,7 +30,24 @@ import { url } from '../../lib/url';
             <strong id="adminThreadName"></strong>
           </div>
           <div class="admin-thread-messages" id="adminThreadMessages"></div>
+          <div class="admin-thread-attach-preview" id="adminAttachPreview" hidden>
+            <span id="adminAttachName"></span>
+            <button type="button" id="adminAttachRemove" aria-label="Bỏ đính kèm">✕</button>
+          </div>
           <form class="admin-thread-form" id="adminThreadForm">
+            <label class="visually-hidden" for="adminThreadFile">Đính kèm ảnh hoặc file</label>
+            <input id="adminThreadFile" type="file" accept="image/*,.pdf,.doc,.docx,.txt" hidden />
+            <button type="button" class="admin-thread-icon-btn" id="adminAttachBtn" aria-label="Đính kèm ảnh hoặc file">
+              <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false">
+                <path d="M8 12.5l6.4-6.4a3 3 0 1 1 4.25 4.24L9.88 19.1a5 5 0 1 1-7.07-7.07L11.5 3.4" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></path>
+              </svg>
+            </button>
+            <button type="button" class="admin-thread-icon-btn" id="adminMicBtn" aria-label="Ghi âm tin nhắn thoại">
+              <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false">
+                <rect x="9" y="3" width="6" height="11" rx="3" fill="none" stroke="currentColor" stroke-width="1.7"></rect>
+                <path d="M5 11a7 7 0 0 0 14 0M12 18v3" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"></path>
+              </svg>
+            </button>
             <label class="visually-hidden" for="adminThreadInput">Nhập trả lời</label>
             <input id="adminThreadInput" type="text" placeholder="Nhập câu trả lời..." autocomplete="off" />
             <button type="submit" class="btn">Gửi</button>
@@ -43,7 +60,19 @@ import { url } from '../../lib/url';
 
 <script>
   import { supabase } from '../../lib/supabase';
-  import { isCurrentUserAdmin, listConversationsForAdmin, listMessages, sendMessage, subscribeToInbox, type ChatMessage, type Conversation } from '../../lib/chat';
+  import {
+    isCurrentUserAdmin,
+    listConversationsForAdmin,
+    listMessages,
+    sendMessage,
+    subscribeToInbox,
+    uploadAttachment,
+    getAttachmentUrl,
+    markReadByAdmin,
+    type ChatMessage,
+    type Conversation,
+    type AttachmentType,
+  } from '../../lib/chat';
 
   const loading = document.getElementById('adminLoading')!;
   const denied = document.getElementById('adminDenied')!;
@@ -56,12 +85,31 @@ import { url } from '../../lib/url';
   const threadMessages = document.getElementById('adminThreadMessages')!;
   const threadForm = document.getElementById('adminThreadForm') as HTMLFormElement;
   const threadInput = document.getElementById('adminThreadInput') as HTMLInputElement;
+  const fileInput = document.getElementById('adminThreadFile') as HTMLInputElement;
+  const attachBtn = document.getElementById('adminAttachBtn')!;
+  const micBtn = document.getElementById('adminMicBtn')!;
+  const attachPreview = document.getElementById('adminAttachPreview')!;
+  const attachName = document.getElementById('adminAttachName')!;
+  const attachRemove = document.getElementById('adminAttachRemove')!;
 
   let conversations: Conversation[] = [];
+  let unreadCounts: Record<string, number> = {};
   let activeId: string | null = null;
 
   function formatTime(iso: string): string {
     return new Date(iso).toLocaleString('vi-VN', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+  }
+
+  // Đếm tin KHÁCH gửi còn chưa xem cho mỗi hội thoại — chấm xanh + đậm chữ trong danh sách bên trái
+  // để biết ngay hội thoại nào cần mở ra trả lời, không phải bấm từng cái mới biết.
+  async function loadUnreadCounts() {
+    const { data, error } = await supabase.from('messages').select('conversation_id').eq('sender', 'customer').is('read_at', null);
+    if (error) return;
+    const counts: Record<string, number> = {};
+    (data ?? []).forEach((row: { conversation_id: string }) => {
+      counts[row.conversation_id] = (counts[row.conversation_id] ?? 0) + 1;
+    });
+    unreadCounts = counts;
   }
 
   function renderConvList() {
@@ -69,9 +117,16 @@ import { url } from '../../lib/url';
     conversations.forEach((c) => {
       const item = document.createElement('button');
       item.type = 'button';
-      item.className = 'admin-conv-item' + (c.id === activeId ? ' active' : '');
+      const unread = unreadCounts[c.id] ?? 0;
+      item.className = 'admin-conv-item' + (c.id === activeId ? ' active' : '') + (unread > 0 ? ' has-unread' : '');
       const name = document.createElement('strong');
       name.textContent = c.customer_name || `Khách #${c.id.slice(0, 8)}`;
+      if (unread > 0) {
+        const dot = document.createElement('span');
+        dot.className = 'admin-conv-unread-dot';
+        dot.textContent = String(unread);
+        name.append(dot);
+      }
       const time = document.createElement('span');
       time.textContent = formatTime(c.last_message_at);
       item.append(name, time);
@@ -80,10 +135,57 @@ import { url } from '../../lib/url';
     });
   }
 
-  function addThreadMessage(m: ChatMessage) {
-    const bubble = document.createElement('p');
-    bubble.className = `admin-thread-bubble admin-thread-bubble-${m.sender}`;
-    bubble.textContent = m.body;
+  function appendAttachment(bubble: HTMLElement, type: AttachmentType, name: string | null, url: string) {
+    if (type === 'image') {
+      const img = document.createElement('img');
+      img.src = url;
+      img.alt = name || 'Ảnh đính kèm';
+      img.className = 'admin-thread-attachment-image';
+      img.loading = 'lazy';
+      img.addEventListener('click', () => window.open(url, '_blank'));
+      bubble.append(img);
+    } else if (type === 'audio') {
+      const audio = document.createElement('audio');
+      audio.controls = true;
+      audio.src = url;
+      audio.className = 'admin-thread-attachment-audio';
+      bubble.append(audio);
+    } else {
+      const link = document.createElement('a');
+      link.href = url;
+      link.target = '_blank';
+      link.rel = 'noopener noreferrer';
+      link.className = 'admin-thread-attachment-file';
+      link.textContent = '📎 ' + (name || 'Tệp đính kèm');
+      bubble.append(link);
+    }
+  }
+
+  // "from" ở đây là 'admin' (tin của chính mình, hiện Đã gửi/Đã xem) hoặc 'customer'.
+  const statusEls = new Map<string, HTMLElement>();
+  async function renderBubble(message: Partial<ChatMessage> & { body: string; sender: 'customer' | 'admin' }, overrideUrl?: string) {
+    const bubble = document.createElement('div');
+    bubble.className = `admin-thread-bubble admin-thread-bubble-${message.sender}`;
+    if (message.id) bubble.dataset.id = message.id;
+
+    if (message.body) {
+      const p = document.createElement('p');
+      p.className = 'admin-thread-bubble-text';
+      p.textContent = message.body;
+      bubble.append(p);
+    }
+    if (message.attachment_type) {
+      const url = overrideUrl ?? (message.attachment_url ? await getAttachmentUrl(message.attachment_url) : null);
+      if (url) appendAttachment(bubble, message.attachment_type, message.attachment_name ?? null, url);
+    }
+    if (message.sender === 'admin') {
+      const status = document.createElement('span');
+      status.className = 'admin-thread-status';
+      status.textContent = message.read_at ? 'Đã xem' : 'Đã gửi';
+      bubble.append(status);
+      if (message.id) statusEls.set(message.id, status);
+    }
+
     threadMessages.append(bubble);
     threadMessages.scrollTop = threadMessages.scrollHeight;
   }
@@ -93,32 +195,130 @@ import { url } from '../../lib/url';
     renderConvList();
     threadEmpty.hidden = true;
     threadBox.hidden = false;
+    statusEls.clear();
     const conv = conversations.find((c) => c.id === id);
     threadName.textContent = conv?.customer_name || `Khách #${id.slice(0, 8)}`;
     threadMessages.innerHTML = '';
     const history = await listMessages(id);
-    history.forEach(addThreadMessage);
+    for (const m of history) await renderBubble(m);
+    await markReadByAdmin(id);
+    delete unreadCounts[id];
+    renderConvList();
     window.setTimeout(() => threadInput.focus(), 50);
   }
 
   async function refreshConversations() {
     conversations = await listConversationsForAdmin();
+    await loadUnreadCounts();
     renderConvList();
+  }
+
+  const MAX_ATTACHMENT_BYTES = 15 * 1024 * 1024;
+
+  async function sendReply(text: string, file?: File, kind?: AttachmentType) {
+    if (!activeId) return;
+    if (!text && !file) return;
+    let attachment;
+    let objectUrl: string | undefined;
+    if (file && kind) {
+      if (file.size > MAX_ATTACHMENT_BYTES) {
+        window.alert('File quá lớn (tối đa 15MB), chọn file nhỏ hơn nhé.');
+        return;
+      }
+      objectUrl = URL.createObjectURL(file);
+      try {
+        attachment = await uploadAttachment(activeId, file, kind);
+      } catch {
+        window.alert('Gửi file chưa thành công, thử lại nhé.');
+        return;
+      }
+    }
+    try {
+      await sendMessage(activeId, 'admin', text, undefined, attachment);
+      // Không tự renderBubble ở đây — subscribeToInbox() bên dưới sẽ nhận lại đúng tin nhắn này qua
+      // realtime (của chính mình gửi) và hiện ra, tránh hiện trùng 2 lần. Ảnh/file thì dùng objectUrl
+      // vừa tạo để khi bubble đó tới qua realtime, hiển thị ngay không cần chờ signed URL — nhưng vì
+      // không tự render ở đây nên objectUrl chỉ cần giữ sống tới khi realtime echo quay về (trình
+      // duyệt tự dọn khi tải lại trang).
+    } catch {
+      threadInput.value = text;
+    }
   }
 
   threadForm.addEventListener('submit', async (event) => {
     event.preventDefault();
     const text = threadInput.value.trim();
-    if (!text || !activeId) return;
     threadInput.value = '';
-    try {
-      await sendMessage(activeId, 'admin', text);
-      // Không tự addThreadMessage ở đây — subscribeToInbox() bên dưới sẽ nhận lại đúng tin nhắn này
-      // qua realtime (của chính mình gửi) và hiện ra, tránh hiện trùng 2 lần.
-    } catch {
-      threadInput.value = text;
+    if (selectedFile) {
+      const file = selectedFile;
+      const kind: AttachmentType = file.type.startsWith('image/') ? 'image' : 'file';
+      selectedFile = null;
+      fileInput.value = '';
+      attachPreview.hidden = true;
+      await sendReply(text, file, kind);
+      return;
     }
+    if (!text) return;
+    await sendReply(text);
   });
+
+  // ---- Đính kèm ảnh/file ----
+  let selectedFile: File | null = null;
+  attachBtn.addEventListener('click', () => fileInput.click());
+  fileInput.addEventListener('change', () => {
+    const file = fileInput.files?.[0];
+    if (!file) return;
+    if (file.size > MAX_ATTACHMENT_BYTES) {
+      window.alert('File quá lớn (tối đa 15MB), chọn file nhỏ hơn nhé.');
+      fileInput.value = '';
+      return;
+    }
+    selectedFile = file;
+    attachName.textContent = file.name;
+    attachPreview.hidden = false;
+  });
+  attachRemove.addEventListener('click', () => {
+    selectedFile = null;
+    fileInput.value = '';
+    attachPreview.hidden = true;
+  });
+
+  // ---- Ghi âm tin nhắn thoại ----
+  let mediaRecorder: MediaRecorder | null = null;
+  let recordedChunks: BlobPart[] = [];
+  let recordingStream: MediaStream | null = null;
+
+  async function toggleRecording() {
+    if (mediaRecorder && mediaRecorder.state === 'recording') {
+      mediaRecorder.stop();
+      return;
+    }
+    try {
+      recordingStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    } catch {
+      window.alert('Không truy cập được micro.');
+      return;
+    }
+    const candidates = ['audio/webm;codecs=opus', 'audio/webm', 'audio/ogg'];
+    const mimeType = candidates.find((t) => (window as any).MediaRecorder?.isTypeSupported?.(t));
+    mediaRecorder = new MediaRecorder(recordingStream, mimeType ? { mimeType } : undefined);
+    recordedChunks = [];
+    mediaRecorder.addEventListener('dataavailable', (e) => {
+      if (e.data.size > 0) recordedChunks.push(e.data);
+    });
+    mediaRecorder.addEventListener('stop', async () => {
+      recordingStream?.getTracks().forEach((t) => t.stop());
+      micBtn.classList.remove('is-recording');
+      if (recordedChunks.length === 0) return;
+      const blob = new Blob(recordedChunks, { type: mediaRecorder?.mimeType || 'audio/webm' });
+      const ext = (blob.type.split('/')[1] || 'webm').split(';')[0];
+      const file = new File([blob], `tin-nhan-thoai.${ext}`, { type: blob.type });
+      await sendReply('', file, 'audio');
+    });
+    mediaRecorder.start();
+    micBtn.classList.add('is-recording');
+  }
+  micBtn.addEventListener('click', toggleRecording);
 
   async function init() {
     const {
@@ -145,9 +345,16 @@ import { url } from '../../lib/url';
       () => {
         refreshConversations();
       },
-      (message) => {
-        if (message.conversation_id === activeId) addThreadMessage(message);
+      async (message) => {
+        if (message.conversation_id === activeId) {
+          await renderBubble(message);
+          if (message.sender === 'customer') await markReadByAdmin(activeId);
+        }
         refreshConversations();
+      },
+      (message) => {
+        const status = statusEls.get(message.id);
+        if (status) status.textContent = message.read_at ? 'Đã xem' : 'Đã gửi';
       },
     );
   }

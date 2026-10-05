@@ -168,3 +168,94 @@ create trigger on_message_insert
 alter publication supabase_realtime add table public.conversations, public.messages;
 -- (Cách khác, không bắt buộc: Supabase Dashboard > Database > Replication > bật công tắc Realtime cho
 -- 2 bảng "conversations" và "messages" — làm đúng 1 trong 2 cách là đủ, không cần làm cả hai.)
+
+-- 6. Đính kèm ảnh/file/tin nhắn thoại, trạng thái "đã xem", và báo email tối đa 1 lần/giờ (tháng
+-- 10/2026) — xem CLAUDE.md mục "Nhắn tin trực tiếp cho dược sĩ" để biết cách dùng đầy đủ.
+
+-- 6a. Báo email tối đa 1 lần/giờ/hội thoại: notify-chat-message (Edge Function) tự đọc/ghi cột này
+-- bằng khóa service_role (bỏ qua RLS) — không cần policy nào cho cột này.
+alter table public.conversations add column if not exists last_notified_at timestamptz;
+
+-- 6b. Đính kèm + đã xem: attachment_url lưu ĐƯỜNG DẪN trong Storage (không phải URL công khai, vì
+-- bucket chat-attachments ở dưới là bucket RIÊNG TƯ — xem getAttachmentUrl() trong src/lib/chat.ts,
+-- tạo "signed URL" có hạn dùng mỗi lần hiện tin nhắn thay vì lưu URL cố định).
+alter table public.messages
+  add column if not exists attachment_url text,
+  add column if not exists attachment_type text check (attachment_type in ('image', 'file', 'audio')),
+  add column if not exists attachment_name text,
+  add column if not exists read_at timestamptz;
+
+-- Đánh dấu "đã xem" qua 2 hàm riêng (KHÔNG cấp quyền UPDATE trực tiếp trên bảng messages cho khách
+-- hàng/admin) — mỗi hàm chỉ cho phép sửa đúng 1 cột read_at, đúng chiều (khách chỉ đánh dấu tin của
+-- ADMIN là đã xem, admin chỉ đánh dấu tin của KHÁCH là đã xem), không ai sửa được nội dung tin nhắn
+-- của người khác qua đường này.
+create function public.mark_messages_read_by_customer(p_conversation_id uuid)
+returns void
+language plpgsql
+security definer set search_path = public
+as $$
+begin
+  update public.messages set read_at = now()
+  where conversation_id = p_conversation_id
+    and sender = 'admin'
+    and read_at is null
+    and exists (select 1 from public.conversations c where c.id = p_conversation_id and c.customer_user_id = auth.uid());
+end;
+$$;
+
+create function public.mark_messages_read_by_admin(p_conversation_id uuid)
+returns void
+language plpgsql
+security definer set search_path = public
+as $$
+begin
+  update public.messages set read_at = now()
+  where conversation_id = p_conversation_id
+    and sender = 'customer'
+    and read_at is null
+    and exists (select 1 from public.profiles where id = auth.uid() and is_admin = true);
+end;
+$$;
+
+grant execute on function public.mark_messages_read_by_customer(uuid) to authenticated;
+grant execute on function public.mark_messages_read_by_admin(uuid) to authenticated;
+
+-- 6c. Nơi lưu file ảnh/file/tin nhắn thoại — bucket RIÊNG TƯ (public = false): chỉ đúng khách của hội
+-- thoại đó hoặc admin mới tải lên/xem được, qua policy khớp "thư mục gốc" của đường dẫn file với
+-- conversation_id (đường dẫn dạng "<conversation_id>/<tên-file-ngẫu-nhiên>.<đuôi>", xem
+-- uploadAttachment() trong src/lib/chat.ts). Giới hạn 15MB/file, chỉ nhận vài định dạng phổ biến —
+-- đổi `allowed_mime_types` nếu cần thêm định dạng khác.
+insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+values (
+  'chat-attachments',
+  'chat-attachments',
+  false,
+  15728640,
+  array[
+    'image/jpeg', 'image/png', 'image/webp', 'image/gif',
+    'audio/webm', 'audio/ogg', 'audio/mpeg', 'audio/mp4', 'audio/wav',
+    'application/pdf', 'application/msword',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    'text/plain'
+  ]
+)
+on conflict (id) do update set file_size_limit = excluded.file_size_limit, allowed_mime_types = excluded.allowed_mime_types;
+
+create policy "Khách tải lên đính kèm hội thoại của mình"
+  on storage.objects for insert
+  with check (
+    bucket_id = 'chat-attachments'
+    and exists (select 1 from public.conversations c where c.id::text = (storage.foldername(name))[1] and c.customer_user_id = auth.uid())
+  );
+
+create policy "Khách xem đính kèm hội thoại của mình"
+  on storage.objects for select
+  using (
+    bucket_id = 'chat-attachments'
+    and exists (select 1 from public.conversations c where c.id::text = (storage.foldername(name))[1] and c.customer_user_id = auth.uid())
+  );
+
+create policy "Admin tải lên và xem mọi đính kèm"
+  on storage.objects for all
+  using (bucket_id = 'chat-attachments' and exists (select 1 from public.profiles where id = auth.uid() and is_admin = true))
+  with check (bucket_id = 'chat-attachments' and exists (select 1 from public.profiles where id = auth.uid() and is_admin = true));

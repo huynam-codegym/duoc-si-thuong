@@ -1,7 +1,7 @@
 /**
- * Chat trực tiếp với dược sĩ qua Supabase Realtime (tháng 10/2026) — khác hẳn "Hỏi đáp nhanh" dựng
- * sẵn (src/lib/faq.ts, so khớp từ khóa, không gửi lên đâu cả): đây là tin nhắn THẬT, 2 chiều, cập
- * nhật theo thời gian thực. Chỉ import trong thẻ <script> (chạy ở trình duyệt).
+ * Chat trực tiếp với dược sĩ qua Supabase Realtime (tháng 10/2026) — tin nhắn THẬT, 2 chiều, cập nhật
+ * theo thời gian thực, có đính kèm ảnh/file/tin nhắn thoại và trạng thái "đã xem". Chỉ import trong
+ * thẻ <script> (chạy ở trình duyệt).
  *
  * Khách KHÔNG cần đăng ký/đăng nhập để chat — dùng "đăng nhập ẩn danh" của Supabase
  * (signInAnonymously(), cần chủ website tự bật ở Dashboard > Authentication > Sign In / Providers >
@@ -12,12 +12,18 @@
  */
 import { supabase } from './supabase';
 
+export type AttachmentType = 'image' | 'file' | 'audio';
+
 export interface ChatMessage {
   id: string;
   conversation_id: string;
   sender: 'customer' | 'admin';
   body: string;
   created_at: string;
+  read_at: string | null;
+  attachment_url: string | null;
+  attachment_type: AttachmentType | null;
+  attachment_name: string | null;
 }
 
 export interface Conversation {
@@ -27,6 +33,12 @@ export interface Conversation {
   status: string;
   created_at: string;
   last_message_at: string;
+}
+
+export interface Attachment {
+  url: string; // đường dẫn trong Storage (KHÔNG phải URL công khai — bucket riêng tư, xem getAttachmentUrl())
+  type: AttachmentType;
+  name: string;
 }
 
 /** Đảm bảo có phiên đăng nhập (thật hoặc ẩn danh) trước khi chat — gọi trước mọi thao tác khác. */
@@ -71,29 +83,101 @@ export async function listMessages(conversationId: string): Promise<ChatMessage[
   return (data ?? []) as ChatMessage[];
 }
 
-export async function sendMessage(conversationId: string, sender: 'customer' | 'admin', body: string, customerName?: string | null) {
+/**
+ * Tải 1 file (ảnh/tài liệu/ghi âm) lên Storage, trả về đường dẫn để gắn vào tin nhắn (sendMessage).
+ * Đường dẫn dạng "<conversationId>/<tên ngẫu nhiên>.<đuôi file>" — policy Storage dựa vào
+ * conversationId ở đầu đường dẫn để biết ai được tải lên/xem (xem docs/supabase-schema.sql mục 6c).
+ */
+export async function uploadAttachment(conversationId: string, file: File, type: AttachmentType): Promise<Attachment> {
+  await ensureSession();
+  const fallbackExt = type === 'audio' ? 'webm' : 'bin';
+  const ext = (file.name.split('.').pop() || fallbackExt).toLowerCase().replace(/[^a-z0-9]/g, '') || fallbackExt;
+  const path = `${conversationId}/${crypto.randomUUID()}.${ext}`;
+  const { error } = await supabase.storage.from('chat-attachments').upload(path, file, { contentType: file.type || undefined });
+  if (error) throw error;
+  return { url: path, type, name: file.name || `tin-nhan-thoai.${ext}` };
+}
+
+/**
+ * Đổi đường dẫn Storage đã lưu trong tin nhắn thành URL xem được thật sự — bucket "chat-attachments"
+ * là bucket RIÊNG TƯ nên không dùng getPublicUrl() được, phải xin "signed URL" có hạn dùng (7 ngày,
+ * đủ dài cho việc xem lại lịch sử chat bình thường). Gọi lại hàm này mỗi lần hiện tin nhắn (không lưu
+ * URL cố định vào đâu cả) để không bao giờ dùng phải URL đã hết hạn.
+ */
+export async function getAttachmentUrl(path: string): Promise<string | null> {
+  const { data, error } = await supabase.storage.from('chat-attachments').createSignedUrl(path, 60 * 60 * 24 * 7);
+  if (error) return null;
+  return data.signedUrl;
+}
+
+export async function sendMessage(
+  conversationId: string,
+  sender: 'customer' | 'admin',
+  body: string,
+  customerName?: string | null,
+  attachment?: Attachment,
+): Promise<ChatMessage | null> {
   const trimmed = body.trim();
-  if (!trimmed) return;
-  const { error } = await supabase.from('messages').insert({ conversation_id: conversationId, sender, body: trimmed });
+  if (!trimmed && !attachment) return null;
+  const { data, error } = await supabase
+    .from('messages')
+    .insert({
+      conversation_id: conversationId,
+      sender,
+      body: trimmed,
+      attachment_url: attachment?.url ?? null,
+      attachment_type: attachment?.type ?? null,
+      attachment_name: attachment?.name ?? null,
+    })
+    .select('*')
+    .single();
   if (error) throw error;
 
   // Báo email cho chủ nhà thuốc khi KHÁCH gửi tin — đây là cách DUY NHẤT để biết có tin nhắn mới nếu
-  // không đang mở sẵn trang /admin/tin-nhan/ (trang đó chỉ tự cập nhật real-time lúc đang mở). Không
-  // chặn việc gửi tin nếu email lỗi (fire-and-forget) — chat vẫn phải hoạt động bình thường dù email
-  // tạm trục trặc.
+  // không đang mở sẵn trang /admin/tin-nhan/ (trang đó chỉ tự cập nhật real-time lúc đang mở). Tối đa
+  // 1 email/giờ/hội thoại — Edge Function tự kiểm tra (không phải ở đây, tránh sai nếu nhiều tab/trình
+  // duyệt cùng gửi), xem supabase/functions/notify-chat-message. Không chặn việc gửi tin nếu email lỗi
+  // (fire-and-forget) — chat vẫn phải hoạt động bình thường dù email tạm trục trặc.
   if (sender === 'customer') {
-    supabase.functions.invoke('notify-chat-message', { body: { conversationId, customerName: customerName ?? null, body: trimmed } }).catch(() => {
+    supabase.functions.invoke('notify-chat-message', { body: { conversationId, customerName: customerName ?? null, body: trimmed || `[${attachmentLabel(attachment)}]` } }).catch(() => {
       // Bỏ qua lỗi — chỉ là báo thêm, không phải luồng chính.
     });
   }
+
+  return data as ChatMessage;
 }
 
-/** Lắng nghe tin nhắn MỚI của 1 hội thoại theo thời gian thực. Trả về hàm hủy đăng ký. */
-export function subscribeToMessages(conversationId: string, onInsert: (message: ChatMessage) => void): () => void {
+function attachmentLabel(attachment?: Attachment): string {
+  if (!attachment) return '';
+  if (attachment.type === 'image') return 'Hình ảnh';
+  if (attachment.type === 'audio') return 'Tin nhắn thoại';
+  return 'Tệp đính kèm';
+}
+
+/** Đánh dấu mọi tin nhắn của ADMIN trong hội thoại là "đã xem" (khách đang xem khung chat). */
+export async function markReadByCustomer(conversationId: string) {
+  const { error } = await supabase.rpc('mark_messages_read_by_customer', { p_conversation_id: conversationId });
+  if (error) console.error('Không đánh dấu đã xem được:', error);
+}
+
+/** Đánh dấu mọi tin nhắn của KHÁCH trong hội thoại là "đã xem" (admin đang xem hội thoại này). */
+export async function markReadByAdmin(conversationId: string) {
+  const { error } = await supabase.rpc('mark_messages_read_by_admin', { p_conversation_id: conversationId });
+  if (error) console.error('Không đánh dấu đã xem được:', error);
+}
+
+/**
+ * Lắng nghe tin nhắn MỚI (và cập nhật, ví dụ đổi trạng thái đã xem) của 1 hội thoại theo thời gian
+ * thực. Trả về hàm hủy đăng ký.
+ */
+export function subscribeToMessages(conversationId: string, onInsert: (message: ChatMessage) => void, onUpdate?: (message: ChatMessage) => void): () => void {
   const channel = supabase
     .channel(`messages:${conversationId}`)
     .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages', filter: `conversation_id=eq.${conversationId}` }, (payload) => {
       onInsert(payload.new as ChatMessage);
+    })
+    .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'messages', filter: `conversation_id=eq.${conversationId}` }, (payload) => {
+      onUpdate?.(payload.new as ChatMessage);
     })
     .subscribe();
   return () => {
@@ -109,12 +193,13 @@ export async function listConversationsForAdmin(): Promise<Conversation[]> {
   return (data ?? []) as Conversation[];
 }
 
-/** Lắng nghe hội thoại/tin nhắn mới TOÀN BỘ hộp thư (không giới hạn 1 hội thoại) — dùng cho trang quản trị. */
-export function subscribeToInbox(onConversationChange: () => void, onMessageInsert: (message: ChatMessage) => void): () => void {
+/** Lắng nghe hội thoại/tin nhắn mới hoặc đổi trạng thái TOÀN BỘ hộp thư — dùng cho trang quản trị. */
+export function subscribeToInbox(onConversationChange: () => void, onMessageInsert: (message: ChatMessage) => void, onMessageUpdate?: (message: ChatMessage) => void): () => void {
   const channel = supabase
     .channel('admin-inbox')
     .on('postgres_changes', { event: '*', schema: 'public', table: 'conversations' }, onConversationChange)
     .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, (payload) => onMessageInsert(payload.new as ChatMessage))
+    .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'messages' }, (payload) => onMessageUpdate?.(payload.new as ChatMessage))
     .subscribe();
   return () => {
     supabase.removeChannel(channel);

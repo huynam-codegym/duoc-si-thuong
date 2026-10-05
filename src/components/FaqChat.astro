@@ -3,10 +3,12 @@ import { site } from '../lib/site';
 
 // Khung chat nổi ở mọi trang — "Nhắn tin trực tiếp cho dược sĩ": tin nhắn THẬT, 2 chiều, qua Supabase
 // Realtime (xem src/lib/chat.ts), dược sĩ trả lời ở trang /admin/tin-nhan/ (có báo email mỗi khi khách
-// gửi tin, xem notify-chat-message trong supabase/functions/). Không phải lúc nào cũng có người trực
-// ngay lập tức nên luôn có dòng nhắc "thường phản hồi trong giờ hành chính" + lối thoát sang Zalo song
-// song. Trước đây có thêm chế độ "Hỏi đáp nhanh" (so khớp từ khóa dựng sẵn, src/lib/faq.ts) — chủ
-// website yêu cầu bỏ tháng 10/2026 vì đã có nhắn tin thật, không cần câu trả lời giả lập nữa.
+// gửi tin, tối đa 1 lần/giờ/hội thoại — xem notify-chat-message trong supabase/functions/). Không
+// phải lúc nào cũng có người trực ngay lập tức nên luôn có dòng nhắc "thường phản hồi trong giờ hành
+// chính" + lối thoát sang Zalo song song.
+//
+// Hỗ trợ gửi kèm ảnh/file/tin nhắn thoại (tháng 10/2026) và trạng thái "Đã gửi"/"Đã xem" dưới tin
+// nhắn của chính khách — xem ghi chú đầy đủ trong CLAUDE.md mục "Nhắn tin trực tiếp cho dược sĩ".
 ---
 
 <button type="button" class="faq-chat-toggle" id="faqChatToggle" aria-haspopup="dialog" aria-expanded="false" aria-controls="faqChatPanel" aria-label="Mở khung nhắn tin với dược sĩ">
@@ -36,7 +38,24 @@ import { site } from '../lib/site';
     Tin nhắn gửi trực tiếp cho dược sĩ Thương, thường phản hồi trong giờ hành chính. Khẩn cấp hãy gọi <strong>115</strong> hoặc nhắn Zalo. Không gửi CCCD, mật khẩu, thông tin thẻ ngân hàng.
   </p>
   <div class="faq-chat-messages" id="faqChatMessages"></div>
+  <div class="faq-chat-attach-preview" id="faqChatAttachPreview" hidden>
+    <span id="faqChatAttachName"></span>
+    <button type="button" id="faqChatAttachRemove" aria-label="Bỏ đính kèm">✕</button>
+  </div>
   <form class="faq-chat-form" id="faqChatForm">
+    <label class="visually-hidden" for="faqChatFile">Đính kèm ảnh hoặc file</label>
+    <input id="faqChatFile" type="file" accept="image/*,.pdf,.doc,.docx,.txt" hidden />
+    <button type="button" class="faq-chat-icon-btn" id="faqChatAttachBtn" aria-label="Đính kèm ảnh hoặc file">
+      <svg viewBox="0 0 24 24" width="19" height="19" aria-hidden="true" focusable="false">
+        <path d="M8 12.5l6.4-6.4a3 3 0 1 1 4.25 4.24L9.88 19.1a5 5 0 1 1-7.07-7.07L11.5 3.4" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></path>
+      </svg>
+    </button>
+    <button type="button" class="faq-chat-icon-btn" id="faqChatMicBtn" aria-label="Ghi âm tin nhắn thoại">
+      <svg viewBox="0 0 24 24" width="19" height="19" aria-hidden="true" focusable="false">
+        <rect x="9" y="3" width="6" height="11" rx="3" fill="none" stroke="currentColor" stroke-width="1.7"></rect>
+        <path d="M5 11a7 7 0 0 0 14 0M12 18v3" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"></path>
+      </svg>
+    </button>
     <label class="visually-hidden" for="faqChatInput">Nhập tin nhắn</label>
     <input id="faqChatInput" type="text" placeholder="Nhập tin nhắn của bạn..." autocomplete="off" />
     <button type="submit" aria-label="Gửi tin nhắn">
@@ -51,7 +70,8 @@ import { site } from '../lib/site';
 </div>
 
 <script>
-  import { getOrCreateConversation, listMessages, sendMessage, subscribeToMessages } from '../lib/chat';
+  import { getOrCreateConversation, listMessages, sendMessage, subscribeToMessages, uploadAttachment, getAttachmentUrl, markReadByCustomer } from '../lib/chat';
+  import type { ChatMessage, AttachmentType } from '../lib/chat';
 
   const toggle = document.getElementById('faqChatToggle')!;
   const panel = document.getElementById('faqChatPanel')!;
@@ -59,13 +79,86 @@ import { site } from '../lib/site';
   const messages = document.getElementById('faqChatMessages')!;
   const form = document.getElementById('faqChatForm') as HTMLFormElement;
   const input = document.getElementById('faqChatInput') as HTMLInputElement;
+  const fileInput = document.getElementById('faqChatFile') as HTMLInputElement;
+  const attachBtn = document.getElementById('faqChatAttachBtn')!;
+  const micBtn = document.getElementById('faqChatMicBtn')!;
+  const attachPreview = document.getElementById('faqChatAttachPreview')!;
+  const attachName = document.getElementById('faqChatAttachName')!;
+  const attachRemove = document.getElementById('faqChatAttachRemove')!;
 
-  function addMessage(text: string, from: 'bot' | 'user') {
+  function addSystemMessage(text: string) {
     const bubble = document.createElement('p');
-    bubble.className = `faq-chat-bubble faq-chat-bubble-${from}`;
+    bubble.className = 'faq-chat-bubble faq-chat-bubble-bot';
     bubble.textContent = text;
     messages.append(bubble);
     messages.scrollTop = messages.scrollHeight;
+  }
+
+  function appendAttachment(bubble: HTMLElement, type: AttachmentType, name: string | null, url: string) {
+    if (type === 'image') {
+      const img = document.createElement('img');
+      img.src = url;
+      img.alt = name || 'Ảnh đính kèm';
+      img.className = 'faq-chat-attachment-image';
+      img.loading = 'lazy';
+      img.addEventListener('click', () => window.open(url, '_blank'));
+      bubble.append(img);
+    } else if (type === 'audio') {
+      const audio = document.createElement('audio');
+      audio.controls = true;
+      audio.src = url;
+      audio.className = 'faq-chat-attachment-audio';
+      bubble.append(audio);
+    } else {
+      const link = document.createElement('a');
+      link.href = url;
+      link.target = '_blank';
+      link.rel = 'noopener noreferrer';
+      link.className = 'faq-chat-attachment-file';
+      link.textContent = '📎 ' + (name || 'Tệp đính kèm');
+      bubble.append(link);
+    }
+  }
+
+  // "from" = vị trí hiện trong khung này: 'user' = tin của chính khách (hiện trạng thái Đã gửi/Đã
+  // xem), 'bot' = tin của dược sĩ. overrideUrl dùng khi vừa gửi xong (đã có sẵn ảnh/file ở máy, chưa
+  // cần xin signed URL từ Storage — dùng URL.createObjectURL() cho nhanh, xem sendWithAttachment()).
+  const statusEls = new Map<string, HTMLElement>();
+  async function renderBubble(message: Partial<ChatMessage> & { body: string }, from: 'bot' | 'user', overrideUrl?: string) {
+    const bubble = document.createElement('div');
+    bubble.className = `faq-chat-bubble faq-chat-bubble-${from}`;
+    if (message.id) bubble.dataset.id = message.id;
+
+    if (message.body) {
+      const p = document.createElement('p');
+      p.className = 'faq-chat-bubble-text';
+      p.textContent = message.body;
+      bubble.append(p);
+    }
+    if (message.attachment_type) {
+      const url = overrideUrl ?? (message.attachment_url ? await getAttachmentUrl(message.attachment_url) : null);
+      if (url) appendAttachment(bubble, message.attachment_type, message.attachment_name ?? null, url);
+    }
+    if (from === 'user') {
+      const status = document.createElement('span');
+      status.className = 'faq-chat-status';
+      status.textContent = message.read_at ? 'Đã xem' : 'Đã gửi';
+      bubble.append(status);
+      if (message.id) statusEls.set(message.id, status);
+    }
+
+    messages.append(bubble);
+    messages.scrollTop = messages.scrollHeight;
+    return bubble;
+  }
+
+  // Gắn id thật (từ dòng vừa insert vào DB) vào bubble đã hiện optimistic trước đó — bắt buộc phải
+  // làm bước này thì cập nhật "Đã xem" qua realtime (lọc theo id) mới tìm đúng bubble để đổi chữ.
+  function linkBubbleToMessage(bubble: HTMLElement, message: ChatMessage | null) {
+    if (!message) return;
+    bubble.dataset.id = message.id;
+    const status = bubble.querySelector<HTMLElement>('.faq-chat-status');
+    if (status) statusEls.set(message.id, status);
   }
 
   let conversationId: string | null = null;
@@ -73,7 +166,7 @@ import { site } from '../lib/site';
 
   async function startLiveChat() {
     if (conversationId) return; // đã kết nối từ lần mở khung trước, không nối lại
-    addMessage('Đang kết nối...', 'bot');
+    addSystemMessage('Đang kết nối...');
     try {
       const conv = await getOrCreateConversation();
       conversationId = conv.id;
@@ -81,32 +174,127 @@ import { site } from '../lib/site';
       const history = await listMessages(conv.id);
       messages.innerHTML = '';
       if (history.length === 0) {
-        addMessage('Bạn để lại tin nhắn, dược sĩ sẽ phản hồi sớm nhất có thể nhé!', 'bot');
+        addSystemMessage('Bạn để lại tin nhắn, dược sĩ sẽ phản hồi sớm nhất có thể nhé!');
       } else {
-        history.forEach((m) => addMessage(m.body, m.sender === 'admin' ? 'bot' : 'user'));
+        for (const m of history) await renderBubble(m, m.sender === 'admin' ? 'bot' : 'user');
+        await markReadByCustomer(conv.id); // khách đang xem khung chat ngay bây giờ
       }
-      subscribeToMessages(conv.id, (m) => {
-        // Chỉ hiện tin nhắn từ ADMIN qua realtime — tin nhắn của chính khách đã tự hiện ngay lúc gửi
-        // (xem sendLive), hiện lại lần nữa khi realtime báo về sẽ bị trùng.
-        if (m.sender === 'admin') addMessage(m.body, 'bot');
-      });
+      subscribeToMessages(
+        conv.id,
+        async (m) => {
+          // Chỉ hiện tin nhắn từ ADMIN qua realtime — tin nhắn của chính khách đã tự hiện ngay lúc gửi
+          // (xem sendLive/sendWithAttachment), hiện lại lần nữa khi realtime báo về sẽ bị trùng.
+          if (m.sender === 'admin') {
+            await renderBubble(m, 'bot');
+            if (!panel.hidden) await markReadByCustomer(conv.id);
+          }
+        },
+        (m) => {
+          const status = statusEls.get(m.id);
+          if (status) status.textContent = m.read_at ? 'Đã xem' : 'Đã gửi';
+        },
+      );
     } catch {
       messages.innerHTML = '';
-      addMessage('Không kết nối được, bạn thử lại hoặc nhắn Zalo giúp mình nhé.', 'bot');
+      addSystemMessage('Không kết nối được, bạn thử lại hoặc nhắn Zalo giúp mình nhé.');
     }
   }
 
   async function sendLive(text: string) {
     const trimmed = text.trim();
     if (!trimmed || !conversationId) return;
-    addMessage(trimmed, 'user');
     input.value = '';
+    const bubble = await renderBubble({ body: trimmed, read_at: null }, 'user');
     try {
-      await sendMessage(conversationId, 'customer', trimmed, customerName);
+      const inserted = await sendMessage(conversationId, 'customer', trimmed, customerName);
+      linkBubbleToMessage(bubble, inserted);
     } catch {
-      addMessage('Gửi chưa thành công, bạn thử lại nhé.', 'bot');
+      addSystemMessage('Gửi chưa thành công, bạn thử lại nhé.');
     }
   }
+
+  const MAX_ATTACHMENT_BYTES = 15 * 1024 * 1024;
+
+  async function sendWithAttachment(text: string, file: File, kind: AttachmentType) {
+    if (!conversationId) return;
+    if (file.size > MAX_ATTACHMENT_BYTES) {
+      addSystemMessage('File quá lớn (tối đa 15MB), bạn thử file nhỏ hơn nhé.');
+      return;
+    }
+    const objectUrl = URL.createObjectURL(file);
+    let attachment;
+    try {
+      attachment = await uploadAttachment(conversationId, file, kind);
+    } catch {
+      addSystemMessage('Gửi file chưa thành công, bạn thử lại nhé.');
+      return;
+    }
+    const bubble = await renderBubble({ body: text, attachment_type: kind, attachment_name: attachment.name, read_at: null }, 'user', objectUrl);
+    try {
+      const inserted = await sendMessage(conversationId, 'customer', text, customerName, attachment);
+      linkBubbleToMessage(bubble, inserted);
+    } catch {
+      addSystemMessage('Gửi chưa thành công, bạn thử lại nhé.');
+    }
+  }
+
+  // ---- Đính kèm ảnh/file (chọn trước, bấm Gửi mới upload+gửi, có thể kèm cả chữ) ----
+  let selectedFile: File | null = null;
+  attachBtn.addEventListener('click', () => fileInput.click());
+  fileInput.addEventListener('change', () => {
+    const file = fileInput.files?.[0];
+    if (!file) return;
+    if (file.size > MAX_ATTACHMENT_BYTES) {
+      addSystemMessage('File quá lớn (tối đa 15MB), bạn thử file nhỏ hơn nhé.');
+      fileInput.value = '';
+      return;
+    }
+    selectedFile = file;
+    attachName.textContent = file.name;
+    attachPreview.hidden = false;
+  });
+  attachRemove.addEventListener('click', () => {
+    selectedFile = null;
+    fileInput.value = '';
+    attachPreview.hidden = true;
+  });
+
+  // ---- Ghi âm tin nhắn thoại (bấm để bắt đầu, bấm lại để dừng và gửi luôn) ----
+  let mediaRecorder: MediaRecorder | null = null;
+  let recordedChunks: BlobPart[] = [];
+  let recordingStream: MediaStream | null = null;
+
+  async function toggleRecording() {
+    if (mediaRecorder && mediaRecorder.state === 'recording') {
+      mediaRecorder.stop();
+      return;
+    }
+    try {
+      recordingStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    } catch {
+      addSystemMessage('Không truy cập được micro, bạn thử lại hoặc gõ tin nhắn nhé.');
+      return;
+    }
+    const candidates = ['audio/webm;codecs=opus', 'audio/webm', 'audio/ogg'];
+    const mimeType = candidates.find((t) => (window as any).MediaRecorder?.isTypeSupported?.(t));
+    mediaRecorder = new MediaRecorder(recordingStream, mimeType ? { mimeType } : undefined);
+    recordedChunks = [];
+    mediaRecorder.addEventListener('dataavailable', (e) => {
+      if (e.data.size > 0) recordedChunks.push(e.data);
+    });
+    mediaRecorder.addEventListener('stop', async () => {
+      recordingStream?.getTracks().forEach((t) => t.stop());
+      micBtn.classList.remove('is-recording');
+      if (recordedChunks.length === 0) return;
+      const blob = new Blob(recordedChunks, { type: mediaRecorder?.mimeType || 'audio/webm' });
+      const ext = (blob.type.split('/')[1] || 'webm').split(';')[0];
+      const file = new File([blob], `tin-nhan-thoai.${ext}`, { type: blob.type });
+      await sendWithAttachment('', file, 'audio');
+    });
+    mediaRecorder.start();
+    micBtn.classList.add('is-recording');
+  }
+  micBtn.addEventListener('click', toggleRecording);
 
   let opened = false;
   function openPanel() {
@@ -115,6 +303,8 @@ import { site } from '../lib/site';
     if (!opened) {
       opened = true;
       startLiveChat();
+    } else if (conversationId) {
+      markReadByCustomer(conversationId); // bắt kịp tin admin gửi lúc khung đang đóng
     }
     window.setTimeout(() => input.focus(), 50);
   }
@@ -128,8 +318,19 @@ import { site } from '../lib/site';
   document.addEventListener('keydown', (event) => {
     if (event.key === 'Escape' && !panel.hidden) closePanel();
   });
-  form.addEventListener('submit', (event) => {
+  form.addEventListener('submit', async (event) => {
     event.preventDefault();
+    if (selectedFile) {
+      const file = selectedFile;
+      const kind: AttachmentType = file.type.startsWith('image/') ? 'image' : 'file';
+      const text = input.value.trim();
+      selectedFile = null;
+      fileInput.value = '';
+      attachPreview.hidden = true;
+      input.value = '';
+      await sendWithAttachment(text, file, kind);
+      return;
+    }
     sendLive(input.value);
   });
 </script>
