@@ -1898,14 +1898,30 @@ img {
   font-weight: 700;
 }
 
-.search-suggest-excerpt {
-  display: -webkit-box;
-  overflow: hidden;
-  -webkit-line-clamp: 1;
-  -webkit-box-orient: vertical;
+/* Gợi ý CHỈ sản phẩm (ảnh + tên + giá), tháng 10/2026 — xem .search-suggest a{display:block} (1 lớp +
+   1 thẻ) có độ ưu tiên CSS cao hơn 1 lớp .search-suggest-product đứng một mình, phải viết
+   .search-suggest .search-suggest-product (2 lớp) để thắng, cùng bẫy đã ghi nhiều chỗ khác trong file. */
+.search-suggest .search-suggest-product {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.search-suggest-product img {
+  flex: none;
+  width: 48px;
+  height: 48px;
+  border-radius: 6px;
+  background: var(--green-50);
+  object-fit: contain;
+}
+
+.search-suggest-price {
+  display: block;
   margin-top: 0.1rem;
-  font-size: 0.8rem;
-  color: var(--ink-soft);
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #c2410c;
 }
 
 .search-suggest-all {

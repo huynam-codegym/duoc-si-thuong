@@ -65,6 +65,12 @@ const departmentData = {
         icon: 'stomach',
         name: 'Tiêu hóa',
         description: 'Thực phẩm bổ sung như men vi sinh, chất xơ dành cho người quan tâm đến đường tiêu hóa.',
+        childGroups: ['ho-tro-an-ngon'],
+      },
+      'ho-tro-an-ngon': {
+        icon: 'stomach',
+        name: 'Hỗ trợ ăn ngon',
+        description: 'Thực phẩm bổ sung dành cho trẻ biếng ăn, hấp thu kém, hỗ trợ tăng cường tiêu hóa.',
       },
       'gan-mat': {
         icon: 'liver',
@@ -75,6 +81,17 @@ const departmentData = {
         icon: 'brain',
         name: 'Thần kinh & trí nhớ',
         description: 'Thực phẩm bổ sung dành cho người quan tâm đến sức khỏe thần kinh và não bộ.',
+        childGroups: ['ho-tro-giac-ngu', 'bo-nao-cai-thien-tri-nho'],
+      },
+      'ho-tro-giac-ngu': {
+        icon: 'brain',
+        name: 'Hỗ trợ giấc ngủ',
+        description: 'Thực phẩm bổ sung dành cho người quan tâm đến chất lượng giấc ngủ.',
+      },
+      'bo-nao-cai-thien-tri-nho': {
+        icon: 'brain',
+        name: 'Bổ não - cải thiện trí nhớ',
+        description: 'Thực phẩm bổ sung dành cho người quan tâm đến phát triển não bộ và trí nhớ.',
       },
       'lam-dep': {
         icon: 'sparkle',

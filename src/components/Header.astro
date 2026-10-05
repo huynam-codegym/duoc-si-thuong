@@ -680,7 +680,12 @@ const drawerSections: DrawerSection[] = [
     window.addEventListener('resize', () => {
       if (!searchSuggest.hidden) positionSuggest();
     });
-    let pagefind: { search: (q: string) => Promise<{ results: { id: string; data: () => Promise<{ url: string; meta: { title?: string }; excerpt: string }> }[] }> } | null = null;
+    let pagefind: {
+      search: (
+        q: string,
+        options?: { filters?: Record<string, string[]> },
+      ) => Promise<{ results: { id: string; data: () => Promise<{ url: string; meta: { title?: string; image?: string; price?: string }; excerpt: string }> }[] }>;
+    } | null = null;
     let loadingPagefind: Promise<void> | null = null;
     function loadPagefind() {
       if (!loadingPagefind) {
@@ -752,18 +757,14 @@ const drawerSections: DrawerSection[] = [
       searchSuggest.hidden = false;
     }
 
-    function stripTags(html: string): string {
-      const div = document.createElement('div');
-      div.innerHTML = html;
-      return div.textContent ?? '';
-    }
-
     let requestId = 0;
     async function runSearch(term: string) {
       await loadPagefind();
       if (!pagefind) return;
       const myRequest = ++requestId;
-      const search = await pagefind.search(term);
+      // Chỉ gợi ý SẢN PHẨM (không gợi ý bài viết) — chủ website yêu cầu tháng 10/2026, giống kiểu gợi ý
+      // có ảnh + giá của các sàn thương mại điện tử, khác với trang /tim-kiem/ vẫn tìm được cả 2 loại.
+      const search = await pagefind.search(term, { filters: { 'Loại nội dung': ['Sản phẩm'] } });
       if (myRequest !== requestId || term !== searchInput?.value.trim()) return; // gõ tiếp trong lúc chờ, bỏ kết quả cũ
       const top = await Promise.all(search.results.slice(0, 6).map((r) => r.data()));
       if (myRequest !== requestId) return;
@@ -775,14 +776,29 @@ const drawerSections: DrawerSection[] = [
       top.forEach((item) => {
         const a = document.createElement('a');
         a.href = item.url;
+        a.className = 'search-suggest-product';
         a.setAttribute('role', 'option');
+        if (item.meta.image) {
+          const img = document.createElement('img');
+          img.src = item.meta.image;
+          img.alt = '';
+          img.loading = 'lazy';
+          img.width = 48;
+          img.height = 48;
+          a.append(img);
+        }
+        const text = document.createElement('span');
         const title = document.createElement('span');
         title.className = 'search-suggest-title';
         title.textContent = item.meta.title ?? item.url;
-        const excerpt = document.createElement('span');
-        excerpt.className = 'search-suggest-excerpt';
-        excerpt.textContent = stripTags(item.excerpt);
-        a.append(title, excerpt);
+        text.append(title);
+        if (item.meta.price) {
+          const price = document.createElement('span');
+          price.className = 'search-suggest-price';
+          price.textContent = item.meta.price;
+          text.append(price);
+        }
+        a.append(text);
         searchSuggest.append(a);
       });
       const seeAll = document.createElement('a');
