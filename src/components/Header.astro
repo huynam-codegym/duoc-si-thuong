@@ -685,6 +685,7 @@ const drawerSections: DrawerSection[] = [
         q: string,
         options?: { filters?: Record<string, string[]> },
       ) => Promise<{ results: { id: string; data: () => Promise<{ url: string; meta: { title?: string; image?: string; price?: string }; excerpt: string }> }[] }>;
+      filters: () => Promise<unknown>;
     } | null = null;
     let loadingPagefind: Promise<void> | null = null;
     function loadPagefind() {
@@ -692,6 +693,15 @@ const drawerSections: DrawerSection[] = [
         loadingPagefind = import(/* @vite-ignore */ url('/pagefind/pagefind.js'))
           .then((mod) => {
             pagefind = mod;
+            // Pagefind tải chỉ mục LỌC riêng, lười (tách file khác, tải sau) — gọi filters() ngay ở
+            // đây để "làm nóng" chỉ mục đó TRƯỚC khi gợi ý gọi search(term, {filters: {...}}) lần đầu.
+            // Thiếu bước này, lần tìm ĐẦU TIÊN sau khi tải trang có thể trả về 0 kết quả (lọc theo
+            // một chỉ mục lọc chưa kịp tải xong) dù gõ lại y hệt ngay sau đó lại ra đúng — đúng bẫy đã
+            // gặp ở trang /tim-kiem/ (xem mục "Bẫy đã gặp" của trang đó trong CLAUDE.md), giờ lặp lại
+            // ở đây vì khung gợi ý mới thêm bộ lọc "Loại nội dung: Sản phẩm" (trước đó không lọc gì
+            // nên không gặp bẫy này). Trả về cùng promise để `await loadPagefind()` ở runSearch() chỉ
+            // coi là "sẵn sàng" sau khi cả 2 bước xong, không chỉ riêng việc tải xong mô-đun.
+            return pagefind.filters().catch(() => {});
           })
           .catch(() => {
             // Chưa build (npm run dev) hoặc lỗi tải: bỏ qua, gõ Enter vẫn dùng được trang /tim-kiem/
