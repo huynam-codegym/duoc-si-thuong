@@ -418,10 +418,28 @@ p.faq-chat-bubble {
   word-break: break-all;
 }
 
-.faq-chat-attach-preview:not([hidden]) {
-  padding: 0.5rem 1rem;
+/* Khung soạn tin — ảnh/file xem trước (nếu có) + hàng nút/ô nhập nằm CHUNG 1 khối, chỉ 1 đường viền
+   trên cùng ngăn với khu vực tin nhắn phía trên, giống kiểu Messenger (1 khung soạn tin duy nhất) thay
+   vì 2 dải tách rời có viền riêng (nhìn như 2 hộp xếp chồng — chủ website phản ánh ảnh đính kèm "bị
+   đẩy ra ngoài" khung nhập tin). */
+.faq-chat-compose {
   border-top: 1px solid var(--line);
-  background: #fff;
+}
+
+.faq-chat-attach-preview:not([hidden]) {
+  padding: 0.6rem 1rem 0;
+}
+
+/* Chọn được NHIỀU ảnh/file cùng lúc (tháng 10/2026) — mỗi cái 1 ô riêng (ảnh thu nhỏ hoặc tên file),
+   xếp hàng ngang, tự xuống dòng nếu dài, cuộn dọc nếu quá nhiều (hiếm khi xảy ra vì đã giới hạn
+   MAX_FILES_PER_BATCH = 10 ở script). */
+.faq-chat-attach-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  max-height: 9rem;
+  overflow-y: auto;
+  padding-bottom: 0.6rem;
 }
 
 /* Đính kèm ẢNH: xem trước bằng ảnh thu nhỏ thật (không phải tên file) + nút ✕ đè lên góc, giống kiểu
@@ -429,6 +447,7 @@ p.faq-chat-bubble {
 .faq-chat-attach-thumb {
   position: relative;
   display: inline-block;
+  flex: 0 0 auto;
   width: 4.5rem;
   height: 4.5rem;
 }
@@ -459,14 +478,20 @@ p.faq-chat-bubble {
   cursor: pointer;
 }
 
-/* Đính kèm FILE khác (.pdf/.doc/.txt): không có gì để xem trước dạng ảnh, hiện tên file trong 1 hàng
-   chữ như trước. */
+/* Đính kèm FILE khác (.pdf/.doc/.txt): không có gì để xem trước dạng ảnh, hiện tên file trong 1 ô
+   chữ nhỏ — giới hạn chiều rộng (không chiếm trọn hàng như trước) vì giờ có thể đứng cạnh nhiều ô khác
+   trong cùng hàng ngang. */
 .faq-chat-attach-chip {
   display: flex;
+  flex: 0 0 auto;
   align-items: center;
-  justify-content: space-between;
-  gap: 0.5rem;
-  font-size: 0.8rem;
+  gap: 0.4rem;
+  max-width: 9rem;
+  padding: 0.4rem 0.6rem;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--green-50);
+  font-size: 0.78rem;
   color: var(--ink);
 }
 
@@ -488,7 +513,6 @@ p.faq-chat-bubble {
   display: flex;
   gap: 0.4rem;
   padding: 0.6rem 1rem;
-  border-top: 1px solid var(--line);
 }
 
 .faq-chat-form input[type='text'] {
@@ -728,16 +752,31 @@ p.faq-chat-bubble {
   word-break: break-all;
 }
 
-.admin-thread-attach-preview:not([hidden]) {
-  padding: 0.5rem 1rem;
+/* Khung soạn tin — ảnh/file xem trước (nếu có) + hàng nút/ô nhập nằm CHUNG 1 khối, chỉ 1 đường viền
+   trên cùng, cùng lý do/mẫu với .faq-chat-compose ở FaqChat.astro. */
+.admin-thread-compose {
   border-top: 1px solid var(--line);
-  background: #fff;
+}
+
+.admin-thread-attach-preview:not([hidden]) {
+  padding: 0.6rem 1rem 0;
+}
+
+/* Chọn được NHIỀU ảnh/file cùng lúc — mỗi cái 1 ô riêng, xếp hàng ngang, tự xuống dòng/cuộn nếu nhiều. */
+.admin-thread-attach-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  max-height: 9rem;
+  overflow-y: auto;
+  padding-bottom: 0.6rem;
 }
 
 /* Đính kèm ẢNH: ảnh thu nhỏ thật + nút ✕ đè góc, kiểu Messenger (cùng mẫu với FaqChat.astro). */
 .admin-thread-attach-thumb {
   position: relative;
   display: inline-block;
+  flex: 0 0 auto;
   width: 4.5rem;
   height: 4.5rem;
 }
@@ -768,13 +807,19 @@ p.faq-chat-bubble {
   cursor: pointer;
 }
 
-/* Đính kèm FILE khác: hiện tên file trong 1 hàng chữ như trước. */
+/* Đính kèm FILE khác: hiện tên file trong 1 ô chữ nhỏ, giới hạn chiều rộng vì có thể đứng cạnh nhiều
+   ô khác trong cùng hàng ngang. */
 .admin-thread-attach-chip {
   display: flex;
+  flex: 0 0 auto;
   align-items: center;
-  justify-content: space-between;
-  gap: 0.5rem;
-  font-size: 0.82rem;
+  gap: 0.4rem;
+  max-width: 9rem;
+  padding: 0.4rem 0.6rem;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--green-50);
+  font-size: 0.78rem;
 }
 
 .admin-thread-attach-chip span {
@@ -795,7 +840,6 @@ p.faq-chat-bubble {
   display: flex;
   gap: 0.4rem;
   padding: 0.75rem 1rem;
-  border-top: 1px solid var(--line);
 }
 
 .admin-thread-form input[type='text'] {

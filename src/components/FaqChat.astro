@@ -39,38 +39,33 @@ import { site } from '../lib/site';
   </div>
   <div class="faq-chat-messages" id="faqChatMessages"></div>
   <p class="faq-chat-safety-note">Khẩn cấp hãy gọi <strong>115</strong>. Không gửi CCCD, mật khẩu, thông tin thẻ ngân hàng.</p>
-  <div class="faq-chat-attach-preview" id="faqChatAttachPreview" hidden>
-    <div class="faq-chat-attach-thumb" id="faqChatAttachThumb" hidden>
-      <img id="faqChatAttachImg" alt="Ảnh đính kèm" />
-      <button type="button" id="faqChatAttachRemove" aria-label="Bỏ đính kèm">✕</button>
+  <div class="faq-chat-compose">
+    <div class="faq-chat-attach-preview" id="faqChatAttachPreview" hidden>
+      <div class="faq-chat-attach-list" id="faqChatAttachList"></div>
     </div>
-    <div class="faq-chat-attach-chip" id="faqChatAttachChip" hidden>
-      <span id="faqChatAttachName"></span>
-      <button type="button" id="faqChatAttachRemove2" aria-label="Bỏ đính kèm">✕</button>
-    </div>
+    <form class="faq-chat-form" id="faqChatForm">
+      <label class="visually-hidden" for="faqChatFile">Đính kèm ảnh hoặc file (chọn được nhiều cùng lúc)</label>
+      <input id="faqChatFile" type="file" accept="image/*,.pdf,.doc,.docx,.txt" multiple hidden />
+      <button type="button" class="faq-chat-icon-btn" id="faqChatAttachBtn" aria-label="Đính kèm ảnh hoặc file">
+        <svg viewBox="0 0 24 24" width="19" height="19" aria-hidden="true" focusable="false">
+          <path d="M8 12.5l6.4-6.4a3 3 0 1 1 4.25 4.24L9.88 19.1a5 5 0 1 1-7.07-7.07L11.5 3.4" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></path>
+        </svg>
+      </button>
+      <button type="button" class="faq-chat-icon-btn" id="faqChatMicBtn" aria-label="Ghi âm tin nhắn thoại">
+        <svg viewBox="0 0 24 24" width="19" height="19" aria-hidden="true" focusable="false">
+          <rect x="9" y="3" width="6" height="11" rx="3" fill="none" stroke="currentColor" stroke-width="1.7"></rect>
+          <path d="M5 11a7 7 0 0 0 14 0M12 18v3" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"></path>
+        </svg>
+      </button>
+      <label class="visually-hidden" for="faqChatInput">Nhập tin nhắn</label>
+      <input id="faqChatInput" type="text" placeholder="Nhập tin nhắn của bạn..." autocomplete="off" />
+      <button type="submit" aria-label="Gửi tin nhắn">
+        <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false">
+          <path d="M4 12h15M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+        </svg>
+      </button>
+    </form>
   </div>
-  <form class="faq-chat-form" id="faqChatForm">
-    <label class="visually-hidden" for="faqChatFile">Đính kèm ảnh hoặc file</label>
-    <input id="faqChatFile" type="file" accept="image/*,.pdf,.doc,.docx,.txt" hidden />
-    <button type="button" class="faq-chat-icon-btn" id="faqChatAttachBtn" aria-label="Đính kèm ảnh hoặc file">
-      <svg viewBox="0 0 24 24" width="19" height="19" aria-hidden="true" focusable="false">
-        <path d="M8 12.5l6.4-6.4a3 3 0 1 1 4.25 4.24L9.88 19.1a5 5 0 1 1-7.07-7.07L11.5 3.4" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></path>
-      </svg>
-    </button>
-    <button type="button" class="faq-chat-icon-btn" id="faqChatMicBtn" aria-label="Ghi âm tin nhắn thoại">
-      <svg viewBox="0 0 24 24" width="19" height="19" aria-hidden="true" focusable="false">
-        <rect x="9" y="3" width="6" height="11" rx="3" fill="none" stroke="currentColor" stroke-width="1.7"></rect>
-        <path d="M5 11a7 7 0 0 0 14 0M12 18v3" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"></path>
-      </svg>
-    </button>
-    <label class="visually-hidden" for="faqChatInput">Nhập tin nhắn</label>
-    <input id="faqChatInput" type="text" placeholder="Nhập tin nhắn của bạn..." autocomplete="off" />
-    <button type="submit" aria-label="Gửi tin nhắn">
-      <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false">
-        <path d="M4 12h15M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
-      </svg>
-    </button>
-  </form>
   <a class="faq-chat-zalo" href={site.zaloHref} target="_blank" rel="noopener noreferrer">
     Cần hỗ trợ thêm? Nhắn Zalo cho dược sĩ ›
   </a>
@@ -90,12 +85,7 @@ import { site } from '../lib/site';
   const attachBtn = document.getElementById('faqChatAttachBtn')!;
   const micBtn = document.getElementById('faqChatMicBtn')!;
   const attachPreview = document.getElementById('faqChatAttachPreview')!;
-  const attachThumb = document.getElementById('faqChatAttachThumb')!;
-  const attachImg = document.getElementById('faqChatAttachImg') as HTMLImageElement;
-  const attachChip = document.getElementById('faqChatAttachChip')!;
-  const attachName = document.getElementById('faqChatAttachName')!;
-  const attachRemove = document.getElementById('faqChatAttachRemove')!;
-  const attachRemove2 = document.getElementById('faqChatAttachRemove2')!;
+  const attachList = document.getElementById('faqChatAttachList')!;
 
   function addSystemMessage(text: string) {
     const bubble = document.createElement('p');
@@ -249,40 +239,70 @@ import { site } from '../lib/site';
     }
   }
 
-  // ---- Đính kèm ảnh/file (chọn trước, bấm Gửi mới upload+gửi, có thể kèm cả chữ) ----
-  // Ảnh hiện xem trước dạng ảnh thu nhỏ thật (giống Messenger), file khác (.pdf/.doc/.txt) hiện tên
-  // file trong 1 ô chữ — cả 2 kiểu dùng chung 1 khung .faq-chat-attach-preview, chỉ đổi phần hiện ra.
-  let selectedFile: File | null = null;
-  function removeSelectedAttachment() {
-    selectedFile = null;
-    fileInput.value = '';
-    attachPreview.hidden = true;
-    attachThumb.hidden = true;
-    attachChip.hidden = true;
+  // ---- Đính kèm ảnh/file — chọn được NHIỀU cùng lúc (tháng 10/2026, chủ website yêu cầu), bấm Gửi
+  // mới upload+gửi hết (chữ gõ kèm chỉ đính vào ảnh/file ĐẦU TIÊN, vì mỗi dòng tin nhắn trong DB chỉ
+  // gắn được 1 đính kèm — xem cột attachment_* trong docs/supabase-schema.sql). Ảnh xem trước bằng ảnh
+  // thu nhỏ thật (giống Messenger), file khác (.pdf/.doc/.txt) hiện tên file trong 1 ô chữ, mỗi ô có
+  // nút ✕ riêng để bỏ đúng 1 file mà không mất các file khác đã chọn.
+  const MAX_FILES_PER_BATCH = 10;
+  let selectedFiles: File[] = [];
+
+  function renderAttachList() {
+    attachList.innerHTML = '';
+    attachPreview.hidden = selectedFiles.length === 0;
+    selectedFiles.forEach((file, idx) => {
+      if (file.type.startsWith('image/')) {
+        const thumb = document.createElement('div');
+        thumb.className = 'faq-chat-attach-thumb';
+        const img = document.createElement('img');
+        img.src = URL.createObjectURL(file);
+        img.alt = 'Ảnh đính kèm';
+        const removeBtn = document.createElement('button');
+        removeBtn.type = 'button';
+        removeBtn.setAttribute('aria-label', 'Bỏ đính kèm');
+        removeBtn.textContent = '✕';
+        removeBtn.addEventListener('click', () => {
+          selectedFiles.splice(idx, 1);
+          renderAttachList();
+        });
+        thumb.append(img, removeBtn);
+        attachList.append(thumb);
+      } else {
+        const chip = document.createElement('div');
+        chip.className = 'faq-chat-attach-chip';
+        const name = document.createElement('span');
+        name.textContent = file.name;
+        const removeBtn = document.createElement('button');
+        removeBtn.type = 'button';
+        removeBtn.setAttribute('aria-label', 'Bỏ đính kèm');
+        removeBtn.textContent = '✕';
+        removeBtn.addEventListener('click', () => {
+          selectedFiles.splice(idx, 1);
+          renderAttachList();
+        });
+        chip.append(name, removeBtn);
+        attachList.append(chip);
+      }
+    });
   }
+
   attachBtn.addEventListener('click', () => fileInput.click());
   fileInput.addEventListener('change', () => {
-    const file = fileInput.files?.[0];
-    if (!file) return;
-    if (file.size > MAX_ATTACHMENT_BYTES) {
-      addSystemMessage('File quá lớn (tối đa 15MB), bạn thử file nhỏ hơn nhé.');
-      fileInput.value = '';
-      return;
+    const picked = Array.from(fileInput.files ?? []);
+    fileInput.value = ''; // cho phép chọn lại đúng file đó lần sau vẫn bắn sự kiện change
+    for (const file of picked) {
+      if (selectedFiles.length >= MAX_FILES_PER_BATCH) {
+        addSystemMessage(`Chỉ gửi được tối đa ${MAX_FILES_PER_BATCH} ảnh/file mỗi lần.`);
+        break;
+      }
+      if (file.size > MAX_ATTACHMENT_BYTES) {
+        addSystemMessage(`File "${file.name}" quá lớn (tối đa 15MB), đã bỏ qua.`);
+        continue;
+      }
+      selectedFiles.push(file);
     }
-    selectedFile = file;
-    attachPreview.hidden = false;
-    if (file.type.startsWith('image/')) {
-      attachImg.src = URL.createObjectURL(file);
-      attachThumb.hidden = false;
-      attachChip.hidden = true;
-    } else {
-      attachThumb.hidden = true;
-      attachChip.hidden = false;
-      attachName.textContent = file.name;
-    }
+    renderAttachList();
   });
-  attachRemove.addEventListener('click', removeSelectedAttachment);
-  attachRemove2.addEventListener('click', removeSelectedAttachment);
 
   // ---- Ghi âm tin nhắn thoại (bấm để bắt đầu, bấm lại để dừng và gửi luôn) ----
   let mediaRecorder: MediaRecorder | null = null;
@@ -345,13 +365,19 @@ import { site } from '../lib/site';
   });
   form.addEventListener('submit', async (event) => {
     event.preventDefault();
-    if (selectedFile) {
-      const file = selectedFile;
-      const kind: AttachmentType = file.type.startsWith('image/') ? 'image' : 'file';
+    if (selectedFiles.length > 0) {
+      const files = selectedFiles;
       const text = input.value.trim();
-      removeSelectedAttachment();
+      selectedFiles = [];
+      renderAttachList();
       input.value = '';
-      await sendWithAttachment(text, file, kind);
+      // Chữ gõ kèm chỉ gắn vào file ĐẦU TIÊN — xem ghi chú ở mục "Đính kèm ảnh/file" phía trên. Gửi
+      // tuần tự (không Promise.all) để giữ đúng thứ tự hiện ra trong khung chat.
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        const kind: AttachmentType = file.type.startsWith('image/') ? 'image' : 'file';
+        await sendWithAttachment(i === 0 ? text : '', file, kind);
+      }
       return;
     }
     sendLive(input.value);

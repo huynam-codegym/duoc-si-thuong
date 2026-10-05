@@ -30,34 +30,29 @@ import { url } from '../../lib/url';
             <strong id="adminThreadName"></strong>
           </div>
           <div class="admin-thread-messages" id="adminThreadMessages"></div>
-          <div class="admin-thread-attach-preview" id="adminAttachPreview" hidden>
-            <div class="admin-thread-attach-thumb" id="adminAttachThumb" hidden>
-              <img id="adminAttachImg" alt="Ảnh đính kèm" />
-              <button type="button" id="adminAttachRemove" aria-label="Bỏ đính kèm">✕</button>
+          <div class="admin-thread-compose">
+            <div class="admin-thread-attach-preview" id="adminAttachPreview" hidden>
+              <div class="admin-thread-attach-list" id="adminAttachList"></div>
             </div>
-            <div class="admin-thread-attach-chip" id="adminAttachChip" hidden>
-              <span id="adminAttachName"></span>
-              <button type="button" id="adminAttachRemove2" aria-label="Bỏ đính kèm">✕</button>
-            </div>
+            <form class="admin-thread-form" id="adminThreadForm">
+              <label class="visually-hidden" for="adminThreadFile">Đính kèm ảnh hoặc file (chọn được nhiều cùng lúc)</label>
+              <input id="adminThreadFile" type="file" accept="image/*,.pdf,.doc,.docx,.txt" multiple hidden />
+              <button type="button" class="admin-thread-icon-btn" id="adminAttachBtn" aria-label="Đính kèm ảnh hoặc file">
+                <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false">
+                  <path d="M8 12.5l6.4-6.4a3 3 0 1 1 4.25 4.24L9.88 19.1a5 5 0 1 1-7.07-7.07L11.5 3.4" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></path>
+                </svg>
+              </button>
+              <button type="button" class="admin-thread-icon-btn" id="adminMicBtn" aria-label="Ghi âm tin nhắn thoại">
+                <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false">
+                  <rect x="9" y="3" width="6" height="11" rx="3" fill="none" stroke="currentColor" stroke-width="1.7"></rect>
+                  <path d="M5 11a7 7 0 0 0 14 0M12 18v3" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"></path>
+                </svg>
+              </button>
+              <label class="visually-hidden" for="adminThreadInput">Nhập trả lời</label>
+              <input id="adminThreadInput" type="text" placeholder="Nhập câu trả lời..." autocomplete="off" />
+              <button type="submit" class="btn">Gửi</button>
+            </form>
           </div>
-          <form class="admin-thread-form" id="adminThreadForm">
-            <label class="visually-hidden" for="adminThreadFile">Đính kèm ảnh hoặc file</label>
-            <input id="adminThreadFile" type="file" accept="image/*,.pdf,.doc,.docx,.txt" hidden />
-            <button type="button" class="admin-thread-icon-btn" id="adminAttachBtn" aria-label="Đính kèm ảnh hoặc file">
-              <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false">
-                <path d="M8 12.5l6.4-6.4a3 3 0 1 1 4.25 4.24L9.88 19.1a5 5 0 1 1-7.07-7.07L11.5 3.4" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></path>
-              </svg>
-            </button>
-            <button type="button" class="admin-thread-icon-btn" id="adminMicBtn" aria-label="Ghi âm tin nhắn thoại">
-              <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false">
-                <rect x="9" y="3" width="6" height="11" rx="3" fill="none" stroke="currentColor" stroke-width="1.7"></rect>
-                <path d="M5 11a7 7 0 0 0 14 0M12 18v3" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"></path>
-              </svg>
-            </button>
-            <label class="visually-hidden" for="adminThreadInput">Nhập trả lời</label>
-            <input id="adminThreadInput" type="text" placeholder="Nhập câu trả lời..." autocomplete="off" />
-            <button type="submit" class="btn">Gửi</button>
-          </form>
         </div>
       </section>
     </div>
@@ -95,12 +90,7 @@ import { url } from '../../lib/url';
   const attachBtn = document.getElementById('adminAttachBtn')!;
   const micBtn = document.getElementById('adminMicBtn')!;
   const attachPreview = document.getElementById('adminAttachPreview')!;
-  const attachThumb = document.getElementById('adminAttachThumb')!;
-  const attachImg = document.getElementById('adminAttachImg') as HTMLImageElement;
-  const attachChip = document.getElementById('adminAttachChip')!;
-  const attachName = document.getElementById('adminAttachName')!;
-  const attachRemove = document.getElementById('adminAttachRemove')!;
-  const attachRemove2 = document.getElementById('adminAttachRemove2')!;
+  const attachList = document.getElementById('adminAttachList')!;
 
   let conversations: Conversation[] = [];
   let unreadCounts: Record<string, number> = {};
@@ -259,50 +249,84 @@ import { url } from '../../lib/url';
     event.preventDefault();
     const text = threadInput.value.trim();
     threadInput.value = '';
-    if (selectedFile) {
-      const file = selectedFile;
-      const kind: AttachmentType = file.type.startsWith('image/') ? 'image' : 'file';
-      removeSelectedAttachment();
-      await sendReply(text, file, kind);
+    if (selectedFiles.length > 0) {
+      const files = selectedFiles;
+      selectedFiles = [];
+      renderAttachList();
+      // Chữ gõ kèm chỉ gắn vào file ĐẦU TIÊN (mỗi dòng tin nhắn chỉ gắn được 1 đính kèm) — gửi tuần
+      // tự để giữ đúng thứ tự hiện ra.
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        const kind: AttachmentType = file.type.startsWith('image/') ? 'image' : 'file';
+        await sendReply(i === 0 ? text : '', file, kind);
+      }
       return;
     }
     if (!text) return;
     await sendReply(text);
   });
 
-  // ---- Đính kèm ảnh/file ----
-  // Ảnh hiện xem trước bằng ảnh thu nhỏ thật (giống Messenger), file khác hiện tên file trong 1 ô chữ.
-  let selectedFile: File | null = null;
-  function removeSelectedAttachment() {
-    selectedFile = null;
-    fileInput.value = '';
-    attachPreview.hidden = true;
-    attachThumb.hidden = true;
-    attachChip.hidden = true;
+  // ---- Đính kèm ảnh/file — chọn được NHIỀU cùng lúc (tháng 10/2026). Ảnh hiện xem trước bằng ảnh
+  // thu nhỏ thật (giống Messenger), file khác hiện tên file trong 1 ô chữ, mỗi ô có nút ✕ riêng.
+  const MAX_FILES_PER_BATCH = 10;
+  let selectedFiles: File[] = [];
+
+  function renderAttachList() {
+    attachList.innerHTML = '';
+    attachPreview.hidden = selectedFiles.length === 0;
+    selectedFiles.forEach((file, idx) => {
+      if (file.type.startsWith('image/')) {
+        const thumb = document.createElement('div');
+        thumb.className = 'admin-thread-attach-thumb';
+        const img = document.createElement('img');
+        img.src = URL.createObjectURL(file);
+        img.alt = 'Ảnh đính kèm';
+        const removeBtn = document.createElement('button');
+        removeBtn.type = 'button';
+        removeBtn.setAttribute('aria-label', 'Bỏ đính kèm');
+        removeBtn.textContent = '✕';
+        removeBtn.addEventListener('click', () => {
+          selectedFiles.splice(idx, 1);
+          renderAttachList();
+        });
+        thumb.append(img, removeBtn);
+        attachList.append(thumb);
+      } else {
+        const chip = document.createElement('div');
+        chip.className = 'admin-thread-attach-chip';
+        const name = document.createElement('span');
+        name.textContent = file.name;
+        const removeBtn = document.createElement('button');
+        removeBtn.type = 'button';
+        removeBtn.setAttribute('aria-label', 'Bỏ đính kèm');
+        removeBtn.textContent = '✕';
+        removeBtn.addEventListener('click', () => {
+          selectedFiles.splice(idx, 1);
+          renderAttachList();
+        });
+        chip.append(name, removeBtn);
+        attachList.append(chip);
+      }
+    });
   }
+
   attachBtn.addEventListener('click', () => fileInput.click());
   fileInput.addEventListener('change', () => {
-    const file = fileInput.files?.[0];
-    if (!file) return;
-    if (file.size > MAX_ATTACHMENT_BYTES) {
-      window.alert('File quá lớn (tối đa 15MB), chọn file nhỏ hơn nhé.');
-      fileInput.value = '';
-      return;
+    const picked = Array.from(fileInput.files ?? []);
+    fileInput.value = '';
+    for (const file of picked) {
+      if (selectedFiles.length >= MAX_FILES_PER_BATCH) {
+        window.alert(`Chỉ gửi được tối đa ${MAX_FILES_PER_BATCH} ảnh/file mỗi lần.`);
+        break;
+      }
+      if (file.size > MAX_ATTACHMENT_BYTES) {
+        window.alert(`File "${file.name}" quá lớn (tối đa 15MB), đã bỏ qua.`);
+        continue;
+      }
+      selectedFiles.push(file);
     }
-    selectedFile = file;
-    attachPreview.hidden = false;
-    if (file.type.startsWith('image/')) {
-      attachImg.src = URL.createObjectURL(file);
-      attachThumb.hidden = false;
-      attachChip.hidden = true;
-    } else {
-      attachThumb.hidden = true;
-      attachChip.hidden = false;
-      attachName.textContent = file.name;
-    }
+    renderAttachList();
   });
-  attachRemove.addEventListener('click', removeSelectedAttachment);
-  attachRemove2.addEventListener('click', removeSelectedAttachment);
 
   // ---- Ghi âm tin nhắn thoại ----
   let mediaRecorder: MediaRecorder | null = null;
