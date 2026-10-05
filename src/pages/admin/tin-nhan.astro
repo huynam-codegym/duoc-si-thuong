@@ -1,0 +1,156 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { url } from '../../lib/url';
+
+// Trang quản trị tin nhắn (tháng 10/2026) — CHỈ chủ website (tài khoản có profiles.is_admin = true)
+// mới xem được, kiểm tra ở script bên dưới (không phải kiểm tra phía máy chủ vì site tĩnh không có
+// máy chủ — an toàn thật sự nằm ở RLS của bảng conversations/messages trong Supabase, trang này chỉ
+// là giao diện, dù có bỏ qua được bước kiểm tra UI thì vẫn không đọc được dữ liệu người khác).
+---
+
+<BaseLayout title="Quản lý tin nhắn" description="Trang quản trị tin nhắn khách hàng." noindex>
+  <div class="container">
+    <section class="hero shop-hero">
+      <h1>Quản lý tin nhắn</h1>
+    </section>
+
+    <p id="adminLoading">Đang kiểm tra đăng nhập...</p>
+
+    <div id="adminDenied" class="order" hidden>
+      <p id="adminDeniedText"></p>
+      <a class="btn" href={url('/')}>Về trang chủ</a>
+    </div>
+
+    <div id="adminInbox" class="admin-inbox" hidden>
+      <aside class="admin-inbox-list" id="adminConvList" aria-label="Danh sách hội thoại"></aside>
+      <section class="admin-inbox-thread">
+        <p id="adminThreadEmpty" class="empty">Chọn 1 hội thoại bên trái để xem và trả lời.</p>
+        <div id="adminThreadBox" hidden>
+          <div class="admin-thread-head">
+            <strong id="adminThreadName"></strong>
+          </div>
+          <div class="admin-thread-messages" id="adminThreadMessages"></div>
+          <form class="admin-thread-form" id="adminThreadForm">
+            <label class="visually-hidden" for="adminThreadInput">Nhập trả lời</label>
+            <input id="adminThreadInput" type="text" placeholder="Nhập câu trả lời..." autocomplete="off" />
+            <button type="submit" class="btn">Gửi</button>
+          </form>
+        </div>
+      </section>
+    </div>
+  </div>
+</BaseLayout>
+
+<script>
+  import { supabase } from '../../lib/supabase';
+  import { isCurrentUserAdmin, listConversationsForAdmin, listMessages, sendMessage, subscribeToInbox, type ChatMessage, type Conversation } from '../../lib/chat';
+
+  const loading = document.getElementById('adminLoading')!;
+  const denied = document.getElementById('adminDenied')!;
+  const deniedText = document.getElementById('adminDeniedText')!;
+  const inbox = document.getElementById('adminInbox')!;
+  const convList = document.getElementById('adminConvList')!;
+  const threadEmpty = document.getElementById('adminThreadEmpty')!;
+  const threadBox = document.getElementById('adminThreadBox')!;
+  const threadName = document.getElementById('adminThreadName')!;
+  const threadMessages = document.getElementById('adminThreadMessages')!;
+  const threadForm = document.getElementById('adminThreadForm') as HTMLFormElement;
+  const threadInput = document.getElementById('adminThreadInput') as HTMLInputElement;
+
+  let conversations: Conversation[] = [];
+  let activeId: string | null = null;
+
+  function formatTime(iso: string): string {
+    return new Date(iso).toLocaleString('vi-VN', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+  }
+
+  function renderConvList() {
+    convList.innerHTML = '';
+    conversations.forEach((c) => {
+      const item = document.createElement('button');
+      item.type = 'button';
+      item.className = 'admin-conv-item' + (c.id === activeId ? ' active' : '');
+      const name = document.createElement('strong');
+      name.textContent = c.customer_name || `Khách #${c.id.slice(0, 8)}`;
+      const time = document.createElement('span');
+      time.textContent = formatTime(c.last_message_at);
+      item.append(name, time);
+      item.addEventListener('click', () => openConversation(c.id));
+      convList.append(item);
+    });
+  }
+
+  function addThreadMessage(m: ChatMessage) {
+    const bubble = document.createElement('p');
+    bubble.className = `admin-thread-bubble admin-thread-bubble-${m.sender}`;
+    bubble.textContent = m.body;
+    threadMessages.append(bubble);
+    threadMessages.scrollTop = threadMessages.scrollHeight;
+  }
+
+  async function openConversation(id: string) {
+    activeId = id;
+    renderConvList();
+    threadEmpty.hidden = true;
+    threadBox.hidden = false;
+    const conv = conversations.find((c) => c.id === id);
+    threadName.textContent = conv?.customer_name || `Khách #${id.slice(0, 8)}`;
+    threadMessages.innerHTML = '';
+    const history = await listMessages(id);
+    history.forEach(addThreadMessage);
+    window.setTimeout(() => threadInput.focus(), 50);
+  }
+
+  async function refreshConversations() {
+    conversations = await listConversationsForAdmin();
+    renderConvList();
+  }
+
+  threadForm.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const text = threadInput.value.trim();
+    if (!text || !activeId) return;
+    threadInput.value = '';
+    try {
+      await sendMessage(activeId, 'admin', text);
+      // Không tự addThreadMessage ở đây — subscribeToInbox() bên dưới sẽ nhận lại đúng tin nhắn này
+      // qua realtime (của chính mình gửi) và hiện ra, tránh hiện trùng 2 lần.
+    } catch {
+      threadInput.value = text;
+    }
+  });
+
+  async function init() {
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+    if (!session) {
+      loading.hidden = true;
+      deniedText.textContent = 'Bạn cần đăng nhập đúng tài khoản quản trị để xem trang này — bấm "Đăng nhập" ở đầu trang.';
+      denied.hidden = false;
+      return;
+    }
+    const isAdmin = await isCurrentUserAdmin();
+    if (!isAdmin) {
+      loading.hidden = true;
+      deniedText.textContent = 'Tài khoản này không có quyền truy cập trang quản trị.';
+      denied.hidden = false;
+      return;
+    }
+    loading.hidden = true;
+    inbox.hidden = false;
+    await refreshConversations();
+
+    subscribeToInbox(
+      () => {
+        refreshConversations();
+      },
+      (message) => {
+        if (message.conversation_id === activeId) addThreadMessage(message);
+        refreshConversations();
+      },
+    );
+  }
+
+  init();
+</script>

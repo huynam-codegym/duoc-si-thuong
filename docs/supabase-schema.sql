@@ -79,3 +79,92 @@ alter table public.orders
   add column if not exists orderer_phone text,
   add column if not exists orderer_email text,
   add column if not exists hide_product_name boolean not null default false;
+
+-- 4. Chat trực tiếp với dược sĩ (tháng 10/2026) — khác hẳn khung "Hỏi đáp nhanh" dựng sẵn (câu hỏi có
+-- sẵn, so khớp từ khóa, không gửi lên đâu cả): đây là tin nhắn THẬT, 2 chiều, cập nhật theo thời gian
+-- thực qua Supabase Realtime. Khách (kể cả CHƯA đăng nhập) dùng "đăng nhập ẩn danh"
+-- (supabase.auth.signInAnonymously(), xem src/lib/chat.ts) để có auth.uid() thật dùng cho RLS mà
+-- không cần form đăng ký — khách đã đăng nhập thật (Google/email) thì hội thoại gắn vào tài khoản
+-- thật luôn, không tạo thêm tài khoản ẩn danh. Chủ website xem/trả lời ở trang /admin/tin-nhan/.
+
+-- Đánh dấu tài khoản dược sĩ/chủ website — CHỈ chủ website tự bật is_admin=true cho ĐÚNG tài khoản
+-- của mình sau khi đăng nhập lần đầu (Supabase Dashboard > Table Editor > profiles > sửa dòng của
+-- mình), không tự thêm tài khoản admin nào khác qua code.
+alter table public.profiles add column if not exists is_admin boolean not null default false;
+
+create table public.conversations (
+  id uuid primary key default gen_random_uuid(),
+  customer_user_id uuid not null references auth.users (id) on delete cascade,
+  customer_name text,
+  status text not null default 'open',
+  created_at timestamptz not null default now(),
+  last_message_at timestamptz not null default now()
+);
+
+alter table public.conversations enable row level security;
+
+create policy "Khách xem hội thoại của mình"
+  on public.conversations for select
+  using (auth.uid() = customer_user_id);
+
+create policy "Khách tạo hội thoại của mình"
+  on public.conversations for insert
+  with check (auth.uid() = customer_user_id);
+
+create policy "Admin xem mọi hội thoại"
+  on public.conversations for select
+  using (exists (select 1 from public.profiles where id = auth.uid() and is_admin = true));
+
+create policy "Admin sửa hội thoại (đổi trạng thái đóng/mở)"
+  on public.conversations for update
+  using (exists (select 1 from public.profiles where id = auth.uid() and is_admin = true));
+
+create table public.messages (
+  id uuid primary key default gen_random_uuid(),
+  conversation_id uuid not null references public.conversations (id) on delete cascade,
+  sender text not null check (sender in ('customer', 'admin')),
+  body text not null,
+  created_at timestamptz not null default now()
+);
+
+alter table public.messages enable row level security;
+
+create policy "Khách xem tin nhắn hội thoại của mình"
+  on public.messages for select
+  using (exists (select 1 from public.conversations c where c.id = conversation_id and c.customer_user_id = auth.uid()));
+
+create policy "Khách gửi tin nhắn vào hội thoại của mình"
+  on public.messages for insert
+  with check (sender = 'customer' and exists (select 1 from public.conversations c where c.id = conversation_id and c.customer_user_id = auth.uid()));
+
+create policy "Admin xem mọi tin nhắn"
+  on public.messages for select
+  using (exists (select 1 from public.profiles where id = auth.uid() and is_admin = true));
+
+create policy "Admin gửi tin nhắn trả lời"
+  on public.messages for insert
+  with check (sender = 'admin' and exists (select 1 from public.profiles where id = auth.uid() and is_admin = true));
+
+-- Tự cập nhật last_message_at của hội thoại mỗi khi có tin nhắn mới — dùng để sắp xếp hộp thư admin
+-- theo hội thoại mới nhất lên đầu, không phải tự JOIN/MAX() mỗi lần hiện danh sách.
+create function public.touch_conversation_last_message()
+returns trigger
+language plpgsql
+security definer set search_path = public
+as $$
+begin
+  update public.conversations set last_message_at = new.created_at where id = new.conversation_id;
+  return new;
+end;
+$$;
+
+create trigger on_message_insert
+  after insert on public.messages
+  for each row execute procedure public.touch_conversation_last_message();
+
+-- 5. BẮT BUỘC làm thêm sau khi chạy xong SQL ở trên — Supabase KHÔNG tự bật realtime cho bảng mới tạo.
+-- Thiếu bước này, tin nhắn vẫn lưu được vào database bình thường nhưng KHÔNG tự hiện ra ngay ở phía
+-- bên kia — phải tự tải lại trang mới thấy. Làm bằng SQL (1 dòng, chạy ngay trong file này cũng được):
+alter publication supabase_realtime add table public.conversations, public.messages;
+-- (Cách khác, không bắt buộc: Supabase Dashboard > Database > Replication > bật công tắc Realtime cho
+-- 2 bảng "conversations" và "messages" — làm đúng 1 trong 2 cách là đủ, không cần làm cả hai.)

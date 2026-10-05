@@ -423,6 +423,155 @@ img {
   text-decoration: none;
 }
 
+/* Nút chuyển sang chat trực tiếp (tin nhắn thật qua Supabase Realtime, xem src/lib/chat.ts) — đặt
+   ngay trên form gõ tin nhắn, tự ẩn đi sau khi đã bấm vào (đổi hẳn sang chế độ "live"). */
+.faq-chat-live-btn {
+  display: block;
+  width: calc(100% - 2rem);
+  margin: 0 1rem 0.5rem;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--green-700);
+  border-radius: 999px;
+  background: #fff;
+  color: var(--green-700);
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-align: center;
+  cursor: pointer;
+}
+
+.faq-chat-live-btn:hover {
+  background: var(--green-50);
+}
+
+/* Trang quản trị tin nhắn /admin/tin-nhan/ (chỉ dược sĩ/chủ website đăng nhập xem được) */
+.admin-inbox {
+  display: grid;
+  grid-template-columns: 18rem 1fr;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+@media (max-width: 48rem) {
+  .admin-inbox {
+    grid-template-columns: 1fr;
+  }
+}
+
+.admin-inbox-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  padding: 0.5rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: #fff;
+  max-height: 36rem;
+  overflow-y: auto;
+}
+
+.admin-conv-item {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.15rem;
+  padding: 0.6rem 0.75rem;
+  border: 0;
+  border-radius: 8px;
+  background: none;
+  text-align: left;
+  cursor: pointer;
+}
+
+.admin-conv-item:hover {
+  background: var(--green-50);
+}
+
+.admin-conv-item.active {
+  background: var(--green-100);
+}
+
+.admin-conv-item strong {
+  font-size: 0.92rem;
+}
+
+.admin-conv-item span {
+  font-size: 0.78rem;
+  color: var(--ink-soft);
+}
+
+.admin-inbox-thread {
+  display: flex;
+  flex-direction: column;
+  min-height: 32rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: #fff;
+}
+
+.admin-inbox-thread .empty {
+  margin: auto;
+}
+
+#adminThreadBox {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.admin-thread-head {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--line);
+}
+
+.admin-thread-messages {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  max-height: 26rem;
+  padding: 1rem;
+  overflow-y: auto;
+}
+
+.admin-thread-bubble {
+  max-width: 75%;
+  margin: 0;
+  padding: 0.55rem 0.8rem;
+  border-radius: 12px;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.admin-thread-bubble-customer {
+  align-self: flex-start;
+  border-bottom-left-radius: 2px;
+  background: var(--green-50);
+}
+
+.admin-thread-bubble-admin {
+  align-self: flex-end;
+  border-bottom-right-radius: 2px;
+  background: var(--green-700);
+  color: #fff;
+}
+
+.admin-thread-form {
+  display: flex;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  border-top: 1px solid var(--line);
+}
+
+.admin-thread-form input {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #9ca3af;
+  border-radius: 8px;
+  font: inherit;
+}
+
 @media print {
   .faq-chat-toggle,
   .faq-chat-panel {
