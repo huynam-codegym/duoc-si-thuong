@@ -165,7 +165,7 @@ import { url } from '../lib/url';
           </div>
           <div class="checkout-summary-line">
             <span>Phí vận chuyển</span>
-            <span>Nhà thuốc báo sau</span>
+            <span id="cart-shipping">Nhà thuốc báo sau</span>
           </div>
         </div>
         <div class="checkout-summary-row">
@@ -175,7 +175,7 @@ import { url } from '../lib/url';
         <p id="cart-unpriced" class="cart-note" hidden>
           Sản phẩm ghi "Liên hệ" chưa được tính vào tổng tiền. Nhà thuốc sẽ báo giá khi xác nhận đơn.
         </p>
-        <p class="cart-note">Giá chưa gồm phí giao hàng. Nhà thuốc sẽ xác nhận lại giá, phí giao và cách thanh toán trước khi giao. Site chưa hỗ trợ mã giảm giá.</p>
+        <p class="cart-note">Miễn phí giao hàng cho đơn từ 350.000đ, dưới mức này tính phí giao 20.000đ. Nhà thuốc sẽ xác nhận lại giá và cách thanh toán trước khi giao. Site chưa hỗ trợ mã giảm giá.</p>
         <button type="submit" class="btn checkout-submit">Hoàn tất</button>
         <p class="order-error" role="alert" hidden></p>
       </aside>
@@ -185,7 +185,7 @@ import { url } from '../lib/url';
   </div>
 
   <script>
-    import { MAX_QTY, cartOriginalTotal, cartTotal, clearCart, formatVnd, getCart, hasUnpriced, removeItem, setQty, type CartItem } from '../lib/cart';
+    import { MAX_QTY, cartOriginalTotal, cartTotal, clearCart, formatVnd, getCart, hasUnpriced, removeItem, setQty, shippingFee, type CartItem } from '../lib/cart';
     import { supabase } from '../lib/supabase';
 
     const emptyBox = document.getElementById('cart-empty')!;
@@ -195,6 +195,7 @@ import { url } from '../lib/url';
     const originalTotalEl = document.getElementById('cart-original-total')!;
     const discountRowEl = document.getElementById('cart-discount-row')!;
     const discountEl = document.getElementById('cart-discount')!;
+    const shippingEl = document.getElementById('cart-shipping')!;
     const unpricedEl = document.getElementById('cart-unpriced')!;
     const result = document.getElementById('order-result')!;
     const error = form.querySelector<HTMLElement>('.order-error')!;
@@ -271,7 +272,11 @@ import { url } from '../lib/url';
       const originalTotal = cartOriginalTotal(items);
       const discount = originalTotal - total;
       const unpriced = hasUnpriced(items);
-      totalEl.textContent = total === 0 && unpriced ? 'Liên hệ' : formatVnd(total);
+      const shipping = shippingFee(items);
+      // shipping = null CHỈ khi giỏ toàn sản phẩm "Liên hệ" (total === 0 && unpriced) — lúc đó
+      // "Thành tiền" đã hiện "Liên hệ" nên không cộng thêm gì, tránh NaN.
+      shippingEl.textContent = shipping === null ? 'Nhà thuốc báo sau' : shipping === 0 ? 'Miễn phí' : formatVnd(shipping);
+      totalEl.textContent = total === 0 && unpriced ? 'Liên hệ' : formatVnd(total + (shipping ?? 0));
       originalTotalEl.textContent = originalTotal === 0 && unpriced ? 'Liên hệ' : formatVnd(originalTotal);
       // "Giảm giá trực tiếp" chỉ hiện khi THẬT SỰ có sản phẩm đang khuyến mãi trong giỏ (originalPrice
       // > price) — không phải dòng cố định luôn hiện, tránh hiện "-0đ" thừa khi giỏ không có sản
@@ -321,9 +326,11 @@ import { url } from '../lib/url';
       const selected = form.querySelector<HTMLInputElement>('[name="payment_method"]:checked')?.value;
       bankQrBox.hidden = selected !== 'bank';
       if (selected !== 'bank') return;
-      // Số tiền chỉ là tạm tính (giống "Thành tiền" ở khung tóm tắt) — dòng nhắc bên dưới mã QR đã
-      // nói rõ khách cần đợi nhà thuốc xác nhận lại trước khi chuyển, không tự gán ý "giá cuối cùng".
-      const total = cartTotal(getCart());
+      // Số tiền = Thành tiền thật (sản phẩm + phí ship, khớp đúng khung tóm tắt) — vẫn chỉ là tạm
+      // tính, dòng nhắc bên dưới mã QR đã nói rõ khách cần đợi nhà thuốc xác nhận lại trước khi
+      // chuyển, không tự gán ý "giá cuối cùng".
+      const items = getCart();
+      const total = cartTotal(items) + (shippingFee(items) ?? 0);
       const amount = total > 0 ? String(total) : '';
       const addInfo = 'Thanh toan don hang Duoc Si Thuong';
       bankQrImg.src = `https://img.vietqr.io/image/${BANK_BIN}-${BANK_ACCOUNT}-qr_only.png?amount=${amount}&addInfo=${encodeURIComponent(addInfo)}&accountName=${encodeURIComponent(BANK_ACCOUNT_NAME)}`;
@@ -405,6 +412,7 @@ import { url } from '../lib/url';
       if (items.length === 0) return;
       const total = cartTotal(items);
       const originalTotal = cartOriginalTotal(items);
+      const shipping = shippingFee(items);
       const paymentMethod = String(data.get('payment_method') ?? 'cod');
       const hideProductName = data.get('hide_product_name') === 'on';
       // Mã đơn chỉ để khách/nhà thuốc tiện nhắc tới nhau (ví dụ qua điện thoại), không phải khóa
@@ -416,6 +424,7 @@ import { url } from '../lib/url';
         items: items.map((item) => ({ id: item.id, name: item.name, qty: item.qty, price: item.price })),
         total,
         originalTotal,
+        shipping,
         ordererName: String(data.get('orderer_name')).trim(),
         ordererPhone: String(data.get('orderer_phone')).trim(),
         ordererEmail: String(data.get('orderer_email') ?? '').trim(),

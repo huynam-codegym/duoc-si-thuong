@@ -50,6 +50,9 @@ interface OrderPayload {
   items: OrderItem[];
   total: number;
   originalTotal: number;
+  // Phí vận chuyển (xem shippingFee() trong src/lib/cart.ts) — null nghĩa là chưa đủ căn cứ tính phí
+  // (giỏ toàn sản phẩm "Liên hệ"), hiện "Nhà thuốc báo sau" thay vì áp phí sai.
+  shipping: number | null;
   ordererName: string;
   ordererPhone: string;
   ordererEmail: string;
@@ -101,6 +104,10 @@ function renderCustomerEmail(order: OrderPayload): string {
       : '';
   const noteRow = order.note ? `<br /><span style="color:#6b7280">Ghi chú: ${escapeHtml(order.note)}</span>` : '';
   const paymentLabel = PAYMENT_LABELS[order.paymentMethod] ?? order.paymentMethod;
+  // Chính sách phí ship (tháng 10/2026, chủ website cung cấp): miễn phí từ 350.000đ, dưới mức đó
+  // 20.000đ — null nghĩa là giỏ toàn sản phẩm "Liên hệ", chưa đủ căn cứ tính phí.
+  const shippingLabel = order.shipping === null ? 'Nhà thuốc báo sau' : order.shipping === 0 ? 'Miễn phí' : formatVnd(order.shipping);
+  const grandTotal = order.total + (order.shipping ?? 0);
 
   return `<!doctype html>
 <html lang="vi">
@@ -135,8 +142,8 @@ Chào <strong>${escapeHtml(order.ordererName)}</strong>, Dược Sĩ Thương đ
 <tr><td style="padding: 4px 0; font-size: 14px; color: #4b5563">Tổng tiền</td><td align="right" style="padding: 4px 0; font-size: 14px; color: #4b5563">${formatVnd(order.originalTotal)}</td></tr>
 ${discountRow}
 <tr><td style="padding: 4px 0; font-size: 14px; color: #4b5563">Giảm giá voucher</td><td align="right" style="padding: 4px 0; font-size: 14px; color: #4b5563">0đ</td></tr>
-<tr><td style="padding: 4px 0; font-size: 14px; color: #4b5563">Phí vận chuyển</td><td align="right" style="padding: 4px 0; font-size: 14px; color: #4b5563">Nhà thuốc báo sau</td></tr>
-<tr><td style="padding: 10px 0 0; border-top: 2px solid #15803d; font-size: 16px; font-weight: 700; color: #14532d">Thành tiền</td><td align="right" style="padding: 10px 0 0; border-top: 2px solid #15803d; font-size: 16px; font-weight: 700; color: #14532d">${formatVnd(order.total)}</td></tr>
+<tr><td style="padding: 4px 0; font-size: 14px; color: #4b5563">Phí vận chuyển</td><td align="right" style="padding: 4px 0; font-size: 14px; color: #4b5563">${shippingLabel}</td></tr>
+<tr><td style="padding: 10px 0 0; border-top: 2px solid #15803d; font-size: 16px; font-weight: 700; color: #14532d">Thành tiền</td><td align="right" style="padding: 10px 0 0; border-top: 2px solid #15803d; font-size: 16px; font-weight: 700; color: #14532d">${formatVnd(grandTotal)}</td></tr>
 </table>
 <h2 style="margin: 0 0 8px; font-size: 15px; color: #14532d">Thông tin nhận hàng</h2>
 <p style="margin: 0 0 20px; font-size: 14px; line-height: 1.7; color: #374151">
@@ -185,7 +192,8 @@ ${order.hideProductName ? '<p><strong>⚠️ Khách yêu cầu ẩn tên sản p
 <p><strong>Thanh toán:</strong> ${escapeHtml(paymentLabel)}</p>
 <hr />
 <p>${lines}</p>
-<p><strong>Thành tiền: ${formatVnd(order.total)}</strong>${order.originalTotal > order.total ? ` (giá gốc ${formatVnd(order.originalTotal)})` : ''}</p>
+<p>Phí vận chuyển: ${order.shipping === null ? 'Nhà thuốc báo sau' : order.shipping === 0 ? 'Miễn phí' : formatVnd(order.shipping)}</p>
+<p><strong>Thành tiền: ${formatVnd(order.total + (order.shipping ?? 0))}</strong>${order.originalTotal > order.total ? ` (giá gốc sản phẩm ${formatVnd(order.originalTotal)})` : ''}</p>
 </body></html>`;
 }
 

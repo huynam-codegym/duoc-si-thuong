@@ -109,6 +109,22 @@ export function hasUnpriced(items = getCart()): boolean {
   return items.some((item) => item.price === null);
 }
 
+// Chính sách phí vận chuyển do chủ website cung cấp trực tiếp (tháng 10/2026): miễn phí từ
+// FREE_SHIPPING_THRESHOLD trở lên, dưới mức đó tính phí cố định SHIPPING_FEE — không áp dụng mức
+// khác theo khu vực/cân nặng vì site chưa có thông tin đó, không tự suy đoán.
+export const FREE_SHIPPING_THRESHOLD = 350_000;
+export const SHIPPING_FEE = 20_000;
+
+/** Phí vận chuyển dựa trên tổng tiền các sản phẩm ĐÃ CÓ GIÁ trong giỏ (`cartTotal()`). Trả về `null`
+ * khi giỏ chỉ toàn sản phẩm "Liên hệ" (`cartTotal()` = 0 vì chưa sản phẩm nào có giá) — không đủ căn
+ * cứ để tính phí, nơi gọi nên hiện "Nhà thuốc báo sau" thay vì áp phí sai. */
+export function shippingFee(items = getCart()): number | null {
+  if (items.length === 0) return 0;
+  const total = cartTotal(items);
+  if (total === 0 && hasUnpriced(items)) return null;
+  return total >= FREE_SHIPPING_THRESHOLD ? 0 : SHIPPING_FEE;
+}
+
 // Chữ "đ" thường liền số, không phải ký hiệu "₫" (khớp cách hiện giá ở formatPrice trong products.ts)
 export function formatVnd(value: number): string {
   return `${value.toLocaleString('vi-VN')}đ`;
