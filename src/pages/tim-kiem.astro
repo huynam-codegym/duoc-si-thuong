@@ -105,7 +105,14 @@ import BaseLayout from '../layouts/BaseLayout.astro';
   // CLAUDE.md, không tự bịa số liệu).
   type PagefindFilters = Record<string, Record<string, number>>;
   interface PagefindSearchResult {
-    results: { id: string; data: () => Promise<{ url: string; meta: { title?: string; image?: string; image_alt?: string }; excerpt: string }> }[];
+    results: {
+      id: string;
+      data: () => Promise<{
+        url: string;
+        meta: { title?: string; image?: string; image_alt?: string; price?: string; originalPrice?: string; discount?: string };
+        excerpt: string;
+      }>;
+    }[];
     filters: PagefindFilters;
   }
   interface Pagefind {
@@ -319,6 +326,14 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     items.forEach((item) => {
       const li = document.createElement('li');
       li.className = 'search-result';
+      // Nhãn giảm giá đè góc ảnh, giống thẻ sản phẩm ở trang chủ/danh mục (dùng chung class
+      // .sale-badge-card nên tự ăn đúng kiểu, không cần viết CSS riêng cho trang tìm kiếm).
+      if (item.meta.discount) {
+        const badge = document.createElement('span');
+        badge.className = 'sale-badge sale-badge-card';
+        badge.textContent = `-${item.meta.discount}%`;
+        li.append(badge);
+      }
       const a = document.createElement('a');
       a.href = item.url;
       if (item.meta.image) {
@@ -326,18 +341,30 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         img.src = item.meta.image;
         img.alt = '';
         img.loading = 'lazy';
-        img.width = 96;
-        img.height = 96;
+        img.width = 160;
+        img.height = 160;
         a.append(img);
       }
-      const text = document.createElement('span');
       const title = document.createElement('strong');
       title.textContent = item.meta.title ?? item.url;
-      const excerpt = document.createElement('span');
-      excerpt.className = 'search-result-excerpt';
-      excerpt.textContent = stripTags(item.excerpt);
-      text.append(title, excerpt);
-      a.append(text);
+      a.append(title);
+      if (item.meta.price) {
+        const price = document.createElement('span');
+        price.className = 'search-result-price';
+        price.textContent = item.meta.price;
+        a.append(price);
+        if (item.meta.originalPrice) {
+          const original = document.createElement('span');
+          original.className = 'product-price-original';
+          original.textContent = item.meta.originalPrice;
+          a.append(original);
+        }
+      } else {
+        const excerpt = document.createElement('span');
+        excerpt.className = 'search-result-excerpt';
+        excerpt.textContent = stripTags(item.excerpt);
+        a.append(excerpt);
+      }
       li.append(a);
       resultsList?.append(li);
     });

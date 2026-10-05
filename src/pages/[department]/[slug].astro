@@ -101,6 +101,10 @@ const jsonLd = {
       <!-- Cho phép trang /tim-kiem/ sắp xếp theo giá (thấp→cao/cao→thấp). Đệm số 0 phía trước vì Pagefind
            so sánh giá trị sắp xếp như CHUỖI KÝ TỰ, không phải số — không đệm thì "9000" > "80000" (sai). -->
       {price !== undefined && <span hidden data-pagefind-sort={`Gia:${String(price).padStart(9, '0')}`} />}
+      <img hidden data-pagefind-meta="image[src]" src={cartImage.src} alt="" />
+      <span hidden data-pagefind-meta="price">{formatPrice(price)}</span>
+      {discount !== undefined && <span hidden data-pagefind-meta="originalPrice">{formatPrice(originalPrice)}</span>}
+      {discount !== undefined && <span hidden data-pagefind-meta="discount">{discount}</span>}
       {
         draft && (
           <p class="draft-banner">

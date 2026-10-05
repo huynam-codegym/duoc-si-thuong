@@ -4386,6 +4386,19 @@ button.btn:not(.btn-outline) {
   color: var(--ink-soft);
 }
 
+/* Thẻ kết quả sản phẩm: ảnh + giá giống hệt .product-card ở trang chủ/danh mục (dùng lại
+   .sale-badge-card/.product-price-original sẵn có cho nhãn giảm giá + giá gạch ngang). */
+.search-result {
+  position: relative;
+}
+
+.search-result-price {
+  margin-top: auto;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #c2410c;
+}
+
 /* Khay lọc trượt lên từ dưới (điện thoại/máy tính bảng) */
 .search-drawer {
   position: fixed;

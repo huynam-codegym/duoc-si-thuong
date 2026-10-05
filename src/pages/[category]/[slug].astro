@@ -21,6 +21,10 @@ const { Content } = await render(post);
 const { subcategory } = post.data;
 const group = subcategory ? categories[category].groups?.[subcategory] : undefined;
 const coverForSchema = cover ? await getImage({ src: cover, width: 1200, height: 630, fit: 'cover', format: 'jpg' }) : undefined;
+// Ảnh thu nhỏ riêng cho Pagefind (trang /tim-kiem/) — giữ nguyên tỷ lệ 16:9 gốc (không cắt vuông, vì
+// ảnh bìa dạng banner có chữ sát viền, cắt vuông sẽ mất chữ): khung ảnh kết quả tìm kiếm có sẵn
+// `object-fit: contain` nên tự canh giữa, không cần cắt trước ở đây.
+const coverThumb = cover ? await getImage({ src: cover, width: 320, format: 'webp' }) : undefined;
 
 const jsonLd = {
   '@context': 'https://schema.org',
@@ -42,6 +46,9 @@ const preview = isPreview(post);
     <span hidden data-pagefind-filter="Loại nội dung">Bài viết</span>
     <span hidden data-pagefind-filter="Chuyên mục">{categories[category].name}</span>
     {group && <span hidden data-pagefind-filter="Nhóm">{group.name}</span>}
+    <!-- Pagefind không tự lấy ảnh từ nội dung trang — phải khai báo data-pagefind-meta rõ ràng thì
+         kết quả ở /tim-kiem/ mới hiện được ảnh, xem mục tương tự ở trang sản phẩm. -->
+    {coverThumb && <img hidden data-pagefind-meta="image[src]" src={coverThumb.src} alt="" />}
     <header>
       {
         !isPublishable(post) && (
