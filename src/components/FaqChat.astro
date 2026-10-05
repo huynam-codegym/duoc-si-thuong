@@ -27,20 +27,27 @@ import { site } from '../lib/site';
 
 <div class="faq-chat-panel" id="faqChatPanel" role="dialog" aria-modal="false" aria-label="Nhắn tin với dược sĩ" hidden>
   <div class="faq-chat-head">
-    <strong id="faqChatTitle">Nhắn tin với dược sĩ</strong>
+    <div class="faq-chat-head-info">
+      <strong id="faqChatTitle">Dược Sĩ Thương</strong>
+      <span class="faq-chat-subtitle">Thường phản hồi trong giờ hành chính</span>
+    </div>
     <button type="button" class="faq-chat-close" id="faqChatClose" aria-label="Đóng">
       <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false">
         <path d="M5 5l14 14M19 5L5 19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path>
       </svg>
     </button>
   </div>
-  <p class="faq-chat-disclaimer" id="faqChatDisclaimer">
-    Tin nhắn gửi trực tiếp cho dược sĩ Thương, thường phản hồi trong giờ hành chính. Khẩn cấp hãy gọi <strong>115</strong> hoặc nhắn Zalo. Không gửi CCCD, mật khẩu, thông tin thẻ ngân hàng.
-  </p>
   <div class="faq-chat-messages" id="faqChatMessages"></div>
+  <p class="faq-chat-safety-note">Khẩn cấp hãy gọi <strong>115</strong>. Không gửi CCCD, mật khẩu, thông tin thẻ ngân hàng.</p>
   <div class="faq-chat-attach-preview" id="faqChatAttachPreview" hidden>
-    <span id="faqChatAttachName"></span>
-    <button type="button" id="faqChatAttachRemove" aria-label="Bỏ đính kèm">✕</button>
+    <div class="faq-chat-attach-thumb" id="faqChatAttachThumb" hidden>
+      <img id="faqChatAttachImg" alt="Ảnh đính kèm" />
+      <button type="button" id="faqChatAttachRemove" aria-label="Bỏ đính kèm">✕</button>
+    </div>
+    <div class="faq-chat-attach-chip" id="faqChatAttachChip" hidden>
+      <span id="faqChatAttachName"></span>
+      <button type="button" id="faqChatAttachRemove2" aria-label="Bỏ đính kèm">✕</button>
+    </div>
   </div>
   <form class="faq-chat-form" id="faqChatForm">
     <label class="visually-hidden" for="faqChatFile">Đính kèm ảnh hoặc file</label>
@@ -83,8 +90,12 @@ import { site } from '../lib/site';
   const attachBtn = document.getElementById('faqChatAttachBtn')!;
   const micBtn = document.getElementById('faqChatMicBtn')!;
   const attachPreview = document.getElementById('faqChatAttachPreview')!;
+  const attachThumb = document.getElementById('faqChatAttachThumb')!;
+  const attachImg = document.getElementById('faqChatAttachImg') as HTMLImageElement;
+  const attachChip = document.getElementById('faqChatAttachChip')!;
   const attachName = document.getElementById('faqChatAttachName')!;
   const attachRemove = document.getElementById('faqChatAttachRemove')!;
+  const attachRemove2 = document.getElementById('faqChatAttachRemove2')!;
 
   function addSystemMessage(text: string) {
     const bubble = document.createElement('p');
@@ -239,7 +250,16 @@ import { site } from '../lib/site';
   }
 
   // ---- Đính kèm ảnh/file (chọn trước, bấm Gửi mới upload+gửi, có thể kèm cả chữ) ----
+  // Ảnh hiện xem trước dạng ảnh thu nhỏ thật (giống Messenger), file khác (.pdf/.doc/.txt) hiện tên
+  // file trong 1 ô chữ — cả 2 kiểu dùng chung 1 khung .faq-chat-attach-preview, chỉ đổi phần hiện ra.
   let selectedFile: File | null = null;
+  function removeSelectedAttachment() {
+    selectedFile = null;
+    fileInput.value = '';
+    attachPreview.hidden = true;
+    attachThumb.hidden = true;
+    attachChip.hidden = true;
+  }
   attachBtn.addEventListener('click', () => fileInput.click());
   fileInput.addEventListener('change', () => {
     const file = fileInput.files?.[0];
@@ -250,14 +270,19 @@ import { site } from '../lib/site';
       return;
     }
     selectedFile = file;
-    attachName.textContent = file.name;
     attachPreview.hidden = false;
+    if (file.type.startsWith('image/')) {
+      attachImg.src = URL.createObjectURL(file);
+      attachThumb.hidden = false;
+      attachChip.hidden = true;
+    } else {
+      attachThumb.hidden = true;
+      attachChip.hidden = false;
+      attachName.textContent = file.name;
+    }
   });
-  attachRemove.addEventListener('click', () => {
-    selectedFile = null;
-    fileInput.value = '';
-    attachPreview.hidden = true;
-  });
+  attachRemove.addEventListener('click', removeSelectedAttachment);
+  attachRemove2.addEventListener('click', removeSelectedAttachment);
 
   // ---- Ghi âm tin nhắn thoại (bấm để bắt đầu, bấm lại để dừng và gửi luôn) ----
   let mediaRecorder: MediaRecorder | null = null;
@@ -324,9 +349,7 @@ import { site } from '../lib/site';
       const file = selectedFile;
       const kind: AttachmentType = file.type.startsWith('image/') ? 'image' : 'file';
       const text = input.value.trim();
-      selectedFile = null;
-      fileInput.value = '';
-      attachPreview.hidden = true;
+      removeSelectedAttachment();
       input.value = '';
       await sendWithAttachment(text, file, kind);
       return;

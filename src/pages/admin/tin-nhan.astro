@@ -31,8 +31,14 @@ import { url } from '../../lib/url';
           </div>
           <div class="admin-thread-messages" id="adminThreadMessages"></div>
           <div class="admin-thread-attach-preview" id="adminAttachPreview" hidden>
-            <span id="adminAttachName"></span>
-            <button type="button" id="adminAttachRemove" aria-label="Bỏ đính kèm">✕</button>
+            <div class="admin-thread-attach-thumb" id="adminAttachThumb" hidden>
+              <img id="adminAttachImg" alt="Ảnh đính kèm" />
+              <button type="button" id="adminAttachRemove" aria-label="Bỏ đính kèm">✕</button>
+            </div>
+            <div class="admin-thread-attach-chip" id="adminAttachChip" hidden>
+              <span id="adminAttachName"></span>
+              <button type="button" id="adminAttachRemove2" aria-label="Bỏ đính kèm">✕</button>
+            </div>
           </div>
           <form class="admin-thread-form" id="adminThreadForm">
             <label class="visually-hidden" for="adminThreadFile">Đính kèm ảnh hoặc file</label>
@@ -89,8 +95,12 @@ import { url } from '../../lib/url';
   const attachBtn = document.getElementById('adminAttachBtn')!;
   const micBtn = document.getElementById('adminMicBtn')!;
   const attachPreview = document.getElementById('adminAttachPreview')!;
+  const attachThumb = document.getElementById('adminAttachThumb')!;
+  const attachImg = document.getElementById('adminAttachImg') as HTMLImageElement;
+  const attachChip = document.getElementById('adminAttachChip')!;
   const attachName = document.getElementById('adminAttachName')!;
   const attachRemove = document.getElementById('adminAttachRemove')!;
+  const attachRemove2 = document.getElementById('adminAttachRemove2')!;
 
   let conversations: Conversation[] = [];
   let unreadCounts: Record<string, number> = {};
@@ -252,9 +262,7 @@ import { url } from '../../lib/url';
     if (selectedFile) {
       const file = selectedFile;
       const kind: AttachmentType = file.type.startsWith('image/') ? 'image' : 'file';
-      selectedFile = null;
-      fileInput.value = '';
-      attachPreview.hidden = true;
+      removeSelectedAttachment();
       await sendReply(text, file, kind);
       return;
     }
@@ -263,7 +271,15 @@ import { url } from '../../lib/url';
   });
 
   // ---- Đính kèm ảnh/file ----
+  // Ảnh hiện xem trước bằng ảnh thu nhỏ thật (giống Messenger), file khác hiện tên file trong 1 ô chữ.
   let selectedFile: File | null = null;
+  function removeSelectedAttachment() {
+    selectedFile = null;
+    fileInput.value = '';
+    attachPreview.hidden = true;
+    attachThumb.hidden = true;
+    attachChip.hidden = true;
+  }
   attachBtn.addEventListener('click', () => fileInput.click());
   fileInput.addEventListener('change', () => {
     const file = fileInput.files?.[0];
@@ -274,14 +290,19 @@ import { url } from '../../lib/url';
       return;
     }
     selectedFile = file;
-    attachName.textContent = file.name;
     attachPreview.hidden = false;
+    if (file.type.startsWith('image/')) {
+      attachImg.src = URL.createObjectURL(file);
+      attachThumb.hidden = false;
+      attachChip.hidden = true;
+    } else {
+      attachThumb.hidden = true;
+      attachChip.hidden = false;
+      attachName.textContent = file.name;
+    }
   });
-  attachRemove.addEventListener('click', () => {
-    selectedFile = null;
-    fileInput.value = '';
-    attachPreview.hidden = true;
-  });
+  attachRemove.addEventListener('click', removeSelectedAttachment);
+  attachRemove2.addEventListener('click', removeSelectedAttachment);
 
   // ---- Ghi âm tin nhắn thoại ----
   let mediaRecorder: MediaRecorder | null = null;
