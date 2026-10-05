@@ -360,29 +360,6 @@ img {
   color: #fff;
 }
 
-.faq-chat-chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.4rem;
-  padding: 0 1rem 0.6rem;
-}
-
-.faq-chip {
-  padding: 0.35rem 0.7rem;
-  border: 1px solid var(--green-700);
-  border-radius: 999px;
-  background: #fff;
-  color: var(--green-700);
-  font-size: 0.78rem;
-  font-weight: 600;
-  text-align: left;
-  cursor: pointer;
-}
-
-.faq-chip:hover {
-  background: var(--green-50);
-}
-
 .faq-chat-form {
   display: flex;
   gap: 0.5rem;
@@ -421,27 +398,6 @@ img {
   font-weight: 600;
   text-align: center;
   text-decoration: none;
-}
-
-/* Nút chuyển sang chat trực tiếp (tin nhắn thật qua Supabase Realtime, xem src/lib/chat.ts) — đặt
-   ngay trên form gõ tin nhắn, tự ẩn đi sau khi đã bấm vào (đổi hẳn sang chế độ "live"). */
-.faq-chat-live-btn {
-  display: block;
-  width: calc(100% - 2rem);
-  margin: 0 1rem 0.5rem;
-  padding: 0.5rem 0.75rem;
-  border: 1px solid var(--green-700);
-  border-radius: 999px;
-  background: #fff;
-  color: var(--green-700);
-  font-size: 0.82rem;
-  font-weight: 700;
-  text-align: center;
-  cursor: pointer;
-}
-
-.faq-chat-live-btn:hover {
-  background: var(--green-50);
 }
 
 /* Trang quản trị tin nhắn /admin/tin-nhan/ (chỉ dược sĩ/chủ website đăng nhập xem được) */

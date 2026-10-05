@@ -71,11 +71,21 @@ export async function listMessages(conversationId: string): Promise<ChatMessage[
   return (data ?? []) as ChatMessage[];
 }
 
-export async function sendMessage(conversationId: string, sender: 'customer' | 'admin', body: string) {
+export async function sendMessage(conversationId: string, sender: 'customer' | 'admin', body: string, customerName?: string | null) {
   const trimmed = body.trim();
   if (!trimmed) return;
   const { error } = await supabase.from('messages').insert({ conversation_id: conversationId, sender, body: trimmed });
   if (error) throw error;
+
+  // Báo email cho chủ nhà thuốc khi KHÁCH gửi tin — đây là cách DUY NHẤT để biết có tin nhắn mới nếu
+  // không đang mở sẵn trang /admin/tin-nhan/ (trang đó chỉ tự cập nhật real-time lúc đang mở). Không
+  // chặn việc gửi tin nếu email lỗi (fire-and-forget) — chat vẫn phải hoạt động bình thường dù email
+  // tạm trục trặc.
+  if (sender === 'customer') {
+    supabase.functions.invoke('notify-chat-message', { body: { conversationId, customerName: customerName ?? null, body: trimmed } }).catch(() => {
+      // Bỏ qua lỗi — chỉ là báo thêm, không phải luồng chính.
+    });
+  }
 }
 
 /** Lắng nghe tin nhắn MỚI của 1 hội thoại theo thời gian thực. Trả về hàm hủy đăng ký. */
