@@ -44,7 +44,14 @@ const departmentData = {
         icon: 'citrus',
         name: 'Vitamin & khoáng chất',
         description: 'Thực phẩm bổ sung vitamin và khoáng chất cho chế độ ăn hằng ngày.',
-        childGroups: ['vitamin-tong-hop', 'canxi-vitamin-d'],
+        childGroups: ['vitamin-tong-hop', 'canxi-vitamin-d', 'dau-ca-omega-3'],
+      },
+      'dau-ca-omega-3': {
+        // Dùng lại icon của nhóm cha (vitamin-khoang-chat) — tháng 10/2026, theo quy ước chung của dự
+        // án (xem mục "Thêm nhóm con mới ngay trong lúc thêm sản phẩm" trong CLAUDE.md).
+        icon: 'citrus',
+        name: 'Dầu cá - Omega 3',
+        description: 'Thực phẩm bổ sung dầu cá, omega-3 (EPA, DHA) cho tim mạch, mắt và não bộ.',
       },
       'vitamin-tong-hop': {
         icon: 'citrus',

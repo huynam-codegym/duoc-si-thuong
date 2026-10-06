@@ -2,24 +2,27 @@
 name: "Viên uống Blackmores Omega Double High Strength Fish Oil (90 viên)"
 summary: "Viên nang mềm bổ sung omega-3 từ dầu cá cô đặc, mỗi viên chứa 360 mg EPA và 240 mg DHA. Người lớn dùng 1 viên mỗi ngày cùng bữa ăn."
 department: "thuc-pham-chuc-nang"
-group: "vitamin-khoang-chat"
-price: 450000
-unit: "Hộp 90 viên"
+group: "dau-ca-omega-3"
+price: 650000
+unit: "Lọ 90 viên"
 brand: "Blackmores"
 origin: "Úc"
 dosageForm: "Viên nang mềm"
 ingredients: "Mỗi viên chứa omega-3 triglycerides cô đặc 1 g (gồm 360 mg EPA và 240 mg DHA)"
 image: "../../assets/products/blackmores-omega-double-90-vien/anh.jpg"
-imageAlt: "Ảnh minh họa chỗ đặt ảnh sản phẩm: hộp sản phẩm màu trắng viền xanh lá (cần thay bằng ảnh chụp thật của sản phẩm)"
-publicationNo: ""
+imageAlt: "Lọ Blackmores Omega Double High Strength Fish Oil 90 viên nang mềm, nhãn trắng-xanh dương, nắp trắng"
+gallery:
+  - "../../assets/products/blackmores-omega-double-90-vien/anh-2.jpg"
+  - "../../assets/products/blackmores-omega-double-90-vien/anh-3.jpg"
+publicationNo: "8591/2021/ĐKSP"
 adConfirmationNo: ""
-updatedAt: 2026-09-21
+updatedAt: 2026-10-06
 draft: false
 ---
 
 ## Mô tả sản phẩm
 
-**Viên uống Omega Double High Strength Fish Oil** là thực phẩm bảo vệ sức khỏe dạng viên nang mềm, bổ sung omega-3 từ dầu cá cô đặc. Mỗi viên chứa 360 mg EPA và 240 mg DHA, là hai loại acid béo omega-3 có trong dầu cá.
+**Viên uống Omega Double High Strength Fish Oil** là thực phẩm bảo vệ sức khỏe dạng viên nang mềm của thương hiệu **Blackmores** (Úc, từ năm 1932), bổ sung omega-3 từ dầu cá cô đặc. Mỗi viên chứa 360 mg EPA và 240 mg DHA, là hai loại acid béo omega-3 có trong dầu cá. Đóng gói bởi Catalent Australia Pty Ltd; Công ty TNHH Dịch vụ và Thương mại MESA chịu trách nhiệm nhập khẩu và phân phối tại Việt Nam.
 
 - **Hàm lượng EPA và DHA cao trong mỗi viên:** theo nhà sản xuất, công thức cô đặc giúp người dùng chỉ cần 1 viên mỗi ngày.
 - **Dạng viên nang mềm:** dễ nuốt.
