@@ -226,41 +226,16 @@ img {
   gap: 0.75rem;
 }
 
-/* Biểu tượng Zalo nổi ở góc phải mọi trang */
-.zalo-float {
-  position: fixed;
-  right: 1rem;
-  bottom: 1rem;
-  z-index: 50;
-  display: block;
-  width: 56px;
-  height: 56px;
-  filter: drop-shadow(0 4px 10px rgb(0 0 0 / 0.28));
-  transition: transform 0.15s;
-}
-
-.zalo-float:hover {
-  transform: scale(1.08);
-}
-
-.zalo-float svg {
-  display: block;
-}
-
-@media print {
-  .zalo-float {
-    display: none;
-  }
-}
-
-/* Khung "Hỏi đáp nhanh" nổi (tháng 10/2026) — KHÔNG phải AI thật, chỉ so khớp từ khóa với danh sách
-   có sẵn (xem src/lib/faq.ts, src/components/FaqChat.astro). Nút tròn đặt ngay TRÊN nút Zalo nổi,
-   cùng cột phải — 1rem ở đây = 18px (html{font-size:112.5%}), ZaloFloat cao 56px/bottom 1rem nên
-   chiếm tới 74px tính từ đáy màn hình; đặt nút này từ 5rem (90px) trở lên để không chồng lên nhau. */
+/* Nút tròn nổi "Nhắn tin với dược sĩ" — trước đây xếp NGAY TRÊN biểu tượng Zalo nổi (.zalo-float,
+   bottom: 5rem để tránh chồng lên nhau). Chủ website yêu cầu bỏ hẳn biểu tượng Zalo nổi tháng 10/2026
+   (đã có khung chat thật thay thế, 2 nút nổi cùng lúc là thừa — xem ghi chú ở
+   src/components/FaqChat.astro) nên nút này dọn xuống lại đúng góc dưới-phải (bottom: 1rem) như
+   Zalo nổi từng chiếm. Link "Nhắn Zalo cho dược sĩ" vẫn còn — giờ nằm Ở TRONG khung chat (cuối
+   panel) và ở trang Giới thiệu/chân trang, không mất hẳn, chỉ không còn icon nổi riêng ngoài khung chat. */
 .faq-chat-toggle {
   position: fixed;
   right: 1rem;
-  bottom: 5rem;
+  bottom: 1rem;
   z-index: 50;
   display: flex;
   align-items: center;
@@ -345,18 +320,6 @@ img {
   background: none;
   color: #fff;
   cursor: pointer;
-}
-
-/* Dòng nhắc an toàn — trước đây là khung vàng to phía đầu panel, chủ website thấy "nặng" quá so với
-   kiểu Messenger muốn theo nên đổi thành 1 dòng chữ nhỏ, không nền/viền, đặt NGAY TRÊN ô nhập (chứ
-   không phải đầu khung) để vẫn luôn thấy được mà không chiếm nhiều chỗ — vẫn giữ đủ nội dung bắt buộc
-   (gọi 115, không gửi CCCD/mật khẩu) theo mục "Quy tắc khi tư vấn qua tin nhắn" trong CLAUDE.md. */
-.faq-chat-safety-note {
-  margin: 0;
-  padding: 0.35rem 1rem;
-  font-size: 0.7rem;
-  color: var(--ink-soft);
-  text-align: center;
 }
 
 .faq-chat-messages {
@@ -2936,9 +2899,9 @@ p.faq-chat-bubble {
 
 /* Toast (thông báo ngắn, ví dụ "Đã thêm vào giỏ hàng", "Bạn đã đăng nhập thành công") — chủ website
    yêu cầu tháng 9/2026: trượt vào từ góc trên bên phải màn hình (thay vì hiện giữa cạnh dưới như
-   trước), tự ẩn sau khoảng 2 giây. Đặt góc TRÊN (không phải dưới) để tránh đè lên biểu tượng Zalo nổi
-   ở góc dưới-phải (.zalo-float, cũng right/bottom 1rem). z-index cao hơn cả modal đăng nhập (200) để
-   toast vẫn thấy được ngay cả khi vừa đóng modal. */
+   trước), tự ẩn sau khoảng 2 giây. Đặt góc TRÊN (không phải dưới) để tránh đè lên nút chat nổi ở góc
+   dưới-phải (.faq-chat-toggle, right/bottom 1rem — trước đây là biểu tượng Zalo nổi, đã bỏ tháng
+   10/2026). z-index cao hơn cả modal đăng nhập (200) để toast vẫn thấy được ngay cả khi vừa đóng modal. */
 .toast {
   position: fixed;
   top: 6rem;
