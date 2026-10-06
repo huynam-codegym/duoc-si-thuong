@@ -1,4 +1,6 @@
 ---
+import { Image } from 'astro:assets';
+import logo from '../assets/logo.jpg';
 import { site } from '../lib/site';
 
 // Khung chat nổi ở mọi trang — "Nhắn tin trực tiếp cho dược sĩ": tin nhắn THẬT, 2 chiều, qua Supabase
@@ -28,7 +30,10 @@ import { site } from '../lib/site';
 <div class="faq-chat-panel" id="faqChatPanel" role="dialog" aria-modal="false" aria-label="Nhắn tin với dược sĩ" hidden>
   <div class="faq-chat-head">
     <div class="faq-chat-head-info">
-      <strong id="faqChatTitle">Dược Sĩ Thương</strong>
+      <div class="faq-chat-head-brand">
+        <Image class="faq-chat-head-logo" src={logo} alt="" width={64} height={64} />
+        <strong id="faqChatTitle">Dược Sĩ Thương</strong>
+      </div>
       <span class="faq-chat-subtitle">Thường phản hồi trong giờ hành chính</span>
     </div>
     <button type="button" class="faq-chat-close" id="faqChatClose" aria-label="Đóng">
@@ -248,7 +253,12 @@ import { site } from '../lib/site';
 
   function renderAttachList() {
     attachList.innerHTML = '';
-    attachList.hidden = selectedFiles.length === 0;
+    const hasFiles = selectedFiles.length > 0;
+    attachList.hidden = !hasFiles;
+    // Đã có ảnh/file chọn sẵn thì ẩn nút ghim/mic đi (giống Messenger) — không cần đính kèm thêm/ghi
+    // âm lúc đang soạn ảnh, nhường chỗ cho khung xem trước + ô nhập, hiện lại ngay khi bỏ hết đính kèm.
+    attachBtn.hidden = hasFiles;
+    micBtn.hidden = hasFiles;
     selectedFiles.forEach((file, idx) => {
       if (file.type.startsWith('image/')) {
         const thumb = document.createElement('div');

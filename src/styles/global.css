@@ -312,6 +312,23 @@ img {
   min-width: 0;
 }
 
+.faq-chat-head-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+/* Logo chính thức (tròn viền xanh) đặt trước tên — tháng 10/2026, chủ website yêu cầu, kiểu avatar
+   cạnh tên như khung chat Messenger tham khảo. */
+.faq-chat-head-logo {
+  width: 1.7rem;
+  height: 1.7rem;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  border: 1px solid rgb(255 255 255 / 0.5);
+  object-fit: cover;
+}
+
 .faq-chat-head-info strong {
   font-size: 1rem;
 }
@@ -479,21 +496,30 @@ p.faq-chat-bubble {
   object-fit: cover;
 }
 
-.faq-chat-attach-thumb button {
+/* Độ ưu tiên CSS: nút ✕ này nằm BÊN TRONG ".faq-chat-form" (vì cả khung đính kèm giờ ở trong form, xem
+   ".faq-chat-input-box"), nên quy tắc chung ".faq-chat-form button" (nền xanh đặc, chữ trắng, bo góc
+   tròn 50%) có độ ưu tiên NGANG bằng ".faq-chat-attach-thumb button" (đều 1 lớp + 1 thẻ) — quy tắc
+   khai báo SAU trong file thắng, vô tình làm nút ✕ hiện thành khối xanh to thay vì ✕ đen nhỏ trên nền
+   trắng như ý muốn (chủ website phản ánh "dấu x quá to"). Phải thêm ".faq-chat-form" vào trước để chắc
+   chắn thắng độ ưu tiên dù sau này có đổi thứ tự khai báo trong file — cùng họ bẫy đã ghi nhiều lần
+   trong CLAUDE.md (".order label", ".faq-chat-icon-btn"...). */
+.faq-chat-form .faq-chat-attach-thumb button {
   position: absolute;
-  top: -0.4rem;
-  right: -0.4rem;
+  top: -0.35rem;
+  right: -0.35rem;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 1.3rem;
-  height: 1.3rem;
+  width: 1.05rem;
+  height: 1.05rem;
   padding: 0;
-  border: 1px solid var(--line);
+  border: 0;
   border-radius: 50%;
   background: #fff;
-  color: var(--ink-soft);
-  font-size: 0.65rem;
+  color: #1f2937;
+  font-size: 0.6rem;
+  line-height: 1;
+  box-shadow: 0 1px 3px rgb(0 0 0 / 0.35);
   cursor: pointer;
 }
 
@@ -520,7 +546,7 @@ p.faq-chat-bubble {
   white-space: nowrap;
 }
 
-.faq-chat-attach-chip button {
+.faq-chat-form .faq-chat-attach-chip button {
   flex: 0 0 auto;
   border: 0;
   background: none;
@@ -560,7 +586,9 @@ p.faq-chat-bubble {
      hẳn so với trước), nên phải tự đặt chiều cao cố định ở đây thay vì trông chờ vào stretch nữa. */
   height: 2.5rem;
   border: 0;
-  border-radius: 8px;
+  /* Nút tròn hoàn toàn (không phải bo góc vuông) — chủ website yêu cầu tháng 10/2026, theo đúng kiểu
+     nút gửi/các nút icon của Messenger. */
+  border-radius: 50%;
   background: var(--green-700);
   color: #fff;
   cursor: pointer;
@@ -835,19 +863,21 @@ p.faq-chat-bubble {
 
 .admin-thread-attach-thumb button {
   position: absolute;
-  top: -0.4rem;
-  right: -0.4rem;
+  top: -0.35rem;
+  right: -0.35rem;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 1.3rem;
-  height: 1.3rem;
+  width: 1.05rem;
+  height: 1.05rem;
   padding: 0;
-  border: 1px solid var(--line);
+  border: 0;
   border-radius: 50%;
   background: #fff;
-  color: var(--ink-soft);
-  font-size: 0.65rem;
+  color: #1f2937;
+  font-size: 0.6rem;
+  line-height: 1;
+  box-shadow: 0 1px 3px rgb(0 0 0 / 0.35);
   cursor: pointer;
 }
 
@@ -903,13 +933,15 @@ p.faq-chat-bubble {
   flex: 0 0 auto;
   align-items: center;
   justify-content: center;
-  width: 2.2rem;
+  /* Vuông đúng bằng chiều cao (2.5rem) để bo tròn 50% ra hình tròn thật, không bị elip — chủ website
+     yêu cầu tháng 10/2026, theo đúng kiểu nút icon tròn của Messenger (cùng thay đổi ở FaqChat.astro). */
+  width: 2.5rem;
   /* Chiều cao cố định — ".admin-thread-form" dùng align-items:flex-end (để nút dính đáy khi khung
      nhập phình cao chứa ảnh) nên không còn tự cao bằng ô nhập qua stretch mặc định nữa, cùng lý do đã
      ghi ở ".faq-chat-form button". */
   height: 2.5rem;
   border: 1px solid var(--line);
-  border-radius: 8px;
+  border-radius: 50%;
   background: #fff;
   color: var(--green-700);
   cursor: pointer;

@@ -272,7 +272,11 @@ import { url } from '../../lib/url';
 
   function renderAttachList() {
     attachList.innerHTML = '';
-    attachList.hidden = selectedFiles.length === 0;
+    const hasFiles = selectedFiles.length > 0;
+    attachList.hidden = !hasFiles;
+    // Đã có ảnh/file chọn sẵn thì ẩn nút ghim/mic đi (giống Messenger) — cùng lý do với FaqChat.astro.
+    attachBtn.hidden = hasFiles;
+    micBtn.hidden = hasFiles;
     selectedFiles.forEach((file, idx) => {
       if (file.type.startsWith('image/')) {
         const thumb = document.createElement('div');
