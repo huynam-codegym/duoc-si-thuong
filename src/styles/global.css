@@ -242,10 +242,12 @@ img {
   justify-content: center;
   width: 52px;
   height: 52px;
-  border: 0;
+  border: 1px solid var(--line);
   border-radius: 50%;
-  background: var(--green-700);
-  color: #fff;
+  /* Đảo màu (tháng 10/2026, chủ website yêu cầu): nền trắng, biểu tượng xanh — ngược lại bản trước
+     (nền xanh, biểu tượng trắng). */
+  background: #fff;
+  color: var(--green-700);
   box-shadow: 0 4px 10px rgb(0 0 0 / 0.28);
   cursor: pointer;
   transition: transform 0.15s;
