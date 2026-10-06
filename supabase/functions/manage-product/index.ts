@@ -62,7 +62,16 @@ async function getFile(path: string): Promise<{ sha: string; content: string } |
   if (!res.ok) throw new Error(`GitHub GET ${path} lỗi (${res.status}): ${await res.text()}`);
   const data = await res.json();
   // GitHub trả content dạng base64 (có ngắt dòng mỗi 60 ký tự) — bỏ ngắt dòng rồi mới decode.
-  const content = atob(String(data.content).replace(/\n/g, ''));
+  // BẪY ĐÃ GẶP: atob() một mình chỉ trả về "chuỗi nhị phân" (mỗi ký tự = 1 byte, kiểu Latin-1), KHÔNG
+  // tự ghép lại đúng các ký tự tiếng Việt vốn mã hoá UTF-8 nhiều byte (ví dụ "ệ") — ra chữ bị lỗi kiểu
+  // "Viá»t Nam" thay vì "Việt Nam". Vì CHỈ đọc/ghi sha ở hầu hết chỗ gọi getFile() (không đụng tới
+  // "content"), lỗi này ẩn mình rất lâu — chỉ lộ ra khi parseFrontmatter() đưa "content" bị lỗi này qua
+  // yaml.load(), và CHỈ 1 số chuỗi byte lỗi tình cờ tạo ra ký tự điều khiển (non-printable) khiến YAML
+  // parse LỖI HẲN (list/get sản phẩm có tiếng Việt báo lỗi "the stream contains non-printable
+  // characters") — các trường hợp khác chỉ hiện SAI CHỮ chứ không báo lỗi, càng khó phát hiện qua test
+  // nhanh. Phải decodeURIComponent(escape(...)) thêm 1 bước để ghép lại đúng UTF-8 — đúng chiều ngược
+  // với toBase64() bên dưới (encodeURIComponent/unescape trước khi btoa()).
+  const content = decodeURIComponent(escape(atob(String(data.content).replace(/\n/g, ''))));
   return { sha: data.sha, content };
 }
 
