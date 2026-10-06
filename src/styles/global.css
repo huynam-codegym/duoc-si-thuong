@@ -433,6 +433,10 @@ p.faq-chat-bubble {
   flex-direction: column;
   flex: 1 1 0%;
   min-width: 0;
+  /* min-height khớp đúng chiều cao các nút cạnh bên (2.5rem, xem ".faq-chat-form button") khi chưa có
+     ảnh đính kèm — input bên trong "flex:1 1 auto" lấp đầy khoảng này, trình duyệt tự canh chữ giữa
+     theo chiều dọc, không cần tính padding/line-height sao cho vừa khít 2.5rem (dễ lệch vài pixel). */
+  min-height: 2.5rem;
   border: 1px solid #9ca3af;
   border-radius: 12px;
   background: #fff;
@@ -534,9 +538,10 @@ p.faq-chat-bubble {
 /* Input không còn viền/bo góc riêng — khung cha .faq-chat-input-box đảm nhiệm việc đó rồi (xem ở
    trên), input chỉ còn là chữ trôi tự do bên trong khung đó. */
 .faq-chat-input-box input[type='text'] {
+  flex: 1 1 auto;
   width: 100%;
   min-width: 0;
-  padding: 0.5rem 0.75rem;
+  padding: 0 0.75rem;
   border: 0;
   outline: 0;
   background: transparent;
@@ -549,6 +554,11 @@ p.faq-chat-bubble {
   justify-content: center;
   flex: 0 0 auto;
   width: 2.5rem;
+  /* Trước đây các nút tự cao bằng ô nhập nhờ ".faq-chat-form" dùng align-items mặc định (stretch) —
+     đổi sang "flex-end" (để nút ghim/mic/gửi luôn dính đáy khi khung nhập "phình" cao lên chứa ảnh,
+     xem .faq-chat-input-box ở trên) làm các nút co lại theo đúng kích thước icon bên trong (nhỏ hơn
+     hẳn so với trước), nên phải tự đặt chiều cao cố định ở đây thay vì trông chờ vào stretch nữa. */
+  height: 2.5rem;
   border: 0;
   border-radius: 8px;
   background: var(--green-700);
@@ -784,6 +794,7 @@ p.faq-chat-bubble {
   flex-direction: column;
   flex: 1 1 0%;
   min-width: 0;
+  min-height: 2.5rem;
   border: 1px solid #9ca3af;
   border-radius: 12px;
   background: #fff;
@@ -877,9 +888,10 @@ p.faq-chat-bubble {
 }
 
 .admin-thread-input-box input[type='text'] {
+  flex: 1 1 auto;
   width: 100%;
   min-width: 0;
-  padding: 0.5rem 0.75rem;
+  padding: 0 0.75rem;
   border: 0;
   outline: 0;
   background: transparent;
@@ -892,6 +904,10 @@ p.faq-chat-bubble {
   align-items: center;
   justify-content: center;
   width: 2.2rem;
+  /* Chiều cao cố định — ".admin-thread-form" dùng align-items:flex-end (để nút dính đáy khi khung
+     nhập phình cao chứa ảnh) nên không còn tự cao bằng ô nhập qua stretch mặc định nữa, cùng lý do đã
+     ghi ở ".faq-chat-form button". */
+  height: 2.5rem;
   border: 1px solid var(--line);
   border-radius: 8px;
   background: #fff;
@@ -907,8 +923,9 @@ p.faq-chat-bubble {
    khác (nút kêu gọi hành động đứng riêng vẫn giữ nguyên to). */
 .admin-thread-form .btn {
   flex: 0 0 auto;
+  height: 2.5rem;
   min-height: auto;
-  padding: 0.5rem 0.9rem;
+  padding: 0 0.9rem;
 }
 
 .admin-thread-icon-btn.is-recording {
