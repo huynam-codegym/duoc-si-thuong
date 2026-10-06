@@ -1,0 +1,512 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { url } from '../../lib/url';
+import { departments, departmentSlugs } from '../../lib/departments';
+
+// Trang quản trị sản phẩm (tháng 10/2026) — CHỈ chủ website (profiles.is_admin = true) mới dùng được.
+//
+// Site vẫn là site TĨNH (GitHub Pages) nên "thêm sản phẩm qua web" không ghi thẳng vào máy chủ nào cả
+// — form này gọi Edge Function manage-product (supabase/functions/manage-product/), function đó tự
+// tạo COMMIT THẬT vào file Markdown trong chính repo qua GitHub API, commit đó tự kích hoạt workflow
+// deploy có sẵn (~1-2 phút sau sản phẩm lên web). Xem CLAUDE.md mục "Trang quản lý sản phẩm" để biết
+// đầy đủ lý do chọn hướng này thay vì chuyển sản phẩm sang lưu ở Supabase.
+//
+// QUAN TRỌNG: trang này KHÔNG nhúng sẵn danh sách/nội dung sản phẩm vào HTML lúc build — chỉ là vỏ
+// JS rỗng, mọi dữ liệu (kể cả sản phẩm đã có) đọc qua Edge Function sau khi xác thực đúng admin. Nếu
+// nhúng sẵn vào HTML, sản phẩm NHÁP (chưa kiểm duyệt) sẽ lộ ra cho bất kỳ ai xem mã nguồn trang, kể cả
+// chưa đăng nhập — vi phạm nguyên tắc "draft chỉ thấy lúc npm run dev" của dự án.
+//
+// Dữ liệu khu/nhóm (departments.ts) thì KHÔNG nhạy cảm (đã công khai trên menu site) nên nhúng thẳng
+// để dựng 2 hộp chọn Khu/Nhóm phụ thuộc nhau mà không cần gọi thêm API.
+const departmentOptions = departmentSlugs.map((slug) => ({
+  slug,
+  name: departments[slug].name,
+  groups: Object.entries(departments[slug].groups).map(([groupSlug, group]) => ({ slug: groupSlug, name: group.name })),
+}));
+---
+
+<BaseLayout title="Quản lý sản phẩm" description="Trang quản trị thêm/sửa sản phẩm." noindex>
+  <div class="container">
+    <section class="hero shop-hero">
+      <h1>Quản lý sản phẩm</h1>
+    </section>
+
+    <p id="adminLoading">Đang kiểm tra đăng nhập...</p>
+
+    <div id="adminDenied" class="order" hidden>
+      <p id="adminDeniedText"></p>
+      <a class="btn" href={url('/')}>Về trang chủ</a>
+    </div>
+
+    <div id="adminProductApp" class="admin-product-layout" hidden>
+      <aside class="admin-product-list-wrap">
+        <button type="button" class="btn" id="btnNewProduct">+ Thêm sản phẩm mới</button>
+        <p id="productListLoading">Đang tải danh sách...</p>
+        <ul class="admin-product-list" id="productList"></ul>
+      </aside>
+
+      <section class="admin-product-form-wrap">
+        <form id="productForm" class="order">
+          <h2 id="formTitle">Thêm sản phẩm mới</h2>
+
+          <label>
+            Đường dẫn (slug) <span class="admin-product-hint">— tự sinh theo tên, có thể sửa trước khi lưu lần đầu</span>
+            <input type="text" id="productSlug" name="slug" required pattern="[a-z0-9]+(-[a-z0-9]+)*" />
+          </label>
+
+          <label>
+            Tên sản phẩm
+            <input type="text" id="productName" name="name" required />
+          </label>
+
+          <label>
+            Mô tả ngắn (hiện ở thẻ sản phẩm)
+            <textarea id="productSummary" name="summary" rows="2" required></textarea>
+          </label>
+
+          <div class="order-grid-2">
+            <label>
+              Khu bán hàng
+              <select id="productDepartment" name="department" required></select>
+            </label>
+            <label>
+              Nhóm
+              <select id="productGroup" name="group" required></select>
+            </label>
+          </div>
+
+          <div class="order-grid-2">
+            <label>
+              Giá bán (đ) <span class="admin-product-hint">— để trống hiện "Liên hệ"</span>
+              <input type="number" id="productPrice" name="price" min="0" step="1000" />
+            </label>
+            <label>
+              Giá gốc (đ) <span class="admin-product-hint">— chỉ điền khi đang khuyến mãi</span>
+              <input type="number" id="productOriginalPrice" name="originalPrice" min="0" step="1000" />
+            </label>
+          </div>
+
+          <div class="order-grid-2">
+            <label>
+              Quy cách
+              <input type="text" id="productUnit" name="unit" placeholder="Ví dụ: Hộp 30 viên" />
+            </label>
+            <label>
+              Thương hiệu
+              <input type="text" id="productBrand" name="brand" />
+            </label>
+          </div>
+
+          <label>
+            Xuất xứ
+            <input type="text" id="productOrigin" name="origin" required placeholder="Ví dụ: Việt Nam" />
+          </label>
+
+          <label>
+            Dạng bào chế
+            <input type="text" id="productDosageForm" name="dosageForm" placeholder="Ví dụ: Viên nang mềm" />
+          </label>
+
+          <label>
+            Thành phần <span class="admin-product-hint">— ghi đúng như trên nhãn</span>
+            <textarea id="productIngredients" name="ingredients" rows="2"></textarea>
+          </label>
+
+          <label>
+            Ảnh sản phẩm <span class="admin-product-hint">— vuông, nền sáng, khoảng 900x900. Sản phẩm mới bắt buộc chọn ảnh.</span>
+            <input type="file" id="productImage" name="image" accept="image/*" />
+          </label>
+
+          <label>
+            Mô tả ảnh (alt)
+            <input type="text" id="productImageAlt" name="imageAlt" required />
+          </label>
+
+          <div class="order-grid-2">
+            <label>
+              Số công bố sản phẩm
+              <input type="text" id="productPublicationNo" name="publicationNo" />
+            </label>
+            <label>
+              Số xác nhận quảng cáo
+              <input type="text" id="productAdConfirmationNo" name="adConfirmationNo" />
+            </label>
+          </div>
+
+          <label>
+            Nội dung chi tiết (Markdown) <span class="admin-product-hint">— giữ các tiêu đề ## để trang tự tạo mục lục</span>
+            <textarea id="productBody" name="body" rows="14"></textarea>
+          </label>
+
+          <label class="admin-product-checkbox">
+            <input type="checkbox" id="productDraft" name="draft" />
+            Lưu dưới dạng NHÁP (chưa hiện công khai, chỉ xem được trong trang quản trị này)
+          </label>
+
+          <div class="account-form-actions">
+            <button type="submit" class="btn">Lưu</button>
+          </div>
+          <p id="formResult" hidden></p>
+        </form>
+
+        <div class="admin-product-preview">
+          <h2>Xem trước</h2>
+          <div class="card product-card admin-product-preview-card">
+            <img class="product-thumb" id="previewImg" alt="" />
+            <span class="tag" id="previewTag"></span>
+            <h3 id="previewName">Tên sản phẩm</h3>
+            <p id="previewSummary"></p>
+            <p class="product-price" id="previewPrice">Liên hệ</p>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+</BaseLayout>
+
+<script define:vars={{ departmentOptions }} is:inline>
+  // "define:vars" tắt luôn chế độ module (ESM) của script — script nào dùng "import" phải tách riêng,
+  // không thể để chung thẻ <script> với define:vars (gặp lỗi "Cannot use import statement outside a
+  // module" lúc chạy thử trên trình duyệt thật, không báo gì lúc build). Thẻ này chỉ làm đúng 1 việc:
+  // gắn dữ liệu khu/nhóm (không nhạy cảm, đã công khai trên menu) vào window cho script module bên
+  // dưới đọc lại.
+  window.__departmentOptions = departmentOptions;
+</script>
+
+<script>
+  import { supabase } from '../../lib/supabase';
+  import { isCurrentUserAdmin } from '../../lib/chat';
+
+  const departmentOptions = window.__departmentOptions;
+
+  const loading = document.getElementById('adminLoading');
+  const denied = document.getElementById('adminDenied');
+  const deniedText = document.getElementById('adminDeniedText');
+  const app = document.getElementById('adminProductApp');
+
+  const productListEl = document.getElementById('productList');
+  const productListLoading = document.getElementById('productListLoading');
+  const btnNewProduct = document.getElementById('btnNewProduct');
+  const form = document.getElementById('productForm');
+  const formTitle = document.getElementById('formTitle');
+  const resultBox = document.getElementById('formResult');
+
+  const fieldSlug = document.getElementById('productSlug');
+  const fieldName = document.getElementById('productName');
+  const fieldSummary = document.getElementById('productSummary');
+  const fieldDepartment = document.getElementById('productDepartment');
+  const fieldGroup = document.getElementById('productGroup');
+  const fieldPrice = document.getElementById('productPrice');
+  const fieldOriginalPrice = document.getElementById('productOriginalPrice');
+  const fieldUnit = document.getElementById('productUnit');
+  const fieldBrand = document.getElementById('productBrand');
+  const fieldOrigin = document.getElementById('productOrigin');
+  const fieldDosageForm = document.getElementById('productDosageForm');
+  const fieldIngredients = document.getElementById('productIngredients');
+  const fieldImage = document.getElementById('productImage');
+  const fieldImageAlt = document.getElementById('productImageAlt');
+  const fieldPublicationNo = document.getElementById('productPublicationNo');
+  const fieldAdConfirmationNo = document.getElementById('productAdConfirmationNo');
+  const fieldBody = document.getElementById('productBody');
+  const fieldDraft = document.getElementById('productDraft');
+
+  const previewImg = document.getElementById('previewImg');
+  const previewTag = document.getElementById('previewTag');
+  const previewName = document.getElementById('previewName');
+  const previewPrice = document.getElementById('previewPrice');
+  const previewSummary = document.getElementById('previewSummary');
+
+  const REPO_RAW_BASE = 'https://raw.githubusercontent.com/huynam-codegym/duoc-si-thuong/main';
+
+  const BODY_TEMPLATE = `## Thành phần
+
+Ghi đầy đủ thành phần và hàm lượng đúng như trên nhãn và hồ sơ công bố của sản phẩm.
+
+## Đối tượng nên dùng
+
+Mô tả người có thể dùng sản phẩm. Chỉ dùng cách nói "hỗ trợ", "bổ sung". Không viết "chữa", "điều trị", "khỏi bệnh".
+
+## Cách dùng
+
+Ghi đúng hướng dẫn sử dụng trên nhãn sản phẩm.
+
+## Lưu ý
+
+- Ai không nên dùng (chống chỉ định), tương tác với thuốc, tác dụng không mong muốn nếu có trên nhãn.
+- Phụ nữ có thai, cho con bú, trẻ em: ghi rõ khuyến cáo của nhà sản xuất.
+- Bảo quản: ghi theo nhãn.
+`;
+
+  let isNew = true;
+  let existingImageFilename = '';
+  let slugTouched = false;
+
+  function slugify(text) {
+    return text
+      .normalize('NFD')
+      .replace(/[̀-ͯ]/g, '')
+      .replace(/đ/g, 'd')
+      .replace(/Đ/g, 'D')
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '');
+  }
+
+  function escapeHtml(text) {
+    return text.replace(/[&<>"']/g, (ch) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[ch]);
+  }
+
+  function formatPrice(price) {
+    return price === undefined || price === null || price === '' ? 'Liên hệ' : `${Number(price).toLocaleString('vi-VN')}đ`;
+  }
+
+  function departmentOf(slug) {
+    return departmentOptions.find((d) => d.slug === slug);
+  }
+
+  function renderDepartmentOptions() {
+    fieldDepartment.innerHTML = '';
+    departmentOptions.forEach((d) => {
+      const opt = document.createElement('option');
+      opt.value = d.slug;
+      opt.textContent = d.name;
+      fieldDepartment.append(opt);
+    });
+  }
+
+  function renderGroupOptions() {
+    const dept = departmentOf(fieldDepartment.value);
+    fieldGroup.innerHTML = '';
+    (dept?.groups ?? []).forEach((g) => {
+      const opt = document.createElement('option');
+      opt.value = g.slug;
+      opt.textContent = g.name;
+      fieldGroup.append(opt);
+    });
+  }
+
+  function updatePreview() {
+    previewName.textContent = fieldName.value || 'Tên sản phẩm';
+    previewSummary.textContent = fieldSummary.value || '';
+    const dept = departmentOf(fieldDepartment.value);
+    const group = dept?.groups.find((g) => g.slug === fieldGroup.value);
+    previewTag.textContent = group?.name ?? '';
+    const price = fieldPrice.value ? Number(fieldPrice.value) : undefined;
+    const original = fieldOriginalPrice.value ? Number(fieldOriginalPrice.value) : undefined;
+    if (original && price && original > price) {
+      previewPrice.innerHTML = `<span class="product-price-original">${formatPrice(original)}</span> ${formatPrice(price)}`;
+    } else {
+      previewPrice.textContent = formatPrice(price);
+    }
+  }
+
+  fieldDepartment.addEventListener('change', () => {
+    renderGroupOptions();
+    updatePreview();
+  });
+  fieldGroup.addEventListener('change', updatePreview);
+  fieldName.addEventListener('input', () => {
+    if (isNew && !slugTouched) fieldSlug.value = slugify(fieldName.value);
+    updatePreview();
+  });
+  fieldSlug.addEventListener('input', () => {
+    slugTouched = true;
+  });
+  [fieldSummary, fieldPrice, fieldOriginalPrice].forEach((el) => el.addEventListener('input', updatePreview));
+  fieldImage.addEventListener('change', () => {
+    const file = fieldImage.files?.[0];
+    if (file) previewImg.src = URL.createObjectURL(file);
+  });
+
+  function resetForm() {
+    form.reset();
+    formTitle.textContent = 'Thêm sản phẩm mới';
+    isNew = true;
+    existingImageFilename = '';
+    slugTouched = false;
+    fieldSlug.disabled = false;
+    fieldSlug.value = '';
+    fieldBody.value = BODY_TEMPLATE;
+    fieldDraft.checked = true;
+    previewImg.src = '';
+    renderGroupOptions();
+    updatePreview();
+    resultBox.hidden = true;
+  }
+
+  btnNewProduct.addEventListener('click', resetForm);
+
+  async function callFn(body) {
+    const { data, error } = await supabase.functions.invoke('manage-product', { body });
+    if (error) {
+      // Lỗi HTTP (400/401/403/500...) từ supabase.functions.invoke không tự kèm nội dung JSON mình trả
+      // về — thử đọc lại context để lấy đúng thông báo lỗi tiếng Việt thay vì chữ chung chung của SDK.
+      let message = error.message || 'Có lỗi xảy ra.';
+      try {
+        const body2 = await error.context?.json?.();
+        if (body2?.error) message = body2.error;
+      } catch {
+        // giữ nguyên message mặc định
+      }
+      throw new Error(message);
+    }
+    if (data?.error) throw new Error(data.error);
+    return data;
+  }
+
+  async function loadProductList() {
+    productListLoading.hidden = false;
+    productListLoading.textContent = 'Đang tải danh sách...';
+    productListEl.innerHTML = '';
+    try {
+      const data = await callFn({ action: 'list' });
+      productListLoading.hidden = true;
+      data.products.forEach((p) => {
+        const li = document.createElement('li');
+        li.className = 'admin-product-item' + (p.draft ? ' is-draft' : '');
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        const dept = departmentOf(p.department);
+        const deptName = dept?.name ?? p.department;
+        btn.innerHTML = `<strong>${escapeHtml(p.name)}</strong><span>${p.draft ? 'Nháp' : 'Đã đăng'} · ${escapeHtml(deptName)}</span>`;
+        btn.addEventListener('click', () => loadProductForEdit(p.slug));
+        li.append(btn);
+        productListEl.append(li);
+      });
+    } catch (err) {
+      productListLoading.hidden = false;
+      productListLoading.textContent = 'Không tải được danh sách: ' + err.message;
+    }
+  }
+
+  async function loadProductForEdit(slug) {
+    resultBox.hidden = true;
+    try {
+      const res = await callFn({ action: 'get', slug });
+      isNew = false;
+      existingImageFilename = res.imageFilename;
+      formTitle.textContent = 'Sửa sản phẩm: ' + (res.data.name ?? slug);
+      fieldSlug.value = slug;
+      fieldSlug.disabled = true;
+      fieldName.value = res.data.name ?? '';
+      fieldSummary.value = res.data.summary ?? '';
+      fieldDepartment.value = res.data.department ?? '';
+      renderGroupOptions();
+      fieldGroup.value = res.data.group ?? '';
+      fieldPrice.value = res.data.price ?? '';
+      fieldOriginalPrice.value = res.data.originalPrice ?? '';
+      fieldUnit.value = res.data.unit ?? '';
+      fieldBrand.value = res.data.brand ?? '';
+      fieldOrigin.value = res.data.origin ?? '';
+      fieldDosageForm.value = res.data.dosageForm ?? '';
+      fieldIngredients.value = res.data.ingredients ?? '';
+      fieldImageAlt.value = res.data.imageAlt ?? '';
+      fieldPublicationNo.value = res.data.publicationNo ?? '';
+      fieldAdConfirmationNo.value = res.data.adConfirmationNo ?? '';
+      fieldBody.value = res.body ?? '';
+      fieldDraft.checked = res.data.draft !== false;
+      fieldImage.value = '';
+      previewImg.src = existingImageFilename ? `${REPO_RAW_BASE}/src/assets/products/${slug}/${existingImageFilename}` : '';
+      updatePreview();
+      window.scrollTo({ top: form.offsetTop - 80, behavior: 'smooth' });
+    } catch (err) {
+      window.alert('Không tải được sản phẩm: ' + err.message);
+    }
+  }
+
+  function readFileAsBase64(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(String(reader.result).split(',')[1]);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  }
+
+  form.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const slug = fieldSlug.value.trim();
+    const submitBtn = form.querySelector('button[type=submit]');
+    submitBtn.disabled = true;
+    resultBox.hidden = true;
+    try {
+      if (!slug) throw new Error('Thiếu đường dẫn (slug).');
+      const file = fieldImage.files?.[0];
+      let image;
+      if (file) {
+        const base64 = await readFileAsBase64(file);
+        const ext = (file.name.split('.').pop() || 'jpg').toLowerCase();
+        image = { base64, ext };
+      } else if (isNew) {
+        throw new Error('Sản phẩm mới bắt buộc chọn ảnh.');
+      }
+
+      const frontmatter = {
+        name: fieldName.value.trim(),
+        summary: fieldSummary.value.trim(),
+        department: fieldDepartment.value,
+        group: fieldGroup.value,
+        price: fieldPrice.value ? Number(fieldPrice.value) : undefined,
+        originalPrice: fieldOriginalPrice.value ? Number(fieldOriginalPrice.value) : undefined,
+        unit: fieldUnit.value.trim() || undefined,
+        brand: fieldBrand.value.trim() || undefined,
+        origin: fieldOrigin.value.trim(),
+        dosageForm: fieldDosageForm.value.trim() || undefined,
+        ingredients: fieldIngredients.value.trim() || undefined,
+        imageAlt: fieldImageAlt.value.trim(),
+        publicationNo: fieldPublicationNo.value.trim() || undefined,
+        adConfirmationNo: fieldAdConfirmationNo.value.trim() || undefined,
+        draft: fieldDraft.checked,
+      };
+
+      const data = await callFn({
+        action: 'save',
+        slug,
+        isNew,
+        frontmatter,
+        body: fieldBody.value,
+        image,
+        existingImageFilename,
+      });
+
+      resultBox.hidden = false;
+      resultBox.className = 'account-message';
+      resultBox.innerHTML = `Đã lưu thành công! Trang web sẽ cập nhật sau khoảng 1-2 phút khi deploy xong. <a href="${data.actionsUrl}" target="_blank" rel="noopener noreferrer">Xem tiến trình build ›</a>`;
+      isNew = false;
+      fieldSlug.disabled = true;
+      await loadProductList();
+    } catch (err) {
+      resultBox.hidden = false;
+      resultBox.className = 'order-error';
+      resultBox.textContent = 'Lỗi: ' + err.message;
+    } finally {
+      submitBtn.disabled = false;
+    }
+  });
+
+  async function init() {
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+    if (!session) {
+      loading.hidden = true;
+      deniedText.textContent = 'Bạn cần đăng nhập đúng tài khoản quản trị để xem trang này — bấm "Đăng nhập" ở đầu trang.';
+      denied.hidden = false;
+      return;
+    }
+    const isAdmin = await isCurrentUserAdmin();
+    if (!isAdmin) {
+      loading.hidden = true;
+      deniedText.textContent = 'Tài khoản này không có quyền truy cập trang quản trị.';
+      denied.hidden = false;
+      return;
+    }
+    loading.hidden = true;
+    app.hidden = false;
+    renderDepartmentOptions();
+    resetForm();
+    await loadProductList();
+  }
+
+  init();
+</script>
