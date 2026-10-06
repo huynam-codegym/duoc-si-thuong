@@ -1,6 +1,6 @@
 ---
 name: ZZ Test Isolated Context
-summary: test isolated
+summary: Đã sửa qua test — xác nhận luồng cập nhật.
 department: thuc-pham-chuc-nang
 group: vitamin-khoang-chat
 origin: Việt Nam
