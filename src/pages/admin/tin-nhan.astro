@@ -45,6 +45,11 @@ import { url } from '../../lib/url';
                   <path d="M5 11a7 7 0 0 0 14 0M12 18v3" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"></path>
                 </svg>
               </button>
+              <button type="button" class="admin-thread-icon-btn" id="adminPlusBtn" aria-label="Đính kèm thêm ảnh hoặc file" hidden>
+                <svg viewBox="0 0 24 24" width="19" height="19" aria-hidden="true" focusable="false">
+                  <path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path>
+                </svg>
+              </button>
               <div class="admin-thread-input-box" id="adminThreadInputBox">
                 <div class="admin-thread-attach-list" id="adminAttachList" hidden></div>
                 <label class="visually-hidden" for="adminThreadInput">Nhập trả lời</label>
@@ -89,6 +94,7 @@ import { url } from '../../lib/url';
   const fileInput = document.getElementById('adminThreadFile') as HTMLInputElement;
   const attachBtn = document.getElementById('adminAttachBtn')!;
   const micBtn = document.getElementById('adminMicBtn')!;
+  const plusBtn = document.getElementById('adminPlusBtn')!;
   const attachList = document.getElementById('adminAttachList')!;
 
   let conversations: Conversation[] = [];
@@ -274,9 +280,11 @@ import { url } from '../../lib/url';
     attachList.innerHTML = '';
     const hasFiles = selectedFiles.length > 0;
     attachList.hidden = !hasFiles;
-    // Đã có ảnh/file chọn sẵn thì ẩn nút ghim/mic đi (giống Messenger) — cùng lý do với FaqChat.astro.
+    // Đã có ảnh/file chọn sẵn thì ẩn nút ghim/mic đi, thay bằng nút "+" để vẫn thêm được ảnh/file khác
+    // — cùng lý do/cơ chế với FaqChat.astro.
     attachBtn.hidden = hasFiles;
     micBtn.hidden = hasFiles;
+    plusBtn.hidden = !hasFiles;
     selectedFiles.forEach((file, idx) => {
       if (file.type.startsWith('image/')) {
         const thumb = document.createElement('div');
@@ -314,6 +322,7 @@ import { url } from '../../lib/url';
   }
 
   attachBtn.addEventListener('click', () => fileInput.click());
+  plusBtn.addEventListener('click', () => fileInput.click());
   fileInput.addEventListener('change', () => {
     const picked = Array.from(fileInput.files ?? []);
     fileInput.value = '';

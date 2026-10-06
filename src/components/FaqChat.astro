@@ -59,6 +59,11 @@ import { site } from '../lib/site';
           <path d="M5 11a7 7 0 0 0 14 0M12 18v3" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"></path>
         </svg>
       </button>
+      <button type="button" class="faq-chat-icon-btn" id="faqChatPlusBtn" aria-label="Đính kèm thêm ảnh hoặc file" hidden>
+        <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false">
+          <path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path>
+        </svg>
+      </button>
       <div class="faq-chat-input-box" id="faqChatInputBox">
         <div class="faq-chat-attach-list" id="faqChatAttachList" hidden></div>
         <label class="visually-hidden" for="faqChatInput">Nhập tin nhắn</label>
@@ -89,6 +94,7 @@ import { site } from '../lib/site';
   const fileInput = document.getElementById('faqChatFile') as HTMLInputElement;
   const attachBtn = document.getElementById('faqChatAttachBtn')!;
   const micBtn = document.getElementById('faqChatMicBtn')!;
+  const plusBtn = document.getElementById('faqChatPlusBtn')!;
   const attachList = document.getElementById('faqChatAttachList')!;
 
   function addSystemMessage(text: string) {
@@ -255,10 +261,13 @@ import { site } from '../lib/site';
     attachList.innerHTML = '';
     const hasFiles = selectedFiles.length > 0;
     attachList.hidden = !hasFiles;
-    // Đã có ảnh/file chọn sẵn thì ẩn nút ghim/mic đi (giống Messenger) — không cần đính kèm thêm/ghi
-    // âm lúc đang soạn ảnh, nhường chỗ cho khung xem trước + ô nhập, hiện lại ngay khi bỏ hết đính kèm.
+    // Đã có ảnh/file chọn sẵn thì ẩn nút ghim/mic đi (giống Messenger) — không cần ghi âm lúc đang
+    // soạn ảnh, nhường chỗ cho khung xem trước + ô nhập. Thay vào đó hiện nút "+" để vẫn chọn thêm
+    // được ảnh/file khác (không bị "cụt đường" không thêm được nữa) — bấm "+" mở lại đúng hộp thoại
+    // chọn file như nút ghim. Hiện lại ghim/mic, ẩn "+" ngay khi bỏ hết đính kèm.
     attachBtn.hidden = hasFiles;
     micBtn.hidden = hasFiles;
+    plusBtn.hidden = !hasFiles;
     selectedFiles.forEach((file, idx) => {
       if (file.type.startsWith('image/')) {
         const thumb = document.createElement('div');
@@ -296,6 +305,7 @@ import { site } from '../lib/site';
   }
 
   attachBtn.addEventListener('click', () => fileInput.click());
+  plusBtn.addEventListener('click', () => fileInput.click());
   fileInput.addEventListener('change', () => {
     const picked = Array.from(fileInput.files ?? []);
     fileInput.value = ''; // cho phép chọn lại đúng file đó lần sau vẫn bắn sự kiện change
