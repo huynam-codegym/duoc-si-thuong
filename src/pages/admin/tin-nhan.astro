@@ -31,9 +31,6 @@ import { url } from '../../lib/url';
           </div>
           <div class="admin-thread-messages" id="adminThreadMessages"></div>
           <div class="admin-thread-compose">
-            <div class="admin-thread-attach-preview" id="adminAttachPreview" hidden>
-              <div class="admin-thread-attach-list" id="adminAttachList"></div>
-            </div>
             <form class="admin-thread-form" id="adminThreadForm">
               <label class="visually-hidden" for="adminThreadFile">Đính kèm ảnh hoặc file (chọn được nhiều cùng lúc)</label>
               <input id="adminThreadFile" type="file" accept="image/*,.pdf,.doc,.docx,.txt" multiple hidden />
@@ -48,8 +45,11 @@ import { url } from '../../lib/url';
                   <path d="M5 11a7 7 0 0 0 14 0M12 18v3" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"></path>
                 </svg>
               </button>
-              <label class="visually-hidden" for="adminThreadInput">Nhập trả lời</label>
-              <input id="adminThreadInput" type="text" placeholder="Nhập câu trả lời..." autocomplete="off" />
+              <div class="admin-thread-input-box" id="adminThreadInputBox">
+                <div class="admin-thread-attach-list" id="adminAttachList" hidden></div>
+                <label class="visually-hidden" for="adminThreadInput">Nhập trả lời</label>
+                <input id="adminThreadInput" type="text" placeholder="Nhập câu trả lời..." autocomplete="off" />
+              </div>
               <button type="submit" class="btn">Gửi</button>
             </form>
           </div>
@@ -89,7 +89,6 @@ import { url } from '../../lib/url';
   const fileInput = document.getElementById('adminThreadFile') as HTMLInputElement;
   const attachBtn = document.getElementById('adminAttachBtn')!;
   const micBtn = document.getElementById('adminMicBtn')!;
-  const attachPreview = document.getElementById('adminAttachPreview')!;
   const attachList = document.getElementById('adminAttachList')!;
 
   let conversations: Conversation[] = [];
@@ -273,7 +272,7 @@ import { url } from '../../lib/url';
 
   function renderAttachList() {
     attachList.innerHTML = '';
-    attachPreview.hidden = selectedFiles.length === 0;
+    attachList.hidden = selectedFiles.length === 0;
     selectedFiles.forEach((file, idx) => {
       if (file.type.startsWith('image/')) {
         const thumb = document.createElement('div');

@@ -40,9 +40,6 @@ import { site } from '../lib/site';
   <div class="faq-chat-messages" id="faqChatMessages"></div>
   <p class="faq-chat-safety-note">Khẩn cấp hãy gọi <strong>115</strong>. Không gửi CCCD, mật khẩu, thông tin thẻ ngân hàng.</p>
   <div class="faq-chat-compose">
-    <div class="faq-chat-attach-preview" id="faqChatAttachPreview" hidden>
-      <div class="faq-chat-attach-list" id="faqChatAttachList"></div>
-    </div>
     <form class="faq-chat-form" id="faqChatForm">
       <label class="visually-hidden" for="faqChatFile">Đính kèm ảnh hoặc file (chọn được nhiều cùng lúc)</label>
       <input id="faqChatFile" type="file" accept="image/*,.pdf,.doc,.docx,.txt" multiple hidden />
@@ -57,8 +54,11 @@ import { site } from '../lib/site';
           <path d="M5 11a7 7 0 0 0 14 0M12 18v3" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"></path>
         </svg>
       </button>
-      <label class="visually-hidden" for="faqChatInput">Nhập tin nhắn</label>
-      <input id="faqChatInput" type="text" placeholder="Nhập tin nhắn của bạn..." autocomplete="off" />
+      <div class="faq-chat-input-box" id="faqChatInputBox">
+        <div class="faq-chat-attach-list" id="faqChatAttachList" hidden></div>
+        <label class="visually-hidden" for="faqChatInput">Nhập tin nhắn</label>
+        <input id="faqChatInput" type="text" placeholder="Nhập tin nhắn của bạn..." autocomplete="off" />
+      </div>
       <button type="submit" aria-label="Gửi tin nhắn">
         <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false">
           <path d="M4 12h15M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
@@ -84,7 +84,6 @@ import { site } from '../lib/site';
   const fileInput = document.getElementById('faqChatFile') as HTMLInputElement;
   const attachBtn = document.getElementById('faqChatAttachBtn')!;
   const micBtn = document.getElementById('faqChatMicBtn')!;
-  const attachPreview = document.getElementById('faqChatAttachPreview')!;
   const attachList = document.getElementById('faqChatAttachList')!;
 
   function addSystemMessage(text: string) {
@@ -249,7 +248,7 @@ import { site } from '../lib/site';
 
   function renderAttachList() {
     attachList.innerHTML = '';
-    attachPreview.hidden = selectedFiles.length === 0;
+    attachList.hidden = selectedFiles.length === 0;
     selectedFiles.forEach((file, idx) => {
       if (file.type.startsWith('image/')) {
         const thumb = document.createElement('div');

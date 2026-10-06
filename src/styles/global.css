@@ -418,16 +418,31 @@ p.faq-chat-bubble {
   word-break: break-all;
 }
 
-/* Khung soạn tin — ảnh/file xem trước (nếu có) + hàng nút/ô nhập nằm CHUNG 1 khối, chỉ 1 đường viền
-   trên cùng ngăn với khu vực tin nhắn phía trên, giống kiểu Messenger (1 khung soạn tin duy nhất) thay
-   vì 2 dải tách rời có viền riêng (nhìn như 2 hộp xếp chồng — chủ website phản ánh ảnh đính kèm "bị
-   đẩy ra ngoài" khung nhập tin). */
+/* Khung soạn tin — chỉ 1 đường viền trên cùng ngăn với khu vực tin nhắn phía trên. */
 .faq-chat-compose {
   border-top: 1px solid var(--line);
 }
 
-.faq-chat-attach-preview:not([hidden]) {
-  padding: 0.6rem 1rem 0;
+/* Ảnh/file xem trước nằm NGAY TRONG cùng khung bo viền với ô nhập chữ (chủ website yêu cầu tháng
+   10/2026, theo đúng kiểu Messenger: chọn ảnh thì khung nhập "phình" cao lên chứa ảnh bên trong, gõ
+   chữ ngay bên dưới trong CÙNG 1 khung, không phải khung ảnh và khung chữ là 2 hộp riêng) — border bo
+   tròn/viền giờ chuyển từ <input> sang khung CHA ".faq-chat-input-box" này, input bên trong không còn
+   viền riêng (xem ngay dưới). */
+.faq-chat-input-box {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 0%;
+  min-width: 0;
+  border: 1px solid #9ca3af;
+  border-radius: 12px;
+  background: #fff;
+  overflow: hidden;
+}
+
+.faq-chat-input-box:focus-within {
+  border-color: var(--green-700);
+  /* Quầng sáng nhẹ thay cho viền cứng — cùng kiểu đã dùng cho ô tìm kiếm đầu trang (.header-search). */
+  box-shadow: 0 0 0 3px rgb(21 128 61 / 0.18);
 }
 
 /* Chọn được NHIỀU ảnh/file cùng lúc (tháng 10/2026) — mỗi cái 1 ô riêng (ảnh thu nhỏ hoặc tên file),
@@ -436,10 +451,10 @@ p.faq-chat-bubble {
 .faq-chat-attach-list {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem;
-  max-height: 9rem;
+  gap: 0.4rem;
+  max-height: 8rem;
   overflow-y: auto;
-  padding-bottom: 0.6rem;
+  padding: 0.4rem 0.5rem 0;
 }
 
 /* Đính kèm ẢNH: xem trước bằng ảnh thu nhỏ thật (không phải tên file) + nút ✕ đè lên góc, giống kiểu
@@ -448,8 +463,8 @@ p.faq-chat-bubble {
   position: relative;
   display: inline-block;
   flex: 0 0 auto;
-  width: 4.5rem;
-  height: 4.5rem;
+  width: 3.6rem;
+  height: 3.6rem;
 }
 
 .faq-chat-attach-thumb img {
@@ -486,12 +501,12 @@ p.faq-chat-bubble {
   flex: 0 0 auto;
   align-items: center;
   gap: 0.4rem;
-  max-width: 9rem;
-  padding: 0.4rem 0.6rem;
+  max-width: 7rem;
+  padding: 0.35rem 0.5rem;
   border: 1px solid var(--line);
   border-radius: 8px;
   background: var(--green-50);
-  font-size: 0.78rem;
+  font-size: 0.74rem;
   color: var(--ink);
 }
 
@@ -511,16 +526,20 @@ p.faq-chat-bubble {
 
 .faq-chat-form {
   display: flex;
+  align-items: flex-end;
   gap: 0.4rem;
   padding: 0.6rem 1rem;
 }
 
-.faq-chat-form input[type='text'] {
-  flex: 1 1 auto;
+/* Input không còn viền/bo góc riêng — khung cha .faq-chat-input-box đảm nhiệm việc đó rồi (xem ở
+   trên), input chỉ còn là chữ trôi tự do bên trong khung đó. */
+.faq-chat-input-box input[type='text'] {
+  width: 100%;
   min-width: 0;
   padding: 0.5rem 0.75rem;
-  border: 1px solid #9ca3af;
-  border-radius: 8px;
+  border: 0;
+  outline: 0;
+  background: transparent;
   font: inherit;
 }
 
@@ -752,24 +771,38 @@ p.faq-chat-bubble {
   word-break: break-all;
 }
 
-/* Khung soạn tin — ảnh/file xem trước (nếu có) + hàng nút/ô nhập nằm CHUNG 1 khối, chỉ 1 đường viền
-   trên cùng, cùng lý do/mẫu với .faq-chat-compose ở FaqChat.astro. */
+/* Khung soạn tin — chỉ 1 đường viền trên cùng ngăn với khu vực tin nhắn phía trên. */
 .admin-thread-compose {
   border-top: 1px solid var(--line);
 }
 
-.admin-thread-attach-preview:not([hidden]) {
-  padding: 0.6rem 1rem 0;
+/* Ảnh/file xem trước nằm NGAY TRONG cùng khung bo viền với ô nhập chữ — cùng lý do/mẫu với
+   .faq-chat-input-box ở FaqChat.astro (chọn ảnh thì khung "phình" cao lên chứa ảnh, gõ chữ ngay bên
+   dưới trong CÙNG 1 khung). */
+.admin-thread-input-box {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 0%;
+  min-width: 0;
+  border: 1px solid #9ca3af;
+  border-radius: 12px;
+  background: #fff;
+  overflow: hidden;
+}
+
+.admin-thread-input-box:focus-within {
+  border-color: var(--green-700);
+  box-shadow: 0 0 0 3px rgb(21 128 61 / 0.18);
 }
 
 /* Chọn được NHIỀU ảnh/file cùng lúc — mỗi cái 1 ô riêng, xếp hàng ngang, tự xuống dòng/cuộn nếu nhiều. */
 .admin-thread-attach-list {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem;
-  max-height: 9rem;
+  gap: 0.4rem;
+  max-height: 8rem;
   overflow-y: auto;
-  padding-bottom: 0.6rem;
+  padding: 0.4rem 0.5rem 0;
 }
 
 /* Đính kèm ẢNH: ảnh thu nhỏ thật + nút ✕ đè góc, kiểu Messenger (cùng mẫu với FaqChat.astro). */
@@ -777,8 +810,8 @@ p.faq-chat-bubble {
   position: relative;
   display: inline-block;
   flex: 0 0 auto;
-  width: 4.5rem;
-  height: 4.5rem;
+  width: 3.6rem;
+  height: 3.6rem;
 }
 
 .admin-thread-attach-thumb img {
@@ -814,12 +847,12 @@ p.faq-chat-bubble {
   flex: 0 0 auto;
   align-items: center;
   gap: 0.4rem;
-  max-width: 9rem;
-  padding: 0.4rem 0.6rem;
+  max-width: 7rem;
+  padding: 0.35rem 0.5rem;
   border: 1px solid var(--line);
   border-radius: 8px;
   background: var(--green-50);
-  font-size: 0.78rem;
+  font-size: 0.74rem;
 }
 
 .admin-thread-attach-chip span {
@@ -838,16 +871,18 @@ p.faq-chat-bubble {
 
 .admin-thread-form {
   display: flex;
+  align-items: flex-end;
   gap: 0.4rem;
   padding: 0.75rem 1rem;
 }
 
-.admin-thread-form input[type='text'] {
-  flex: 1 1 auto;
+.admin-thread-input-box input[type='text'] {
+  width: 100%;
   min-width: 0;
   padding: 0.5rem 0.75rem;
-  border: 1px solid #9ca3af;
-  border-radius: 8px;
+  border: 0;
+  outline: 0;
+  background: transparent;
   font: inherit;
 }
 
