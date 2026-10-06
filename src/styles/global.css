@@ -242,7 +242,8 @@ img {
   justify-content: center;
   width: 52px;
   height: 52px;
-  border: 1px solid var(--line);
+  /* Viền tròn ngoài cũng màu xanh (chủ website yêu cầu), không phải xám nhạt mặc định. */
+  border: 1.5px solid var(--green-700);
   border-radius: 50%;
   /* Đảo màu (tháng 10/2026, chủ website yêu cầu): nền trắng, biểu tượng xanh — ngược lại bản trước
      (nền xanh, biểu tượng trắng). */
