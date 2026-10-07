@@ -15,6 +15,8 @@ gallery:
   - "../../assets/products/bioamicus-omega-3-30ml/anh-2.jpg"
   - "../../assets/products/bioamicus-omega-3-30ml/anh-3.jpg"
   - "../../assets/products/bioamicus-omega-3-30ml/anh-4.jpg"
+  - "../../assets/products/bioamicus-omega-3-30ml/anh-5.jpg"
+  - "../../assets/products/bioamicus-omega-3-30ml/anh-6.jpg"
 publicationNo: "4771/2023/ĐKSP"
 adConfirmationNo: ""
 updatedAt: 2026-10-07
