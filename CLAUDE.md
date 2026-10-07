@@ -531,7 +531,7 @@ Mỗi bài nên có **ảnh đại diện** (`cover`) và 1-3 hình minh họa t
 - Giữ code đơn giản, dễ đọc. Không thêm thư viện khi chưa thật sự cần.
 - Không hard-code nội dung bài viết vào component. Tách nội dung ra khỏi giao diện.
 - Không commit thông tin bí mật (API key, mật khẩu). Dùng biến môi trường.
-- Trước khi kết thúc một tác vụ, kiểm tra lại trang hiển thị đúng trên cả điện thoại và máy tính.
+- **Mọi thay đổi giao diện/CSS/component, dù nhỏ, đều phải test lại trước khi coi là xong** (chủ website yêu cầu tháng 10/2026, vì nhiều bẫy đã gặp trong dự án — rem khác nhau trong `@media`, flex-basis, độ ưu tiên CSS, z-index của `position: sticky`... — chỉ lộ ra khi xem đúng khổ máy thật, không thấy được qua đọc code): dùng Puppeteer chụp ảnh thật (không chỉ đọc code hay tin "chắc đúng") ở **ít nhất 2 khổ**: máy tính (ví dụ 1280px) và điện thoại/màn hình nhỏ (ví dụ 375-480px, mốc hẹp nhất site hay vỡ layout — xem mục "Bẫy kỹ thuật rem"). Phần vừa sửa xong phải đúng, **và** các phần khác gần đó (menu, giỏ hàng, nút nổi, khung chat...) không bị ảnh hưởng dây chuyền — đặc biệt khi đổi CSS dùng chung (biến màu, class, z-index) vì một thay đổi nhỏ ở đây có thể vỡ layout ở chỗ khác hoàn toàn không liên quan tới tác vụ đang làm.
 - Khi tạo hoặc sửa nội dung y khoa, luôn tuân thủ mục "Nguyên tắc nội dung sức khỏe" ở trên.
 
 ## Cách Claude làm việc trong dự án này
