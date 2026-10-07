@@ -14,6 +14,10 @@ imageAlt: "Hộp và lọ Bioamicus Vitamin K2 & D3 10ml, nhãn trắng-xanh dư
 gallery:
   - "../../assets/products/calcium-bioamicus-vitamin-k2-d3-10ml/anh-2.jpg"
   - "../../assets/products/calcium-bioamicus-vitamin-k2-d3-10ml/anh-3.jpg"
+  - "../../assets/products/calcium-bioamicus-vitamin-k2-d3-10ml/hinh-1.jpg"
+  - "../../assets/products/calcium-bioamicus-vitamin-k2-d3-10ml/hinh-2.jpg"
+  - "../../assets/products/calcium-bioamicus-vitamin-k2-d3-10ml/hinh-3.jpg"
+  - "../../assets/products/calcium-bioamicus-vitamin-k2-d3-10ml/hinh-4.jpg"
 publicationNo: "2779/2021/ĐKSP"
 adConfirmationNo: ""
 updatedAt: 2026-10-07

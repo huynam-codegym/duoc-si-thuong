@@ -14,6 +14,9 @@ imageAlt: "Hộp và lọ Bioamicus Complete 10ml, nhãn trắng-xanh dương, d
 gallery:
   - "../../assets/products/bioamicus-complete-10ml/anh-2.jpg"
   - "../../assets/products/bioamicus-complete-10ml/anh-3.jpg"
+  - "../../assets/products/bioamicus-complete-10ml/hinh-1.jpg"
+  - "../../assets/products/bioamicus-complete-10ml/hinh-2.jpg"
+  - "../../assets/products/bioamicus-complete-10ml/hinh-3.jpg"
 publicationNo: "2332/2020/ĐKSP"
 adConfirmationNo: ""
 updatedAt: 2026-10-07
