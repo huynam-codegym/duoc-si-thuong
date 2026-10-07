@@ -244,10 +244,9 @@ img {
   height: 52px;
   border: none;
   border-radius: 50%;
-  /* Nền gradient xanh-tím-hồng (tháng 10/2026, chủ website gửi ảnh icon Messenger làm mẫu màu sắc) —
-     xem ghi chú trong FaqChat.astro về việc không dùng nguyên logo Messenger. Bong bóng chat bên
-     trong luôn nền trắng (vẽ sẵn trong SVG), không phụ thuộc `color` ở đây. */
-  background: linear-gradient(135deg, #4f46e5, #a855f7 55%, #ec4899);
+  /* Đổi lại nền xanh lá theo đúng màu thương hiệu site (tháng 10/2026, chủ website yêu cầu bỏ
+     gradient tím-hồng, dùng xanh lá nhưng nhạt hơn --green-700 một chút — Tailwind green-600). */
+  background: #16a34a;
   box-shadow: 0 4px 10px rgb(0 0 0 / 0.28);
   cursor: pointer;
   transition: transform 0.15s;
