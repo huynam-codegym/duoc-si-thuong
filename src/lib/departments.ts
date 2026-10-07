@@ -62,6 +62,12 @@ const departmentData = {
         icon: 'shield',
         name: 'Đề kháng & miễn dịch',
         description: 'Thực phẩm bổ sung dành cho người quan tâm đến sức đề kháng của cơ thể.',
+        childGroups: ['siro-de-khang'],
+      },
+      'siro-de-khang': {
+        icon: 'shield',
+        name: 'Siro hỗ trợ tăng đề kháng',
+        description: 'Siro bổ sung beta-glucan, vitamin và khoáng chất giúp hỗ trợ tăng sức đề kháng, chủ yếu dành cho trẻ em.',
       },
       mat: {
         icon: 'eye',
