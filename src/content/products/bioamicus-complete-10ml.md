@@ -26,6 +26,9 @@ draft: false
 
 Theo nhà sản xuất, sản phẩm không chứa thành phần biến đổi gen, không chứa hương liệu, màu hay chất bảo quản thực phẩm, và không chứa các thành phần dễ gây dị ứng như protein sữa, lactose, các loại hạt, đậu phộng, ngô, đậu nành, gluten, lúa mì, trứng, cá, động vật có vỏ.
 
+![Hình ảnh đồ họa tổng quan Bioamicus Complete 10ml: hỗ trợ bổ sung 10 chủng lợi khuẩn, 1 tỷ lợi khuẩn mỗi liều, hỗ trợ tăng cường sức đề kháng](../../assets/products/bioamicus-complete-10ml/hinh-1.jpg)
+*Thiết kế lại từ tư liệu nhà phân phối. Đồ họa: Dược Sĩ Thương.*
+
 ![Hình ảnh đồ họa 10 chủng lợi khuẩn trong Bioamicus Complete: 5 chủng Lactobacillus (L. johnsonii, L. plantarum, L. salivarius, L. reuteri, L. gasseri) và 5 chủng Bifidobacterium (B. bifidum, B. breve, B. longum subsp. infantis, B. animalis subsp. lactis, B. longum), mỗi chủng 100 triệu CFU, tổng 1 tỷ CFU trong 5 giọt](../../assets/products/bioamicus-complete-10ml/hinh-2.jpg)
 *Thiết kế lại từ tư liệu nhà phân phối. Đồ họa: Dược Sĩ Thương.*
 

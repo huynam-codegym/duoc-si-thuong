@@ -29,6 +29,9 @@ Theo nhà sản xuất, sản phẩm không chứa thành phần biến đổi g
 ![Hình ảnh đồ họa thành phần Bioamicus Vitamin K2 & D3 trong 1 giọt: 100 IU vitamin D3 hỗ trợ hấp thu canxi, 4µg vitamin K2 (MK7) vận chuyển canxi vào xương](../../assets/products/calcium-bioamicus-vitamin-k2-d3-10ml/hinh-1.jpg)
 *Thiết kế lại từ tư liệu nhà phân phối. Đồ họa: Dược Sĩ Thương.*
 
+![Hình ảnh đồ họa tổng quan Bioamicus Vitamin K2 & D3: sản phẩm nhập khẩu chính hãng, hỗ trợ tăng cường hấp thu canxi, phù hợp cho trẻ sơ sinh và trẻ nhỏ](../../assets/products/calcium-bioamicus-vitamin-k2-d3-10ml/hinh-4.jpg)
+*Thiết kế lại từ tư liệu nhà phân phối. Đồ họa: Dược Sĩ Thương.*
+
 **Thực phẩm bảo vệ sức khỏe, không phải là thuốc, không có tác dụng thay thế thuốc chữa bệnh.**
 
 ## Công dụng
