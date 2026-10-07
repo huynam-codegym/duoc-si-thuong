@@ -30,6 +30,8 @@ const originFlagCodes: Record<string, string> = {
   Ý: 'it',
   'Tây Ban Nha': 'es',
   'Ấn Độ': 'in',
+  Slovakia: 'sk',
+  Slovenia: 'si',
 };
 
 export function originFlagCode(origin: string): string | undefined {
