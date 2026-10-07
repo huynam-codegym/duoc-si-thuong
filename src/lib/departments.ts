@@ -147,6 +147,12 @@ const departmentData = {
         icon: 'flower',
         name: 'Sinh lý - Nội tiết tố',
         description: 'Thực phẩm bổ sung dành cho phụ nữ quan tâm đến cân bằng nội tiết tố, giai đoạn tiền mãn kinh và mãn kinh.',
+        childGroups: ['sinh-ly-nu'],
+      },
+      'sinh-ly-nu': {
+        icon: 'flower',
+        name: 'Sinh lý nữ',
+        description: 'Thực phẩm bổ sung lợi khuẩn và dưỡng chất hỗ trợ sức khỏe sinh lý nữ.',
       },
       'phu-nu-me-bau': {
         icon: 'flower',
