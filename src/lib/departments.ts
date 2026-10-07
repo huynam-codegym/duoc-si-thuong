@@ -115,6 +115,12 @@ const departmentData = {
         icon: 'sparkle',
         name: 'Hỗ trợ làm đẹp',
         description: 'Thực phẩm bổ sung dành cho người quan tâm đến làn da, mái tóc và móng.',
+        childGroups: ['cham-soc-da'],
+      },
+      'cham-soc-da': {
+        icon: 'sparkle',
+        name: 'Chăm sóc da',
+        description: 'Thực phẩm bổ sung collagen và dưỡng chất hỗ trợ làn da từ bên trong.',
       },
       'duong-huyet': {
         icon: 'droplet',
