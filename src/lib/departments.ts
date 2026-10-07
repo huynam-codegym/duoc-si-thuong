@@ -78,12 +78,17 @@ const departmentData = {
         icon: 'stomach',
         name: 'Tiêu hóa',
         description: 'Thực phẩm bổ sung như men vi sinh, chất xơ dành cho người quan tâm đến đường tiêu hóa.',
-        childGroups: ['ho-tro-an-ngon'],
+        childGroups: ['ho-tro-an-ngon', 'men-vi-sinh'],
       },
       'ho-tro-an-ngon': {
         icon: 'stomach',
         name: 'Hỗ trợ ăn ngon',
         description: 'Thực phẩm bổ sung dành cho trẻ biếng ăn, hấp thu kém, hỗ trợ tăng cường tiêu hóa.',
+      },
+      'men-vi-sinh': {
+        icon: 'stomach',
+        name: 'Men vi sinh',
+        description: 'Thực phẩm bổ sung lợi khuẩn (probiotic) hỗ trợ cân bằng hệ vi sinh đường ruột.',
       },
       'gan-mat': {
         icon: 'liver',
