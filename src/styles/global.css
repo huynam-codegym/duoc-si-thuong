@@ -325,7 +325,7 @@ img {
 
 .faq-chat-messages {
   flex: 1 1 auto;
-  min-height: 8rem;
+  min-height: 12rem;
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
