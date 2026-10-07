@@ -242,13 +242,12 @@ img {
   justify-content: center;
   width: 52px;
   height: 52px;
-  /* Viền tròn ngoài cũng màu xanh (chủ website yêu cầu), không phải xám nhạt mặc định. */
-  border: 1.5px solid var(--green-700);
+  border: none;
   border-radius: 50%;
-  /* Đảo màu (tháng 10/2026, chủ website yêu cầu): nền trắng, biểu tượng xanh — ngược lại bản trước
-     (nền xanh, biểu tượng trắng). */
-  background: #fff;
-  color: var(--green-700);
+  /* Nền gradient xanh-tím-hồng (tháng 10/2026, chủ website gửi ảnh icon Messenger làm mẫu màu sắc) —
+     xem ghi chú trong FaqChat.astro về việc không dùng nguyên logo Messenger. Bong bóng chat bên
+     trong luôn nền trắng (vẽ sẵn trong SVG), không phụ thuộc `color` ở đây. */
+  background: linear-gradient(135deg, #4f46e5, #a855f7 55%, #ec4899);
   box-shadow: 0 4px 10px rgb(0 0 0 / 0.28);
   cursor: pointer;
   transition: transform 0.15s;
