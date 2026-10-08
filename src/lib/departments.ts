@@ -174,11 +174,12 @@ const departmentData = {
         icon: 'sparkle',
         name: 'Chăm sóc da mặt',
         description: 'Sản phẩm làm sạch, dưỡng da và phục hồi da mặt.',
+        childGroups: ['chong-nang'],
       },
       'chong-nang': {
         icon: 'sun',
-        name: 'Chống nắng',
-        description: 'Kem và sản phẩm chống nắng bảo vệ da khỏi ánh nắng.',
+        name: 'Kem chống nắng da mặt',
+        description: 'Kem và sản phẩm chống nắng bảo vệ da mặt khỏi ánh nắng.',
       },
       'tri-mun-tham-nam': {
         icon: 'droplet',
