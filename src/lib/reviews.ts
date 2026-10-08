@@ -61,6 +61,20 @@ export async function fetchReviews(productSlug: string, ratingFilter?: number): 
   return (data ?? []) as ProductReview[];
 }
 
+/** Toàn bộ đánh giá của MỌI sản phẩm, mới nhất trước — dùng cho trang quản trị /admin/binh-luan/. */
+export async function fetchAllReviews(): Promise<ProductReview[]> {
+  const { data, error } = await supabase.from('product_reviews').select('*').order('created_at', { ascending: false });
+  if (error) throw error;
+  return (data ?? []) as ProductReview[];
+}
+
+/** Toàn bộ bình luận của MỌI sản phẩm, mới nhất trước — dùng cho trang quản trị /admin/binh-luan/. */
+export async function fetchAllComments(): Promise<ProductComment[]> {
+  const { data, error } = await supabase.from('product_comments').select('*').order('created_at', { ascending: false });
+  if (error) throw error;
+  return (data ?? []) as ProductComment[];
+}
+
 export async function submitReview(productSlug: string, rating: number, body: string, authorName: string): Promise<ProductReview> {
   const {
     data: { session },

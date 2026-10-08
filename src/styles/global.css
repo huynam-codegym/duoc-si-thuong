@@ -4407,6 +4407,47 @@ button.btn:not(.btn-outline) {
   }
 }
 
+/* Trang quản trị /admin/binh-luan/ — gom đánh giá/bình luận của mọi sản phẩm vào 1 danh sách. */
+.admin-feed-list {
+  margin-top: 1rem;
+}
+
+.admin-feed-item {
+  position: relative;
+  padding-top: 0.5rem;
+}
+
+.admin-feed-type {
+  display: inline-block;
+  padding: 0.1rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  margin-right: 0.5rem;
+}
+
+.admin-feed-type-review {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.admin-feed-type-comment {
+  background: var(--green-100);
+  color: var(--green-900);
+}
+
+.admin-feed-product-link {
+  font-weight: 700;
+  color: var(--ink);
+  text-decoration: underline;
+}
+
+.admin-feed-reply-note {
+  margin: 0.4rem 0 0;
+  color: var(--ink-soft);
+  font-size: 0.85rem;
+}
+
 @media (max-width: 30rem) {
   .review-reply,
   .review-admin-reply-form {

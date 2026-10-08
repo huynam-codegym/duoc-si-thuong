@@ -1,0 +1,333 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { url } from '../../lib/url';
+import { getProducts } from '../../lib/products';
+
+// Trang quản trị đánh giá/bình luận (tháng 10/2026) — CHỈ chủ website (profiles.is_admin = true) mới
+// xem được, kiểm tra ở script bên dưới (an toàn thật sự nằm ở RLS của product_reviews/product_comments
+// trong Supabase, trang này chỉ là giao diện). Gom TẤT CẢ đánh giá/bình luận của MỌI sản phẩm vào 1
+// danh sách mới nhất lên đầu, để dược sĩ không phải mở từng trang sản phẩm mới biết có gì mới.
+//
+// Nhúng sẵn map slug -> {name, department} (KHÔNG nhạy cảm, lấy từ getProducts() vốn đã tự loại sản
+// phẩm draft khi build production — khác san-pham.astro không nhúng gì vì trang đó cần thấy CẢ sản
+// phẩm nháp để sửa) để hiện tên sản phẩm + liên kết, không cần gọi thêm API nào khác.
+const products = await getProducts();
+const productMap = Object.fromEntries(products.map((p) => [p.id, { name: p.data.name, department: p.data.department }]));
+---
+
+<BaseLayout title="Quản lý đánh giá & bình luận" description="Trang quản trị đánh giá và bình luận sản phẩm." noindex>
+  <div class="container">
+    <section class="hero shop-hero">
+      <h1>Quản lý đánh giá &amp; bình luận</h1>
+    </section>
+
+    <p id="adminLoading">Đang kiểm tra đăng nhập...</p>
+
+    <div id="adminDenied" class="order" hidden>
+      <p id="adminDeniedText"></p>
+      <a class="btn" href={url('/')}>Về trang chủ</a>
+    </div>
+
+    <div id="adminFeedWrap" hidden>
+      <div class="reviews-filter" id="feedFilter" role="group" aria-label="Lọc theo loại">
+        <button type="button" class="pill-filter active" data-type="all">Tất cả</button>
+        <button type="button" class="pill-filter" data-type="review">Đánh giá</button>
+        <button type="button" class="pill-filter" data-type="comment">Bình luận</button>
+      </div>
+      <ul class="reviews-list admin-feed-list" id="adminFeedList" aria-live="polite"></ul>
+      <p class="empty" id="adminFeedEmpty" hidden>Chưa có đánh giá hoặc bình luận nào.</p>
+    </div>
+  </div>
+</BaseLayout>
+
+<script define:vars={{ productMap }} is:inline>
+  // "define:vars" tắt chế độ module (ESM) của thẻ <script> này — script dùng "import" phải tách riêng,
+  // xem bẫy đã ghi trong CLAUDE.md mục "Trang quản lý sản phẩm" (cùng lý do san-pham.astro tách 2 thẻ).
+  window.__productMap = productMap;
+</script>
+
+<script>
+  import { supabase } from '../../lib/supabase';
+  import { resolveDisplayName } from '../../lib/account';
+  import { isCurrentUserAdmin } from '../../lib/chat';
+  import { adminReplyToReview, fetchAllComments, fetchAllReviews, submitComment, type ProductComment, type ProductReview } from '../../lib/reviews';
+  import { url } from '../../lib/url';
+
+  const productMap = (window as any).__productMap as Record<string, { name: string; department: string }>;
+
+  const loading = document.getElementById('adminLoading')!;
+  const denied = document.getElementById('adminDenied')!;
+  const deniedText = document.getElementById('adminDeniedText')!;
+  const feedWrap = document.getElementById('adminFeedWrap')!;
+  const feedFilter = document.getElementById('feedFilter')!;
+  const feedList = document.getElementById('adminFeedList')!;
+  const feedEmpty = document.getElementById('adminFeedEmpty') as HTMLElement;
+
+  type FeedItem = ({ kind: 'review'; data: ProductReview } | { kind: 'comment'; data: ProductComment }) & { created_at: string };
+
+  let activeType: 'all' | 'review' | 'comment' = 'all';
+  let feed: FeedItem[] = [];
+
+  function formatDate(iso: string): string {
+    return new Date(iso).toLocaleString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+  }
+
+  function initials(name: string): string {
+    const parts = name.trim().split(/\s+/);
+    const last = parts[parts.length - 1] ?? '';
+    return (last[0] ?? '?').toUpperCase();
+  }
+
+  function starRow(rating: number): DocumentFragment {
+    const fragment = document.createDocumentFragment();
+    for (let i = 1; i <= 5; i++) {
+      const star = document.createElement('span');
+      star.className = `star-ico${i <= rating ? ' star-filled' : ''}`;
+      star.textContent = i <= rating ? '★' : '☆';
+      fragment.appendChild(star);
+    }
+    return fragment;
+  }
+
+  function productLink(productSlug: string, anchor: string): HTMLAnchorElement {
+    const info = productMap[productSlug];
+    const a = document.createElement('a');
+    a.className = 'admin-feed-product-link';
+    a.target = '_blank';
+    a.rel = 'noopener noreferrer';
+    if (info) {
+      a.href = url(`/${info.department}/${productSlug}/${anchor}`);
+      a.textContent = info.name;
+    } else {
+      // Sản phẩm có thể đã bị xoá/đổi slug sau khi khách đánh giá — vẫn hiện được, chỉ không có liên kết.
+      a.removeAttribute('href');
+      a.textContent = `Sản phẩm (${productSlug})`;
+    }
+    return a;
+  }
+
+  async function renderReviewItem(review: ProductReview): Promise<HTMLLIElement> {
+    const li = document.createElement('li');
+    li.className = 'review-item admin-feed-item';
+
+    const typeTag = document.createElement('span');
+    typeTag.className = 'admin-feed-type admin-feed-type-review';
+    typeTag.textContent = 'Đánh giá';
+    li.appendChild(typeTag);
+    li.appendChild(productLink(review.product_slug, '/#danh-gia'));
+
+    const head = document.createElement('div');
+    head.className = 'review-item-head';
+    const avatar = document.createElement('span');
+    avatar.className = 'review-avatar';
+    avatar.textContent = initials(review.author_name);
+    const meta = document.createElement('div');
+    meta.className = 'review-item-meta';
+    const nameEl = document.createElement('p');
+    nameEl.className = 'review-author';
+    nameEl.textContent = review.author_name;
+    const starsEl = document.createElement('p');
+    starsEl.className = 'review-stars';
+    const starsText = document.createElement('span');
+    starsText.setAttribute('aria-label', `${review.rating} trên 5 sao`);
+    starsText.appendChild(starRow(review.rating));
+    const dateEl = document.createElement('span');
+    dateEl.className = 'review-date';
+    dateEl.textContent = formatDate(review.created_at);
+    starsEl.append(starsText, dateEl);
+    meta.append(nameEl, starsEl);
+    head.append(avatar, meta);
+    li.appendChild(head);
+
+    if (review.body) {
+      const bodyEl = document.createElement('p');
+      bodyEl.className = 'review-body';
+      bodyEl.textContent = review.body;
+      li.appendChild(bodyEl);
+    }
+
+    if (review.admin_reply) {
+      const reply = document.createElement('div');
+      reply.className = 'review-reply';
+      const replyHead = document.createElement('p');
+      replyHead.className = 'review-reply-head';
+      const roleTag = document.createElement('span');
+      roleTag.className = 'role-tag';
+      roleTag.textContent = 'Dược Sĩ';
+      replyHead.append(`${review.admin_reply_by ?? 'Dược sĩ'} `, roleTag);
+      const replyBody = document.createElement('p');
+      replyBody.className = 'review-reply-body';
+      replyBody.textContent = review.admin_reply;
+      reply.append(replyHead, replyBody);
+      li.appendChild(reply);
+    } else {
+      const replyForm = document.createElement('form');
+      replyForm.className = 'review-admin-reply-form';
+      replyForm.innerHTML = `
+        <textarea rows="2" maxlength="1000" placeholder="Trả lời đánh giá này..."></textarea>
+        <button type="submit" class="btn btn-sm">Gửi trả lời</button>
+      `;
+      replyForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const textarea = replyForm.querySelector('textarea') as HTMLTextAreaElement;
+        const text = textarea.value.trim();
+        if (!text) return;
+        const button = replyForm.querySelector('button') as HTMLButtonElement;
+        button.disabled = true;
+        try {
+          await adminReplyToReview(review.id, text);
+          await loadFeed();
+        } catch (err) {
+          console.error(err);
+          button.disabled = false;
+        }
+      });
+      li.appendChild(replyForm);
+    }
+
+    return li;
+  }
+
+  function renderCommentItem(comment: ProductComment): HTMLLIElement {
+    const li = document.createElement('li');
+    li.className = 'review-item admin-feed-item';
+
+    const typeTag = document.createElement('span');
+    typeTag.className = 'admin-feed-type admin-feed-type-comment';
+    typeTag.textContent = 'Bình luận';
+    li.appendChild(typeTag);
+    li.appendChild(productLink(comment.product_slug, '/#binh-luan'));
+
+    if (comment.parent_id) {
+      const replyNote = document.createElement('p');
+      replyNote.className = 'admin-feed-reply-note';
+      replyNote.textContent = '↳ Trả lời trong 1 nhánh bình luận';
+      li.appendChild(replyNote);
+    }
+
+    const head = document.createElement('div');
+    head.className = 'review-item-head';
+    const avatar = document.createElement('span');
+    avatar.className = `review-avatar${comment.author_role === 'admin' ? ' review-avatar-admin' : ''}`;
+    avatar.textContent = initials(comment.author_name);
+    const meta = document.createElement('div');
+    meta.className = 'review-item-meta';
+    const nameEl = document.createElement('p');
+    nameEl.className = 'review-author';
+    nameEl.append(`${comment.author_name} `);
+    if (comment.author_role === 'admin') {
+      const roleTag = document.createElement('span');
+      roleTag.className = 'role-tag';
+      roleTag.textContent = 'Dược Sĩ';
+      nameEl.appendChild(roleTag);
+    }
+    const dateEl = document.createElement('p');
+    dateEl.className = 'review-date';
+    dateEl.textContent = formatDate(comment.created_at);
+    meta.append(nameEl, dateEl);
+    head.append(avatar, meta);
+    li.appendChild(head);
+
+    const bodyEl = document.createElement('p');
+    bodyEl.className = 'review-body';
+    bodyEl.textContent = comment.body;
+    li.appendChild(bodyEl);
+
+    const replyToggle = document.createElement('button');
+    replyToggle.type = 'button';
+    replyToggle.className = 'btn-link comment-reply-toggle';
+    replyToggle.textContent = 'Trả lời';
+    li.appendChild(replyToggle);
+
+    const replyForm = document.createElement('form');
+    replyForm.className = 'comment-reply-form';
+    replyForm.hidden = true;
+    replyForm.innerHTML = `
+      <textarea rows="2" maxlength="1000" placeholder="Viết trả lời..."></textarea>
+      <button type="submit" class="btn btn-sm">Gửi trả lời</button>
+    `;
+    li.appendChild(replyForm);
+
+    replyToggle.addEventListener('click', () => {
+      replyForm.hidden = !replyForm.hidden;
+      if (!replyForm.hidden) (replyForm.querySelector('textarea') as HTMLTextAreaElement).focus();
+    });
+
+    replyForm.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const textarea = replyForm.querySelector('textarea') as HTMLTextAreaElement;
+      const text = textarea.value.trim();
+      if (!text) return;
+      const button = replyForm.querySelector('button') as HTMLButtonElement;
+      button.disabled = true;
+      try {
+        const {
+          data: { session },
+        } = await supabase.auth.getSession();
+        const authorName = await resolveDisplayName(session!.user);
+        // Trả lời luôn gắn vào bình luận GỐC của nhánh (không phải id của chính bình luận đang bấm
+        // "Trả lời"), để mọi lượt qua lại nằm phẳng cùng 1 chỗ — khớp đúng cơ chế đã làm ở
+        // ProductReviews.astro (xem comment tương tự ở đó).
+        const rootId = comment.parent_id ?? comment.id;
+        await submitComment(comment.product_slug, text, authorName, true, rootId);
+        await loadFeed();
+      } catch (err) {
+        console.error(err);
+        button.disabled = false;
+      }
+    });
+
+    return li;
+  }
+
+  async function renderFeed() {
+    feedList.innerHTML = '';
+    const filtered = activeType === 'all' ? feed : feed.filter((f) => f.kind === activeType);
+    feedEmpty.hidden = filtered.length > 0;
+    for (const item of filtered) {
+      const li = item.kind === 'review' ? await renderReviewItem(item.data) : renderCommentItem(item.data);
+      feedList.appendChild(li);
+    }
+  }
+
+  async function loadFeed() {
+    const [reviews, comments] = await Promise.all([fetchAllReviews(), fetchAllComments()]);
+    const reviewItems: FeedItem[] = reviews.map((data) => ({ kind: 'review', data, created_at: data.created_at }));
+    const commentItems: FeedItem[] = comments.map((data) => ({ kind: 'comment', data, created_at: data.created_at }));
+    feed = [...reviewItems, ...commentItems].sort((a, b) => (a.created_at < b.created_at ? 1 : -1));
+    await renderFeed();
+  }
+
+  feedFilter.querySelectorAll<HTMLButtonElement>('.pill-filter').forEach((button) => {
+    button.addEventListener('click', async () => {
+      feedFilter.querySelectorAll('.pill-filter').forEach((b) => b.classList.remove('active'));
+      button.classList.add('active');
+      activeType = button.dataset.type as 'all' | 'review' | 'comment';
+      await renderFeed();
+    });
+  });
+
+  async function init() {
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+    if (!session) {
+      loading.hidden = true;
+      deniedText.textContent = 'Bạn cần đăng nhập đúng tài khoản quản trị để xem trang này — bấm "Đăng nhập" ở đầu trang.';
+      denied.hidden = false;
+      return;
+    }
+    const isAdmin = await isCurrentUserAdmin();
+    if (!isAdmin) {
+      loading.hidden = true;
+      deniedText.textContent = 'Tài khoản này không có quyền truy cập trang quản trị.';
+      denied.hidden = false;
+      return;
+    }
+    loading.hidden = true;
+    feedWrap.hidden = false;
+    await loadFeed();
+  }
+
+  init();
+</script>
