@@ -342,11 +342,23 @@ const { productSlug } = Astro.props;
       return false;
     }
 
+    // Ô bình luận luôn hiện sẵn (không ẩn như form đánh giá) nên phải tự chặn ngay lúc khách BẤM VÀO Ô
+    // (focus), không đợi tới lúc gửi mới báo — khách chưa đăng nhập thì bỏ focus ngay và mở modal đăng
+    // nhập, không gõ được chữ nào vào ô.
+    commentBody.addEventListener('focus', async () => {
+      if (!(await requireLogin())) commentBody.blur();
+    });
+
     reviewsOpenFormBtn.addEventListener('click', async () => {
       if (!(await requireLogin())) return;
+      const willShow = reviewForm.hidden;
       reviewForm.hidden = !reviewForm.hidden;
       reviewFormMsg.textContent = '';
-      if (!reviewForm.hidden) reviewBody.focus();
+      if (willShow) {
+        // Mặc định chọn sẵn 5 sao — khách tự điều chỉnh xuống nếu muốn, đỡ phải bấm sao mới gửi được.
+        setStars(5);
+        reviewBody.focus();
+      }
     });
     reviewCancelBtn.addEventListener('click', () => {
       reviewForm.hidden = true;
