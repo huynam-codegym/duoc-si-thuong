@@ -4368,6 +4368,45 @@ button.btn:not(.btn-outline) {
   gap: 0.6rem;
 }
 
+.comment-item {
+  padding: 0.25rem 0;
+}
+
+.comment-reply-toggle {
+  margin-top: 0.4rem;
+  font-size: 0.85rem;
+}
+
+.comment-reply-form {
+  margin-top: 0.5rem;
+  display: grid;
+  gap: 0.5rem;
+  max-width: 28rem;
+}
+
+.comment-reply-form textarea {
+  width: 100%;
+  padding: 0.5rem 0.7rem;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  font: inherit;
+  resize: vertical;
+}
+
+.comment-replies {
+  margin: 0.75rem 0 0 3.25rem;
+  padding-left: 1rem;
+  border-left: 2px solid var(--line);
+  display: grid;
+  gap: 1rem;
+}
+
+@media (max-width: 30rem) {
+  .comment-replies {
+    margin-left: 1rem;
+  }
+}
+
 @media (max-width: 30rem) {
   .review-reply,
   .review-admin-reply-form {

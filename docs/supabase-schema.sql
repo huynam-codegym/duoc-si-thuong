@@ -355,3 +355,14 @@ create policy "Khách xóa bình luận của chính mình"
   using (auth.uid() = user_id);
 
 create index on public.product_comments (product_slug);
+
+-- 8. Trả lời bình luận (tháng 10/2026) — biến "Bình luận sản phẩm" ở mục "7." thành luồng trò chuyện
+-- 2 CHIỀU thật sự: khách và dược sĩ trả lời qua lại được trong cùng 1 nhánh (trước đó dược sĩ chỉ đăng
+-- được 1 bình luận rời rạc, không trả lời đúng vào bình luận nào). parent_id null = bình luận GỐC;
+-- parent_id = id bình luận GỐC = một lượt TRẢ LỜI trong nhánh đó — CHỈ 1 CẤP (bấm "Trả lời" trên một
+-- trả lời vẫn gắn vào ĐÚNG bình luận gốc ban đầu, hiện phẳng theo thời gian trong cùng nhánh, kiểu
+-- Messenger, không lồng nhiều cấp cho dễ hiển thị). Ai cũng trả lời được (không riêng dược sĩ), đúng
+-- yêu cầu "khách cũng trả lời lại được bình luận của dược sĩ".
+alter table public.product_comments add column if not exists parent_id uuid references public.product_comments (id) on delete cascade;
+
+create index on public.product_comments (parent_id);

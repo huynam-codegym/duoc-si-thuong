@@ -276,9 +276,12 @@ const { productSlug } = Astro.props;
       await refreshSummary();
     }
 
-    function renderCommentItem(comment: ProductComment): HTMLLIElement {
-      const li = document.createElement('li');
-      li.className = 'comment-item';
+    // `topLevelId` = id bình luận GỐC của cả nhánh — nút "Trả lời" trên BẤT KỲ bình luận nào trong
+    // nhánh (kể cả trả lời của trả lời) đều gửi với parent_id = topLevelId này, để mọi lượt qua lại
+    // giữa khách và dược sĩ nằm PHẲNG, cùng 1 chỗ dưới bình luận gốc — không lồng nhiều cấp.
+    function renderCommentItem(comment: ProductComment, topLevelId: string): HTMLDivElement {
+      const item = document.createElement('div');
+      item.className = 'comment-item';
       const head = document.createElement('div');
       head.className = 'review-item-head';
       const avatar = document.createElement('span');
@@ -303,16 +306,87 @@ const { productSlug } = Astro.props;
       const bodyEl = document.createElement('p');
       bodyEl.className = 'review-body';
       bodyEl.textContent = comment.body;
-      li.append(head, bodyEl);
-      return li;
+      item.append(head, bodyEl);
+
+      const replyToggle = document.createElement('button');
+      replyToggle.type = 'button';
+      replyToggle.className = 'btn-link comment-reply-toggle';
+      replyToggle.textContent = 'Trả lời';
+      item.appendChild(replyToggle);
+
+      const replyForm = document.createElement('form');
+      replyForm.className = 'comment-reply-form';
+      replyForm.hidden = true;
+      replyForm.innerHTML = `
+        <textarea rows="2" maxlength="1000" placeholder="Viết trả lời..."></textarea>
+        <button type="submit" class="btn btn-sm">Gửi trả lời</button>
+      `;
+      item.appendChild(replyForm);
+
+      replyToggle.addEventListener('click', async () => {
+        if (!replyForm.hidden) {
+          replyForm.hidden = true;
+          return;
+        }
+        if (!(await requireLogin())) return;
+        replyForm.hidden = false;
+        (replyForm.querySelector('textarea') as HTMLTextAreaElement).focus();
+      });
+
+      replyForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        if (!(await requireLogin())) return;
+        const textarea = replyForm.querySelector('textarea') as HTMLTextAreaElement;
+        const text = textarea.value.trim();
+        if (!text) return;
+        const button = replyForm.querySelector('button') as HTMLButtonElement;
+        button.disabled = true;
+        try {
+          const {
+            data: { session },
+          } = await supabase.auth.getSession();
+          const authorName = await resolveDisplayName(session!.user);
+          await submitComment(productSlug, text, authorName, isAdmin, topLevelId);
+          textarea.value = '';
+          replyForm.hidden = true;
+          await loadComments();
+          await refreshSummary();
+        } catch (err) {
+          console.error('Không gửi được trả lời:', err);
+        } finally {
+          button.disabled = false;
+        }
+      });
+
+      return item;
     }
 
     async function loadComments() {
       try {
         const comments = await fetchComments(productSlug);
         commentsList.innerHTML = '';
-        commentsEmpty.hidden = comments.length > 0;
-        comments.forEach((comment) => commentsList.appendChild(renderCommentItem(comment)));
+        const topLevel = comments.filter((c) => !c.parent_id);
+        commentsEmpty.hidden = topLevel.length > 0;
+        const repliesByParent = new Map<string, ProductComment[]>();
+        comments
+          .filter((c) => c.parent_id)
+          .forEach((c) => {
+            const list = repliesByParent.get(c.parent_id!) ?? [];
+            list.push(c);
+            repliesByParent.set(c.parent_id!, list);
+          });
+        topLevel.forEach((comment) => {
+          const li = document.createElement('li');
+          li.appendChild(renderCommentItem(comment, comment.id));
+          const replies = repliesByParent.get(comment.id) ?? [];
+          if (replies.length > 0) {
+            const repliesWrap = document.createElement('div');
+            repliesWrap.className = 'comment-replies';
+            replies.forEach((reply) => repliesWrap.appendChild(renderCommentItem(reply, comment.id)));
+            li.appendChild(repliesWrap);
+          }
+          commentsList.appendChild(li);
+        });
       } catch (err) {
         console.error('Không tải được bình luận:', err);
         commentsList.innerHTML = '';

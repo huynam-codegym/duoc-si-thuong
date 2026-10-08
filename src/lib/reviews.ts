@@ -26,6 +26,7 @@ export interface ProductComment {
   author_name: string;
   author_role: 'customer' | 'admin';
   body: string;
+  parent_id: string | null;
   created_at: string;
 }
 
@@ -85,7 +86,12 @@ export async function fetchComments(productSlug: string): Promise<ProductComment
   return (data ?? []) as ProductComment[];
 }
 
-export async function submitComment(productSlug: string, body: string, authorName: string, isAdmin: boolean): Promise<ProductComment> {
+/**
+ * `parentId` (không bắt buộc): id của bình luận GỐC đang trả lời — để trống thì tạo bình luận gốc mới.
+ * Trả lời của 1 trả lời vẫn truyền ĐÚNG id bình luận gốc ban đầu (không phải id của trả lời vừa bấm
+ * "Trả lời"), để mọi lượt trả lời trong 1 nhánh nằm phẳng cùng chỗ — xem ProductReviews.astro.
+ */
+export async function submitComment(productSlug: string, body: string, authorName: string, isAdmin: boolean, parentId?: string): Promise<ProductComment> {
   const {
     data: { session },
   } = await supabase.auth.getSession();
@@ -94,7 +100,14 @@ export async function submitComment(productSlug: string, body: string, authorNam
   if (!trimmed) throw new Error('Bình luận không được để trống.');
   const { data, error } = await supabase
     .from('product_comments')
-    .insert({ product_slug: productSlug, user_id: session.user.id, author_name: authorName, author_role: isAdmin ? 'admin' : 'customer', body: trimmed })
+    .insert({
+      product_slug: productSlug,
+      user_id: session.user.id,
+      author_name: authorName,
+      author_role: isAdmin ? 'admin' : 'customer',
+      body: trimmed,
+      parent_id: parentId ?? null,
+    })
     .select('*')
     .single();
   if (error) throw error;
