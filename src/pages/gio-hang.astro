@@ -112,9 +112,10 @@ import { url } from '../lib/url';
               <img id="bank-qr-img" alt="Mã QR chuyển khoản Techcombank, số tài khoản 19033499418015, chủ tài khoản NGUYEN THI THUONG" width="220" height="220" loading="lazy" />
               <p class="bank-qr-caption">
                 Techcombank · STK <strong>19033499418015</strong><br />
-                Chủ TK: <strong>NGUYEN THI THUONG</strong>
+                Chủ TK: <strong>NGUYEN THI THUONG</strong><br />
+                Nội dung CK đã tự điền mã đơn: <strong id="bank-qr-order-id"></strong>
               </p>
-              <p class="bank-qr-note">Số tiền trên mã QR là tạm tính, có thể đổi khi nhà thuốc xác nhận lại. Vui lòng đợi nhà thuốc gọi xác nhận trước khi chuyển khoản.</p>
+              <p class="bank-qr-note">Số tiền trên mã QR là tạm tính, có thể đổi khi nhà thuốc xác nhận lại. Vui lòng đợi nhà thuốc gọi xác nhận trước khi chuyển khoản. Giữ nguyên nội dung chuyển khoản để nhà thuốc đối chiếu đúng đơn hàng.</p>
             </div>
             <label class="payment-option">
               <input type="radio" name="payment_method" value="momo" />
@@ -199,6 +200,12 @@ import { url } from '../lib/url';
     const unpricedEl = document.getElementById('cart-unpriced')!;
     const result = document.getElementById('order-result')!;
     const error = form.querySelector<HTMLElement>('.order-error')!;
+
+    // Mã đơn sinh MỘT LẦN khi tải trang (không phải lúc bấm "Hoàn tất") để dùng chung cho cả nội
+    // dung chuyển khoản QR (khách thấy ngay khi chọn "Chuyển khoản") lẫn đơn hàng/email gửi đi lúc
+    // submit — nhờ vậy nhà thuốc đối chiếu được đúng giao dịch ngân hàng với đúng đơn hàng. Không
+    // phải khóa chính lưu trong cơ sở dữ liệu nào, chỉ để tiện đối chiếu/nhắc tới nhau.
+    const checkoutOrderId = `${Date.now().toString(36)}${Math.random().toString(36).slice(2, 5)}`.toUpperCase();
 
     function el<K extends keyof HTMLElementTagNameMap>(tag: K, className?: string, text?: string) {
       const node = document.createElement(tag);
@@ -321,6 +328,8 @@ import { url } from '../lib/url';
     const BANK_ACCOUNT_NAME = 'NGUYEN THI THUONG';
     const bankQrBox = document.getElementById('bank-qr-box')!;
     const bankQrImg = document.getElementById('bank-qr-img') as HTMLImageElement;
+    const bankQrOrderIdEl = document.getElementById('bank-qr-order-id')!;
+    bankQrOrderIdEl.textContent = `#${checkoutOrderId}`;
 
     function updateBankQr() {
       const selected = form.querySelector<HTMLInputElement>('[name="payment_method"]:checked')?.value;
@@ -332,7 +341,7 @@ import { url } from '../lib/url';
       const items = getCart();
       const total = cartTotal(items) + (shippingFee(items) ?? 0);
       const amount = total > 0 ? String(total) : '';
-      const addInfo = 'Thanh toan don hang Duoc Si Thuong';
+      const addInfo = `Thanh toan don ${checkoutOrderId} Duoc Si Thuong`;
       bankQrImg.src = `https://img.vietqr.io/image/${BANK_BIN}-${BANK_ACCOUNT}-qr_only.png?amount=${amount}&addInfo=${encodeURIComponent(addInfo)}&accountName=${encodeURIComponent(BANK_ACCOUNT_NAME)}`;
     }
 
@@ -415,10 +424,9 @@ import { url } from '../lib/url';
       const shipping = shippingFee(items);
       const paymentMethod = String(data.get('payment_method') ?? 'cod');
       const hideProductName = data.get('hide_product_name') === 'on';
-      // Mã đơn chỉ để khách/nhà thuốc tiện nhắc tới nhau (ví dụ qua điện thoại), không phải khóa
-      // chính lưu trong cơ sở dữ liệu nào — sinh ngay ở trình duyệt, đủ dùng vì site chưa có hệ
-      // thống quản lý đơn hàng thật.
-      const orderId = `${Date.now().toString(36)}${Math.random().toString(36).slice(2, 5)}`.toUpperCase();
+      // Dùng lại đúng mã đơn đã sinh lúc tải trang (xem khai báo checkoutOrderId ở đầu script) —
+      // mã này đã hiện sẵn trong nội dung chuyển khoản QR nếu khách chọn thanh toán bằng CK.
+      const orderId = checkoutOrderId;
       const order = {
         orderId,
         items: items.map((item) => ({ id: item.id, name: item.name, qty: item.qty, price: item.price })),
