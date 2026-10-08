@@ -123,6 +123,7 @@ const { productSlug } = Astro.props;
     let selectedStars = 0;
     let activeFilter = 0;
     let isAdmin = false;
+    let currentUserId: string | null = null;
 
     function formatDate(iso: string): string {
       return new Date(iso).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' });
@@ -316,6 +317,9 @@ const { productSlug } = Astro.props;
       replyToggle.type = 'button';
       replyToggle.className = 'btn-link comment-reply-toggle';
       replyToggle.textContent = 'Trả lời';
+      // Không cho tự trả lời bình luận của CHÍNH MÌNH (dù khách hay dược sĩ) — không có ý nghĩa gì,
+      // muốn nói thêm thì viết bình luận mới.
+      if (comment.user_id === currentUserId) replyToggle.hidden = true;
       item.appendChild(replyToggle);
 
       const replyForm = document.createElement('form');
@@ -515,13 +519,19 @@ const { productSlug } = Astro.props;
     });
 
     async function refreshAdminState() {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      currentUserId = session?.user.id ?? null;
       isAdmin = await isCurrentUserAdmin();
-      await loadReviews();
+      // Cả 2 đều render lại ở đây (không gọi loadComments() riêng ở ngoài nữa) vì currentUserId ảnh
+      // hưởng tới việc ẩn nút "Trả lời" trên BÌNH LUẬN CỦA CHÍNH MÌNH — phải biết currentUserId trước
+      // khi vẽ bình luận, kể cả lúc đổi trạng thái đăng nhập (onAuthStateChange).
+      await Promise.all([loadReviews(), loadComments()]);
     }
 
     supabase.auth.onAuthStateChange(() => refreshAdminState());
 
     refreshAdminState();
-    loadComments();
   }
 </script>

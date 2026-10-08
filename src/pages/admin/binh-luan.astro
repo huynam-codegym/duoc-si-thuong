@@ -66,6 +66,7 @@ const productMap = Object.fromEntries(products.map((p) => [p.id, { name: p.data.
   type FeedItem = ({ kind: 'review'; data: ProductReview } | { kind: 'comment'; data: ProductComment }) & { created_at: string };
 
   let activeType: 'all' | 'review' | 'comment' = 'all';
+  let currentUserId: string | null = null;
   let feed: FeedItem[] = [];
 
   function formatDate(iso: string): string {
@@ -241,6 +242,8 @@ const productMap = Object.fromEntries(products.map((p) => [p.id, { name: p.data.
     replyToggle.type = 'button';
     replyToggle.className = 'btn-link comment-reply-toggle';
     replyToggle.textContent = 'Trả lời';
+    // Không cho tự trả lời bình luận của CHÍNH MÌNH — cùng lý do/cơ chế với ProductReviews.astro.
+    if (comment.user_id === currentUserId) replyToggle.hidden = true;
     li.appendChild(replyToggle);
 
     const replyForm = document.createElement('form');
@@ -332,6 +335,7 @@ const productMap = Object.fromEntries(products.map((p) => [p.id, { name: p.data.
       denied.hidden = false;
       return;
     }
+    currentUserId = session.user.id;
     loading.hidden = true;
     feedWrap.hidden = false;
     await loadFeed();
