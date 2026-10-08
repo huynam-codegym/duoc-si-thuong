@@ -166,20 +166,24 @@ const productMap = Object.fromEntries(products.map((p) => [p.id, { name: p.data.
       replyForm.innerHTML = `
         <textarea rows="2" maxlength="1000" placeholder="Trả lời đánh giá này..."></textarea>
         <button type="submit" class="btn btn-sm">Gửi trả lời</button>
+        <p class="review-form-msg"></p>
       `;
       replyForm.addEventListener('submit', async (event) => {
         event.preventDefault();
         const textarea = replyForm.querySelector('textarea') as HTMLTextAreaElement;
+        const msg = replyForm.querySelector('.review-form-msg') as HTMLElement;
         const text = textarea.value.trim();
         if (!text) return;
         const button = replyForm.querySelector('button') as HTMLButtonElement;
         button.disabled = true;
+        msg.textContent = '';
         try {
           await adminReplyToReview(review.id, text);
           await loadFeed();
         } catch (err) {
           console.error(err);
           button.disabled = false;
+          msg.textContent = 'Có lỗi khi gửi trả lời, vui lòng thử lại.';
         }
       });
       li.appendChild(replyForm);
@@ -245,6 +249,7 @@ const productMap = Object.fromEntries(products.map((p) => [p.id, { name: p.data.
     replyForm.innerHTML = `
       <textarea rows="2" maxlength="1000" placeholder="Viết trả lời..."></textarea>
       <button type="submit" class="btn btn-sm">Gửi trả lời</button>
+      <p class="review-form-msg"></p>
     `;
     li.appendChild(replyForm);
 
@@ -256,10 +261,12 @@ const productMap = Object.fromEntries(products.map((p) => [p.id, { name: p.data.
     replyForm.addEventListener('submit', async (event) => {
       event.preventDefault();
       const textarea = replyForm.querySelector('textarea') as HTMLTextAreaElement;
+      const msg = replyForm.querySelector('.review-form-msg') as HTMLElement;
       const text = textarea.value.trim();
       if (!text) return;
       const button = replyForm.querySelector('button') as HTMLButtonElement;
       button.disabled = true;
+      msg.textContent = '';
       try {
         const {
           data: { session },
@@ -274,6 +281,7 @@ const productMap = Object.fromEntries(products.map((p) => [p.id, { name: p.data.
       } catch (err) {
         console.error(err);
         button.disabled = false;
+        msg.textContent = 'Có lỗi khi gửi trả lời, vui lòng thử lại.';
       }
     });
 

@@ -238,20 +238,24 @@ const { productSlug } = Astro.props;
         replyForm.innerHTML = `
           <textarea rows="2" maxlength="1000" placeholder="Trả lời đánh giá này với tư cách dược sĩ..."></textarea>
           <button type="submit" class="btn btn-sm">Gửi trả lời</button>
+          <p class="review-form-msg"></p>
         `;
         replyForm.addEventListener('submit', async (event) => {
           event.preventDefault();
           const textarea = replyForm.querySelector('textarea') as HTMLTextAreaElement;
+          const msg = replyForm.querySelector('.review-form-msg') as HTMLElement;
           const text = textarea.value.trim();
           if (!text) return;
           const button = replyForm.querySelector('button') as HTMLButtonElement;
           button.disabled = true;
+          msg.textContent = '';
           try {
             await adminReplyToReview(review.id, text);
             await loadReviews();
           } catch (err) {
             button.disabled = false;
             console.error(err);
+            msg.textContent = 'Có lỗi khi gửi trả lời, vui lòng thử lại.';
           }
         });
         li.appendChild(replyForm);
@@ -320,6 +324,7 @@ const { productSlug } = Astro.props;
       replyForm.innerHTML = `
         <textarea rows="2" maxlength="1000" placeholder="Viết trả lời..."></textarea>
         <button type="submit" class="btn btn-sm">Gửi trả lời</button>
+        <p class="review-form-msg"></p>
       `;
       item.appendChild(replyForm);
 
@@ -337,10 +342,12 @@ const { productSlug } = Astro.props;
         event.preventDefault();
         if (!(await requireLogin())) return;
         const textarea = replyForm.querySelector('textarea') as HTMLTextAreaElement;
+        const msg = replyForm.querySelector('.review-form-msg') as HTMLElement;
         const text = textarea.value.trim();
         if (!text) return;
         const button = replyForm.querySelector('button') as HTMLButtonElement;
         button.disabled = true;
+        msg.textContent = '';
         try {
           const {
             data: { session },
@@ -353,6 +360,7 @@ const { productSlug } = Astro.props;
           await refreshSummary();
         } catch (err) {
           console.error('Không gửi được trả lời:', err);
+          msg.textContent = 'Có lỗi khi gửi trả lời, vui lòng thử lại.';
         } finally {
           button.disabled = false;
         }
