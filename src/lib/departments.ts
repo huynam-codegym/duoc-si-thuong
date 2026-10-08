@@ -135,8 +135,14 @@ const departmentData = {
       },
       'xuong-khop': {
         icon: 'bone',
-        name: 'Xương khớp',
-        description: 'Thực phẩm bổ sung dành cho người quan tâm đến sức khỏe xương và khớp.',
+        name: 'Cơ xương khớp',
+        description: 'Thực phẩm bổ sung dành cho người quan tâm đến sức khỏe cơ, xương và khớp.',
+        childGroups: ['ho-tro-xuong-khop'],
+      },
+      'ho-tro-xuong-khop': {
+        icon: 'bone',
+        name: 'Hỗ trợ xương khớp',
+        description: 'Thực phẩm bổ sung canxi, collagen, glucosamine hỗ trợ xương chắc khỏe và khớp linh hoạt.',
       },
       'canxi-vitamin-d': {
         icon: 'bone',
