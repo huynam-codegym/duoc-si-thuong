@@ -5,6 +5,7 @@ import logo from '../../assets/logo.jpg';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import ShopShell from '../../components/ShopShell.astro';
 import ProductNotice from '../../components/ProductNotice.astro';
+import ProductReviews from '../../components/ProductReviews.astro';
 import Disclaimer from '../../components/Disclaimer.astro';
 import { departments } from '../../lib/departments';
 import { originFlagCode } from '../../lib/flags';
@@ -213,6 +214,13 @@ const jsonLd = {
           </p>
           <a class="tag" href={url(`/${departmentSlug}/nhom/${group}/`)}>{groupInfo.name}</a>
           <h1>{name}</h1>
+          <p class="rating-summary-line" id="ratingSummaryLine" hidden>
+            <a href="#danh-gia" class="rating-summary-link">
+              <span class="star-ico star-filled" aria-hidden="true">★</span>
+              <strong id="ratingSummaryAvg"></strong>
+              <span id="ratingSummaryCounts"></span>
+            </a>
+          </p>
           <p class="lead">{summary}</p>
           <p class="product-price product-price-lg">
             {formatPrice(price)}
@@ -301,6 +309,8 @@ const jsonLd = {
           </div>
         </div>
       </section>
+
+      <ProductReviews productSlug={product.id} />
 
       <p class="product-seller">
         Sản phẩm được giới thiệu và bán bởi {site.pharmacy.name} (do dược sĩ Thương điều hành). Thông tin sản phẩm cập

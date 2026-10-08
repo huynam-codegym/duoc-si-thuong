@@ -1313,6 +1313,10 @@ const drawerSections: DrawerSection[] = [
     event.preventDefault();
     openAccountModal();
   });
+  // Cho các component KHÁC (ví dụ ProductReviews.astro — nút "Gửi đánh giá"/"Bình luận" khi chưa đăng
+  // nhập) mở được modal này mà không cần import trực tiếp (mỗi thẻ <script> là 1 module riêng, không
+  // chia sẻ biến/hàm được) — chỉ cần bắn sự kiện window, không quan tâm Header.astro cài đặt thế nào.
+  window.addEventListener('duocsithuong:open-account', () => openAccountModal());
   accountModal?.querySelectorAll<HTMLElement>('[data-close="account"]').forEach((el) => el.addEventListener('click', closeAccountModal));
   document.addEventListener('keydown', (event) => {
     if (event.key === 'Escape' && accountModal && !accountModal.hidden) closeAccountModal();

@@ -259,3 +259,99 @@ create policy "Admin tải lên và xem mọi đính kèm"
   on storage.objects for all
   using (bucket_id = 'chat-attachments' and exists (select 1 from public.profiles where id = auth.uid() and is_admin = true))
   with check (bucket_id = 'chat-attachments' and exists (select 1 from public.profiles where id = auth.uid() and is_admin = true));
+
+-- 7. Đánh giá sản phẩm (có sao) và bình luận sản phẩm (tháng 10/2026) — 2 luồng TÁCH RIÊNG theo yêu cầu
+-- chủ website: "Đánh giá" luôn có sao (1-5, bắt buộc) + chữ (không bắt buộc), dược sĩ trả lời được
+-- NGAY DƯỚI mỗi đánh giá (1 lượt trả lời/đánh giá, đủ dùng cho quy mô site này). "Bình luận" là khung
+-- tự do riêng, không cần sao, khách đăng nhập bình luận được nhiều lần. Cả hai: AI CŨNG ĐỌC ĐƯỢC (kể
+-- cả chưa đăng nhập) — chỉ GỬI mới cần đăng nhập. Dùng chung cho MỌI sản phẩm qua `product_slug`
+-- (chính là tên file .md trong src/content/products/, không kèm department vì slug sản phẩm vốn đã
+-- duy nhất toàn site). Xem src/lib/reviews.ts, src/components/ProductReviews.astro.
+
+create table public.product_reviews (
+  id uuid primary key default gen_random_uuid(),
+  product_slug text not null,
+  user_id uuid not null references auth.users (id) on delete cascade,
+  author_name text not null,
+  rating smallint not null check (rating between 1 and 5),
+  body text,
+  admin_reply text,
+  admin_reply_by text,
+  admin_reply_at timestamptz,
+  created_at timestamptz not null default now(),
+  unique (product_slug, user_id)
+);
+
+alter table public.product_reviews enable row level security;
+
+create policy "Ai cũng xem được đánh giá"
+  on public.product_reviews for select
+  using (true);
+
+create policy "Khách đã đăng nhập tạo đánh giá của chính mình"
+  on public.product_reviews for insert
+  with check (auth.uid() = user_id);
+
+create policy "Khách xóa đánh giá của chính mình"
+  on public.product_reviews for delete
+  using (auth.uid() = user_id);
+
+create index on public.product_reviews (product_slug);
+
+-- Dược sĩ trả lời đánh giá qua hàm riêng (KHÔNG cấp UPDATE trực tiếp trên bảng cho ai, kể cả admin) —
+-- cùng lý do đã áp dụng cho "đã xem" ở mục 6b: nếu cấp UPDATE thường, khách có thể lợi dụng sửa luôn
+-- rating/body của bất kỳ đánh giá nào (kể cả của người khác) qua gọi thẳng REST API, không chỉ cột
+-- admin_reply. Hàm này security definer nên không cần cấp UPDATE thật nào trên bảng.
+create function public.admin_reply_to_review(p_review_id uuid, p_reply text)
+returns void
+language plpgsql
+security definer set search_path = public
+as $$
+declare
+  v_name text;
+begin
+  if not exists (select 1 from public.profiles where id = auth.uid() and is_admin = true) then
+    raise exception 'not authorized';
+  end if;
+  select coalesce(full_name, 'Dược sĩ') into v_name from public.profiles where id = auth.uid();
+  update public.product_reviews
+  set admin_reply = p_reply, admin_reply_by = v_name, admin_reply_at = now()
+  where id = p_review_id;
+end;
+$$;
+
+grant execute on function public.admin_reply_to_review(uuid, text) to authenticated;
+
+create table public.product_comments (
+  id uuid primary key default gen_random_uuid(),
+  product_slug text not null,
+  user_id uuid not null references auth.users (id) on delete cascade,
+  author_name text not null,
+  author_role text not null default 'customer' check (author_role in ('customer', 'admin')),
+  body text not null,
+  created_at timestamptz not null default now()
+);
+
+alter table public.product_comments enable row level security;
+
+create policy "Ai cũng xem được bình luận"
+  on public.product_comments for select
+  using (true);
+
+-- author_role phải khớp thật với quyền của người gửi (không tin JS phía trình duyệt tự gắn nhãn
+-- "admin" cho chính mình) — chỉ tài khoản có profiles.is_admin = true mới gửi được author_role='admin'.
+create policy "Khách đã đăng nhập tạo bình luận của chính mình"
+  on public.product_comments for insert
+  with check (
+    auth.uid() = user_id
+    and (
+      author_role = 'customer'
+      or (author_role = 'admin' and exists (select 1 from public.profiles where id = auth.uid() and is_admin = true))
+    )
+  );
+
+create policy "Khách xóa bình luận của chính mình"
+  on public.product_comments for delete
+  using (auth.uid() = user_id);
+
+create index on public.product_comments (product_slug);

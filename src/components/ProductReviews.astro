@@ -1,0 +1,433 @@
+---
+// Đánh giá (có sao) và bình luận (chat tự do, không sao) sản phẩm — 2 luồng TÁCH RIÊNG, dùng chung
+// cho MỌI sản phẩm (gắn 1 lần trong [department]/[slug].astro). Ai cũng xem được, kể cả chưa đăng
+// nhập; chỉ gửi đánh giá/bình luận mới cần đăng nhập (mở modal đăng nhập có sẵn ở Header.astro qua sự
+// kiện window). Dữ liệu lưu ở Supabase (product_reviews/product_comments, xem docs/supabase-schema.sql
+// mục "7."), không có đánh giá mẫu/giả nào — mọi sản phẩm bắt đầu từ 0, đúng dữ liệu thật của khách.
+interface Props {
+  productSlug: string;
+}
+const { productSlug } = Astro.props;
+---
+
+<section class="reviews-wrap" data-product-slug={productSlug}>
+  <section class="reviews-block" id="danh-gia" aria-label="Đánh giá sản phẩm">
+    <h2 class="reviews-title">
+      Đánh giá sản phẩm <span class="reviews-title-count" id="reviewsCountLabel"></span>
+    </h2>
+
+    <div class="reviews-summary" id="reviewsSummary" hidden>
+      <div class="reviews-average">
+        <span class="reviews-average-label">Trung bình</span>
+        <span class="reviews-average-num" id="reviewsAverageNum">0</span>
+        <span class="star-ico star-filled" aria-hidden="true">★</span>
+      </div>
+      <div class="reviews-bars" id="reviewsBars"></div>
+    </div>
+
+    <button type="button" class="btn" id="reviewsOpenFormBtn">Gửi đánh giá</button>
+
+    <form id="reviewForm" class="review-form" hidden>
+      <p class="review-form-label">Chọn số sao</p>
+      <div class="star-input-row" id="starInputRow" role="radiogroup" aria-label="Chọn số sao">
+        {[1, 2, 3, 4, 5].map((n) => (
+          <button type="button" class="star-input" data-value={n} aria-label={`${n} sao`} aria-pressed="false">★</button>
+        ))}
+      </div>
+      <textarea id="reviewBody" class="review-textarea" rows="3" maxlength="1000" placeholder="Chia sẻ cảm nhận của bạn về sản phẩm (không bắt buộc)"></textarea>
+      <div class="review-form-actions">
+        <button type="submit" class="btn" id="reviewSubmitBtn">Gửi đánh giá</button>
+        <button type="button" class="btn btn-outline" id="reviewCancelBtn">Hủy</button>
+      </div>
+      <p class="review-form-msg" id="reviewFormMsg" role="status"></p>
+    </form>
+
+    <div class="reviews-filter" id="reviewsFilter" role="group" aria-label="Lọc theo số sao" hidden>
+      <button type="button" class="pill-filter active" data-rating="0">Tất cả</button>
+      <button type="button" class="pill-filter" data-rating="5">5 sao</button>
+      <button type="button" class="pill-filter" data-rating="4">4 sao</button>
+      <button type="button" class="pill-filter" data-rating="3">3 sao</button>
+      <button type="button" class="pill-filter" data-rating="2">2 sao</button>
+      <button type="button" class="pill-filter" data-rating="1">1 sao</button>
+    </div>
+
+    <ul class="reviews-list" id="reviewsList" aria-live="polite"></ul>
+    <p class="reviews-empty" id="reviewsEmpty" hidden>Chưa có đánh giá nào. Hãy là người đầu tiên chia sẻ cảm nhận về sản phẩm này!</p>
+  </section>
+
+  <section class="comments-block" id="binh-luan" aria-label="Bình luận sản phẩm">
+    <h2 class="reviews-title">
+      Bình luận <span class="reviews-title-count" id="commentsCountLabel"></span>
+    </h2>
+    <ul class="comments-list" id="commentsList" aria-live="polite"></ul>
+    <p class="reviews-empty" id="commentsEmpty" hidden>Chưa có bình luận nào. Có câu hỏi về sản phẩm? Hãy để lại bình luận!</p>
+    <form id="commentForm" class="comment-form">
+      <textarea id="commentBody" class="review-textarea" rows="2" maxlength="1000" placeholder="Viết bình luận hoặc câu hỏi về sản phẩm..."></textarea>
+      <button type="submit" class="btn" id="commentSubmitBtn">Gửi bình luận</button>
+      <p class="review-form-msg" id="commentFormMsg" role="status"></p>
+    </form>
+  </section>
+</section>
+
+<script>
+  import { supabase } from '../lib/supabase';
+  import { resolveDisplayName } from '../lib/account';
+  import { isCurrentUserAdmin } from '../lib/chat';
+  import {
+    adminReplyToReview,
+    fetchComments,
+    fetchReviewSummary,
+    fetchReviews,
+    submitComment,
+    submitReview,
+    type ProductComment,
+    type ProductReview,
+  } from '../lib/reviews';
+
+  const wrap = document.querySelector<HTMLElement>('.reviews-wrap');
+  const productSlug = wrap?.dataset.productSlug ?? '';
+  if (wrap && productSlug) {
+    initReviews(productSlug);
+  }
+
+  function initReviews(productSlug: string) {
+    const reviewsCountLabel = document.getElementById('reviewsCountLabel')!;
+    const reviewsSummary = document.getElementById('reviewsSummary') as HTMLElement;
+    const reviewsAverageNum = document.getElementById('reviewsAverageNum')!;
+    const reviewsBars = document.getElementById('reviewsBars')!;
+    const reviewsOpenFormBtn = document.getElementById('reviewsOpenFormBtn') as HTMLButtonElement;
+    const reviewForm = document.getElementById('reviewForm') as HTMLFormElement;
+    const starInputRow = document.getElementById('starInputRow') as HTMLElement;
+    const starButtons = Array.from(starInputRow.querySelectorAll<HTMLButtonElement>('.star-input'));
+    const reviewBody = document.getElementById('reviewBody') as HTMLTextAreaElement;
+    const reviewSubmitBtn = document.getElementById('reviewSubmitBtn') as HTMLButtonElement;
+    const reviewCancelBtn = document.getElementById('reviewCancelBtn') as HTMLButtonElement;
+    const reviewFormMsg = document.getElementById('reviewFormMsg')!;
+    const reviewsFilter = document.getElementById('reviewsFilter') as HTMLElement;
+    const reviewsList = document.getElementById('reviewsList')!;
+    const reviewsEmpty = document.getElementById('reviewsEmpty') as HTMLElement;
+
+    const commentsCountLabel = document.getElementById('commentsCountLabel')!;
+    const commentsList = document.getElementById('commentsList')!;
+    const commentsEmpty = document.getElementById('commentsEmpty') as HTMLElement;
+    const commentForm = document.getElementById('commentForm') as HTMLFormElement;
+    const commentBody = document.getElementById('commentBody') as HTMLTextAreaElement;
+    const commentSubmitBtn = document.getElementById('commentSubmitBtn') as HTMLButtonElement;
+    const commentFormMsg = document.getElementById('commentFormMsg')!;
+
+    // Dòng tóm tắt nhỏ gần tên sản phẩm (đầu trang), do [department]/[slug].astro dựng sẵn khung rỗng.
+    const ratingSummaryLine = document.getElementById('ratingSummaryLine') as HTMLElement | null;
+    const ratingSummaryAvg = document.getElementById('ratingSummaryAvg');
+    const ratingSummaryCounts = document.getElementById('ratingSummaryCounts');
+
+    let selectedStars = 0;
+    let activeFilter = 0;
+    let isAdmin = false;
+
+    function formatDate(iso: string): string {
+      return new Date(iso).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    }
+
+    function initials(name: string): string {
+      const parts = name.trim().split(/\s+/);
+      const last = parts[parts.length - 1] ?? '';
+      return (last[0] ?? '?').toUpperCase();
+    }
+
+    function starRow(rating: number): DocumentFragment {
+      const fragment = document.createDocumentFragment();
+      for (let i = 1; i <= 5; i++) {
+        const star = document.createElement('span');
+        star.className = `star-ico${i <= rating ? ' star-filled' : ''}`;
+        star.textContent = i <= rating ? '★' : '☆';
+        fragment.appendChild(star);
+      }
+      return fragment;
+    }
+
+    async function refreshSummary() {
+      const summary = await fetchReviewSummary(productSlug);
+      if (summary.total > 0) {
+        reviewsSummary.hidden = false;
+        reviewsAverageNum.textContent = summary.average.toFixed(1);
+        reviewsBars.innerHTML = '';
+        ([5, 4, 3, 2, 1] as const).forEach((star) => {
+          const count = summary.counts[star];
+          const pct = summary.total ? Math.round((count / summary.total) * 100) : 0;
+          const row = document.createElement('div');
+          row.className = 'reviews-bar-row';
+          row.innerHTML = `
+            <span class="reviews-bar-star">${star} <span class="star-ico star-filled">★</span></span>
+            <span class="reviews-bar-track"><span class="reviews-bar-fill" style="width:${pct}%"></span></span>
+            <span class="reviews-bar-count">${count}</span>
+          `;
+          reviewsBars.appendChild(row);
+        });
+        reviewsFilter.hidden = false;
+      } else {
+        reviewsSummary.hidden = true;
+        reviewsFilter.hidden = true;
+      }
+      reviewsCountLabel.textContent = `(${summary.total} đánh giá)`;
+      commentsCountLabel.textContent = `(${summary.commentTotal})`;
+
+      if (ratingSummaryLine && ratingSummaryAvg && ratingSummaryCounts) {
+        if (summary.total > 0 || summary.commentTotal > 0) {
+          ratingSummaryLine.hidden = false;
+          ratingSummaryAvg.textContent = summary.total > 0 ? summary.average.toFixed(1) : '';
+          const parts: string[] = [];
+          if (summary.total > 0) parts.push(`${summary.total} đánh giá`);
+          if (summary.commentTotal > 0) parts.push(`${summary.commentTotal} bình luận`);
+          ratingSummaryCounts.textContent = parts.join(' · ');
+        } else {
+          ratingSummaryLine.hidden = true;
+        }
+      }
+    }
+
+    function renderReviewItem(review: ProductReview): HTMLLIElement {
+      const li = document.createElement('li');
+      li.className = 'review-item';
+      const head = document.createElement('div');
+      head.className = 'review-item-head';
+      const avatar = document.createElement('span');
+      avatar.className = 'review-avatar';
+      avatar.textContent = initials(review.author_name);
+      const meta = document.createElement('div');
+      meta.className = 'review-item-meta';
+      const nameEl = document.createElement('p');
+      nameEl.className = 'review-author';
+      nameEl.textContent = review.author_name;
+      const starsEl = document.createElement('p');
+      starsEl.className = 'review-stars';
+      const starsText = document.createElement('span');
+      starsText.setAttribute('aria-label', `${review.rating} trên 5 sao`);
+      starsText.appendChild(starRow(review.rating));
+      const dateEl = document.createElement('span');
+      dateEl.className = 'review-date';
+      dateEl.textContent = formatDate(review.created_at);
+      starsEl.append(starsText, dateEl);
+      meta.append(nameEl, starsEl);
+      head.append(avatar, meta);
+      li.appendChild(head);
+
+      if (review.body) {
+        const bodyEl = document.createElement('p');
+        bodyEl.className = 'review-body';
+        bodyEl.textContent = review.body;
+        li.appendChild(bodyEl);
+      }
+
+      if (review.admin_reply) {
+        const reply = document.createElement('div');
+        reply.className = 'review-reply';
+        const replyHead = document.createElement('p');
+        replyHead.className = 'review-reply-head';
+        const roleTag = document.createElement('span');
+        roleTag.className = 'role-tag';
+        roleTag.textContent = 'Dược Sĩ';
+        replyHead.append(`${review.admin_reply_by ?? 'Dược sĩ'} `, roleTag);
+        const replyBody = document.createElement('p');
+        replyBody.className = 'review-reply-body';
+        replyBody.textContent = review.admin_reply;
+        reply.append(replyHead, replyBody);
+        li.appendChild(reply);
+      } else if (isAdmin) {
+        const replyForm = document.createElement('form');
+        replyForm.className = 'review-admin-reply-form';
+        replyForm.innerHTML = `
+          <textarea rows="2" maxlength="1000" placeholder="Trả lời đánh giá này với tư cách dược sĩ..."></textarea>
+          <button type="submit" class="btn btn-sm">Gửi trả lời</button>
+        `;
+        replyForm.addEventListener('submit', async (event) => {
+          event.preventDefault();
+          const textarea = replyForm.querySelector('textarea') as HTMLTextAreaElement;
+          const text = textarea.value.trim();
+          if (!text) return;
+          const button = replyForm.querySelector('button') as HTMLButtonElement;
+          button.disabled = true;
+          try {
+            await adminReplyToReview(review.id, text);
+            await loadReviews();
+          } catch (err) {
+            button.disabled = false;
+            console.error(err);
+          }
+        });
+        li.appendChild(replyForm);
+      }
+
+      return li;
+    }
+
+    async function loadReviews() {
+      try {
+        const reviews = await fetchReviews(productSlug, activeFilter || undefined);
+        reviewsList.innerHTML = '';
+        reviewsEmpty.hidden = reviews.length > 0;
+        reviews.forEach((review) => reviewsList.appendChild(renderReviewItem(review)));
+      } catch (err) {
+        // Bảng chưa tồn tại (chưa chạy docs/supabase-schema.sql) hoặc lỗi mạng — hiện như chưa có đánh
+        // giá nào thay vì để trống im lặng hoặc vỡ trang.
+        console.error('Không tải được đánh giá:', err);
+        reviewsList.innerHTML = '';
+        reviewsEmpty.hidden = false;
+      }
+      await refreshSummary();
+    }
+
+    function renderCommentItem(comment: ProductComment): HTMLLIElement {
+      const li = document.createElement('li');
+      li.className = 'comment-item';
+      const head = document.createElement('div');
+      head.className = 'review-item-head';
+      const avatar = document.createElement('span');
+      avatar.className = `review-avatar${comment.author_role === 'admin' ? ' review-avatar-admin' : ''}`;
+      avatar.textContent = initials(comment.author_name);
+      const meta = document.createElement('div');
+      meta.className = 'review-item-meta';
+      const nameEl = document.createElement('p');
+      nameEl.className = 'review-author';
+      nameEl.append(`${comment.author_name} `);
+      if (comment.author_role === 'admin') {
+        const roleTag = document.createElement('span');
+        roleTag.className = 'role-tag';
+        roleTag.textContent = 'Dược Sĩ';
+        nameEl.appendChild(roleTag);
+      }
+      const dateEl = document.createElement('p');
+      dateEl.className = 'review-date';
+      dateEl.textContent = formatDate(comment.created_at);
+      meta.append(nameEl, dateEl);
+      head.append(avatar, meta);
+      const bodyEl = document.createElement('p');
+      bodyEl.className = 'review-body';
+      bodyEl.textContent = comment.body;
+      li.append(head, bodyEl);
+      return li;
+    }
+
+    async function loadComments() {
+      try {
+        const comments = await fetchComments(productSlug);
+        commentsList.innerHTML = '';
+        commentsEmpty.hidden = comments.length > 0;
+        comments.forEach((comment) => commentsList.appendChild(renderCommentItem(comment)));
+      } catch (err) {
+        console.error('Không tải được bình luận:', err);
+        commentsList.innerHTML = '';
+        commentsEmpty.hidden = false;
+      }
+    }
+
+    // --- Form đánh giá: chọn sao ---
+    function setStars(value: number) {
+      selectedStars = value;
+      starButtons.forEach((button) => {
+        const active = Number(button.dataset.value) <= value;
+        button.classList.toggle('star-filled', active);
+        button.setAttribute('aria-pressed', String(Number(button.dataset.value) === value));
+      });
+    }
+    starButtons.forEach((button) => {
+      button.addEventListener('click', () => setStars(Number(button.dataset.value)));
+    });
+
+    async function requireLogin(): Promise<boolean> {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      if (session) return true;
+      window.dispatchEvent(new CustomEvent('duocsithuong:open-account'));
+      return false;
+    }
+
+    reviewsOpenFormBtn.addEventListener('click', async () => {
+      if (!(await requireLogin())) return;
+      reviewForm.hidden = !reviewForm.hidden;
+      reviewFormMsg.textContent = '';
+      if (!reviewForm.hidden) reviewBody.focus();
+    });
+    reviewCancelBtn.addEventListener('click', () => {
+      reviewForm.hidden = true;
+      setStars(0);
+      reviewBody.value = '';
+      reviewFormMsg.textContent = '';
+    });
+
+    reviewForm.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      if (!(await requireLogin())) return;
+      if (selectedStars < 1) {
+        reviewFormMsg.textContent = 'Vui lòng chọn số sao trước khi gửi.';
+        return;
+      }
+      reviewSubmitBtn.disabled = true;
+      reviewFormMsg.textContent = '';
+      try {
+        const {
+          data: { session },
+        } = await supabase.auth.getSession();
+        const authorName = await resolveDisplayName(session!.user);
+        await submitReview(productSlug, selectedStars, reviewBody.value, authorName);
+        reviewForm.hidden = true;
+        setStars(0);
+        reviewBody.value = '';
+        await loadReviews();
+      } catch (err) {
+        const message = err instanceof Error ? err.message : '';
+        reviewFormMsg.textContent = message.includes('duplicate')
+          ? 'Bạn đã đánh giá sản phẩm này rồi.'
+          : 'Có lỗi khi gửi đánh giá, vui lòng thử lại.';
+      } finally {
+        reviewSubmitBtn.disabled = false;
+      }
+    });
+
+    reviewsFilter.querySelectorAll<HTMLButtonElement>('.pill-filter').forEach((button) => {
+      button.addEventListener('click', async () => {
+        reviewsFilter.querySelectorAll('.pill-filter').forEach((b) => b.classList.remove('active'));
+        button.classList.add('active');
+        activeFilter = Number(button.dataset.rating);
+        await loadReviews();
+      });
+    });
+
+    // --- Form bình luận ---
+    commentForm.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      if (!(await requireLogin())) return;
+      const text = commentBody.value.trim();
+      if (!text) {
+        commentFormMsg.textContent = 'Vui lòng nhập nội dung bình luận.';
+        return;
+      }
+      commentSubmitBtn.disabled = true;
+      commentFormMsg.textContent = '';
+      try {
+        const {
+          data: { session },
+        } = await supabase.auth.getSession();
+        const authorName = await resolveDisplayName(session!.user);
+        await submitComment(productSlug, text, authorName, isAdmin);
+        commentBody.value = '';
+        await loadComments();
+        await refreshSummary();
+      } catch {
+        commentFormMsg.textContent = 'Có lỗi khi gửi bình luận, vui lòng thử lại.';
+      } finally {
+        commentSubmitBtn.disabled = false;
+      }
+    });
+
+    async function refreshAdminState() {
+      isAdmin = await isCurrentUserAdmin();
+      await loadReviews();
+    }
+
+    supabase.auth.onAuthStateChange(() => refreshAdminState());
+
+    refreshAdminState();
+    loadComments();
+  }
+</script>
