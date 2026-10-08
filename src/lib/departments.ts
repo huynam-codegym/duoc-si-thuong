@@ -137,12 +137,17 @@ const departmentData = {
         icon: 'bone',
         name: 'Cơ xương khớp',
         description: 'Thực phẩm bổ sung dành cho người quan tâm đến sức khỏe cơ, xương và khớp.',
-        childGroups: ['ho-tro-xuong-khop'],
+        childGroups: ['ho-tro-xuong-khop', 'ho-tro-gout'],
       },
       'ho-tro-xuong-khop': {
         icon: 'bone',
         name: 'Hỗ trợ xương khớp',
         description: 'Thực phẩm bổ sung canxi, collagen, glucosamine hỗ trợ xương chắc khỏe và khớp linh hoạt.',
+      },
+      'ho-tro-gout': {
+        icon: 'bone',
+        name: 'Hỗ trợ gout',
+        description: 'Thực phẩm bổ sung dành cho người quan tâm đến bệnh gout (gút) và acid uric máu cao.',
       },
       'canxi-vitamin-d': {
         icon: 'bone',
