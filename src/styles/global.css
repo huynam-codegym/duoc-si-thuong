@@ -227,11 +227,11 @@ img {
 }
 
 /* Nút tròn nổi "Nhắn tin với dược sĩ" — trước đây xếp NGAY TRÊN biểu tượng Zalo nổi (.zalo-float,
-   bottom: 5rem để tránh chồng lên nhau). Chủ website yêu cầu bỏ hẳn biểu tượng Zalo nổi tháng 10/2026
-   (đã có khung chat thật thay thế, 2 nút nổi cùng lúc là thừa — xem ghi chú ở
-   src/components/FaqChat.astro) nên nút này dọn xuống lại đúng góc dưới-phải (bottom: 1rem) như
-   Zalo nổi từng chiếm. Link "Nhắn Zalo cho dược sĩ" vẫn còn — giờ nằm Ở TRONG khung chat (cuối
-   panel) và ở trang Giới thiệu/chân trang, không mất hẳn, chỉ không còn icon nổi riêng ngoài khung chat. */
+   bottom: 5rem để tránh chồng lên nhau), rồi dọn xuống bottom: 1rem khi Zalo nổi bị bỏ hẳn. Tháng
+   10/2026, chủ website thêm nút "Về đầu trang" (.back-to-top) xếp NGAY DƯỚI nút này nhưng CHỈ hiện
+   trên máy tính — nên nút chat chỉ dọn lên bottom: 5rem ở ≥77rem (xem @media bên dưới), còn trên
+   điện thoại/máy tính bảng (không có nút về đầu trang) vẫn giữ nguyên bottom: 1rem như cũ, tránh
+   để trống khoảng trên điện thoại. */
 .faq-chat-toggle {
   position: fixed;
   right: 1rem;
@@ -254,6 +254,44 @@ img {
 
 .faq-chat-toggle:hover {
   transform: scale(1.08);
+}
+
+/* Nút tròn nổi "Về đầu trang" (tháng 10/2026, chủ website gửi ảnh mẫu) — đặt NGAY DƯỚI nút chat
+   (.faq-chat-toggle, vừa dọn lên bottom: 5rem để nhường chỗ), chiếm đúng vị trí bottom: 1rem mà
+   nút chat/Zalo nổi từng đứng. CHỈ hiện trên máy tính (≥77rem) — ẩn hẳn dưới mốc đó, không chỉ dựa
+   vào `hidden` lúc chưa cuộn đủ xa. */
+.back-to-top {
+  display: none;
+  position: fixed;
+  right: 1rem;
+  bottom: 1rem;
+  z-index: 50;
+  width: 52px;
+  height: 52px;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 50%;
+  background: #15803d;
+  color: #fff;
+  box-shadow: 0 4px 10px rgb(0 0 0 / 0.28);
+  cursor: pointer;
+  transition: transform 0.15s;
+}
+
+.back-to-top:hover {
+  transform: scale(1.08);
+}
+
+@media (min-width: 77rem) {
+  .back-to-top:not([hidden]) {
+    display: flex;
+  }
+
+  /* Chỉ đẩy nút chat lên nhường chỗ ở khổ máy tính — nơi nút "Về đầu trang" thật sự có thể hiện. */
+  .faq-chat-toggle {
+    bottom: 5rem;
+  }
 }
 
 .faq-chat-panel {
@@ -1053,7 +1091,8 @@ p.faq-chat-bubble {
 
 @media print {
   .faq-chat-toggle,
-  .faq-chat-panel {
+  .faq-chat-panel,
+  .back-to-top {
     display: none;
   }
 }

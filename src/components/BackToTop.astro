@@ -1,0 +1,31 @@
+---
+// Nút tròn nổi "Về đầu trang" — chủ website gửi ảnh mẫu (nút mũi tên lên, đặt ngay DƯỚI nút tư
+// vấn/chat) tháng 10/2026. Nút chat (.faq-chat-toggle) đã dọn lên bottom: 5rem để nhường chỗ
+// bottom: 1rem (sát góc màn hình) cho nút này. CHỈ hiện trên máy tính (≥77rem, cùng mốc "máy tính"
+// dùng chung toàn site — xem "Bẫy kỹ thuật rem" trong CLAUDE.md), ẩn hẳn trên điện thoại/máy tính
+// bảng vì các thiết bị đó đã có cách cuộn nhanh bằng ngón tay quen thuộc, không cần thêm nút. Chỉ
+// hiện sau khi khách đã cuộn xuống một đoạn (tránh thừa nút ngay khi vừa vào trang). Bấm vào mới
+// cuộn lên — khác với nút chat vẫn giữ nguyên hiệu ứng phóng to khi RÊ CHUỘT (hover), không đụng tới.
+---
+
+<button type="button" class="back-to-top" id="backToTop" aria-label="Về đầu trang" hidden>
+  <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" focusable="false">
+    <path d="M12 19V5M12 5l-6 6M12 5l6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+  </svg>
+</button>
+
+<script>
+  const btn = document.getElementById('backToTop') as HTMLButtonElement;
+  const SHOW_AFTER = 400;
+
+  function updateVisibility() {
+    btn.hidden = window.scrollY < SHOW_AFTER;
+  }
+
+  window.addEventListener('scroll', updateVisibility, { passive: true });
+  updateVisibility();
+
+  btn.addEventListener('click', () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+</script>
