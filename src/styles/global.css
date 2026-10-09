@@ -3964,6 +3964,132 @@ button.btn:not(.btn-outline) {
   font-weight: 600;
 }
 
+/* Thanh mua hàng dính (tháng 10/2026, chủ website gửi mẫu Long Châu) — hiện khi cuộn qua khỏi khối
+   nút Mua ngay/Thêm vào giỏ gốc, xem IntersectionObserver trong [slug].astro. Điện thoại/máy tính
+   bảng chỉ còn 2 nút cho gọn (ẩn ảnh/tên/giá/số lượng); máy tính (≥77rem) hiện đủ. */
+.sticky-buy-bar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 60;
+  background: #fff;
+  border-top: 1px solid var(--line);
+  box-shadow: 0 -4px 16px rgb(0 0 0 / 0.1);
+}
+
+.sticky-buy-bar-inner {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding-block: 0.6rem;
+}
+
+.sticky-buy-info,
+.sticky-buy-qty {
+  display: none;
+}
+
+.sticky-buy-actions {
+  display: flex;
+  gap: 0.6rem;
+  flex: 1 1 auto;
+}
+
+.sticky-buy-actions .btn {
+  flex: 1;
+  justify-content: center;
+  white-space: nowrap;
+}
+
+@media (min-width: 77rem) {
+  .sticky-buy-bar-inner {
+    padding-block: 0.75rem;
+  }
+
+  .sticky-buy-info {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  .sticky-buy-img {
+    flex: none;
+    width: 48px;
+    height: 48px;
+    object-fit: contain;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+  }
+
+  .sticky-buy-text {
+    min-width: 0;
+  }
+
+  .sticky-buy-name {
+    margin: 0;
+    font-weight: 600;
+    font-size: 0.9rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .sticky-buy-price {
+    margin: 0.1rem 0 0;
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+    font-weight: 700;
+    color: var(--green-700);
+  }
+
+  .sticky-buy-price .product-price-original {
+    font-weight: 500;
+  }
+
+  .sticky-buy-qty {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    flex: none;
+  }
+
+  .sticky-buy-qty span {
+    min-width: 1.5rem;
+    text-align: center;
+    font-weight: 600;
+  }
+
+  .sticky-buy-actions {
+    flex: none;
+  }
+
+  .sticky-buy-actions .btn {
+    flex: none;
+  }
+}
+
+/* Nút chat nổi và "Về đầu trang" phải tự nhường chỗ lên trên khi thanh mua hàng dính đang hiện (xem
+   mục "Bẫy kỹ thuật — 2 nút nổi góc dưới-phải" trong CLAUDE.md) — đặt cùng 1 chỗ với breakpoint
+   77rem đã dùng cho cặp nút đó, không tự ý thêm mốc mới. Chiều cao thanh dính xấp xỉ 4.5rem ở cả 2
+   khổ (0.6rem×2 hoặc 0.75rem×2 padding + nút cao 3rem), nên dùng chung 1 số offset. */
+body.has-sticky-bar .faq-chat-toggle {
+  bottom: calc(1rem + 4.5rem);
+}
+
+@media (min-width: 77rem) {
+  body.has-sticky-bar .faq-chat-toggle {
+    bottom: calc(5rem + 4.5rem);
+  }
+
+  body.has-sticky-bar .back-to-top {
+    bottom: calc(1rem + 4.5rem);
+  }
+}
+
 .product-detail {
   display: grid;
   gap: 1rem;

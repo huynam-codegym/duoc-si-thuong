@@ -322,6 +322,63 @@ const jsonLd = {
 
       <!-- Bản không dấu của tên và mô tả, chỉ để tìm kiếm không dấu (xem foldVietnamese) -->
       <p hidden aria-hidden="true">{foldVietnamese(`${name}. ${summary}`)}</p>
+
+      <!-- Thanh mua hàng dính khi cuộn qua khỏi nút Mua ngay/Thêm vào giỏ gốc (chủ website yêu cầu
+           tháng 10/2026, theo mẫu Long Châu gửi). Máy tính (≥77rem) hiện đủ ảnh/tên/giá/số lượng;
+           điện thoại/máy tính bảng chỉ còn 2 nút cho gọn — cùng markup, CSS ẩn bớt theo @media, không
+           tách 2 bản riêng để khỏi trùng lặp sự kiện. Dùng lại [data-add-to-cart]/[data-qty-step] đã
+           có sẵn (xử lý chung ở Header.astro) nên không cần viết thêm JS cho việc thêm giỏ/mua ngay. -->
+      <div class="sticky-buy-bar" id="stickyBuyBar" hidden>
+        <div class="container sticky-buy-bar-inner">
+          <div class="sticky-buy-info">
+            <img src={cartImage.src} alt="" class="sticky-buy-img" width="48" height="48" loading="lazy" />
+            <div class="sticky-buy-text">
+              <p class="sticky-buy-name" title={name}>{name}</p>
+              <p class="sticky-buy-price">
+                {formatPrice(price)}
+                {discount !== undefined && <span class="product-price-original">{formatPrice(originalPrice)}</span>}
+              </p>
+            </div>
+          </div>
+          <div class="sticky-buy-qty">
+            <button type="button" class="qty-btn" data-qty-step="-1" aria-label="Giảm số lượng">−</button>
+            <span id="stickyQtyDisplay" aria-hidden="true">1</span>
+            <button type="button" class="qty-btn" data-qty-step="1" aria-label="Tăng số lượng">+</button>
+          </div>
+          <div class="sticky-buy-actions">
+            <button
+              type="button"
+              class="btn"
+              data-add-to-cart
+              data-qty-input="#buy-qty"
+              data-go-cart
+              data-cart-url={url('/gio-hang/')}
+              data-id={product.id}
+              data-name={name}
+              data-price={price ?? ''}
+              data-original-price={discount !== undefined ? originalPrice : ''}
+              data-unit={unit ?? ''}
+              data-image={cartImage.src}
+            >
+              Mua ngay
+            </button>
+            <button
+              type="button"
+              class="btn btn-outline"
+              data-add-to-cart
+              data-qty-input="#buy-qty"
+              data-id={product.id}
+              data-name={name}
+              data-price={price ?? ''}
+              data-original-price={discount !== undefined ? originalPrice : ''}
+              data-unit={unit ?? ''}
+              data-image={cartImage.src}
+            >
+              Thêm vào giỏ
+            </button>
+          </div>
+        </div>
+      </div>
     </article>
   </ShopShell>
 </BaseLayout>
@@ -421,15 +478,50 @@ const jsonLd = {
     });
   }
 
-  // Chọn số lượng trước khi mua
+  // Chọn số lượng trước khi mua — [data-qty-step] gồm cả 2 nút +/- ở khối chọn số lượng gốc LẪN ở
+  // thanh mua hàng dính bên dưới (cùng querySelectorAll này), cả hai đều chỉnh chung 1 input #buy-qty.
   const input = document.getElementById('buy-qty') as HTMLInputElement | null;
+  const stickyQtyDisplay = document.getElementById('stickyQtyDisplay');
   const clamp = (value: number) => Math.min(20, Math.max(1, Number.isFinite(value) ? Math.floor(value) : 1));
+  function syncStickyQty() {
+    if (stickyQtyDisplay && input) stickyQtyDisplay.textContent = input.value;
+  }
   document.querySelectorAll<HTMLElement>('[data-qty-step]').forEach((button) => {
     button.addEventListener('click', () => {
       if (input) input.value = String(clamp(Number(input.value) + Number(button.dataset.qtyStep)));
+      syncStickyQty();
     });
   });
-  input?.addEventListener('change', () => (input.value = String(clamp(Number(input.value)))));
+  input?.addEventListener('change', () => {
+    if (input) input.value = String(clamp(Number(input.value)));
+    syncStickyQty();
+  });
+
+  // Thanh mua hàng dính: hiện khi cuộn qua khỏi khối nút Mua ngay/Thêm vào giỏ GỐC, tự ẩn lại khi khối
+  // đó quay về khung nhìn — dùng IntersectionObserver thay vì tính toán vị trí cuộn bằng tay (đáng tin
+  // cậy hơn, tự đúng dù đổi cỡ chữ "Lớn hơn" hay cỡ màn hình). Thêm/bớt class trên <body> để nút chat
+  // nổi và nút "Về đầu trang" (BaseLayout, luôn có trên mọi trang) tự nhường chỗ lên trên — không thì
+  // bị thanh này đè lên, lặp lại đúng kiểu bẫy "2 nút nổi góc dưới-phải phải cùng biết nhường nhau" đã
+  // ghi trong CLAUDE.md khi thêm nút "Về đầu trang".
+  const stickyBar = document.getElementById('stickyBuyBar');
+  const originalActions = document.querySelector('.product-info .actions');
+  if (stickyBar && originalActions && 'IntersectionObserver' in window) {
+    // Bỏ qua lần gọi ĐẦU TIÊN của callback — đó là trạng thái ngay lúc tải trang (trước khi người dùng
+    // cuộn gì cả), không phải một lượt cuộn thật. Nếu không bỏ qua, sản phẩm có ảnh/mô tả đủ dài khiến
+    // khối nút gốc nằm NGOÀI màn hình đầu tiên (chưa kịp cuộn tới) sẽ bị coi là "đã cuộn qua", hiện
+    // thanh dính ngay từ đầu dù người dùng chưa hề chạm tới chuột/cuộn — đã thấy lỗi này khi test.
+    let isFirstCallback = true;
+    const observer = new IntersectionObserver(([entry]) => {
+      if (isFirstCallback) {
+        isFirstCallback = false;
+        return;
+      }
+      const show = !entry.isIntersecting;
+      stickyBar.hidden = !show;
+      document.body.classList.toggle('has-sticky-bar', show);
+    });
+    observer.observe(originalActions);
+  }
 
   // Đổi cỡ chữ phần mô tả (nhiều người đọc là người lớn tuổi); nhớ lựa chọn trên máy người đọc
   const description = document.querySelector('.product-desc');
