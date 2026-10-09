@@ -263,6 +263,12 @@ const departmentData = {
         icon: 'sparkle',
         name: 'Hỗ trợ điều trị da cơ thể',
         description: 'Sản phẩm hỗ trợ các vấn đề về da cơ thể như khô da, rạn da.',
+        childGroups: ['giam-viem-ngua-nam-da'],
+      },
+      'giam-viem-ngua-nam-da': {
+        icon: 'sparkle',
+        name: 'Giảm viêm, ngứa, nấm da',
+        description: 'Sản phẩm hỗ trợ làm dịu da viêm, ngứa, kích ứng.',
       },
       'ta-bim': {
         icon: 'diaper',
