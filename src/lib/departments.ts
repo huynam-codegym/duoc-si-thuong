@@ -44,7 +44,7 @@ const departmentData = {
         icon: 'citrus',
         name: 'Vitamin & khoáng chất',
         description: 'Thực phẩm bổ sung vitamin và khoáng chất cho chế độ ăn hằng ngày.',
-        childGroups: ['vitamin-tong-hop', 'canxi-vitamin-d', 'dau-ca-omega-3'],
+        childGroups: ['vitamin-tong-hop', 'canxi-vitamin-d', 'dau-ca-omega-3', 'vitamin-c'],
       },
       'dau-ca-omega-3': {
         // Dùng lại icon của nhóm cha (vitamin-khoang-chat) — tháng 10/2026, theo quy ước chung của dự
@@ -57,6 +57,11 @@ const departmentData = {
         icon: 'citrus',
         name: 'Vitamin tổng hợp',
         description: 'Thực phẩm bổ sung nhiều loại vitamin và khoáng chất cùng lúc trong một sản phẩm.',
+      },
+      'vitamin-c': {
+        icon: 'citrus',
+        name: 'Vitamin C',
+        description: 'Thực phẩm bổ sung vitamin C hỗ trợ tăng cường sức khỏe và chống oxy hóa.',
       },
       'de-khang': {
         icon: 'shield',
@@ -133,6 +138,11 @@ const departmentData = {
         name: 'Tim mạch',
         description: 'Thực phẩm bổ sung dành cho người quan tâm đến sức khỏe tim mạch.',
       },
+      'tang-cuong-chuc-nang': {
+        icon: 'capsule',
+        name: 'Tăng cường chức năng',
+        description: 'Thực phẩm bổ sung vitamin, khoáng chất hỗ trợ hoạt động của cơ thể (ví dụ hoạt động cơ bắp).',
+      },
       'xuong-khop': {
         icon: 'bone',
         name: 'Cơ xương khớp',
@@ -158,12 +168,19 @@ const departmentData = {
         icon: 'flower',
         name: 'Sinh lý - Nội tiết tố',
         description: 'Thực phẩm bổ sung dành cho phụ nữ quan tâm đến cân bằng nội tiết tố, giai đoạn tiền mãn kinh và mãn kinh.',
-        childGroups: ['sinh-ly-nu'],
+        childGroups: ['sinh-ly-nu', 'sinh-ly-nam'],
       },
       'sinh-ly-nu': {
         icon: 'flower',
         name: 'Sinh lý nữ',
         description: 'Thực phẩm bổ sung lợi khuẩn và dưỡng chất hỗ trợ sức khỏe sinh lý nữ.',
+      },
+      'sinh-ly-nam': {
+        // Dùng lại icon của nhóm cha (sinh-ly-noi-tiet-to) — tháng 10/2026, theo quy ước chung của dự
+        // án (xem mục "Thêm nhóm con mới ngay trong lúc thêm sản phẩm" trong CLAUDE.md).
+        icon: 'flower',
+        name: 'Sinh lý nam',
+        description: 'Thực phẩm bổ sung vitamin, khoáng chất và thảo dược hỗ trợ sức khỏe nam giới.',
       },
       'phu-nu-me-bau': {
         icon: 'flower',
