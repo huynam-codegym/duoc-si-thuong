@@ -104,7 +104,7 @@ const departmentData = {
         icon: 'brain',
         name: 'Thần kinh & trí nhớ',
         description: 'Thực phẩm bổ sung dành cho người quan tâm đến sức khỏe thần kinh và não bộ.',
-        childGroups: ['ho-tro-giac-ngu', 'bo-nao-cai-thien-tri-nho'],
+        childGroups: ['ho-tro-giac-ngu', 'bo-nao-cai-thien-tri-nho', 'hoat-huyet'],
       },
       'ho-tro-giac-ngu': {
         icon: 'brain',
@@ -115,6 +115,13 @@ const departmentData = {
         icon: 'brain',
         name: 'Bổ não - cải thiện trí nhớ',
         description: 'Thực phẩm bổ sung dành cho người quan tâm đến phát triển não bộ và trí nhớ.',
+      },
+      'hoat-huyet': {
+        // Dùng lại icon của nhóm cha (than-kinh-nao) — tháng 10/2026, theo quy ước chung của dự án
+        // (xem mục "Thêm nhóm con mới ngay trong lúc thêm sản phẩm" trong CLAUDE.md).
+        icon: 'brain',
+        name: 'Hoạt huyết',
+        description: 'Thực phẩm bổ sung dành cho người quan tâm đến tuần hoàn máu não.',
       },
       'lam-dep': {
         icon: 'sparkle',
@@ -137,6 +144,14 @@ const departmentData = {
         icon: 'heart',
         name: 'Tim mạch',
         description: 'Thực phẩm bổ sung dành cho người quan tâm đến sức khỏe tim mạch.',
+        childGroups: ['huyet-ap'],
+      },
+      'huyet-ap': {
+        // Dùng lại icon của nhóm cha (tim-mach) — tháng 10/2026, theo quy ước chung của dự án (xem
+        // mục "Thêm nhóm con mới ngay trong lúc thêm sản phẩm" trong CLAUDE.md).
+        icon: 'heart',
+        name: 'Huyết áp',
+        description: 'Thực phẩm bổ sung dành cho người quan tâm đến huyết áp và sức khỏe tim mạch.',
       },
       'tang-cuong-chuc-nang': {
         icon: 'capsule',
