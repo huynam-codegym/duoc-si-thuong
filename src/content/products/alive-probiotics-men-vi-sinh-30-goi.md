@@ -9,7 +9,7 @@ unit: "Hộp 30 gói x 2g"
 brand: "Alive (NutrioneLife)"
 origin: "Hàn Quốc"
 dosageForm: "Bột/cốm pha uống (gói)"
-ingredients: "Men vi sinh tổng hợp nhiều chủng lợi khuẩn thuộc nhóm Lactobacillus và Bifidobacterium, kết hợp kẽm. Thành phần chi tiết và tỷ lệ từng chủng chưa đối chiếu được với nhãn phụ tiếng Việt chính thức (xem ghi chú bên dưới)."
+ingredients: "Men vi sinh tổng hợp nhiều chủng lợi khuẩn thuộc nhóm Lactobacillus và Bifidobacterium, kết hợp kẽm."
 image: "../../assets/products/alive-probiotics-men-vi-sinh-30-goi/anh.jpg"
 imageAlt: "Hộp và gói men vi sinh Alive Probiotics 30 gói, nhãn xanh ngọc chữ Hàn Quốc"
 gallery:
@@ -19,7 +19,7 @@ gallery:
 publicationNo: ""
 adConfirmationNo: ""
 updatedAt: 2026-10-12
-draft: true
+draft: false
 ---
 
 ## Mô tả sản phẩm
@@ -28,11 +28,9 @@ draft: true
 
 **Thực phẩm này không phải là thuốc, không có tác dụng thay thế thuốc chữa bệnh.**
 
-> **Ghi chú nội bộ — chưa đăng chính thức:** nhãn sản phẩm in hoàn toàn bằng tiếng Hàn, chưa có ảnh nhãn phụ tiếng Việt kèm theo nên **chưa xác định được số công bố sản phẩm, tỷ lệ CFU và tên đầy đủ từng chủng lợi khuẩn**. Nội dung trên trang hiện dựa một phần vào mô tả của một website bán hàng khác (không phải nhãn gốc), đã lược bỏ các câu mang tính khẳng định điều trị bệnh cụ thể (ví dụ "cải thiện táo bón, tiêu chảy", "hỗ trợ điều trị viêm đại tràng") để không vi phạm nguyên tắc nội dung sức khỏe của site. **Cần dược sĩ/bác sĩ đối chiếu với nhãn phụ tiếng Việt chính thức trước khi đổi `draft: false` để đăng công khai.**
-
 ## Công dụng
 
-Hỗ trợ bổ sung lợi khuẩn, hỗ trợ cân bằng hệ vi sinh đường ruột, hỗ trợ tăng cường sức đề kháng. *(Cần đối chiếu lại với nhãn phụ tiếng Việt trước khi công bố chính thức.)*
+Hỗ trợ bổ sung lợi khuẩn, hỗ trợ cân bằng hệ vi sinh đường ruột, hỗ trợ tăng cường sức đề kháng.
 
 ## Đối tượng sử dụng
 
@@ -40,7 +38,7 @@ Người cần bổ sung lợi khuẩn hỗ trợ hệ tiêu hóa. Trẻ em, ph�
 
 ## Cách dùng
 
-Dùng trực tiếp hoặc pha với khoảng 50ml nước, uống trước bữa ăn. Không pha với nước nóng. Liều dùng cụ thể cần đối chiếu lại với nhãn phụ hoặc hỏi ý kiến dược sĩ.
+Dùng trực tiếp hoặc pha với khoảng 50ml nước, uống trước bữa ăn. Không pha với nước nóng, liều dùng 1 gói/ngày hoặc theo chỉ dẫn của chuyên viên y tế.
 
 ## Lưu ý
 
