@@ -229,6 +229,31 @@ const departmentData = {
         name: 'Trị mụn, thâm nám',
         description: 'Sản phẩm hỗ trợ làm sạch da mụn và làm mờ thâm nám.',
       },
+      'ho-tro-dieu-tri-da-mat': {
+        // Nhóm cha mới (tháng 10/2026), đường dẫn chủ website đưa ra có 4 cấp cho 3 sản phẩm Yoosun —
+        // nhóm cha này không bán sản phẩm trực tiếp, chỉ gom 3 nhóm con bên dưới. Dùng lại icon của
+        // nhóm "Trị mụn, thâm nám" (droplet) vì gần nghĩa nhất trong khu, không có nhóm cha nào khác
+        // để kế thừa (xem mục "Thêm nhóm con mới ngay trong lúc thêm sản phẩm" trong CLAUDE.md).
+        icon: 'droplet',
+        name: 'Hỗ trợ điều trị da mặt',
+        description: 'Sản phẩm hỗ trợ các vấn đề thường gặp về da mặt như mụn, kích ứng, sẹo và thâm.',
+        childGroups: ['ho-tro-giam-mun', 'giam-kich-ung-lam-diu-da', 'giam-seo-va-vet-tham'],
+      },
+      'ho-tro-giam-mun': {
+        icon: 'droplet',
+        name: 'Hỗ trợ giảm mụn',
+        description: 'Sản phẩm hỗ trợ ngăn ngừa và giảm mụn, kiểm soát bã nhờn.',
+      },
+      'giam-kich-ung-lam-diu-da': {
+        icon: 'droplet',
+        name: 'Giảm kích ứng, làm dịu da',
+        description: 'Sản phẩm giúp làm dịu da khi bị mẩn ngứa, rôm sảy, côn trùng đốt.',
+      },
+      'giam-seo-va-vet-tham': {
+        icon: 'droplet',
+        name: 'Giảm sẹo và vết thâm',
+        description: 'Sản phẩm hỗ trợ làm mờ sẹo và vết thâm do mụn.',
+      },
       'duong-am-phuc-hoi': {
         icon: 'leaf',
         name: 'Dưỡng ẩm, phục hồi da',
