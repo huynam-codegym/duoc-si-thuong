@@ -78,6 +78,8 @@ await convert('2.webp', 'anh-2.jpg');
 // ... hết toàn bộ ảnh trong thư mục, không bỏ ảnh nào trừ 3 ngoại lệ ở mục 2
 ```
 
+**Thứ tự ảnh trong `gallery` phải theo đúng thứ tự TÊN FILE trong thư mục nguồn** (0,1,2,3... hoặc 1,2,3...), **không tách riêng theo đuôi file** (ví dụ không dồn hết `.webp` lên trước rồi mới tới `.png`) — kể cả khi ảnh thật (`.webp`) và ảnh banner Gemini (`.png`) xen kẽ nhau trong thư mục, cứ giữ nguyên thứ tự đánh số gốc. Chủ website phản hồi về việc này tháng 10/2026 sau khi 3 sản phẩm Lactacyd bị dồn ảnh thật lên trước, banner xuống cuối thay vì giữ đúng thứ tự 0-6 trong thư mục.
+
 Xoá script `.mjs` tạm sau khi chạy xong (`rm -f scratch-*.mjs`).
 
 ## 6. Patch/vẽ lại ảnh (chỉ khi cần, theo mục 2)
