@@ -26,7 +26,7 @@ const cartImage = await getImage({ src: image, width: 160, height: 160, format: 
     {origin && (
       <span class="origin-badge">
         {flagCode && <img class="origin-flag" src={url(`/flags/${flagCode}.svg`)} alt="" width="16" height="12" loading="lazy" />}
-        {origin}
+        <span class="origin-badge-text">{origin}</span>
       </span>
     )}
     <Image class="product-thumb" src={image} alt={imageAlt} width={480} height={480} widths={[240, 480]} sizes="(min-width: 46rem) 14rem, 45vw" />

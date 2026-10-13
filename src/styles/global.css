@@ -1825,13 +1825,16 @@ p.faq-chat-bubble {
   }
 }
 
-/* Thẻ sản phẩm */
+/* Thẻ sản phẩm. margin-top chừa chỗ cho 2 nhãn góc trên (.origin-badge/.sale-badge-card, cả hai đều
+   position: absolute nên không tự chiếm chỗ trong luồng) — không có margin-top này, 2 nhãn sẽ đè lên
+   ảnh thay vì nằm phía trên ảnh như ý muốn (chủ website phản ánh "che ảnh sản phẩm" tháng 10/2026). */
 .product-thumb {
   display: block;
   width: 100%;
   height: auto;
   aspect-ratio: 1 / 1;
   object-fit: contain;
+  margin-top: 1.6rem;
   margin-bottom: 0.75rem;
   border-radius: 8px;
   background: var(--green-50);
@@ -3174,6 +3177,9 @@ button.btn:not(.btn-outline) {
   display: inline-flex;
   align-items: center;
   gap: 0.3rem;
+  /* Mặc định chỉ chặn tràn ra ngoài 2 mép thẻ (không có nhãn giảm giá thì tên nước hiện đủ, kể cả
+     "Tây Ban Nha"). Sản phẩm có khuyến mãi mới cần hẹp lại — xem rule :has() ngay dưới. */
+  max-width: calc(100% - 1.2rem);
   padding: 0.2rem 0.5rem;
   border: 1px solid var(--green-100);
   border-radius: 0.3rem;
@@ -3183,6 +3189,21 @@ button.btn:not(.btn-outline) {
   font-weight: 700;
   line-height: 1.4;
   box-shadow: 0 1px 4px rgb(0 0 0 / 0.15);
+}
+
+/* Sản phẩm đang khuyến mãi (có .sale-badge-card ở góc phải) thì nhãn xuất xứ phải hẹp lại để chắc
+   chắn không lấn sang nhãn "-X%" dù tên nước dài (ví dụ "Hàn Quốc") — đo thực tế trên thẻ hẹp nhất
+   ở điện thoại (lưới 2 cột, ~160px) cho ra 4.4rem là vừa đủ chỗ cho cả 2 nhãn. */
+.product-card:has(.sale-badge-card) .origin-badge {
+  max-width: 4.4rem;
+}
+
+/* Tên nước cắt kèm "…" nếu dài (ví dụ "Tây Ban Nha"), giữ đúng 1 dòng, không làm nhãn phình to —
+   cùng quy ước với .product-card .tag (nhãn nhóm) đã có từ trước. */
+.origin-badge-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .origin-flag {
