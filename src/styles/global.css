@@ -3161,12 +3161,19 @@ button.btn:not(.btn-outline) {
   font-size: 1.1rem;
 }
 
-/* Nhãn xuất xứ ở góc trái, phía trên ảnh sản phẩm (không đè lên ảnh) */
+/* Nhãn xuất xứ đè lên góc trên-trái ảnh sản phẩm (.product-card đã có position: relative), đối xứng
+   với .sale-badge-card ở góc trên-phải — cùng khoảng cách 0.6rem với viền thẻ để 2 nhãn luôn tách
+   biệt 2 bên, không chồng lên nhau trên màn hình hẹp dù chữ xuất xứ dài (ví dụ "Hàn Quốc"). Trước đó
+   nhãn này nằm trong luồng văn bản phía trên ảnh nên bị đẩy lệch/chồng lên nhãn giảm giá trên điện
+   thoại khi quy cách + tên sản phẩm đẩy bố cục khác đi — xem báo cáo ảnh chụp thật tháng 10/2026. */
 .origin-badge {
+  position: absolute;
+  top: 0.6rem;
+  left: 0.6rem;
+  z-index: 1;
   display: inline-flex;
   align-items: center;
   gap: 0.3rem;
-  margin-bottom: 0.4rem;
   padding: 0.2rem 0.5rem;
   border: 1px solid var(--green-100);
   border-radius: 0.3rem;
@@ -3175,6 +3182,7 @@ button.btn:not(.btn-outline) {
   font-size: 0.72rem;
   font-weight: 700;
   line-height: 1.4;
+  box-shadow: 0 1px 4px rgb(0 0 0 / 0.15);
 }
 
 .origin-flag {
