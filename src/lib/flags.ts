@@ -15,6 +15,7 @@ const originFlagCodes: Record<string, string> = {
   'Việt Nam': 'vn',
   Úc: 'au',
   Mỹ: 'us',
+  'Hoa Kỳ': 'us',
   'Nhật Bản': 'jp',
   'Hàn Quốc': 'kr',
   Đức: 'de',

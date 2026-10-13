@@ -17,15 +17,19 @@ Chủ website thường dán nhiều khối, mỗi khối 1 sản phẩm, dạng
 giá goc : <số>đ / <đơn vị>
 giá khuyến mại: <số>đ/ <đơn vị>   (không phải lúc nào cũng có)
 Số đăng ký: <số>/<năm>/ĐKSP (hoặc CBMP-QLD cho mỹ phẩm)
-xuất xứ: <nước>
+Thương hiệu: <nước của thương hiệu>       (quyết định cờ + chữ trên thẻ sản phẩm — xem lưu ý dưới)
+Sản xuất: <nước nơi sản xuất thật, theo nhãn>
 Tên chính hãng: <tên đầy đủ>      (đôi khi gõ nhầm "Teen:")
 ```
+
+(File Excel mẫu gọi đúng 2 cột này là "Thương hiệu" và "Sản xuất" — trước tháng 10/2026 chỉ có 1 cột "Xuất xứ" chung, chủ website đã tự tách thành 2 cột.)
 
 Lưu ý khi đọc:
 - Dấu `:` sau "đường dẫn"/"ảnh" đôi khi dính liền chữ trước, đôi khi cách — đọc linh hoạt.
 - "giá gốc" > "giá khuyến mại" theo đúng nghĩa (gốc luôn CAO hơn bán). Nếu tin nhắn viết NGƯỢC (gốc thấp hơn khuyến mại) — đây là lỗi gõ, **hỏi lại bằng AskUserQuestion** trước khi đoán, đừng tự sửa thầm lặng. Đã gặp đúng trường hợp này (Orihiro Glucosamine & Spirulina).
 - Số Đăng ký/SĐK đôi khi TRÙNG với số đã dùng cho sản phẩm khác trong các tin nhắn gần đây (lỗi copy-paste 2 dòng liền kề khi soạn hàng loạt) — nếu nghi ngờ, kiểm tra chéo với các sản phẩm vừa thêm gần đây, và luôn đối chiếu với nhãn phụ thật trong ảnh trước khi tin vào số trong tin nhắn.
 - Đường dẫn 3-4 cấp (`Khu/Nhóm/Nhóm con`) — cấp cuối có thể là nhóm CHƯA tồn tại trong `src/lib/departments.ts`, xem bước 4.
+- **"Thương hiệu" và "Sản xuất" là 2 khái niệm KHÁC NHAU (quy ước đổi tháng 10/2026, xem CLAUDE.md mục "Đổi quy ước nguồn dữ liệu cho `origin`"):** trường `origin` trong frontmatter (và do đó cờ quốc gia + chữ hiện trên thẻ sản phẩm) lấy theo **cột "Thương hiệu"**, KHÔNG lấy theo cột "Sản xuất" (nơi sản xuất thật). Nếu "Sản xuất" khác "Thương hiệu" (ví dụ thương hiệu Pháp/Nhật Bản nhưng sản xuất tại Việt Nam/Thái Lan — đã gặp Lactacyd, Omi Sun Bears, Sunplay), viết rõ điều đó thành 1 câu trong "Mô tả sản phẩm", không gắn cờ của nước sản xuất. Phần lớn sản phẩm 2 cột này TRÙNG giá trị — chỉ cần lưu ý khi khác nhau. Nếu tin nhắn chỉ cho 1 giá trị xuất xứ duy nhất (không tách riêng), dùng giá trị đó cho `origin` như trước, không cần bịa thêm thông tin.
 
 ## 2. Đọc và kiểm tra TOÀN BỘ ảnh trong thư mục trước khi viết gì
 
