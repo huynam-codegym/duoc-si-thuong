@@ -302,6 +302,12 @@ const departmentData = {
         icon: 'flower',
         name: 'Chăm sóc vùng kín',
         description: 'Dung dịch và sản phẩm vệ sinh vùng kín.',
+        childGroups: ['dung-dich-ve-sinh-phu-nu'],
+      },
+      'dung-dich-ve-sinh-phu-nu': {
+        icon: 'flower',
+        name: 'Dung dịch vệ sinh phụ nữ',
+        description: 'Dung dịch vệ sinh vùng kín bên ngoài dùng hằng ngày cho phụ nữ.',
       },
       'cham-soc-me-va-be': {
         icon: 'baby',
