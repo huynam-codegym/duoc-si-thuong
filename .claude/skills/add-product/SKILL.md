@@ -173,3 +173,34 @@ Trả lời ngắn gọn bằng tiếng Việt: liệt kê sản phẩm đã th�
 - Không tự sửa giá gốc/khuyến mại khi tin nhắn mâu thuẫn — hỏi lại.
 - Không bỏ qua bước test Puppeteer dù "có vẻ" không ảnh hưởng UI.
 - Không amend commit cũ, không force push.
+
+## Phụ lục: Mẫu prompt Gemini tạo ảnh banner sản phẩm (BẮT BUỘC dùng đúng mẫu này)
+
+Khi chủ website nhờ "tạo prompt/format tạo ảnh" cho một sản phẩm, viết **3 prompt riêng (ẢNH 1, ẢNH 2, ẢNH 3)**, thường là 3 chủ đề: Công dụng, Thành phần, Cách dùng/Hướng dẫn sử dụng. Mỗi prompt là **1 khối văn bản thuần, copy-paste thẳng vào Gemini được** (không dùng tiêu đề markdown `###`, không chữ in đậm `**` bên trong prompt). Mẫu chủ website chốt tháng 10/2026, giữ NGUYÊN các câu cố định, chỉ thay phần trong `<...>`:
+
+```
+Tạo 1 ảnh banner quảng cáo sản phẩm <loại sản phẩm, ví dụ: thực phẩm chức năng / mỹ phẩm>, tỉ lệ vuông 1:1, độ phân giải cao, phong cách chuyên nghiệp của nhà thuốc.
+Tên sản phẩm: <tên sản phẩm>
+Note: Bắt buộc 100%  ảnh cùng tên sản phẩm hãy tạo cùng 1 phông màu NỀN xuyên suốt cho các ảnh đó
+
+ẢNH <số> (sản phẩm): Giữ NGUYÊN 100% ảnh sản phẩm đã tải lên — không vẽ lại, không đổi hình dạng, không làm mờ chữ trên nhãn. Đặt sản phẩm làm trung tâm/điểm nhấn chính của bố cục, có đổ bóng nhẹ tự nhiên bên dưới.
+
+NỀN: <mô tả nền — PHẢI GIỐNG HỆT NHAU ở cả 3 ảnh của cùng 1 sản phẩm, chọn theo màu bao bì>
+
+CHỮ TRÊN ẢNH (tiếng Việt, font đậm, dễ đọc, màu trắng)::Chữ này trên cùng của ảnh
+- Tiêu đề chính: "<tiêu đề>"
+- Phụ đề: "<phụ đề>"
+
+3 Ý NỔI BẬT: 3 hình tròn viền sáng xếp quanh sản phẩm, mỗi hình có 1 icon đường nét + 1-2 dòng chữ ngay dưới, 1 bên trái, 2 bên phải, 3 bên trái sản phẩm:
+1) <emoji gợi ý icon> — "<ý 1>"
+2) <emoji> — "<ý 2>"
+3) <emoji> — "<ý 3>"
+
+KHÔNG thêm bất kỳ logo, tên thương hiệu hay chữ nào khác ngoài logo đã tải lên và phần chữ ghi ở trên. Không bịa thêm số liệu hay công dụng ngoài nội dung đã cho.
+```
+
+Quy tắc khi điền:
+- **Nền giống hệt nhau ở cả 3 prompt** của cùng 1 sản phẩm (copy nguyên câu NỀN), vì chủ website cần bộ 3 ảnh đồng bộ màu.
+- Mọi chữ trong ảnh chỉ lấy từ nhãn thật/thông tin chủ website gửi; không thêm số liệu, %, "chữa khỏi", "điều trị", "giải độc", so sánh, "số 1".
+- Không đưa lên ảnh câu dễ hiểu thành khuyến khích hành vi có hại (ví dụ "người thường xuyên uống rượu bia") — viết trung tính ("người cần chăm sóc gan hằng ngày").
+- Không có đoạn chèn logo Dược Sĩ Thương trong prompt (Gem của chủ website đã tự cấu hình) — chỉ giữ câu "ngoài logo đã tải lên".
