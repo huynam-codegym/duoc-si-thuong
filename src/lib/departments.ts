@@ -217,12 +217,17 @@ const departmentData = {
         icon: 'sparkle',
         name: 'Chăm sóc da mặt',
         description: 'Sản phẩm làm sạch, dưỡng da và phục hồi da mặt.',
-        childGroups: ['chong-nang'],
+        childGroups: ['chong-nang', 'xit-khoang'],
       },
       'chong-nang': {
         icon: 'sun',
         name: 'Kem chống nắng da mặt',
         description: 'Kem và sản phẩm chống nắng bảo vệ da mặt khỏi ánh nắng.',
+      },
+      'xit-khoang': {
+        icon: 'sparkle',
+        name: 'Xịt khoáng',
+        description: 'Nước xịt khoáng giúp cấp ẩm và làm dịu da mặt.',
       },
       'tri-mun-tham-nam': {
         icon: 'droplet',
@@ -263,6 +268,19 @@ const departmentData = {
         icon: 'eye',
         name: 'Chăm sóc vùng mắt, môi',
         description: 'Sản phẩm dành riêng cho vùng da quanh mắt và môi.',
+      },
+      'cham-soc-co-the': {
+        // Nhóm cha mới (tháng 10/2026, đường dẫn Excel "Dược mỹ phẩm/Chăm sóc cơ thể/Lăn khử mùi, xịt khử mùi"),
+        // không bán sản phẩm trực tiếp; dùng icon `leaf` vì khu này chưa có nhóm cha nào gần nghĩa để kế thừa.
+        icon: 'leaf',
+        name: 'Chăm sóc cơ thể',
+        description: 'Sản phẩm chăm sóc da cơ thể hằng ngày.',
+        childGroups: ['lan-xit-khu-mui'],
+      },
+      'lan-xit-khu-mui': {
+        icon: 'leaf',
+        name: 'Lăn khử mùi, xịt khử mùi',
+        description: 'Sản phẩm lăn, xịt giúp khử mùi và giảm tiết mồ hôi vùng da dưới cánh tay.',
       },
     },
   },
