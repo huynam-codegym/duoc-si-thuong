@@ -467,6 +467,18 @@ const drawerSections: DrawerSection[] = [
           <path d="M4 2l4 4-4 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
         </svg>
       </button>
+      <!-- Lối vào tra cứu đơn cho khách KHÔNG đăng nhập (đặt hàng không cần tài khoản), đặt ngay dưới
+           khối Đăng nhập cho dễ thấy trên điện thoại thay vì chỉ có ở chân trang. -->
+      <a class="mobile-drawer-lookup" href={url('/tra-cuu-don-hang/')}>
+        <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false">
+          <path d="M4 8l8-4 8 4v8l-8 4-8-4V8Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" />
+          <path d="M4 8l8 4 8-4M12 12v8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" />
+        </svg>
+        <span>
+          <span class="mobile-drawer-lookup-label">Tra cứu đơn hàng</span>
+          <span class="mobile-drawer-lookup-sub">bằng mã đơn và số điện thoại</span>
+        </span>
+      </a>
       <nav class="mobile-drawer-nav" aria-label="Menu chính">
         <ul>
           {
@@ -573,6 +585,9 @@ const drawerSections: DrawerSection[] = [
           <p class="order-error" role="alert" hidden></p>
         </form>
         <p class="account-message" id="modal-auth-message" hidden></p>
+        <p class="account-modal-lookup">
+          Đã đặt hàng mà không có tài khoản? <a href={url('/tra-cuu-don-hang/')}>Tra cứu đơn bằng mã đơn</a>
+        </p>
       </div>
 
       <div id="modal-user" hidden>

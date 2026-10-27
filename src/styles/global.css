@@ -6529,3 +6529,48 @@ body.has-sticky-bar .faq-chat-toggle {
   margin-top: 1.5rem;
   font-size: 0.92rem;
 }
+
+/* Lối vào "Tra cứu đơn hàng": ngăn kéo điện thoại, khung đăng nhập nổi, giỏ hàng trống */
+.mobile-drawer .mobile-drawer-lookup {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex: none;
+  padding: 0.7rem 1rem 0.7rem 1.4rem;
+  border-bottom: 1px solid var(--line);
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.mobile-drawer .mobile-drawer-lookup svg {
+  flex: none;
+  width: 20px;
+  height: 20px;
+  color: var(--green-700);
+}
+
+.mobile-drawer-lookup-label {
+  display: block;
+  font-weight: 600;
+  color: var(--green-900);
+}
+
+.mobile-drawer-lookup-sub {
+  display: block;
+  font-size: 0.8rem;
+  color: var(--ink-soft);
+}
+
+.account-modal-lookup {
+  margin: 1rem 0 0;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--line);
+  font-size: 0.88rem;
+  text-align: center;
+  color: var(--ink-soft);
+}
+
+.cart-empty-lookup {
+  margin-top: 1rem;
+  font-size: 0.92rem;
+}

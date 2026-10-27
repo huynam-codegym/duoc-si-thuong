@@ -15,6 +15,7 @@ import { url } from '../lib/url';
     <div id="cart-empty" class="empty" hidden>
       <p>Giỏ hàng của bạn đang trống.</p>
       <a class="btn" href={url('/')}>Xem sản phẩm</a>
+      <p class="cart-empty-lookup">Đã đặt hàng? <a href={url('/tra-cuu-don-hang/')}>Tra cứu tình trạng đơn hàng</a></p>
     </div>
 
     <form id="order-form" class="checkout-layout" data-zalo={site.zaloHref} novalidate hidden>
