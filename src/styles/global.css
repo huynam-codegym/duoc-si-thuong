@@ -6356,3 +6356,176 @@ body.has-sticky-bar .faq-chat-toggle {
   border-radius: 8px;
   font: inherit;
 }
+
+.admin-orders-new {
+  display: block;
+  width: 100%;
+  margin: 0 0 1rem;
+  padding: 0.7rem 1rem;
+  border: 0;
+  border-radius: 10px;
+  background: #ea580c;
+  color: #fff;
+  font: inherit;
+  font-weight: 700;
+  text-align: left;
+  cursor: pointer;
+}
+
+.admin-orders-new[hidden] {
+  display: none;
+}
+
+/* Phiếu giao hàng: chỉ hiện khi in (xem printSlip() trong admin/don-hang.astro) */
+.print-slip {
+  display: none;
+}
+
+@media print {
+  body.print-slip-mode {
+    background: #fff;
+  }
+
+  body.print-slip-mode > *:not(#printSlip) {
+    display: none !important;
+  }
+
+  body.print-slip-mode .print-slip {
+    display: block;
+    max-width: 14cm;
+    margin: 0 auto;
+    padding: 0.6cm;
+    border: 2px solid #000;
+    color: #000;
+    font-size: 12pt;
+    line-height: 1.4;
+  }
+
+  .print-slip p {
+    margin: 0.15cm 0;
+  }
+
+  .print-slip-head {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.5cm;
+    padding-bottom: 0.2cm;
+    border-bottom: 1px solid #000;
+    font-size: 11pt;
+  }
+
+  .print-slip-code {
+    font-size: 15pt;
+    font-weight: 700;
+  }
+
+  .print-slip-to,
+  .print-slip-goods,
+  .print-slip-money {
+    margin-top: 0.3cm;
+    padding-top: 0.2cm;
+    border-top: 1px dashed #000;
+  }
+
+  .print-slip-label {
+    font-size: 9pt;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+  }
+
+  .print-slip-name {
+    font-size: 14pt;
+    font-weight: 700;
+  }
+
+  .print-slip-goods ul {
+    margin: 0;
+    padding-left: 0.5cm;
+  }
+
+  .print-slip-cod {
+    font-size: 14pt;
+    font-weight: 700;
+  }
+
+  .print-slip-foot {
+    margin-top: 0.4cm !important;
+    font-size: 10pt;
+    font-style: italic;
+  }
+}
+
+/* Trang khách tra cứu đơn /tra-cuu-don-hang/ */
+.lookup-form .btn {
+  margin-top: 1rem;
+}
+
+.lookup-result {
+  margin-top: 1.5rem;
+  padding: 1.25rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: #fff;
+}
+
+.lookup-result h2 {
+  margin: 0 0 0.25rem;
+}
+
+.lookup-meta {
+  margin: 0.2rem 0;
+  color: #4b5563;
+  font-size: 0.9rem;
+}
+
+.lookup-steps {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.35rem;
+  margin: 1rem 0 0.5rem;
+  padding: 0;
+  list-style: none;
+  counter-reset: step;
+}
+
+.lookup-steps li {
+  counter-increment: step;
+  padding: 0.5rem 0.25rem;
+  border-top: 4px solid var(--line);
+  color: #6b7280;
+  font-size: 0.85rem;
+  text-align: center;
+}
+
+.lookup-steps li::before {
+  content: counter(step) '. ';
+}
+
+.lookup-steps li.done {
+  border-top-color: var(--green-700);
+  color: var(--green-900);
+}
+
+.lookup-steps li.current {
+  border-top-color: #ea580c;
+  color: #9a3412;
+  font-weight: 700;
+}
+
+.lookup-hint {
+  margin: 0 0 1rem;
+  font-weight: 600;
+}
+
+.lookup-cancelled {
+  margin: 1rem 0;
+  padding: 0.6rem 0.8rem;
+  border-radius: 8px;
+  background: #f3f4f6;
+  font-weight: 600;
+}
+
+.lookup-help {
+  margin-top: 1.5rem;
+  font-size: 0.92rem;
+}

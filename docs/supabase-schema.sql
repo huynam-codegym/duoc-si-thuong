@@ -405,3 +405,37 @@ $$;
 grant execute on function public.admin_update_order_status(uuid, text) to authenticated;
 
 create index if not exists orders_created_at_idx on public.orders (created_at desc);
+
+-- 10. Khách tự tra cứu đơn bằng mã đơn + số điện thoại (tháng 10/2026) — trang /tra-cuu-don-hang/.
+-- Khách vãng lai không có quyền SELECT bảng orders (RLS), nên tra cứu đi qua hàm security definer này:
+-- phải khớp ĐỦ mã đơn VÀ số điện thoại (người nhận hoặc người đặt, so theo chữ số), và chỉ trả về
+-- thông tin cần để theo dõi đơn — KHÔNG trả địa chỉ, email, SĐT đầy đủ (tránh lộ dữ liệu cá nhân nếu
+-- ai đó đoán trúng). Mã đơn ~11 ký tự ngẫu nhiên nên gần như không đoán được.
+create or replace function public.lookup_order(p_code text, p_phone text)
+returns table (
+  order_code text,
+  status text,
+  created_at timestamptz,
+  status_updated_at timestamptz,
+  items jsonb,
+  total integer,
+  shipping integer,
+  payment_method text,
+  customer_name text
+)
+language sql
+security definer set search_path = public
+as $$
+  select o.order_code, o.status, o.created_at, o.status_updated_at, o.items, o.total, o.shipping,
+         o.payment_method, o.customer_name
+  from public.orders o
+  where upper(o.order_code) = upper(trim(both '#' from trim(p_code)))
+    and length(regexp_replace(p_phone, '\D', '', 'g')) >= 9
+    and (
+      regexp_replace(o.phone, '\D', '', 'g') = regexp_replace(p_phone, '\D', '', 'g')
+      or regexp_replace(coalesce(o.orderer_phone, ''), '\D', '', 'g') = regexp_replace(p_phone, '\D', '', 'g')
+    )
+  limit 1;
+$$;
+
+grant execute on function public.lookup_order(text, text) to anon, authenticated;

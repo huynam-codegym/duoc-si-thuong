@@ -1,0 +1,176 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { site } from '../lib/site';
+
+// Khách tự tra cứu đơn bằng mã đơn + số điện thoại (tháng 10/2026), kể cả khách không đăng nhập.
+// Gọi hàm lookup_order() (security definer, mục "10." trong docs/supabase-schema.sql): phải khớp ĐỦ
+// mã đơn và SĐT, và hàm chỉ trả thông tin theo dõi đơn (không trả địa chỉ, email, SĐT đầy đủ).
+---
+
+<BaseLayout title="Tra cứu đơn hàng" description="Tra cứu trạng thái đơn hàng bằng mã đơn và số điện thoại." noindex>
+  <div class="container narrow">
+    <section class="hero shop-hero">
+      <h1>Tra cứu đơn hàng</h1>
+      <p>Nhập mã đơn (có trong thông báo sau khi đặt hàng hoặc email xác nhận) và số điện thoại đã dùng khi đặt.</p>
+    </section>
+
+    <form class="order lookup-form" id="lookupForm" novalidate>
+      <div class="order-grid-2">
+        <label>
+          Mã đơn hàng
+          <input type="text" name="code" id="lookupCode" required autocomplete="off" placeholder="Ví dụ: MUPBDF74AMN" />
+        </label>
+        <label>
+          Số điện thoại
+          <input type="tel" name="phone" id="lookupPhone" required inputmode="tel" placeholder="Ví dụ: 0912345678" />
+        </label>
+      </div>
+      <button type="submit" class="btn" id="lookupBtn">Tra cứu</button>
+      <p class="review-form-msg" id="lookupError" hidden></p>
+    </form>
+
+    <section class="lookup-result" id="lookupResult" aria-live="polite" hidden></section>
+
+    <p class="lookup-help">
+      Không tìm thấy đơn hoặc cần hỗ trợ? <a href={site.zaloHref} target="_blank" rel="noopener">Nhắn Zalo cho nhà thuốc</a>
+      ({site.phone}).
+    </p>
+  </div>
+</BaseLayout>
+
+<script>
+  import { supabase } from '../lib/supabase';
+
+  interface LookupItem {
+    name: string;
+    qty: number;
+    price: number | null;
+  }
+  interface LookupOrder {
+    order_code: string;
+    status: string;
+    created_at: string;
+    status_updated_at: string | null;
+    items: LookupItem[];
+    total: number | null;
+    shipping: number | null;
+    payment_method: string;
+    customer_name: string;
+  }
+
+  const STEPS = [
+    { key: 'moi', label: 'Đã đặt', hint: 'Nhà thuốc đã nhận đơn và sẽ gọi điện xác nhận.' },
+    { key: 'da_xac_nhan', label: 'Đã xác nhận', hint: 'Nhà thuốc đã xác nhận và đang chuẩn bị hàng.' },
+    { key: 'dang_giao', label: 'Đang giao', hint: 'Đơn đang trên đường giao tới bạn.' },
+    { key: 'hoan_tat', label: 'Hoàn tất', hint: 'Đơn đã giao thành công. Cảm ơn bạn!' },
+  ];
+  const PAYMENT_LABEL: Record<string, string> = {
+    cod: 'Tiền mặt khi nhận hàng',
+    bank: 'Chuyển khoản (QR Code)',
+    momo: 'Ví MoMo',
+    zalopay: 'Ví ZaloPay',
+    visa: 'Thẻ Visa/Mastercard',
+  };
+
+  const form = document.getElementById('lookupForm') as HTMLFormElement;
+  const codeInput = document.getElementById('lookupCode') as HTMLInputElement;
+  const phoneInput = document.getElementById('lookupPhone') as HTMLInputElement;
+  const btn = document.getElementById('lookupBtn') as HTMLButtonElement;
+  const errorEl = document.getElementById('lookupError') as HTMLElement;
+  const resultEl = document.getElementById('lookupResult') as HTMLElement;
+
+  function el<K extends keyof HTMLElementTagNameMap>(tag: K, className?: string, text?: string): HTMLElementTagNameMap[K] {
+    const node = document.createElement(tag);
+    if (className) node.className = className;
+    if (text !== undefined) node.textContent = text;
+    return node;
+  }
+  const vnd = (v: number) => `${v.toLocaleString('vi-VN')}đ`;
+  const fmtDate = (iso: string) =>
+    new Date(iso).toLocaleString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+
+  function showError(message: string) {
+    errorEl.textContent = message;
+    errorEl.hidden = false;
+    resultEl.hidden = true;
+  }
+
+  function renderOrder(order: LookupOrder) {
+    resultEl.replaceChildren();
+    resultEl.append(el('h2', undefined, `Đơn #${order.order_code}`));
+    resultEl.append(el('p', 'lookup-meta', `Đặt lúc ${fmtDate(order.created_at)} · Người nhận: ${order.customer_name}`));
+
+    if (order.status === 'huy') {
+      resultEl.append(el('p', 'lookup-cancelled', 'Đơn hàng này đã bị hủy. Nếu bạn chưa yêu cầu hủy, vui lòng nhắn Zalo cho nhà thuốc.'));
+    } else {
+      const current = Math.max(0, STEPS.findIndex((s) => s.key === order.status));
+      const steps = el('ol', 'lookup-steps');
+      STEPS.forEach((step, i) => {
+        const li = el('li', i < current ? 'done' : i === current ? 'current' : undefined, step.label);
+        if (i === current) li.setAttribute('aria-current', 'step');
+        steps.append(li);
+      });
+      resultEl.append(steps);
+      resultEl.append(el('p', 'lookup-hint', STEPS[current].hint));
+    }
+    if (order.status_updated_at) resultEl.append(el('p', 'lookup-meta', `Cập nhật lần cuối: ${fmtDate(order.status_updated_at)}`));
+
+    const items = el('ul', 'admin-order-items');
+    for (const item of order.items ?? []) {
+      const row = el('li');
+      row.append(el('span', undefined, `${item.name} × ${item.qty}`));
+      row.append(el('span', undefined, item.price != null ? vnd(item.price * item.qty) : 'Liên hệ'));
+      items.append(row);
+    }
+    resultEl.append(items);
+
+    const ship = order.shipping == null ? 'Nhà thuốc báo sau' : order.shipping === 0 ? 'Miễn phí' : vnd(order.shipping);
+    resultEl.append(el('p', undefined, `Phí vận chuyển: ${ship}`));
+    if (order.total != null) {
+      const total = el('p');
+      total.append('Thành tiền: ', el('strong', undefined, vnd(order.total + (order.shipping ?? 0))));
+      resultEl.append(total);
+    }
+    resultEl.append(el('p', undefined, `Thanh toán: ${PAYMENT_LABEL[order.payment_method] ?? order.payment_method}`));
+    resultEl.hidden = false;
+  }
+
+  async function lookup() {
+    errorEl.hidden = true;
+    const code = codeInput.value.trim().replace(/^#/, '');
+    const phone = phoneInput.value.trim();
+    if (!code || !phone) {
+      showError('Vui lòng nhập đủ mã đơn và số điện thoại.');
+      return;
+    }
+    if (phone.replace(/\D/g, '').length < 9) {
+      showError('Số điện thoại chưa đúng, ví dụ 0912345678.');
+      return;
+    }
+    btn.disabled = true;
+    const { data, error } = await supabase.rpc('lookup_order', { p_code: code, p_phone: phone });
+    btn.disabled = false;
+    if (error) {
+      showError('Chưa tra cứu được, có thể do mạng chập chờn. Bạn vui lòng thử lại sau.');
+      return;
+    }
+    const order = (data as LookupOrder[] | null)?.[0];
+    if (!order) {
+      showError('Không tìm thấy đơn khớp mã đơn và số điện thoại này. Bạn kiểm tra lại giúp nhé.');
+      return;
+    }
+    renderOrder(order);
+  }
+
+  form.addEventListener('submit', (event) => {
+    event.preventDefault();
+    lookup();
+  });
+
+  // Mở từ đường dẫn có sẵn mã đơn (thông báo sau khi đặt hàng, email xác nhận): điền sẵn ô mã đơn.
+  const prefill = new URLSearchParams(location.search).get('ma');
+  if (prefill) {
+    codeInput.value = prefill;
+    phoneInput.focus();
+  }
+</script>

@@ -156,6 +156,9 @@ ${escapeHtml(order.address)}${noteRow}
 <p style="margin: 0 0 24px; font-size: 14px; color: #374151">
 ${escapeHtml(paymentLabel)}. Với hình thức khác tiền mặt, nhà thuốc sẽ liên hệ hướng dẫn thanh toán cụ thể — site chưa thu tiền trực tuyến qua thẻ/ví.
 </p>
+<p style="margin: 0 0 24px; font-size: 14px; color: #374151">
+Theo dõi tình trạng đơn: <a href="https://duocsithuong.com/tra-cuu-don-hang/?ma=${encodeURIComponent(order.orderId)}" style="color: #15803d; font-weight: 600">tra cứu đơn #${escapeHtml(order.orderId)}</a> (nhập số điện thoại đã dùng khi đặt).
+</p>
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background: #fff7ed; border: 1px solid #fed7aa; border-radius: 8px; margin-bottom: 20px">
 <tr><td style="padding: 14px 16px">
 <strong style="color: #c2410c; font-size: 14px">Cần hỗ trợ hoặc muốn đổi đơn?</strong>

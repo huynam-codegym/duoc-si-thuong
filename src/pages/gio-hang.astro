@@ -188,6 +188,7 @@ import { url } from '../lib/url';
   <script>
     import { MAX_QTY, cartOriginalTotal, cartTotal, clearCart, formatVnd, getCart, hasUnpriced, removeItem, setQty, shippingFee, type CartItem } from '../lib/cart';
     import { supabase } from '../lib/supabase';
+    import { url } from '../lib/url';
 
     const emptyBox = document.getElementById('cart-empty')!;
     const form = document.getElementById('order-form') as HTMLFormElement;
@@ -460,7 +461,11 @@ import { url } from '../lib/url';
         const message = result?.customerEmailSent
           ? `Đã gửi đơn thành công! Mã đơn #${orderId}. Chúng tôi đã gửi email xác nhận tới ${order.ordererEmail}, nhà thuốc sẽ gọi điện xác nhận lại trước khi giao.`
           : `Đã gửi đơn thành công! Mã đơn #${orderId}. Nhà thuốc sẽ gọi tới số ${order.phone} để xác nhận lại trước khi giao.`;
-        showResult([el('p', undefined, message)]);
+        const lookupLink = el('a', undefined, 'Tra cứu tình trạng đơn hàng');
+        lookupLink.setAttribute('href', `${url('/tra-cuu-don-hang/')}?ma=${encodeURIComponent(orderId)}`);
+        const lookupP = el('p', undefined, 'Bạn có thể theo dõi đơn bất cứ lúc nào: ');
+        lookupP.append(lookupLink, document.createTextNode(' (cần mã đơn và số điện thoại).'));
+        showResult([el('p', undefined, message), lookupP]);
       } catch {
         error.innerHTML = '';
         error.append(

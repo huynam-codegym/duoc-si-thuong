@@ -33,6 +33,7 @@ import { url } from '../../lib/url';
         Giá và thành tiền do trình duyệt của khách gửi lên lúc đặt hàng. Hãy đối chiếu lại giá khi gọi điện xác nhận
         đơn.
       </p>
+      <button type="button" class="admin-orders-new" id="newOrdersBanner" hidden></button>
       <p class="review-form-msg" id="ordersError" hidden></p>
       <ul class="admin-orders-list" id="ordersList" aria-live="polite"></ul>
       <p class="empty" id="ordersEmpty" hidden>Không có đơn hàng nào.</p>
@@ -43,6 +44,7 @@ import { url } from '../../lib/url';
 <script>
   import { supabase } from '../../lib/supabase';
   import { isCurrentUserAdmin } from '../../lib/chat';
+  import { site } from '../../lib/site';
 
   interface OrderItem {
     id: string;
@@ -218,9 +220,107 @@ import { url } from '../../lib/url';
       order.status = select.value;
       render();
     });
-    actions.append(select, saveBtn);
+    const printBtn = el('button', 'btn btn-outline', 'In phiếu giao hàng');
+    printBtn.type = 'button';
+    printBtn.addEventListener('click', () => printSlip(order));
+    actions.append(select, saveBtn, printBtn);
     li.append(actions, msg);
     return li;
+  }
+
+  // Phiếu giao hàng: dựng 1 khối #printSlip ngay dưới <body>, CSS @media print chỉ in đúng khối này
+  // (body.print-slip ẩn mọi phần tử khác). Khách yêu cầu "ẩn tên sản phẩm" thì phiếu KHÔNG ghi tên sản
+  // phẩm, vì phiếu dán ngoài kiện hàng, người giao và người xung quanh đều đọc được.
+  function printSlip(order: Order) {
+    document.getElementById('printSlip')?.remove();
+    const slip = el('div', 'print-slip');
+    slip.id = 'printSlip';
+
+    const head = el('div', 'print-slip-head');
+    head.append(el('strong', undefined, site.name));
+    head.append(el('span', undefined, `${site.pharmacy.name} · ĐT/Zalo: ${site.phone}`));
+    slip.append(head);
+
+    slip.append(el('p', 'print-slip-code', order.order_code ? `Mã đơn: #${order.order_code}` : 'Mã đơn: (chưa có)'));
+    slip.append(el('p', 'print-slip-date', `Ngày đặt: ${formatDate(order.created_at)}`));
+
+    const to = el('div', 'print-slip-to');
+    to.append(el('p', 'print-slip-label', 'NGƯỜI NHẬN'));
+    to.append(el('p', 'print-slip-name', order.customer_name));
+    to.append(el('p', undefined, `SĐT: ${order.phone}`));
+    to.append(el('p', undefined, `Địa chỉ: ${order.address}`));
+    slip.append(to);
+
+    const goods = el('div', 'print-slip-goods');
+    goods.append(el('p', 'print-slip-label', 'HÀNG HÓA'));
+    const qty = (order.items ?? []).reduce((sum, i) => sum + i.qty, 0);
+    if (order.hide_product_name) {
+      goods.append(el('p', undefined, `Hàng chăm sóc sức khỏe — ${qty} sản phẩm (ẩn tên theo yêu cầu của khách)`));
+    } else {
+      const ul = el('ul');
+      for (const item of order.items ?? []) ul.append(el('li', undefined, `${item.name} × ${item.qty}`));
+      goods.append(ul);
+    }
+    slip.append(goods);
+
+    const money = el('div', 'print-slip-money');
+    const grand = order.total != null ? order.total + (order.shipping ?? 0) : null;
+    if (order.payment_method === 'cod') {
+      money.append(el('p', 'print-slip-cod', grand != null ? `THU HỘ (COD): ${vnd(grand)}` : 'THU HỘ (COD): nhà thuốc báo sau'));
+    } else {
+      money.append(el('p', undefined, `Thanh toán: ${PAYMENT_LABEL[order.payment_method] ?? order.payment_method} — kiểm tra đã nhận tiền trước khi giao.`));
+    }
+    slip.append(money);
+
+    if (order.note) slip.append(el('p', 'print-slip-note', `Ghi chú: ${order.note}`));
+    slip.append(el('p', 'print-slip-foot', 'Vui lòng gọi cho người nhận trước khi giao. Cảm ơn bạn!'));
+
+    document.body.append(slip);
+    document.body.classList.add('print-slip-mode');
+    const cleanup = () => {
+      document.body.classList.remove('print-slip-mode');
+      slip.remove();
+      window.removeEventListener('afterprint', cleanup);
+    };
+    window.addEventListener('afterprint', cleanup);
+    window.print();
+  }
+
+  // Báo đơn mới: cứ 30 giây hỏi lại các đơn tạo SAU đơn mới nhất đang có. Dùng hỏi định kỳ (polling)
+  // thay vì Supabase Realtime vì realtime cần bật thêm publication cho bảng orders; 30 giây là đủ nhanh
+  // cho việc xử lý đơn và mỗi lần hỏi rất nhẹ (chỉ lấy đơn mới).
+  const POLL_MS = 30_000;
+  const baseTitle = document.title;
+  const newBanner = document.getElementById('newOrdersBanner') as HTMLButtonElement;
+  let unseenNew = 0;
+
+  function showNewBanner() {
+    newBanner.hidden = unseenNew === 0;
+    newBanner.textContent = `🔔 Có ${unseenNew} đơn mới vừa đến — bấm để xem`;
+    document.title = unseenNew > 0 ? `(${unseenNew}) ${baseTitle}` : baseTitle;
+  }
+
+  newBanner.addEventListener('click', () => {
+    unseenNew = 0;
+    activeStatus = 'moi';
+    showNewBanner();
+    render();
+    listEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+
+  async function pollNewOrders() {
+    const latest = orders[0]?.created_at;
+    let query = supabase.from('orders').select('*').order('created_at', { ascending: false });
+    if (latest) query = query.gt('created_at', latest);
+    const { data, error } = await query;
+    if (error || !data || data.length === 0) return;
+    const known = new Set(orders.map((o) => o.id));
+    const fresh = (data as Order[]).filter((o) => !known.has(o.id));
+    if (fresh.length === 0) return;
+    orders = [...fresh, ...orders];
+    unseenNew += fresh.length;
+    showNewBanner();
+    render();
   }
 
   function matchesSearch(order: Order, term: string): boolean {
@@ -251,6 +351,8 @@ import { url } from '../../lib/url';
       return;
     }
     orders = (data ?? []) as Order[];
+    unseenNew = 0;
+    showNewBanner();
     render();
   }
 
@@ -276,6 +378,7 @@ import { url } from '../../lib/url';
     loading.hidden = true;
     wrap.hidden = false;
     await loadOrders();
+    setInterval(pollNewOrders, POLL_MS);
   }
 
   init();
