@@ -3,7 +3,7 @@
 // menu nhóm sản phẩm ở bên trái, nội dung ở bên phải. Trên điện thoại menu gập lại thành nút bấm "Danh mục sản phẩm".
 import { Image } from 'astro:assets';
 import GroupIcon from './GroupIcon.astro';
-import { departments, getProductGroups, type DepartmentSlug } from '../lib/departments';
+import { departments, getProductGroups, groupWithChildren, type DepartmentSlug } from '../lib/departments';
 import { getProducts } from '../lib/products';
 import { url } from '../lib/url';
 
@@ -67,7 +67,9 @@ const topGroups = allGroups.filter(([slug]) => !childSlugs.has(slug));
                     <GroupIcon icon={group.icon} size={17} />
                   </span>
                   <span>{group.name}</span>
-                  <span class="shop-count">{counts.get(slug) ?? 0}</span>
+                  <span class="shop-count">
+                    {groupWithChildren(departmentSlug, slug).reduce((sum, s) => sum + (counts.get(s) ?? 0), 0)}
+                  </span>
                 </a>
                 {hasChildren && (
                   <>

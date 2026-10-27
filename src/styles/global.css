@@ -6195,3 +6195,164 @@ body.has-sticky-bar .faq-chat-toggle {
 #modal-user .btn {
   margin-bottom: 0.75rem;
 }
+
+/* Sản phẩm liên quan ở cuối trang chi tiết sản phẩm */
+.related-products {
+  margin-top: 2rem;
+}
+
+/* Trang quản lý đơn hàng /admin/don-hang/ */
+.admin-orders-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem 1rem;
+}
+
+.admin-orders-search {
+  display: flex;
+  gap: 0.5rem;
+  flex: 1 1 18rem;
+  max-width: 28rem;
+}
+
+.admin-orders-search input {
+  flex: 1 1 0%;
+  min-width: 0;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  font: inherit;
+}
+
+.admin-orders-note {
+  margin: 0.5rem 0 1rem;
+  font-size: 0.85rem;
+  color: #4b5563;
+}
+
+.admin-orders-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 1rem;
+}
+
+.admin-order {
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--green-700);
+  border-radius: 10px;
+  padding: 1rem;
+  background: #fff;
+}
+
+.admin-order.status-moi {
+  border-left-color: #ea580c;
+}
+
+.admin-order.status-huy {
+  border-left-color: #9ca3af;
+  opacity: 0.85;
+}
+
+.admin-order-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.admin-order-time {
+  color: #4b5563;
+  font-size: 0.85rem;
+}
+
+.admin-order-status {
+  margin-left: auto;
+  padding: 0.15rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  background: var(--green-100);
+  color: var(--green-900);
+}
+
+.admin-order-status.status-moi {
+  background: #ffedd5;
+  color: #9a3412;
+}
+
+.admin-order-status.status-huy {
+  background: #f3f4f6;
+  color: #4b5563;
+}
+
+.admin-order-people {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0.75rem;
+}
+
+@media (min-width: 48rem) {
+  .admin-order-people {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.admin-order-subtitle {
+  margin: 0 0 0.25rem;
+  font-weight: 700;
+  color: var(--green-900);
+}
+
+.admin-order-row {
+  margin: 0.15rem 0;
+  font-size: 0.92rem;
+  overflow-wrap: anywhere;
+}
+
+.admin-order-label {
+  color: #4b5563;
+  margin-right: 0.35rem;
+}
+
+.admin-order-items {
+  list-style: none;
+  margin: 0.75rem 0;
+  padding: 0.5rem 0.75rem;
+  background: var(--green-50);
+  border-radius: 8px;
+}
+
+.admin-order-items li {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.2rem 0;
+  font-size: 0.92rem;
+}
+
+.admin-order-warn {
+  margin: 0.5rem 0;
+  padding: 0.4rem 0.6rem;
+  background: var(--warn-bg);
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.admin-order-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+.admin-order-actions select {
+  padding: 0.45rem 0.6rem;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  font: inherit;
+}

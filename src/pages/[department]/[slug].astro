@@ -7,7 +7,8 @@ import ShopShell from '../../components/ShopShell.astro';
 import ProductNotice from '../../components/ProductNotice.astro';
 import ProductReviews from '../../components/ProductReviews.astro';
 import Disclaimer from '../../components/Disclaimer.astro';
-import { departments } from '../../lib/departments';
+import ProductCard from '../../components/ProductCard.astro';
+import { departments, groupWithChildren } from '../../lib/departments';
 import { originFlagCode } from '../../lib/flags';
 import { foldVietnamese, formatDate } from '../../lib/posts';
 import { discountPercent, formatPrice, getProducts, priceBucket } from '../../lib/products';
@@ -50,6 +51,19 @@ const { Content, headings } = await render(product);
 const sections = headings.filter((heading) => heading.depth === 2);
 const department = departments[departmentSlug];
 const groupInfo = department.groups[group];
+
+// "Sản phẩm liên quan" (tối đa 8): ưu tiên cùng nhóm, rồi cùng "họ" nhóm (nhóm cha và các nhóm con
+// anh em, xem childGroups), cuối cùng là cùng khu. Chỉ dựa vào cách xếp nhóm, không có số liệu bán chạy.
+const RELATED_LIMIT = 8;
+const parentSlug =
+  Object.entries(department.groups).find(([, g]) => g.childGroups?.includes(group))?.[0] ?? group;
+const familySlugs = new Set(groupWithChildren(departmentSlug, parentSlug));
+const sameDepartment = (await getProducts(departmentSlug)).filter((p) => p.id !== product.id);
+const relatedRank = (p: (typeof sameDepartment)[number]) =>
+  p.data.group === group ? 0 : familySlugs.has(p.data.group) ? 1 : 2;
+const relatedProducts = [...sameDepartment]
+  .sort((a, b) => relatedRank(a) - relatedRank(b))
+  .slice(0, RELATED_LIMIT);
 const discount = discountPercent(price, originalPrice);
 const flagCode = originFlagCode(origin);
 const cartImage = await getImage({ src: image, width: 160, height: 160, format: 'webp' });
@@ -311,6 +325,23 @@ const jsonLd = {
       </section>
 
       <ProductReviews productSlug={product.id} />
+
+      {
+        relatedProducts.length > 0 && (
+          <section class="related-products" aria-labelledby="related-title">
+            <h2 class="section-title" id="related-title">Sản phẩm liên quan</h2>
+            <div class="carousel carousel-wide">
+              <div class="carousel-track">
+                {relatedProducts.map((related) => (
+                  <div class="carousel-item">
+                    <ProductCard product={related} />
+                  </div>
+                ))}
+              </div>
+            </div>
+          </section>
+        )
+      }
 
       <p class="product-seller">
         Sản phẩm được giới thiệu và bán bởi {site.pharmacy.name} (do dược sĩ Thương điều hành). Thông tin sản phẩm cập

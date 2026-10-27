@@ -18,6 +18,8 @@
 //   - `supabase secrets set RESEND_API_KEY=... OWNER_EMAIL=... RESEND_FROM="Dược Sĩ Thương <don-hang@duocsithuong.com>"`
 //   - `supabase functions deploy send-order-email`
 
+import { createClient } from 'npm:@supabase/supabase-js@2';
+
 const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY');
 const OWNER_EMAIL = Deno.env.get('OWNER_EMAIL');
 // Địa chỉ "From" phải thuộc tên miền đã xác minh trong Resend — để trống sẽ dùng địa chỉ thử nghiệm
@@ -206,6 +208,52 @@ async function sendEmail(to: string, subject: string, html: string) {
   if (!response.ok) throw new Error(`Resend lỗi (${response.status}): ${await response.text()}`);
 }
 
+// Lưu đơn bằng khóa SERVICE_ROLE (bỏ qua RLS, chỉ có trên máy chủ Supabase, không lộ ra trình duyệt).
+// Khách đã đăng nhập thì gắn user_id (lấy từ JWT trong header Authorization mà supabase.functions.invoke
+// tự gửi kèm) để đơn vẫn hiện trong "Lịch sử đơn hàng" ở /tai-khoan/; khách vãng lai thì user_id = null.
+// order_code là unique nên khách bấm gửi lại sau lỗi mạng cũng không tạo đơn trùng.
+async function saveOrder(req: Request, order: OrderPayload): Promise<void> {
+  const supabaseUrl = Deno.env.get('SUPABASE_URL');
+  const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+  if (!supabaseUrl || !serviceRoleKey) return;
+  try {
+    const admin = createClient(supabaseUrl, serviceRoleKey);
+    const token = req.headers.get('authorization')?.replace(/^Bearer\s+/i, '');
+    let userId: string | null = null;
+    if (token) {
+      const { data } = await admin.auth.getUser(token);
+      userId = data.user?.id ?? null;
+    }
+    const row = {
+      user_id: userId,
+      customer_name: order.name,
+      phone: order.phone,
+      address: order.address,
+      note: order.note || null,
+      payment_method: order.paymentMethod || 'cod',
+      items: order.items,
+      total: order.total,
+      orderer_name: order.ordererName,
+      orderer_phone: order.ordererPhone,
+      orderer_email: order.ordererEmail || null,
+      hide_product_name: Boolean(order.hideProductName),
+    };
+    const { error } = await admin
+      .from('orders')
+      .upsert({ ...row, order_code: order.orderId, shipping: order.shipping }, { onConflict: 'order_code', ignoreDuplicates: true });
+    if (!error) return;
+    // Bảng chưa chạy SQL mục "9." (chưa có order_code/shipping, user_id còn bắt buộc): vẫn lưu đơn của
+    // khách đã đăng nhập theo cấu trúc cũ để "Lịch sử đơn hàng" không bị mất trong lúc chuyển đổi.
+    console.error('Lưu đơn (cấu trúc mới) thất bại:', error.message);
+    if (userId) {
+      const { error: legacyError } = await admin.from('orders').insert(row);
+      if (legacyError) console.error('Lưu đơn (cấu trúc cũ) thất bại:', legacyError.message);
+    }
+  } catch (err) {
+    console.error('Lưu đơn thất bại:', err);
+  }
+}
+
 Deno.serve(async (req) => {
   const origin = req.headers.get('origin');
   const headers = corsHeaders(origin);
@@ -235,6 +283,10 @@ Deno.serve(async (req) => {
       headers: { ...headers, 'Content-Type': 'application/json' },
     });
   }
+
+  // Lưu đơn vào bảng orders TRƯỚC khi gửi email, để trang /admin/don-hang/ có đủ mọi đơn (kể cả khách
+  // chưa đăng nhập). Lỗi lưu không chặn việc gửi email — email vẫn là kênh báo đơn chính.
+  await saveOrder(req, order);
 
   try {
     // Luôn báo cho chủ nhà thuốc trước — đây là kênh DUY NHẤT để nhà thuốc biết có đơn mới (thay

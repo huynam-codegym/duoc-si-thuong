@@ -404,3 +404,12 @@ export const departmentSlugs = Object.keys(departmentData) as [DepartmentSlug, .
 export function getProductGroups(department: DepartmentSlug): [string, ProductGroup][] {
   return Object.entries(departments[department].groups);
 }
+
+/** Slug của nhóm kèm các nhóm con (`childGroups`) của nó. Dùng cho trang nhóm cha và số đếm ở menu trái,
+ * để nhóm cha hiện cả sản phẩm của nhóm con thay vì báo trống. */
+export function groupWithChildren(department: DepartmentSlug, group: string): string[] {
+  const children = (departments[department].groups[group]?.childGroups ?? []).filter(
+    (child) => departments[department].groups[child],
+  );
+  return [group, ...children];
+}

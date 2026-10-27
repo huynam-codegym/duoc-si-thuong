@@ -444,32 +444,9 @@ import { url } from '../lib/url';
         paymentMethod,
       };
 
-      // Khách đã đăng nhập (Tài khoản của tôi) thì lưu thêm 1 bản vào tài khoản để xem lại sau —
-      // không thay thế việc gửi email bên dưới, chỉ lưu thêm song song. Lỗi ở đây (ví dụ mất mạng)
-      // không được chặn việc gửi đơn chính.
-      try {
-        const {
-          data: { session },
-        } = await supabase.auth.getSession();
-        if (session?.user) {
-          await supabase.from('orders').insert({
-            user_id: session.user.id,
-            customer_name: order.name,
-            phone: order.phone,
-            address: order.address,
-            note: order.note || null,
-            payment_method: paymentMethod,
-            items: order.items,
-            total,
-            orderer_name: order.ordererName,
-            orderer_phone: order.ordererPhone,
-            orderer_email: order.ordererEmail || null,
-            hide_product_name: hideProductName,
-          });
-        }
-      } catch {
-        // không chặn việc gửi đơn chính nếu lưu vào tài khoản thất bại
-      }
+      // Đơn được LƯU vào bảng orders ngay trong Edge Function bên dưới (mọi đơn, kể cả khách chưa đăng
+      // nhập, để hiện ở /admin/don-hang/) — không insert từ trình duyệt nữa để tránh lưu trùng 2 dòng.
+      // Khách đã đăng nhập: supabase.functions.invoke tự gửi kèm JWT, function gắn user_id từ đó.
 
       // Gửi đơn thật qua Edge Function "send-order-email" (Supabase + Resend) — function tự gửi 2
       // email: báo nhà thuốc (luôn gửi, đây là kênh DUY NHẤT nhà thuốc biết có đơn mới, thay cho

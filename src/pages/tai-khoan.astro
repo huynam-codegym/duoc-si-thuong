@@ -261,7 +261,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         momo: 'Ví MoMo',
         visa: 'Thẻ Visa/Mastercard',
       };
-      const statusLabel: Record<string, string> = { moi: 'Mới đặt', dang_giao: 'Đang giao', hoan_tat: 'Hoàn tất', huy: 'Đã hủy' };
+      const statusLabel: Record<string, string> = { moi: 'Mới đặt', da_xac_nhan: 'Đã xác nhận', dang_giao: 'Đang giao', hoan_tat: 'Hoàn tất', huy: 'Đã hủy' };
       const itemText = order.items.map((item) => `${item.name} x${item.qty}`).join(', ');
       li.innerHTML = `
         <div class="order-row-head">

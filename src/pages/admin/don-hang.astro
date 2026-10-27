@@ -1,0 +1,282 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { url } from '../../lib/url';
+
+// Trang quản lý đơn hàng (tháng 10/2026) — CHỈ chủ website (profiles.is_admin = true) xem được. Kiểm tra
+// quyền ở script chỉ là lớp giao diện; an toàn thật nằm ở RLS của bảng orders ("Admin xem mọi đơn hàng")
+// và hàm admin_update_order_status() — xem mục "9." trong docs/supabase-schema.sql. Mọi đơn (kể cả khách
+// chưa đăng nhập) do Edge Function send-order-email lưu vào bảng orders lúc khách bấm "Hoàn tất".
+---
+
+<BaseLayout title="Quản lý đơn hàng" description="Trang quản trị đơn hàng." noindex>
+  <div class="container">
+    <section class="hero shop-hero">
+      <h1>Quản lý đơn hàng</h1>
+    </section>
+
+    <p id="adminLoading">Đang kiểm tra đăng nhập...</p>
+
+    <div id="adminDenied" class="order" hidden>
+      <p id="adminDeniedText"></p>
+      <a class="btn" href={url('/')}>Về trang chủ</a>
+    </div>
+
+    <div id="ordersWrap" hidden>
+      <div class="admin-orders-toolbar">
+        <div class="reviews-filter" id="statusFilter" role="group" aria-label="Lọc theo trạng thái"></div>
+        <div class="admin-orders-search">
+          <input type="search" id="orderSearch" placeholder="Tìm mã đơn, tên, số điện thoại..." aria-label="Tìm đơn hàng" />
+          <button type="button" class="btn btn-outline" id="reloadOrders">Tải lại</button>
+        </div>
+      </div>
+      <p class="admin-orders-note">
+        Giá và thành tiền do trình duyệt của khách gửi lên lúc đặt hàng. Hãy đối chiếu lại giá khi gọi điện xác nhận
+        đơn.
+      </p>
+      <p class="review-form-msg" id="ordersError" hidden></p>
+      <ul class="admin-orders-list" id="ordersList" aria-live="polite"></ul>
+      <p class="empty" id="ordersEmpty" hidden>Không có đơn hàng nào.</p>
+    </div>
+  </div>
+</BaseLayout>
+
+<script>
+  import { supabase } from '../../lib/supabase';
+  import { isCurrentUserAdmin } from '../../lib/chat';
+
+  interface OrderItem {
+    id: string;
+    name: string;
+    qty: number;
+    price: number | null;
+  }
+  interface Order {
+    id: string;
+    order_code: string | null;
+    created_at: string;
+    status: string;
+    customer_name: string;
+    phone: string;
+    address: string;
+    note: string | null;
+    payment_method: string;
+    items: OrderItem[];
+    total: number | null;
+    shipping: number | null;
+    orderer_name: string | null;
+    orderer_phone: string | null;
+    orderer_email: string | null;
+    hide_product_name: boolean;
+    user_id: string | null;
+  }
+
+  const STATUSES: { key: string; label: string }[] = [
+    { key: 'moi', label: 'Mới đặt' },
+    { key: 'da_xac_nhan', label: 'Đã xác nhận' },
+    { key: 'dang_giao', label: 'Đang giao' },
+    { key: 'hoan_tat', label: 'Hoàn tất' },
+    { key: 'huy', label: 'Đã hủy' },
+  ];
+  const STATUS_LABEL = Object.fromEntries(STATUSES.map((s) => [s.key, s.label]));
+  const PAYMENT_LABEL: Record<string, string> = {
+    cod: 'Tiền mặt khi nhận hàng',
+    bank: 'Chuyển khoản (QR Code)',
+    momo: 'Ví MoMo',
+    zalopay: 'Ví ZaloPay',
+    visa: 'Thẻ Visa/Mastercard',
+  };
+
+  const loading = document.getElementById('adminLoading')!;
+  const denied = document.getElementById('adminDenied')!;
+  const deniedText = document.getElementById('adminDeniedText')!;
+  const wrap = document.getElementById('ordersWrap')!;
+  const filterEl = document.getElementById('statusFilter')!;
+  const searchEl = document.getElementById('orderSearch') as HTMLInputElement;
+  const reloadBtn = document.getElementById('reloadOrders') as HTMLButtonElement;
+  const listEl = document.getElementById('ordersList')!;
+  const emptyEl = document.getElementById('ordersEmpty') as HTMLElement;
+  const errorEl = document.getElementById('ordersError') as HTMLElement;
+
+  let orders: Order[] = [];
+  // Mặc định xem đơn "Mới đặt" — việc cần xử lý trước tiên.
+  let activeStatus = 'moi';
+
+  // Dựng phần tử bằng textContent (KHÔNG innerHTML) vì tên/địa chỉ/ghi chú là chữ khách tự gõ.
+  function el<K extends keyof HTMLElementTagNameMap>(tag: K, className?: string, text?: string): HTMLElementTagNameMap[K] {
+    const node = document.createElement(tag);
+    if (className) node.className = className;
+    if (text !== undefined) node.textContent = text;
+    return node;
+  }
+
+  function vnd(value: number): string {
+    return `${value.toLocaleString('vi-VN')}đ`;
+  }
+
+  function formatDate(iso: string): string {
+    return new Date(iso).toLocaleString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+  }
+
+  function telLink(phone: string): HTMLAnchorElement {
+    const a = el('a', undefined, phone);
+    a.href = `tel:${phone.replace(/[^\d+]/g, '')}`;
+    return a;
+  }
+
+  function infoRow(label: string, value: string | Node): HTMLElement {
+    const row = el('p', 'admin-order-row');
+    row.append(el('span', 'admin-order-label', label));
+    row.append(typeof value === 'string' ? document.createTextNode(value) : value);
+    return row;
+  }
+
+  function renderFilter() {
+    filterEl.replaceChildren();
+    const tabs = [{ key: 'all', label: 'Tất cả' }, ...STATUSES];
+    for (const tab of tabs) {
+      const count = tab.key === 'all' ? orders.length : orders.filter((o) => o.status === tab.key).length;
+      const btn = el('button', `pill-filter${activeStatus === tab.key ? ' active' : ''}`, `${tab.label} (${count})`);
+      btn.type = 'button';
+      btn.addEventListener('click', () => {
+        activeStatus = tab.key;
+        render();
+      });
+      filterEl.append(btn);
+    }
+  }
+
+  function orderCard(order: Order): HTMLElement {
+    const li = el('li', `admin-order status-${order.status}`);
+
+    const head = el('div', 'admin-order-head');
+    head.append(el('strong', 'admin-order-code', order.order_code ? `#${order.order_code}` : 'Đơn (chưa có mã)'));
+    head.append(el('span', 'admin-order-time', formatDate(order.created_at)));
+    head.append(el('span', `admin-order-status status-${order.status}`, STATUS_LABEL[order.status] ?? order.status));
+    li.append(head);
+
+    const people = el('div', 'admin-order-people');
+    const orderer = el('div');
+    orderer.append(el('p', 'admin-order-subtitle', 'Người đặt'));
+    orderer.append(infoRow('Họ tên:', order.orderer_name || order.customer_name));
+    if (order.orderer_phone) orderer.append(infoRow('SĐT:', telLink(order.orderer_phone)));
+    if (order.orderer_email) orderer.append(infoRow('Email:', order.orderer_email));
+    orderer.append(infoRow('Tài khoản:', order.user_id ? 'Đã đăng nhập' : 'Khách vãng lai'));
+    const recipient = el('div');
+    recipient.append(el('p', 'admin-order-subtitle', 'Người nhận'));
+    recipient.append(infoRow('Họ tên:', order.customer_name));
+    recipient.append(infoRow('SĐT:', telLink(order.phone)));
+    recipient.append(infoRow('Địa chỉ:', order.address));
+    people.append(orderer, recipient);
+    li.append(people);
+
+    const items = el('ul', 'admin-order-items');
+    for (const item of order.items ?? []) {
+      const row = el('li');
+      row.append(el('span', undefined, `${item.name} × ${item.qty}`));
+      row.append(el('span', undefined, item.price != null ? vnd(item.price * item.qty) : 'Liên hệ'));
+      items.append(row);
+    }
+    li.append(items);
+
+    const totals = el('div', 'admin-order-totals');
+    if (order.total != null) totals.append(infoRow('Tiền sản phẩm:', vnd(order.total)));
+    totals.append(infoRow('Phí vận chuyển:', order.shipping == null ? 'Nhà thuốc báo sau' : order.shipping === 0 ? 'Miễn phí' : vnd(order.shipping)));
+    if (order.total != null) {
+      const grand = el('strong', undefined, vnd(order.total + (order.shipping ?? 0)));
+      totals.append(infoRow('Thành tiền:', grand));
+    }
+    totals.append(infoRow('Thanh toán:', PAYMENT_LABEL[order.payment_method] ?? order.payment_method));
+    li.append(totals);
+
+    if (order.note) li.append(infoRow('Ghi chú:', order.note));
+    if (order.hide_product_name) li.append(el('p', 'admin-order-warn', 'Khách yêu cầu ẨN TÊN SẢN PHẨM khi giao hàng.'));
+
+    const actions = el('div', 'admin-order-actions');
+    const select = el('select');
+    select.setAttribute('aria-label', 'Đổi trạng thái đơn');
+    for (const s of STATUSES) {
+      const opt = el('option', undefined, s.label);
+      opt.value = s.key;
+      opt.selected = s.key === order.status;
+      select.append(opt);
+    }
+    const saveBtn = el('button', 'btn', 'Cập nhật trạng thái');
+    saveBtn.type = 'button';
+    const msg = el('p', 'review-form-msg');
+    msg.hidden = true;
+    saveBtn.addEventListener('click', async () => {
+      if (select.value === order.status) return;
+      saveBtn.disabled = true;
+      msg.hidden = true;
+      const { error } = await supabase.rpc('admin_update_order_status', { p_order_id: order.id, p_status: select.value });
+      saveBtn.disabled = false;
+      if (error) {
+        msg.textContent = `Chưa cập nhật được: ${error.message}`;
+        msg.hidden = false;
+        return;
+      }
+      order.status = select.value;
+      render();
+    });
+    actions.append(select, saveBtn);
+    li.append(actions, msg);
+    return li;
+  }
+
+  function matchesSearch(order: Order, term: string): boolean {
+    if (!term) return true;
+    const haystack = [order.order_code, order.customer_name, order.orderer_name, order.phone, order.orderer_phone, order.orderer_email]
+      .filter(Boolean)
+      .join(' ')
+      .toLowerCase();
+    return haystack.includes(term);
+  }
+
+  function render() {
+    renderFilter();
+    const term = searchEl.value.trim().toLowerCase();
+    const visible = orders.filter((o) => (activeStatus === 'all' || o.status === activeStatus) && matchesSearch(o, term));
+    listEl.replaceChildren(...visible.map(orderCard));
+    emptyEl.hidden = visible.length > 0;
+  }
+
+  async function loadOrders() {
+    errorEl.hidden = true;
+    reloadBtn.disabled = true;
+    const { data, error } = await supabase.from('orders').select('*').order('created_at', { ascending: false });
+    reloadBtn.disabled = false;
+    if (error) {
+      errorEl.textContent = `Không tải được đơn hàng: ${error.message}`;
+      errorEl.hidden = false;
+      return;
+    }
+    orders = (data ?? []) as Order[];
+    render();
+  }
+
+  searchEl.addEventListener('input', render);
+  reloadBtn.addEventListener('click', loadOrders);
+
+  async function init() {
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+    if (!session) {
+      loading.hidden = true;
+      deniedText.textContent = 'Bạn cần đăng nhập đúng tài khoản quản trị để xem trang này — bấm "Đăng nhập" ở đầu trang.';
+      denied.hidden = false;
+      return;
+    }
+    if (!(await isCurrentUserAdmin())) {
+      loading.hidden = true;
+      deniedText.textContent = 'Tài khoản này không có quyền truy cập trang quản trị.';
+      denied.hidden = false;
+      return;
+    }
+    loading.hidden = true;
+    wrap.hidden = false;
+    await loadOrders();
+  }
+
+  init();
+</script>

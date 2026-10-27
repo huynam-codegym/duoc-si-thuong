@@ -366,3 +366,42 @@ create index on public.product_comments (product_slug);
 alter table public.product_comments add column if not exists parent_id uuid references public.product_comments (id) on delete cascade;
 
 create index on public.product_comments (parent_id);
+
+-- 9. Quản lý đơn hàng (tháng 10/2026) — trang /admin/don-hang/. Trước đây bảng orders CHỈ lưu đơn của
+-- khách ĐÃ đăng nhập (khách vãng lai chỉ đi qua email). Từ nay Edge Function send-order-email lưu MỌI
+-- đơn (bằng khóa service role chỉ có trên máy chủ, bỏ qua RLS) trước khi gửi email, nên:
+--   - user_id được phép null (đơn của khách chưa đăng nhập);
+--   - order_code: mã đơn khách thấy (ví dụ MUPBDF74AMN), khớp nội dung chuyển khoản QR và email;
+--   - shipping: phí vận chuyển lúc đặt (null = "Nhà thuốc báo sau").
+-- Trạng thái (status): moi | da_xac_nhan | dang_giao | hoan_tat | huy.
+alter table public.orders alter column user_id drop not null;
+alter table public.orders
+  add column if not exists order_code text unique,
+  add column if not exists shipping integer,
+  add column if not exists status_updated_at timestamptz;
+
+create policy "Admin xem mọi đơn hàng"
+  on public.orders for select
+  using (exists (select 1 from public.profiles where id = auth.uid() and is_admin = true));
+
+-- Đổi trạng thái qua hàm riêng (security definer), KHÔNG cấp UPDATE trực tiếp trên bảng — cùng lý do
+-- với admin_reply_to_review ở mục "7.": RLS chỉ gác theo hàng, không theo cột.
+create function public.admin_update_order_status(p_order_id uuid, p_status text)
+returns void
+language plpgsql
+security definer set search_path = public
+as $$
+begin
+  if not exists (select 1 from public.profiles where id = auth.uid() and is_admin = true) then
+    raise exception 'not authorized';
+  end if;
+  if p_status not in ('moi', 'da_xac_nhan', 'dang_giao', 'hoan_tat', 'huy') then
+    raise exception 'invalid status';
+  end if;
+  update public.orders set status = p_status, status_updated_at = now() where id = p_order_id;
+end;
+$$;
+
+grant execute on function public.admin_update_order_status(uuid, text) to authenticated;
+
+create index if not exists orders_created_at_idx on public.orders (created_at desc);

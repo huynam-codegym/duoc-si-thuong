@@ -4,7 +4,7 @@ import ShopShell from '../../../components/ShopShell.astro';
 import GroupIcon from '../../../components/GroupIcon.astro';
 import ProductCard from '../../../components/ProductCard.astro';
 import ProductNotice from '../../../components/ProductNotice.astro';
-import { departments, departmentSlugs, getProductGroups, type DepartmentSlug } from '../../../lib/departments';
+import { departments, departmentSlugs, getProductGroups, groupWithChildren, type DepartmentSlug } from '../../../lib/departments';
 import { getProducts } from '../../../lib/products';
 
 export function getStaticPaths() {
@@ -17,7 +17,9 @@ const departmentSlug = Astro.params.department as DepartmentSlug;
 const groupSlug = Astro.params.group as string;
 const department = departments[departmentSlug];
 const group = department.groups[groupSlug];
-const products = await getProducts(departmentSlug, groupSlug);
+// Nhóm cha hiện luôn sản phẩm của các nhóm con (childGroups), không báo "đang cập nhật" khi nhóm con có hàng.
+const groupSlugs = new Set(groupWithChildren(departmentSlug, groupSlug));
+const products = (await getProducts(departmentSlug)).filter((product) => groupSlugs.has(product.data.group));
 ---
 
 <BaseLayout title={`${group.name} | ${department.name}`} description={group.description}>
