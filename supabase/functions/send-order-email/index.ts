@@ -257,6 +257,142 @@ async function saveOrder(req: Request, order: OrderPayload): Promise<void> {
   }
 }
 
+// ---------------------------------------------------------------------------------------------
+// Chống spam/giả mạo đơn (tháng 10/2026). Function này ai cũng gọi thẳng được (CORS chỉ chặn trình
+// duyệt, không chặn script), nên phải tự kiểm tra:
+//   1. Dữ liệu hợp lệ + tính lại tiền theo bảng giá thật /san-pham.json (không tin giá client gửi).
+//   2. Cloudflare Turnstile ("không phải robot") — chỉ bật khi đã đặt secret TURNSTILE_SECRET_KEY.
+//   3. Tối đa RATE_LIMIT đơn / RATE_WINDOW_MINUTES phút cho mỗi IP và mỗi số điện thoại (bảng
+//      order_rate_log, mục "12." trong docs/supabase-schema.sql).
+// ---------------------------------------------------------------------------------------------
+const SITE_URL = Deno.env.get('SITE_URL') || 'https://duocsithuong.com';
+const TURNSTILE_SECRET_KEY = Deno.env.get('TURNSTILE_SECRET_KEY');
+const RATE_LIMIT = 5;
+const RATE_WINDOW_MINUTES = 10;
+const MAX_QTY = 20;
+const MAX_ITEMS = 30;
+const FREE_SHIPPING_THRESHOLD = 350_000; // khớp src/lib/cart.ts
+const SHIPPING_FEE = 20_000;
+
+class RejectError extends Error {
+  constructor(public status: number, message: string) {
+    super(message);
+  }
+}
+
+type Catalog = Record<string, { name: string; price: number | null; originalPrice: number | null }>;
+let catalogCache: { data: Catalog; at: number } | null = null;
+
+async function loadCatalog(): Promise<Catalog> {
+  if (catalogCache && Date.now() - catalogCache.at < 5 * 60_000) return catalogCache.data;
+  const res = await fetch(`${SITE_URL}/san-pham.json`);
+  if (!res.ok) throw new Error(`Không tải được bảng giá (${res.status})`);
+  const data = (await res.json()) as Catalog;
+  catalogCache = { data, at: Date.now() };
+  return data;
+}
+
+const digits = (value: string) => value.replace(/\D/g, '');
+const str = (value: unknown, max: number) => (typeof value === 'string' ? value.trim().slice(0, max) : '');
+
+function isPhone(value: string) {
+  const d = digits(value);
+  return /^[0-9+\s.\-()]+$/.test(value) && d.length >= 9 && d.length <= 12;
+}
+
+/** Làm sạch dữ liệu client gửi lên và tính lại tiền theo giá thật. Ném RejectError nếu không hợp lệ. */
+async function sanitizeOrder(raw: Record<string, unknown>): Promise<OrderPayload> {
+  const order = {
+    orderId: str(raw.orderId, 24),
+    ordererName: str(raw.ordererName, 100),
+    ordererPhone: str(raw.ordererPhone, 20),
+    ordererEmail: str(raw.ordererEmail, 120),
+    name: str(raw.name, 100),
+    phone: str(raw.phone, 20),
+    address: str(raw.address, 300),
+    note: str(raw.note, 500),
+    hideProductName: raw.hideProductName === true,
+    paymentMethod: str(raw.paymentMethod, 20) || 'cod',
+  };
+  if (!/^[A-Z0-9]{6,24}$/i.test(order.orderId)) throw new RejectError(400, 'Mã đơn không hợp lệ.');
+  if (!order.ordererName || !order.name || !order.address) throw new RejectError(400, 'Thiếu thông tin đơn hàng bắt buộc.');
+  if (!isPhone(order.ordererPhone) || !isPhone(order.phone)) throw new RejectError(400, 'Số điện thoại chưa đúng.');
+  if (order.ordererEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(order.ordererEmail)) {
+    throw new RejectError(400, 'Email chưa đúng định dạng.');
+  }
+  if (!PAYMENT_LABELS[order.paymentMethod]) throw new RejectError(400, 'Hình thức thanh toán không hợp lệ.');
+
+  const rawItems = Array.isArray(raw.items) ? raw.items : [];
+  if (rawItems.length === 0 || rawItems.length > MAX_ITEMS) throw new RejectError(400, 'Giỏ hàng không hợp lệ.');
+
+  let catalog: Catalog;
+  try {
+    catalog = await loadCatalog();
+  } catch (err) {
+    console.error(err);
+    throw new RejectError(503, 'Chưa kiểm tra được giá sản phẩm, vui lòng thử lại sau.');
+  }
+
+  const seen = new Set<string>();
+  const items: OrderItem[] = [];
+  let total = 0;
+  let originalTotal = 0;
+  for (const entry of rawItems as Record<string, unknown>[]) {
+    const id = str(entry?.id, 120);
+    const qty = Number(entry?.qty);
+    const product = catalog[id];
+    if (!product || seen.has(id)) throw new RejectError(400, 'Giỏ hàng có sản phẩm không còn bán, vui lòng tải lại trang giỏ hàng.');
+    if (!Number.isInteger(qty) || qty < 1 || qty > MAX_QTY) throw new RejectError(400, 'Số lượng sản phẩm không hợp lệ.');
+    seen.add(id);
+    items.push({ id, name: product.name, qty, price: product.price });
+    total += (product.price ?? 0) * qty;
+    originalTotal += (product.originalPrice ?? product.price ?? 0) * qty;
+  }
+  const unpriced = items.some((item) => item.price === null);
+  const shipping = total === 0 && unpriced ? null : total >= FREE_SHIPPING_THRESHOLD ? 0 : SHIPPING_FEE;
+
+  return { ...order, items, total, originalTotal, shipping };
+}
+
+function clientIp(req: Request): string {
+  return (req.headers.get('x-forwarded-for')?.split(',')[0] || req.headers.get('cf-connecting-ip') || '').trim();
+}
+
+async function verifyTurnstile(token: unknown, ip: string): Promise<void> {
+  if (!TURNSTILE_SECRET_KEY) return; // chưa cấu hình thì bỏ qua (site vẫn đặt hàng được)
+  if (typeof token !== 'string' || !token) throw new RejectError(403, 'Vui lòng bấm xác minh "không phải robot" trước khi gửi đơn.');
+  const body = new URLSearchParams({ secret: TURNSTILE_SECRET_KEY, response: token });
+  if (ip) body.set('remoteip', ip);
+  const res = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', { method: 'POST', body });
+  const result = (await res.json().catch(() => ({}))) as { success?: boolean };
+  if (!result.success) throw new RejectError(403, 'Xác minh "không phải robot" chưa thành công, vui lòng thử lại.');
+}
+
+/** Tối đa RATE_LIMIT đơn / RATE_WINDOW_MINUTES phút cho mỗi IP và mỗi số điện thoại. Bảng chưa tạo
+ * (chưa chạy SQL mục "12.") thì cho qua, để không làm hỏng việc đặt hàng thật. */
+async function checkRateLimit(ip: string, order: OrderPayload): Promise<void> {
+  const supabaseUrl = Deno.env.get('SUPABASE_URL');
+  const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+  if (!supabaseUrl || !serviceRoleKey) return;
+  const admin = createClient(supabaseUrl, serviceRoleKey);
+  const phones = [...new Set([digits(order.ordererPhone), digits(order.phone)])];
+  const since = new Date(Date.now() - RATE_WINDOW_MINUTES * 60_000).toISOString();
+  const tooMany = 'Bạn đã gửi quá nhiều đơn trong thời gian ngắn. Vui lòng đợi khoảng 10 phút rồi thử lại.';
+
+  const byPhone = await admin.from('order_rate_log').select('id', { count: 'exact', head: true }).gte('created_at', since).overlaps('phones', phones);
+  if (byPhone.error) {
+    console.error('Bỏ qua giới hạn tần suất:', byPhone.error.message);
+    return;
+  }
+  if ((byPhone.count ?? 0) >= RATE_LIMIT) throw new RejectError(429, tooMany);
+  if (ip) {
+    const byIp = await admin.from('order_rate_log').select('id', { count: 'exact', head: true }).gte('created_at', since).eq('ip', ip);
+    if ((byIp.count ?? 0) >= RATE_LIMIT) throw new RejectError(429, tooMany);
+  }
+  const { error } = await admin.from('order_rate_log').insert({ ip: ip || null, phones });
+  if (error) console.error('Ghi nhật ký tần suất thất bại:', error.message);
+}
+
 Deno.serve(async (req) => {
   const origin = req.headers.get('origin');
   const headers = corsHeaders(origin);
@@ -272,17 +408,19 @@ Deno.serve(async (req) => {
 
   let order: OrderPayload;
   try {
-    order = await req.json();
-  } catch {
-    return new Response(JSON.stringify({ error: 'Dữ liệu đơn hàng không hợp lệ.' }), {
-      status: 400,
-      headers: { ...headers, 'Content-Type': 'application/json' },
+    const raw = await req.json().catch(() => {
+      throw new RejectError(400, 'Dữ liệu đơn hàng không hợp lệ.');
     });
-  }
-
-  if (!order.items?.length || !order.ordererName || !order.phone || !order.address) {
-    return new Response(JSON.stringify({ error: 'Thiếu thông tin đơn hàng bắt buộc.' }), {
-      status: 400,
+    if (!raw || typeof raw !== 'object') throw new RejectError(400, 'Dữ liệu đơn hàng không hợp lệ.');
+    const ip = clientIp(req);
+    order = await sanitizeOrder(raw);
+    await verifyTurnstile(raw.turnstileToken, ip);
+    await checkRateLimit(ip, order);
+  } catch (err) {
+    const status = err instanceof RejectError ? err.status : 400;
+    const message = err instanceof RejectError ? err.message : 'Dữ liệu đơn hàng không hợp lệ.';
+    return new Response(JSON.stringify({ error: message }), {
+      status,
       headers: { ...headers, 'Content-Type': 'application/json' },
     });
   }

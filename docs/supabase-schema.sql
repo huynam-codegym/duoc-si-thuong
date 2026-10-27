@@ -473,3 +473,22 @@ create trigger profiles_prevent_is_admin_change
 
 -- Sau khi chạy, kiểm tra chỉ còn ĐÚNG tài khoản của chủ website là admin:
 -- select p.id, u.email, u.is_anonymous from public.profiles p join auth.users u on u.id = p.id where p.is_admin;
+
+-- =====================================================================
+-- 12. CHỐNG SPAM ĐƠN HÀNG (tháng 10/2026): nhật ký giới hạn tần suất
+-- =====================================================================
+-- Edge Function send-order-email ghi 1 dòng cho mỗi đơn hợp lệ và từ chối khi cùng IP hoặc cùng số
+-- điện thoại đã có từ 5 đơn trong 10 phút gần nhất. Chỉ function (khóa service_role) đọc/ghi bảng
+-- này: bật RLS và KHÔNG tạo policy nào, nên khách/anon không đọc/ghi được.
+create table if not exists public.order_rate_log (
+  id bigserial primary key,
+  ip text,
+  phones text[] not null default '{}',
+  created_at timestamptz not null default now()
+);
+alter table public.order_rate_log enable row level security;
+revoke all on public.order_rate_log from anon, authenticated;
+create index if not exists order_rate_log_created_at_idx on public.order_rate_log (created_at);
+create index if not exists order_rate_log_phones_idx on public.order_rate_log using gin (phones);
+
+-- Dọn nhật ký cũ (không bắt buộc, chạy tay khi muốn): delete from public.order_rate_log where created_at < now() - interval '1 day';

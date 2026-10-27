@@ -29,6 +29,8 @@ jobs:
           # thay vì viết thẳng vào code, theo đúng quy ước "dùng biến môi trường" của dự án.
           PUBLIC_SUPABASE_URL: ${{ vars.PUBLIC_SUPABASE_URL }}
           PUBLIC_SUPABASE_ANON_KEY: ${{ vars.PUBLIC_SUPABASE_ANON_KEY }}
+          # Cloudflare Turnstile (chống spam đơn) — khóa site công khai, để trống thì không hiện ô xác minh.
+          PUBLIC_TURNSTILE_SITE_KEY: ${{ vars.PUBLIC_TURNSTILE_SITE_KEY }}
 
   deploy:
     needs: build

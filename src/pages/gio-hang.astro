@@ -2,6 +2,10 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { site } from '../lib/site';
 import { url } from '../lib/url';
+
+// Cloudflare Turnstile ("không phải robot", chống spam đơn). Khóa site là khóa công khai, đặt qua biến
+// PUBLIC_TURNSTILE_SITE_KEY; để trống thì không hiện ô xác minh (function cũng chỉ bắt buộc khi có secret).
+const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? '';
 ---
 
 <BaseLayout title="Giỏ hàng" description="Giỏ hàng và đặt hàng sản phẩm từ Nhà Thuốc Nhật Minh." noindex>
@@ -178,6 +182,12 @@ import { url } from '../lib/url';
           Sản phẩm ghi "Liên hệ" chưa được tính vào tổng tiền. Nhà thuốc sẽ báo giá khi xác nhận đơn.
         </p>
         <p class="cart-note">Miễn phí giao hàng cho đơn từ 350.000đ, dưới mức này tính phí giao 20.000đ. Nhà thuốc sẽ xác nhận lại giá và cách thanh toán trước khi giao. Site chưa hỗ trợ mã giảm giá.</p>
+        {turnstileSiteKey && (
+          <>
+            <div class="cf-turnstile checkout-turnstile" data-sitekey={turnstileSiteKey} data-size="flexible" data-language="vi"></div>
+            <script is:inline src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+          </>
+        )}
         <button type="submit" class="btn checkout-submit">Hoàn tất</button>
         <p class="order-error" role="alert" hidden></p>
       </aside>
@@ -429,8 +439,17 @@ import { url } from '../lib/url';
       // Dùng lại đúng mã đơn đã sinh lúc tải trang (xem khai báo checkoutOrderId ở đầu script) —
       // mã này đã hiện sẵn trong nội dung chuyển khoản QR nếu khách chọn thanh toán bằng CK.
       const orderId = checkoutOrderId;
+      // Mã xác minh Turnstile (nếu đã bật). window.turnstile do script của Cloudflare gắn vào.
+      const turnstile = (window as unknown as { turnstile?: { getResponse(): string | undefined; reset(): void } }).turnstile;
+      const turnstileToken = form.querySelector('.cf-turnstile') ? turnstile?.getResponse() ?? '' : undefined;
+      if (turnstileToken === '') {
+        error.replaceChildren(el('span', undefined, 'Vui lòng bấm xác minh "không phải robot" ở trên nút Hoàn tất.'));
+        error.hidden = false;
+        return;
+      }
       const order = {
         orderId,
+        turnstileToken,
         items: items.map((item) => ({ id: item.id, name: item.name, qty: item.qty, price: item.price })),
         total,
         originalTotal,
@@ -467,10 +486,20 @@ import { url } from '../lib/url';
         const lookupP = el('p', undefined, 'Bạn có thể theo dõi đơn bất cứ lúc nào: ');
         lookupP.append(lookupLink, document.createTextNode(' (cần mã đơn và số điện thoại).'));
         showResult([el('p', undefined, message), lookupP]);
-      } catch {
+      } catch (err) {
+        // Function trả lý do cụ thể (quá nhiều đơn, giỏ có sản phẩm không còn bán...) thì hiện đúng lý do đó.
+        let reason = '';
+        const context = (err as { context?: Response }).context;
+        if (context && typeof context.json === 'function') {
+          try {
+            reason = String((await context.json())?.error ?? '');
+          } catch {
+            // không đọc được thì dùng câu chung bên dưới
+          }
+        }
         error.innerHTML = '';
         error.append(
-          el('span', undefined, 'Chưa gửi được đơn, có thể do mạng chập chờn. Bạn vui lòng thử lại hoặc '),
+          el('span', undefined, reason ? `${reason} Nếu cần hỗ trợ, ` : 'Chưa gửi được đơn, có thể do mạng chập chờn. Bạn vui lòng thử lại hoặc '),
           (() => {
             const a = el('a', undefined, 'nhắn Zalo cho nhà thuốc');
             a.setAttribute('href', form.dataset.zalo ?? '');
@@ -481,6 +510,12 @@ import { url } from '../lib/url';
           el('span', undefined, '.'),
         );
         error.hidden = false;
+        // Mã xác minh chỉ dùng được 1 lần: lấy mã mới cho lần gửi lại (bọc try để lỗi của widget không chặn thông báo).
+        try {
+          turnstile?.reset();
+        } catch {
+          // bỏ qua
+        }
       }
     });
   </script>
