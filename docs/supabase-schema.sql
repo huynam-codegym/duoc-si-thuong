@@ -439,3 +439,37 @@ as $$
 $$;
 
 grant execute on function public.lookup_order(text, text) to anon, authenticated;
+
+-- =====================================================================
+-- 11. VÁ BẢO MẬT (tháng 10/2026): chặn khách tự bật is_admin cho chính mình
+-- =====================================================================
+-- Lỗ hổng: policy "Khách chỉ sửa hồ sơ của mình" (mục 1) gác theo HÀNG, không gác theo CỘT — cột
+-- is_admin (thêm ở mục 4) nằm cùng bảng profiles nên bất kỳ ai đăng nhập (kể cả đăng nhập ẩn danh của
+-- khung chat) đều PATCH được is_admin=true cho chính mình qua REST API, rồi đọc mọi đơn hàng/tin nhắn
+-- và gọi được Edge Function manage-product. Vá 2 lớp:
+-- (a) chỉ cấp quyền UPDATE đúng 3 cột trang /tai-khoan/ cần sửa;
+revoke update on public.profiles from anon, authenticated;
+grant update (full_name, phone, address) on public.profiles to authenticated;
+
+-- (b) trigger chặn đổi is_admin trừ khi chạy từ Dashboard/SQL Editor hoặc khóa service_role
+--     (khi đó auth.uid() là null) — phòng khi sau này ai đó lỡ cấp lại UPDATE cả bảng.
+create or replace function public.prevent_is_admin_change()
+returns trigger
+language plpgsql
+security definer set search_path = public
+as $$
+begin
+  if new.is_admin is distinct from old.is_admin and auth.uid() is not null then
+    raise exception 'Không được tự đổi quyền quản trị';
+  end if;
+  return new;
+end;
+$$;
+
+drop trigger if exists profiles_prevent_is_admin_change on public.profiles;
+create trigger profiles_prevent_is_admin_change
+  before update on public.profiles
+  for each row execute function public.prevent_is_admin_change();
+
+-- Sau khi chạy, kiểm tra chỉ còn ĐÚNG tài khoản của chủ website là admin:
+-- select p.id, u.email, u.is_anonymous from public.profiles p join auth.users u on u.id = p.id where p.is_admin;

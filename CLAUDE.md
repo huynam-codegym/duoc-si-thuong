@@ -643,3 +643,9 @@ Mỗi bài nên có **ảnh đại diện** (`cover`) và 1-3 hình minh họa t
 - Khi viết bài mẫu hoặc nội dung sức khỏe, đánh dấu rõ phần cần **dược sĩ/bác sĩ kiểm duyệt trước khi đăng**. Không coi nội dung do AI viết là đã được kiểm chứng.
 - Nếu yêu cầu chưa rõ (ví dụ: chưa biết công nghệ, chưa biết bố cục), hỏi lại ngắn gọn trước khi làm.
 - Đề xuất trước khi thay đổi lớn về cấu trúc dự án.
+
+### Kiểm tra bảo mật (tháng 10/2026)
+
+- **Lỗ hổng nghiêm trọng đã phát hiện:** policy UPDATE của `profiles` gác theo HÀNG, không theo CỘT, nên bất kỳ ai đăng nhập (kể cả đăng nhập ẩn danh của khung chat, ai cũng tự tạo được) đều tự PATCH `is_admin=true` qua REST API, rồi đọc được mọi đơn hàng, tin nhắn, ảnh đính kèm và gọi được `manage-product` (commit vào repo). Đã xác nhận bằng tài khoản ẩn danh tạm (đặt lại `false` ngay sau đó). Vá ở mục "11." của `docs/supabase-schema.sql`: chỉ cấp UPDATE 3 cột `full_name/phone/address`, kèm trigger chặn đổi `is_admin` khi `auth.uid()` khác null. **Bài học:** mọi cột phân quyền (`is_admin`, `role`...) không được nằm chung bảng mà khách có quyền UPDATE, trừ khi có grant theo cột hoặc trigger chặn.
+- **Đã kiểm tra và ổn:** không có khóa bí mật trong `src/`; khách chưa đăng nhập không đọc được `orders/profiles/conversations/messages` hay bucket `chat-attachments`, không ghi được đơn/đánh giá; `manage-product` từ chối khi không có phiên hợp lệ; `lookup_order` phải khớp đủ mã đơn và SĐT. Email đơn hàng đã lọc HTML mọi trường khách nhập; đã vá thêm chỗ thiếu (mã đơn trong email, lịch sử đơn ở `/tai-khoan/`).
+- **Cách test an toàn:** chỉ thử ghi trên tài khoản tạm do chính mình tạo, không chạy PATCH/DELETE hàng loạt trên dữ liệu thật.

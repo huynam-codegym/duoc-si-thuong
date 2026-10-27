@@ -125,7 +125,7 @@ function renderCustomerEmail(order: OrderPayload): string {
 <tr><td style="padding: 32px 32px 8px">
 <h1 style="margin: 0 0 12px; font-size: 20px; color: #14532d">Cảm ơn bạn đã đặt hàng!</h1>
 <p style="margin: 0 0 20px; font-size: 15px; line-height: 1.6; color: #374151">
-Chào <strong>${escapeHtml(order.ordererName)}</strong>, Dược Sĩ Thương đã nhận được đơn hàng <strong>#${order.orderId}</strong>.
+Chào <strong>${escapeHtml(order.ordererName)}</strong>, Dược Sĩ Thương đã nhận được đơn hàng <strong>#${escapeHtml(order.orderId)}</strong>.
 </p>
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background: #fefce8; border: 1px solid #fde68a; border-radius: 8px; margin-bottom: 24px">
 <tr><td style="padding: 12px 16px; font-size: 13px; line-height: 1.6; color: #854d0e">
@@ -189,7 +189,7 @@ function renderOwnerEmail(order: OrderPayload): string {
     .join('<br />');
   return `<!doctype html>
 <html lang="vi"><body style="font-family: Arial, Helvetica, sans-serif; color: #111827; padding: 16px">
-<h2 style="color: #14532d">Đơn hàng mới #${order.orderId}</h2>
+<h2 style="color: #14532d">Đơn hàng mới #${escapeHtml(order.orderId)}</h2>
 <p><strong>Người đặt:</strong> ${escapeHtml(order.ordererName)} — ${escapeHtml(order.ordererPhone)}${order.ordererEmail ? ` — ${escapeHtml(order.ordererEmail)}` : ' (không để lại email)'}</p>
 <p><strong>Người nhận:</strong> ${escapeHtml(order.name)} — ${escapeHtml(order.phone)}<br />${escapeHtml(order.address)}</p>
 ${order.note ? `<p><strong>Ghi chú:</strong> ${escapeHtml(order.note)}</p>` : ''}

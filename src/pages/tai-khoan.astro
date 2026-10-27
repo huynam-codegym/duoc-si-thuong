@@ -262,14 +262,17 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         visa: 'Thẻ Visa/Mastercard',
       };
       const statusLabel: Record<string, string> = { moi: 'Mới đặt', da_xac_nhan: 'Đã xác nhận', dang_giao: 'Đang giao', hoan_tat: 'Hoàn tất', huy: 'Đã hủy' };
-      const itemText = order.items.map((item) => `${item.name} x${item.qty}`).join(', ');
+      // Tên sản phẩm lấy từ dữ liệu khách gửi lên, phải lọc ký tự HTML trước khi chèn bằng innerHTML.
+      const escapeHtml = (text: string) =>
+        String(text).replace(/[&<>"']/g, (ch) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[ch]!);
+      const itemText = order.items.map((item) => `${escapeHtml(item.name)} x${Number(item.qty) || 0}`).join(', ');
       li.innerHTML = `
         <div class="order-row-head">
           <span>${date}</span>
-          <span class="order-status">${statusLabel[order.status] ?? order.status}</span>
+          <span class="order-status">${statusLabel[order.status] ?? escapeHtml(order.status)}</span>
         </div>
         <p class="order-row-items">${itemText}</p>
-        <p class="order-row-foot">${order.total ? formatVnd(order.total) : 'Liên hệ'} · ${paymentLabel[order.payment_method] ?? order.payment_method}</p>
+        <p class="order-row-foot">${order.total ? formatVnd(order.total) : 'Liên hệ'} · ${paymentLabel[order.payment_method] ?? escapeHtml(order.payment_method)}</p>
       `;
       return li;
     }
