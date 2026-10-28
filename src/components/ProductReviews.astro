@@ -423,7 +423,8 @@ const { productSlug } = Astro.props;
       const {
         data: { session },
       } = await supabase.auth.getSession();
-      if (session) return true;
+      // Phiên ẩn danh của khung chat không tính là đã đăng nhập (máy chủ cũng chặn, xem mục "13." SQL).
+      if (session && !session.user.is_anonymous) return true;
       window.dispatchEvent(new CustomEvent('duocsithuong:open-account'));
       return false;
     }

@@ -33,6 +33,14 @@ const ogImage = new URL(shareImage ? shareImage.src : url('/og-image.jpg'), Astr
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!-- GitHub Pages không cho đặt header bảo mật, nên khai báo phần dùng được qua thẻ meta. Không
+         chặn script-src vì trang có script inline (define:vars, JSON-LD); frame-ancestors không có
+         tác dụng trong meta nên chống nhúng trang bằng đoạn script ngay dưới. -->
+    <meta http-equiv="Content-Security-Policy" content="object-src 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests" />
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
+    <script is:inline>
+      if (window.top !== window.self) window.top.location.replace(window.location.href);
+    </script>
     <title>{fullTitle}</title>
     <meta name="description" content={description} />
     {noindex && <meta name="robots" content="noindex" />}

@@ -300,7 +300,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         data: { session },
       } = await supabase.auth.getSession();
       loading.hidden = true;
-      if (session?.user) {
+      if (session?.user && !session.user.is_anonymous) {
         authBox.hidden = true;
         accountBox.hidden = false;
         await loadAccount(session.user.id, session.user.email ?? '');

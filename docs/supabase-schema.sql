@@ -492,3 +492,113 @@ create index if not exists order_rate_log_created_at_idx on public.order_rate_lo
 create index if not exists order_rate_log_phones_idx on public.order_rate_log using gin (phones);
 
 -- Dọn nhật ký cũ (không bắt buộc, chạy tay khi muốn): delete from public.order_rate_log where created_at < now() - interval '1 day';
+
+-- =====================================================================
+-- 13. VÁ BẢO MẬT (tháng 10/2026): chống giả mạo dược sĩ trong đánh giá/bình luận
+-- =====================================================================
+-- Lỗ hổng: policy INSERT của product_reviews chỉ kiểm tra auth.uid() = user_id, nên khách tự điền
+-- được admin_reply/admin_reply_by (trang hiện như dược sĩ đã trả lời) và author_name tùy ý (ví dụ
+-- "Dược Sĩ Thương"). Tài khoản ẩn danh của khung chat (ai cũng tự tạo được) cũng gửi được.
+-- Vá: (a) trigger để máy chủ tự điền tên, xóa trống phần trả lời, cắt độ dài; (b) chặn tài khoản ẩn danh.
+
+-- Tên hiển thị lấy từ dữ liệu máy chủ (tên Google -> họ tên hồ sơ -> phần trước "@" email),
+-- không tin tên trình duyệt gửi lên. Khách thường không được đặt tên có chữ "dược sĩ".
+create or replace function public.review_author_name(p_is_admin boolean)
+returns text
+language plpgsql
+stable
+security definer set search_path = public, auth
+as $$
+declare
+  v_name text;
+begin
+  select coalesce(
+    nullif(trim(u.raw_user_meta_data->>'full_name'), ''),
+    nullif(trim(u.raw_user_meta_data->>'name'), ''),
+    nullif(trim(p.full_name), ''),
+    nullif(split_part(u.email, '@', 1), ''),
+    'Khách'
+  ) into v_name
+  from auth.users u left join public.profiles p on p.id = u.id
+  where u.id = auth.uid();
+  v_name := left(coalesce(v_name, 'Khách'), 60);
+  if not p_is_admin and v_name ~* 'd(ư|u)(ợ|ơ|o)c\s*s(ĩ|i)' then
+    v_name := 'Khách';
+  end if;
+  return v_name;
+end;
+$$;
+
+create or replace function public.sanitize_product_review()
+returns trigger
+language plpgsql
+security definer set search_path = public
+as $$
+begin
+  if auth.uid() is not null then
+    new.admin_reply := null;
+    new.admin_reply_by := null;
+    new.admin_reply_at := null;
+    new.author_name := public.review_author_name(false);
+    new.body := nullif(left(trim(coalesce(new.body, '')), 2000), '');
+    new.created_at := now();
+  end if;
+  return new;
+end;
+$$;
+
+drop trigger if exists product_reviews_sanitize on public.product_reviews;
+create trigger product_reviews_sanitize
+  before insert on public.product_reviews
+  for each row execute function public.sanitize_product_review();
+
+create or replace function public.sanitize_product_comment()
+returns trigger
+language plpgsql
+security definer set search_path = public
+as $$
+begin
+  if auth.uid() is not null then
+    new.author_name := public.review_author_name(new.author_role = 'admin');
+    new.body := left(trim(new.body), 2000);
+    if new.body = '' then
+      raise exception 'Bình luận không được để trống';
+    end if;
+    new.created_at := now();
+    -- Trả lời phải thuộc đúng sản phẩm của bình luận gốc
+    if new.parent_id is not null and not exists (
+      select 1 from public.product_comments c
+      where c.id = new.parent_id and c.product_slug = new.product_slug and c.parent_id is null
+    ) then
+      raise exception 'Bình luận gốc không hợp lệ';
+    end if;
+  end if;
+  return new;
+end;
+$$;
+
+drop trigger if exists product_comments_sanitize on public.product_comments;
+create trigger product_comments_sanitize
+  before insert on public.product_comments
+  for each row execute function public.sanitize_product_comment();
+
+-- (b) Chặn tài khoản ẩn danh (đăng nhập ẩn danh chỉ dành cho khung chat).
+drop policy if exists "Khách đã đăng nhập tạo đánh giá của chính mình" on public.product_reviews;
+create policy "Khách đã đăng nhập tạo đánh giá của chính mình"
+  on public.product_reviews for insert
+  with check (
+    auth.uid() = user_id
+    and coalesce((auth.jwt()->>'is_anonymous')::boolean, false) = false
+  );
+
+drop policy if exists "Khách đã đăng nhập tạo bình luận của chính mình" on public.product_comments;
+create policy "Khách đã đăng nhập tạo bình luận của chính mình"
+  on public.product_comments for insert
+  with check (
+    auth.uid() = user_id
+    and coalesce((auth.jwt()->>'is_anonymous')::boolean, false) = false
+    and (
+      author_role = 'customer'
+      or (author_role = 'admin' and exists (select 1 from public.profiles where id = auth.uid() and is_admin = true))
+    )
+  );

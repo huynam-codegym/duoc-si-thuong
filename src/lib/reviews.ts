@@ -79,7 +79,7 @@ export async function submitReview(productSlug: string, rating: number, body: st
   const {
     data: { session },
   } = await supabase.auth.getSession();
-  if (!session) throw new Error('Cần đăng nhập để gửi đánh giá.');
+  if (!session || session.user.is_anonymous) throw new Error('Cần đăng nhập để gửi đánh giá.');
   const { data, error } = await supabase
     .from('product_reviews')
     .insert({ product_slug: productSlug, user_id: session.user.id, author_name: authorName, rating, body: body.trim() || null })
@@ -109,7 +109,7 @@ export async function submitComment(productSlug: string, body: string, authorNam
   const {
     data: { session },
   } = await supabase.auth.getSession();
-  if (!session) throw new Error('Cần đăng nhập để bình luận.');
+  if (!session || session.user.is_anonymous) throw new Error('Cần đăng nhập để bình luận.');
   const trimmed = body.trim();
   if (!trimmed) throw new Error('Bình luận không được để trống.');
   const { data, error } = await supabase

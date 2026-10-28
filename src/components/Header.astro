@@ -1346,7 +1346,7 @@ const drawerSections: DrawerSection[] = [
       data: { session },
     } = await supabase.auth.getSession();
     modalLoading.hidden = true;
-    if (session?.user) {
+    if (session?.user && !session.user.is_anonymous) {
       modalUser.hidden = false;
       if (modalUserEmail) modalUserEmail.textContent = session.user.email ?? '';
     } else {
@@ -1388,7 +1388,7 @@ const drawerSections: DrawerSection[] = [
     const {
       data: { session },
     } = await supabase.auth.getSession();
-    const text = session?.user ? await resolveDisplayName(session.user) : 'Đăng nhập';
+    const text = session?.user && !session.user.is_anonymous ? await resolveDisplayName(session.user) : 'Đăng nhập';
     if (accountLabel) accountLabel.textContent = text;
     if (mobileDrawerAccountLabel) mobileDrawerAccountLabel.textContent = text;
   }
