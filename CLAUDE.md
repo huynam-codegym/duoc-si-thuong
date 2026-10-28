@@ -77,7 +77,7 @@ Cấu trúc gợi ý cho một bài viết:
 | Hosting | GitHub Pages, deploy bằng GitHub Actions (xem mục "Deploy lên GitHub Pages") |
 | Form liên hệ (nếu cần) | Formspree hoặc Google Forms |
 
-Yêu cầu: **Node.js 22.23.4 trở lên** (dùng Node 24 LTS, khai báo ở `.nvmrc`, `engines` của `package.json` và `deploy.yml`). Phiên bản Astro đang dùng là **7.x** (nâng từ 5.x ngày 28/10/2026, xem mục "Nâng cấp Astro 7" bên dưới). Máy của chủ website hiện cài Node 20: muốn build ở máy thì cài Node 24 LTS (`winget install OpenJS.NodeJS.LTS`); Claude tạm dùng Node 24 bản zip tải vào scratchpad (có đối chiếu SHA256), không cài vào máy.
+Yêu cầu: **Node.js 22.23.4 trở lên** (dùng Node 24 LTS, khai báo ở `.nvmrc`, `engines` của `package.json` và `deploy.yml`). Phiên bản Astro đang dùng là **7.x** (nâng từ 5.x ngày 28/10/2026, xem mục "Nâng cấp Astro 7" bên dưới). Máy của chủ website đã cài Node 24.22.1 LTS (28/10/2026, `winget install OpenJS.NodeJS.LTS`; cập nhật bản mới bằng `winget upgrade OpenJS.NodeJS.LTS`).
 
 ### Lệnh
 

@@ -33,7 +33,7 @@ Mọi lỗi (giao diện, chức năng, dữ liệu, bảo mật) đều đi qua
 Bộ test dùng chung ở `scripts/regression/` (thư viện riêng, không phải dependency của site):
 
 ```bash
-# Node build site phải >= 22.23.4 (Astro 7). Máy chủ website đang cài Node 20 → nếu `node -v` thấp hơn,
+# Node build site phải >= 22.23.4 (Astro 7). Máy chủ website đã cài Node 24; nếu `node -v` thấp hơn (máy khác),
 # tải Node 24 LTS bản zip từ nodejs.org vào scratchpad, ĐỐI CHIẾU SHA256 với SHASUMS256.txt, rồi
 # export PATH="<thư mục node>:$PATH" trước khi chạy npm.
 cd scripts/regression && npm install          # lần đầu
