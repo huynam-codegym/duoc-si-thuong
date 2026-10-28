@@ -8,3 +8,4 @@ npm-debug.log*
 # Supabase CLI: cache cục bộ (project ref, version, pooler url...) của máy đã link, không phải bí mật
 # nhưng cũng không cần commit - máy khác chạy `supabase link` lại là có.
 supabase/.temp/
+scripts/regression/out/

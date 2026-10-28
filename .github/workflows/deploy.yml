@@ -3,6 +3,9 @@ name: Deploy lên GitHub Pages
 on:
   push:
     branches: [main]
+  # PR (ví dụ Dependabot cập nhật thư viện) chỉ build thử để biết có hỏng không, không deploy
+  pull_request:
+    branches: [main]
   workflow_dispatch:
 
 permissions:
@@ -10,19 +13,19 @@ permissions:
   pages: write
   id-token: write
 
-# Chỉ giữ một lần deploy chạy tại một thời điểm
+# Chỉ giữ một lần deploy chạy tại một thời điểm; build thử của PR chạy nhóm riêng, không hủy deploy thật
 concurrency:
-  group: pages
+  group: ${{ github.event_name == 'pull_request' && format('pr-{0}', github.ref) || 'pages' }}
   cancel-in-progress: true
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: withastro/action@v3
+      - uses: actions/checkout@v7
+      - uses: withastro/action@v6
         with:
-          node-version: 20
+          node-version: 24
         env:
           # Đăng nhập/tài khoản khách (Supabase) — khóa "anon/publishable", không phải bí mật, nhưng
           # vẫn lấy từ Repository variables (Settings > Secrets and variables > Actions > Variables)
@@ -33,6 +36,7 @@ jobs:
           PUBLIC_TURNSTILE_SITE_KEY: ${{ vars.PUBLIC_TURNSTILE_SITE_KEY }}
 
   deploy:
+    if: github.event_name != 'pull_request'
     needs: build
     runs-on: ubuntu-latest
     environment:
@@ -40,4 +44,4 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5

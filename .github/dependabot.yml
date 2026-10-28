@@ -1,0 +1,21 @@
+# Tự kiểm tra bản mới của thư viện mỗi tuần và mở PR (xem skill .claude/skills/update-deps).
+# PR chỉ được build thử, KHÔNG tự deploy: phải test theo skill update-deps rồi mới merge vào main.
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      timezone: Asia/Ho_Chi_Minh
+    open-pull-requests-limit: 5
+    groups:
+      # Bản vá/bản nhỏ gộp chung 1 PR; bản lớn (major, ví dụ Astro 7 -> 8) mỗi thư viện 1 PR riêng
+      minor-and-patch:
+        update-types: [minor, patch]
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      timezone: Asia/Ho_Chi_Minh

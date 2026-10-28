@@ -35,7 +35,9 @@ export async function getPosts(category?: CategorySlug, group?: string): Promise
     .filter((post) => import.meta.env.DEV || isPublishable(post))
     .filter((post) => !category || post.data.category === category)
     .filter((post) => !group || post.data.subcategory === group)
-    .sort((a, b) => b.data.updatedAt.valueOf() - a.data.updatedAt.valueOf());
+    // Bài cùng ngày cập nhật xếp theo tên file: thứ tự getCollection() trả về không cố định giữa các
+    // phiên bản Astro (lên Astro 7 đã bị đảo chỗ), nên phải tự quy định.
+    .sort((a, b) => b.data.updatedAt.valueOf() - a.data.updatedAt.valueOf() || a.id.localeCompare(b.id));
 }
 
 export function formatDate(date: Date): string {

@@ -77,7 +77,7 @@ Cấu trúc gợi ý cho một bài viết:
 | Hosting | GitHub Pages, deploy bằng GitHub Actions (xem mục "Deploy lên GitHub Pages") |
 | Form liên hệ (nếu cần) | Formspree hoặc Google Forms |
 
-Yêu cầu: Node.js 20 trở lên. Phiên bản Astro đang dùng là 5.x.
+Yêu cầu: **Node.js 22.23.4 trở lên** (dùng Node 24 LTS, khai báo ở `.nvmrc`, `engines` của `package.json` và `deploy.yml`). Phiên bản Astro đang dùng là **7.x** (nâng từ 5.x ngày 28/10/2026, xem mục "Nâng cấp Astro 7" bên dưới). Máy của chủ website hiện cài Node 20: muốn build ở máy thì cài Node 24 LTS (`winget install OpenJS.NodeJS.LTS`); Claude tạm dùng Node 24 bản zip tải vào scratchpad (có đối chiếu SHA256), không cài vào máy.
 
 ### Lệnh
 
@@ -165,9 +165,12 @@ src/assets/
 public/               # favicon.png, apple-touch-icon.png, og-image.jpg, _headers (chỉ Cloudflare/Netlify dùng)
 supabase/functions/   # Edge Functions (Deno): send-order-email/notify-chat-message (gửi email qua Resend), manage-product (commit sản phẩm qua GitHub API) — deploy riêng bằng Supabase CLI, không phải code Astro
 docs/                 # tài liệu nội bộ, KHÔNG đăng lên website (ví dụ ghi chú cho người kiểm duyệt)
+scripts/regression/   # bộ test hồi quy (Puppeteer chụp 28 trang × 2 khổ + 15 kiểm tra chức năng, so ảnh/chữ/HTML giữa 2 bản build), thư viện riêng, không phải của site
+.claude/skills/       # quy trình cố định: add-product, fix-bug, update-deps, web-security-testing
 astro.config.mjs      # `site` = https://duocsithuong.com (không có `base`)
 .github/workflows/    # deploy.yml: tự build và deploy khi đẩy code lên `main`
-.nvmrc                # phiên bản Node dùng khi build
+.nvmrc                # phiên bản Node dùng khi build (24)
+.github/dependabot.yml # mỗi thứ Hai tự mở PR khi thư viện/GitHub Actions có bản mới
 ```
 
 ### Deploy lên GitHub Pages
@@ -643,6 +646,8 @@ Mỗi bài nên có **ảnh đại diện** (`cover`) và 1-3 hình minh họa t
 - Khi viết bài mẫu hoặc nội dung sức khỏe, đánh dấu rõ phần cần **dược sĩ/bác sĩ kiểm duyệt trước khi đăng**. Không coi nội dung do AI viết là đã được kiểm chứng.
 - Nếu yêu cầu chưa rõ (ví dụ: chưa biết công nghệ, chưa biết bố cục), hỏi lại ngắn gọn trước khi làm.
 - Đề xuất trước khi thay đổi lớn về cấu trúc dự án.
+- **Mọi lỗi đi qua skill `fix-bug`** (chủ website yêu cầu 28/10/2026): tái hiện → nguyên nhân gốc → sửa → test hồi quy (`scripts/regression/`) → **chạy lại skill `web-security-testing`** cho phần vừa sửa → lỗi mới thì lặp lại → deploy. Chưa chạy bảo mật thì chưa coi là sửa xong.
+- **Cập nhật thư viện là việc thường xuyên** (chủ website yêu cầu): dùng skill `update-deps` ít nhất mỗi tháng và mỗi khi Dependabot mở PR (`gh pr list --author app/dependabot`) hoặc `npm audit` báo lỗ hổng. Nâng bản lớn phải test lại TOÀN BỘ chức năng + giao diện như skill mô tả. PR Dependabot chỉ được build thử, không tự deploy — test xong mới merge.
 
 ### Kiểm tra bảo mật (tháng 10/2026)
 
@@ -653,8 +658,15 @@ Mỗi bài nên có **ảnh đại diện** (`cover`) và 1-3 hình minh họa t
   - **Giả mạo dược sĩ trong đánh giá (Trung bình):** policy INSERT của `product_reviews` chỉ kiểm tra `user_id`, khách tự điền được `admin_reply`/`admin_reply_by` và `author_name` (ví dụ "Dược Sĩ Thương"). Tài khoản ẩn danh của khung chat cũng gửi được. Vá ở mục "13." của `docs/supabase-schema.sql` (chủ website tự chạy): trigger để máy chủ tự điền tên (khách thường không được có chữ "dược sĩ"), xóa trống phần trả lời, cắt 2000 ký tự, kiểm tra trả lời đúng sản phẩm; policy chặn phiên ẩn danh (`auth.jwt()->>'is_anonymous'`).
   - **Phiên ẩn danh của khung chat từng bị coi là "đã đăng nhập":** mở khung chat xong thì đầu trang hiện "Tài khoản", `/tai-khoan/` hiện trang hồ sơ, form đánh giá cho gửi. Giờ `Header.astro`, `tai-khoan.astro`, `ProductReviews.astro`, `lib/reviews.ts` đều kiểm tra `session.user.is_anonymous`. Chỗ nào mới cần biết "đã đăng nhập thật" phải kiểm tra thêm cờ này, không chỉ `session?.user`.
   - **Header bảo mật (Thấp):** GitHub Pages không cho đặt header (không có HSTS, CSP, X-Frame-Options). Đã thêm trong `BaseLayout.astro`: meta CSP (`object-src 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests`, không chặn `script-src` vì có script inline), meta referrer, và script chống bị nhúng vào trang khác (`frame-ancestors` không có tác dụng trong meta). Muốn đủ header phải chuyển hosting sang Cloudflare Pages (file `public/_headers` sẵn có).
-  - **Thư viện:** đã `npm audit fix` các bản vá nhỏ. Còn 5 cảnh báo (astro, sharp, zod, esbuild) cần nâng Astro bản lớn (5 → 7), chưa làm vì có thể phải sửa code. Rủi ro thực tế thấp: chỉ chạy lúc build, site tĩnh; lỗi `define:vars` của Astro chỉ khai thác được khi dữ liệu người dùng lọt vào `define:vars`, site chỉ đưa dữ liệu sản phẩm lúc build.
+  - **Thư viện:** đã `npm audit fix` các bản vá nhỏ, rồi nâng Astro 5 → 7 (mục "Nâng cấp Astro 7" ngay dưới): `npm audit` còn **0 lỗ hổng** (trước đó 5, có 1 mức nghiêm trọng: chạy mã từ xa qua tối ưu ảnh AVIF).
+  - **SQL mục "13." đã chạy (28/10/2026)**, đã kiểm tra: hàm `review_author_name` tồn tại (khóa anon gọi trả "Khách"), khách chưa đăng nhập gửi đánh giá kèm tên "Dược Sĩ Thương" bị RLS từ chối (401).
   - Đã đạt: HTTP → HTTPS, chỉ TLS 1.2+, `.env`/`.git`/file SQL/mã function đều 404, khách chưa đăng nhập không đọc được bảng riêng tư. `user_id` của người đánh giá công khai (chỉ là mã ngẫu nhiên, mức Thông tin).
+- **Nâng cấp Astro 7 (28/10/2026)**: astro 5.18.2 → 7.4.2, @supabase/supabase-js 2.118.0, Node 20 → 24 (build), GitHub Actions checkout@v7, withastro/action@v6, deploy-pages@v5. Test theo skill `update-deps`: so 28 trang × 2 khổ và 15 kiểm tra chức năng trước/sau (chức năng giống hệt), so chữ hiển thị và cấu trúc HTML của cả 205 trang.
+  - **Bẫy đã gặp — mất khoảng trắng, chữ bị dính:** Astro 7 đổi mặc định `compressHTML` sang `'jsx'` (bỏ khoảng trắng kiểu React), nên chữ ở cuối dòng nối với thẻ ở dòng sau bị dính: "Trang chủ /Thực phẩm chức năng" (đường dẫn ~75 trang sản phẩm), "Bệnh & Góc Sức KhỏeThiếu canxi" (nhãn đầu 18 bài), vài chỗ ở Giới thiệu/Tra cứu. Ảnh chụp chỉ lộ ở vài trang, so `innerText` toàn site mới thấy hết. Sửa bằng `compressHTML: true` trong `astro.config.mjs` (giữ cách của Astro 5/6). **Không bỏ dòng này** khi nâng cấp sau, trừ khi đã thêm `{' '}` ở mọi chỗ cần.
+  - **Bẫy đã gặp — thứ tự bài cùng ngày đổi chỗ:** `getPosts()` chỉ xếp theo `updatedAt`, bài trùng ngày giữ thứ tự `getCollection()` trả về, mà thứ tự này đổi giữa Astro 5 và 7. Đã thêm tiêu chí phụ `a.id.localeCompare(b.id)` (tên file A-Z). Mọi `.sort()` mới trên dữ liệu content collection cần tiêu chí phụ cố định.
+  - Bộ Markdown mới (Sätteri) và trình biên dịch Rust của Astro 7: đã so cấu trúc HTML, không đổi gì (tiêu đề/id mục lục/bảng/ảnh giống hệt). Riêng `alt` ảnh có "&" trước đây bị mã hóa 2 lần (hiện chữ "&#x26;"), giờ hiện đúng.
+  - Kết quả tìm kiếm Pagefind: 2 sản phẩm cùng điểm liên quan đổi chỗ cho nhau (không phải lỗi).
+  - `typescript` giữ 5.9 (TypeScript 7 là bản viết lại, dự án không chạy type-check lúc build nên chưa cần).
 - **Chống spam đơn hàng (tháng 10/2026, chủ website yêu cầu, tối đa 5 đơn/10 phút):** `send-order-email` ai cũng gọi thẳng được (CORS không chặn script), nên hàm tự kiểm tra 3 lớp trước khi lưu đơn/gửi email:
   1. **Làm sạch dữ liệu + tính lại tiền theo giá thật**: cắt độ dài các ô, kiểm tra SĐT/email/mã đơn/hình thức thanh toán, tối đa 30 sản phẩm × 20 cái. Tên, giá, tổng tiền, phí ship lấy lại từ `/san-pham.json` (`src/pages/san-pham.json.ts`, dựng lúc build, chỉ sản phẩm đã đăng; hàm cache 5 phút), không tin giá trong giỏ localStorage. Sản phẩm không có trong bảng giá thì từ chối. Không tải được bảng giá thì từ chối (503) chứ không rơi về giá client. **Thứ tự deploy:** site (có `/san-pham.json`) phải lên trước rồi mới deploy hàm. Đổi chính sách ship thì sửa CẢ `src/lib/cart.ts` lẫn 2 hằng số trong hàm.
   2. **Cloudflare Turnstile** ("không phải robot"): ô xác minh trên nút "Hoàn tất" chỉ hiện khi có biến `PUBLIC_TURNSTILE_SITE_KEY` (Repository variable trên GitHub), hàm chỉ bắt buộc khi có secret `TURNSTILE_SECRET_KEY`. Phải bật CẢ HAI cùng lúc: chỉ có secret mà site chưa hiện ô thì mọi đơn bị từ chối. Mã xác minh chỉ dùng 1 lần, gửi lỗi thì trang tự `turnstile.reset()`. Khóa thử nghiệm của Cloudflare (`1x00000000000000000000AA`) dùng được khi test bằng Puppeteer.

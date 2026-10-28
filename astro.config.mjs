@@ -6,6 +6,9 @@ import sitemap from '@astrojs/sitemap';
 // Nếu quay lại địa chỉ github.io/duoc-si-thuong thì thêm lại: site 'https://huynam-codegym.github.io', base '/duoc-si-thuong'.
 export default defineConfig({
   site: 'https://duocsithuong.com',
+  // Astro 7 đổi mặc định sang 'jsx' (bỏ khoảng trắng kiểu React), làm dính chữ ở nhiều chỗ như
+  // "Trang chủ /Thực phẩm chức năng". `true` giữ cách gọn khoảng trắng theo HTML như Astro 5/6.
+  compressHTML: true,
   // Trang giỏ hàng là noindex nên không đưa vào sitemap
   integrations: [sitemap({ filter: (page) => !page.includes('/gio-hang/') })],
 });

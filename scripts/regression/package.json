@@ -1,0 +1,11 @@
+{
+  "name": "duoc-si-thuong-regression",
+  "private": true,
+  "type": "module",
+  "description": "Công cụ test hồi quy (chụp ảnh + kiểm tra chức năng) chạy trên thư mục build. Không phải thư viện của site.",
+  "devDependencies": {
+    "pixelmatch": "^8.0.0",
+    "pngjs": "^7.0.0",
+    "puppeteer-core": "^25.16.0"
+  }
+}
