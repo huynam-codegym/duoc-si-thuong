@@ -30,8 +30,8 @@ import { url } from '../../lib/url';
         </div>
       </div>
       <p class="admin-orders-note">
-        Giá và thành tiền do trình duyệt của khách gửi lên lúc đặt hàng. Hãy đối chiếu lại giá khi gọi điện xác nhận
-        đơn.
+        Giá và thành tiền được máy chủ tính lại theo bảng giá trên website lúc khách đặt. Đổi trạng thái đơn sẽ tự gửi
+        email báo khách (nếu khách để email); muốn báo qua Zalo thì bấm "Nhắn Zalo cho khách".
       </p>
       <button type="button" class="admin-orders-new" id="newOrdersBanner" hidden></button>
       <p class="review-form-msg" id="ordersError" hidden></p>
@@ -109,6 +109,58 @@ import { url } from '../../lib/url';
     if (className) node.className = className;
     if (text !== undefined) node.textContent = text;
     return node;
+  }
+
+  // Dòng báo kết quả gửi email/chép lời nhắn nằm TRÊN danh sách, vì đổi trạng thái xong đơn thường rời
+  // khỏi bộ lọc đang xem (ví dụ "Mới đặt") nên báo ngay trong thẻ đơn sẽ biến mất cùng thẻ.
+  const noticeEl = el('p', 'admin-order-notice');
+  noticeEl.setAttribute('role', 'status');
+  noticeEl.hidden = true;
+  listEl.before(noticeEl);
+
+  function showNotice(text: string, ok: boolean) {
+    noticeEl.textContent = text;
+    noticeEl.classList.toggle('is-error', !ok);
+    noticeEl.hidden = false;
+  }
+
+  const ZALO_STATUS_TEXT: Record<string, string> = {
+    moi: 'đã được nhà thuốc ghi nhận',
+    da_xac_nhan: 'đã được xác nhận, nhà thuốc đang chuẩn bị hàng',
+    dang_giao: 'đang được giao, bạn giữ điện thoại để người giao hàng liên hệ nhé',
+    hoan_tat: 'đã giao thành công. Cảm ơn bạn đã tin tưởng Dược Sĩ Thương',
+    huy: 'đã được hủy. Nếu bạn đã chuyển khoản, nhà thuốc sẽ liên hệ hoàn tiền',
+  };
+
+  function zaloMessage(order: Order): string {
+    const code = order.order_code ?? '';
+    const name = order.orderer_name || order.customer_name;
+    return `Dược Sĩ Thương xin chào ${name}. Đơn hàng #${code} ${ZALO_STATUS_TEXT[order.status] ?? ''}. Xem tình trạng đơn: https://duocsithuong.com/tra-cuu-don-hang/?ma=${encodeURIComponent(code)}`;
+  }
+
+  // Gửi email báo trạng thái mới cho khách (Edge Function notify-order-status tự kiểm tra quyền admin và
+  // đọc lại đơn từ cơ sở dữ liệu). Trạng thái đã đổi xong rồi, nên email lỗi chỉ báo, không hoàn tác.
+  async function notifyCustomer(order: Order) {
+    const code = order.order_code ?? '';
+    if (order.status === 'moi') {
+      showNotice(`Đã cập nhật đơn #${code}.`, true);
+      return;
+    }
+    showNotice(`Đã cập nhật đơn #${code}. Đang gửi email báo khách…`, true);
+    const { data, error } = await supabase.functions.invoke('notify-order-status', { body: { orderId: order.id } });
+    if (error) {
+      let reason = error.message;
+      try {
+        reason = (await error.context.json()).error ?? reason;
+      } catch {
+        // phản hồi không phải JSON: giữ thông báo lỗi gốc
+      }
+      showNotice(`Đã cập nhật đơn #${code}, nhưng chưa gửi được email: ${reason}`, false);
+    } else if (data?.sent) {
+      showNotice(`Đã cập nhật đơn #${code} và gửi email báo khách.`, true);
+    } else {
+      showNotice(`Đã cập nhật đơn #${code}. Khách không để email, bạn có thể bấm "Nhắn Zalo cho khách".`, true);
+    }
   }
 
   function vnd(value: number): string {
@@ -219,11 +271,25 @@ import { url } from '../../lib/url';
       }
       order.status = select.value;
       render();
+      notifyCustomer(order);
+    });
+    // Zalo không cho điền sẵn nội dung qua đường dẫn, nên chép sẵn lời nhắn vào bộ nhớ tạm rồi mở
+    // đúng cuộc trò chuyện với khách, dược sĩ chỉ cần dán và gửi.
+    const zaloPhone = (order.orderer_phone || order.phone).replace(/\D/g, '');
+    const zaloBtn = el('a', 'btn btn-outline', 'Nhắn Zalo cho khách');
+    zaloBtn.href = `https://zalo.me/${zaloPhone}`;
+    zaloBtn.target = '_blank';
+    zaloBtn.rel = 'noopener noreferrer';
+    zaloBtn.addEventListener('click', () => {
+      navigator.clipboard
+        ?.writeText(zaloMessage(order))
+        .then(() => showNotice(`Đã chép lời nhắn cho đơn #${order.order_code ?? ''}. Dán vào Zalo rồi gửi cho khách.`, true))
+        .catch(() => showNotice('Chưa chép được lời nhắn, hãy gõ tay trong Zalo.', false));
     });
     const printBtn = el('button', 'btn btn-outline', 'In phiếu giao hàng');
     printBtn.type = 'button';
     printBtn.addEventListener('click', () => printSlip(order));
-    actions.append(select, saveBtn, printBtn);
+    actions.append(select, saveBtn, zaloBtn, printBtn);
     li.append(actions, msg);
     return li;
   }

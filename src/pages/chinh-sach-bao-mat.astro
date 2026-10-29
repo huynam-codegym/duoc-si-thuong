@@ -31,9 +31,10 @@ const updatedAt = '29/10/2026';
 
       <h2>1. Ai chịu trách nhiệm về thông tin của bạn</h2>
       <p>
-        Website <strong>{site.name}</strong> (duocsithuong.com) do dược sĩ Thương, {site.role} {site.pharmacy.name}, quản lý.
-        Sản phẩm trên website do {site.pharmacy.name} giới thiệu và bán. Mọi câu hỏi về thông tin cá nhân, bạn liên hệ qua
-        Zalo <a href={site.zaloHref} target="_blank" rel="noopener noreferrer">{site.phone}</a>.
+        <strong>{site.pharmacy.name}</strong> là đơn vị chịu trách nhiệm về thông tin cá nhân bạn gửi qua website
+        <strong>{site.name}</strong> (duocsithuong.com). Website do dược sĩ Thương, {site.role} {site.pharmacy.name}, quản lý,
+        và sản phẩm trên website do {site.pharmacy.name} giới thiệu và bán. Mọi câu hỏi về thông tin cá nhân, bạn liên hệ
+        qua Zalo <a href={site.zaloHref} target="_blank" rel="noopener noreferrer">{site.phone}</a>.
       </p>
 
       <h2>2. Chúng tôi thu thập những thông tin gì</h2>
@@ -84,7 +85,7 @@ const updatedAt = '29/10/2026';
       <h2>4. Chúng tôi dùng thông tin để làm gì</h2>
       <ul>
         <li>Xác nhận đơn hàng, gọi điện cho bạn, giao hàng và đối chiếu thanh toán.</li>
-        <li>Gửi email xác nhận đơn hàng (nếu bạn có điền email).</li>
+        <li>Gửi email xác nhận đơn hàng và báo khi đơn đổi trạng thái (nếu bạn có điền email), hoặc nhắn Zalo theo số điện thoại bạn để lại.</li>
         <li>Trả lời tin nhắn và tư vấn sức khỏe ở mức tham khảo.</li>
         <li>Cho bạn đăng nhập, xem lại hồ sơ và đơn đã đặt.</li>
         <li>Chặn thư rác, chặn đơn hàng giả và bảo vệ an toàn cho website.</li>
@@ -98,7 +99,8 @@ const updatedAt = '29/10/2026';
       </p>
       <ul>
         <li><strong>Supabase</strong>: lưu tài khoản, đơn hàng, tin nhắn, tệp đính kèm, đánh giá và bình luận.</li>
-        <li><strong>Resend</strong>: gửi email xác nhận đơn hàng và email báo cho dược sĩ.</li>
+        <li><strong>Resend</strong>: gửi email về đơn hàng cho bạn và email báo cho dược sĩ.</li>
+        <li><strong>Zalo</strong>: khi dược sĩ nhắn tin báo tình trạng đơn tới số điện thoại của bạn.</li>
         <li><strong>Google</strong>: chỉ khi bạn chọn "Đăng nhập với Google".</li>
         <li><strong>Cloudflare Turnstile</strong>: kiểm tra bạn không phải người máy khi gửi đơn.</li>
         <li><strong>VietQR</strong>: tạo ảnh mã QR chuyển khoản. Dịch vụ này nhận số tiền và mã đơn, không nhận tên hay địa chỉ của bạn.</li>
@@ -112,8 +114,7 @@ const updatedAt = '29/10/2026';
 
       <h2>6. Chúng tôi lưu thông tin bao lâu</h2>
       <ul>
-        <li>Đơn hàng: lưu để đối chiếu, bảo hành và theo yêu cầu sổ sách, kế toán.</li>
-        <li>Tài khoản và tin nhắn: lưu cho tới khi bạn yêu cầu xóa.</li>
+        <li>Đơn hàng, tài khoản và tin nhắn: lưu cho tới khi bạn yêu cầu xóa (trừ phần pháp luật bắt buộc phải giữ, ví dụ sổ sách bán hàng).</li>
         <li>Nhật ký chống gửi đơn hàng loạt (IP, số điện thoại): tự xóa sau khoảng 1 ngày.</li>
       </ul>
 

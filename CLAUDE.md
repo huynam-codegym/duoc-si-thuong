@@ -164,7 +164,7 @@ src/assets/
   cover.jpg           # ảnh bìa thương hiệu (2048x762), hiện ở đầu trang chủ
   logo.jpg            # logo chính thức (hình tròn viền xanh, 640x640), hiện ở header
 public/               # favicon.png, apple-touch-icon.png, og-image.jpg, _headers (chỉ Cloudflare/Netlify dùng)
-supabase/functions/   # Edge Functions (Deno): send-order-email/notify-chat-message (gửi email qua Resend), manage-product (commit sản phẩm qua GitHub API) — deploy riêng bằng Supabase CLI, không phải code Astro
+supabase/functions/   # Edge Functions (Deno): send-order-email/notify-chat-message/notify-order-status (gửi email qua Resend), manage-product (commit sản phẩm qua GitHub API) — deploy riêng bằng Supabase CLI, không phải code Astro
 docs/                 # tài liệu nội bộ, KHÔNG đăng lên website (ví dụ ghi chú cho người kiểm duyệt)
 scripts/regression/   # bộ test hồi quy (Puppeteer chụp 28 trang × 2 khổ + 15 kiểm tra chức năng, so ảnh/chữ/HTML giữa 2 bản build), thư viện riêng, không phải của site
 .claude/skills/       # quy trình cố định: add-product, fix-bug, update-deps, web-security-testing
@@ -564,7 +564,16 @@ Cuối trang chi tiết sản phẩm (dưới đánh giá/bình luận) có kh�
 - **Cần chủ website chạy mục "9." trong `docs/supabase-schema.sql`** (bỏ `not null` của `user_id`, thêm `order_code`/`shipping`/`status_updated_at`, policy admin xem mọi đơn, hàm `admin_update_order_status()`). Chưa chạy thì function tự rơi về cách lưu cũ: chỉ lưu đơn của khách đã đăng nhập, trang admin chưa đọc được đơn.
 - **Trang admin**: kiểm tra `profiles.is_admin` (an toàn thật nằm ở RLS), lọc theo trạng thái (mặc định "Mới đặt") kèm số lượng, tìm theo mã đơn/tên/SĐT, mỗi đơn hiện người đặt/người nhận (SĐT bấm gọi được), sản phẩm, phí ship, thanh toán, ghi chú, cảnh báo "ẩn tên sản phẩm", và ô đổi trạng thái. Trạng thái: `moi` / `da_xac_nhan` / `dang_giao` / `hoan_tat` / `huy`; đổi qua RPC, **không cấp UPDATE trực tiếp** (cùng lý do với `admin_reply_to_review`). Trang `/tai-khoan/` đã thêm nhãn "Đã xác nhận".
 - Chữ khách gõ (tên, địa chỉ, ghi chú) dựng bằng `textContent`, không dùng `innerHTML`, để tránh chèn mã độc vào trang admin.
-- **Giá trong đơn do trình duyệt khách gửi lên** (lấy từ giỏ hàng localStorage), chưa đối chiếu lại với giá thật ở máy chủ. Trang admin có dòng nhắc đối chiếu giá khi gọi xác nhận.
+- Giá trong đơn do máy chủ tính lại theo `/san-pham.json` (xem mục "Chống spam đơn hàng"), không lấy giá trong giỏ của khách.
+- **Báo khách khi đổi trạng thái (29/10/2026):**
+  - **Email tự động.** Sau khi RPC đổi trạng thái thành công, trang gọi Edge Function `notify-order-status` (`supabase/functions/notify-order-status/index.ts`, deploy bằng `npx supabase functions deploy notify-order-status`, dùng lại secret Resend sẵn có).
+    - Hàm tự kiểm tra `is_admin` bằng khóa service role. Trạng thái, email và sản phẩm đều đọc lại từ DB, không lấy từ trình duyệt.
+    - Gửi tới `orderer_email`; không có thì gửi tới email tài khoản (không tính phiên ẩn danh); không có email nào thì trả `{sent:false}`.
+    - Không gửi cho trạng thái "Mới đặt". Đơn "Đã xác nhận" + chuyển khoản có thêm dòng nhắc chuyển đúng số tiền và giữ mã đơn.
+    - Kết quả (đã gửi / khách không để email / lỗi) hiện ở dòng `.admin-order-notice` TRÊN danh sách, vì đổi trạng thái xong đơn thường rời khỏi bộ lọc đang xem.
+  - **Zalo thủ công.** Nút "Nhắn Zalo cho khách" mở `zalo.me/<SĐT người đặt>` và tự chép sẵn lời nhắn báo trạng thái vào bộ nhớ tạm, dược sĩ chỉ cần dán rồi gửi. Zalo không cho điền sẵn nội dung qua đường dẫn.
+  - **Gửi Zalo TỰ ĐỘNG chưa làm:** cần Zalo ZNS (Zalo Official Account đã xác minh, mẫu tin được duyệt, tính phí theo tin), mà chủ website đã quyết định không dùng Zalo OA.
+  - Đổi trạng thái qua lại nhiều lần sẽ gửi nhiều email. Không có cột ghi nhận "đã báo", vì đó là thao tác của chính dược sĩ.
 - Đã test bằng Puppeteer với phiên admin giả lập và dữ liệu đơn mẫu (chặn request, không đụng DB thật) ở 1280px và 390px: lọc, tìm, đổi trạng thái gọi đúng RPC, không tràn ngang.
 - **Báo đơn mới**: trang tự hỏi lại mỗi 30 giây các đơn tạo sau đơn mới nhất đang có (polling, KHÔNG dùng Supabase Realtime vì cần bật thêm publication cho bảng `orders`). Có đơn mới thì hiện thanh cam "Có N đơn mới vừa đến" và tiêu đề tab đổi thành "(N) Quản lý đơn hàng" — để nhận biết khi đang làm việc ở tab khác.
 - **In phiếu giao hàng**: nút "In phiếu giao hàng" ở mỗi đơn dựng khối `#printSlip` ngay dưới `<body>`, CSS `@media print` (`body.print-slip-mode`) chỉ in đúng khối đó. **Đơn có "ẩn tên sản phẩm" thì phiếu chỉ ghi "Hàng chăm sóc sức khỏe — N sản phẩm"**, vì phiếu dán ngoài kiện, ai cũng đọc được. Đơn COD in to dòng "THU HỘ (COD)"; đơn chuyển khoản/ví thì nhắc kiểm tra đã nhận tiền trước khi giao.
@@ -614,11 +623,10 @@ Chủ website gửi ảnh mẫu Long Châu (khung "Đánh giá sản phẩm" có
   - ô đồng ý ở `/gio-hang/` (link mở tab mới để không mất chữ khách đã gõ);
   - dòng `.account-privacy-note` trong khung đăng nhập nổi và ở trang `/tai-khoan/`.
 - Khung chat CHƯA có dòng nhắc, vì chủ website từng yêu cầu bỏ các dòng chữ trong khung chat.
+- **Chủ website đã xác nhận (29/10/2026):** đơn vị chịu trách nhiệm là **Nhà Thuốc Nhật Minh**; đơn hàng, tài khoản và tin nhắn lưu cho tới khi khách yêu cầu xóa.
 - **Cần chủ website tự xác nhận** (bản do AI soạn, chưa qua tư vấn pháp lý):
-  - thời gian lưu đơn hàng và tin nhắn;
   - việc chuyển dữ liệu ra nước ngoài (Luật Bảo vệ dữ liệu cá nhân và văn bản hướng dẫn có thể yêu cầu hồ sơ đánh giá tác động);
-  - thời hạn phản hồi yêu cầu của khách;
-  - tên đơn vị chịu trách nhiệm chính thức (cá nhân hay Nhà Thuốc Nhật Minh).
+  - thời hạn phản hồi yêu cầu của khách.
 - **Bẫy đã gặp khi test trang này:** ô "Mật khẩu" ở `/tai-khoan/` bị mỏng dẹt, vì selector dùng chung `.order input[type=...]` thiếu `password` (cùng họ với bẫy thiếu `email` ở trang giỏ hàng). Đã thêm `.order input[type='password']`.
 
 ### Hình ảnh trong bài viết
