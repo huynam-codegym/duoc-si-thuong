@@ -146,21 +146,29 @@ import { url } from '../../lib/url';
       showNotice(`Đã cập nhật đơn #${code}.`, true);
       return;
     }
-    showNotice(`Đã cập nhật đơn #${code}. Đang gửi email báo khách…`, true);
+    showNotice(`Đã cập nhật đơn #${code}. Đang báo khách…`, true);
     const { data, error } = await supabase.functions.invoke('notify-order-status', { body: { orderId: order.id } });
+    let result = data;
+    let emailError = '';
     if (error) {
-      let reason = error.message;
+      emailError = error.message;
       try {
-        reason = (await error.context.json()).error ?? reason;
+        result = await error.context.json();
+        emailError = result?.error ?? emailError;
       } catch {
         // phản hồi không phải JSON: giữ thông báo lỗi gốc
       }
-      showNotice(`Đã cập nhật đơn #${code}, nhưng chưa gửi được email: ${reason}`, false);
-    } else if (data?.sent) {
-      showNotice(`Đã cập nhật đơn #${code} và gửi email báo khách.`, true);
-    } else {
-      showNotice(`Đã cập nhật đơn #${code}. Khách không để email, bạn có thể bấm "Nhắn Zalo cho khách".`, true);
     }
+    const parts: string[] = [];
+    if (emailError) parts.push(`chưa gửi được email (${emailError})`);
+    else if (result?.sent) parts.push('đã gửi email');
+    else if (result?.reason === 'no_email') parts.push('khách không để email');
+    const zalo = result?.zalo;
+    if (zalo?.sent) parts.push('đã nhắn Zalo OA');
+    else if (zalo && zalo.reason !== 'not_configured') parts.push(`chưa nhắn được Zalo OA (${zalo.reason})`);
+    const failed = Boolean(emailError) || Boolean(zalo && !zalo.sent && zalo.reason !== 'not_configured');
+    const hint = !result?.sent && !zalo?.sent ? ' Bạn có thể bấm "Nhắn Zalo cho khách".' : '';
+    showNotice(`Đã cập nhật đơn #${code}${parts.length ? ': ' + parts.join(', ') : ''}.${hint}`, !failed);
   }
 
   function vnd(value: number): string {

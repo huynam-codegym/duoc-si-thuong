@@ -207,7 +207,7 @@ Sau khi deploy, kiểm tra: trang chủ, một bài viết, `/tim-kiem/`, `/site
 
 ### Liên hệ và hỏi đáp qua Zalo (không dùng Zalo OA)
 
-- **Chủ website đã quyết định không dùng chat Zalo OA** (cũng không dùng Tawk.to). Liên hệ với NGƯỜI THẬT đi qua **Zalo cá nhân** `https://zalo.me/0988283415`. Không nạp mã/dịch vụ chat bên thứ ba (Tawk.to, Zalo OA, Messenger...) khi chưa được chủ website yêu cầu — khung "Nhắn tin trực tiếp cho dược sĩ" ở mục ngay dưới KHÔNG phải ngoại lệ, đó là code tự viết chạy trên Supabase (dịch vụ đã dùng sẵn cho đăng nhập/đơn hàng), không phải dịch vụ chat bên thứ ba mới.
+- **Chủ website đã quyết định không dùng chat Zalo OA** (cũng không dùng Tawk.to). Riêng tin báo đơn hàng tự động thì dùng OA của nhà thuốc qua ZNS, xem mục "Báo khách qua Zalo OA (ZNS)". Liên hệ với NGƯỜI THẬT đi qua **Zalo cá nhân** `https://zalo.me/0988283415`. Không nạp mã/dịch vụ chat bên thứ ba (Tawk.to, Zalo OA, Messenger...) khi chưa được chủ website yêu cầu — khung "Nhắn tin trực tiếp cho dược sĩ" ở mục ngay dưới KHÔNG phải ngoại lệ, đó là code tự viết chạy trên Supabase (dịch vụ đã dùng sẵn cho đăng nhập/đơn hàng), không phải dịch vụ chat bên thứ ba mới.
 - **Biểu tượng Zalo nổi — đã BỎ tháng 10/2026** (chủ website yêu cầu, lý do: đã có khung "Nhắn tin trực tiếp cho dược sĩ" thật thay thế, 2 nút nổi cùng lúc ở góc dưới-phải là thừa). Component cũ `src/components/ZaloFloat.astro` đã **xoá hẳn** (không dùng ở đâu khác nên xoá luôn, không giữ lại code chết), gỡ khỏi `BaseLayout.astro`. Nút chat (`.faq-chat-toggle`) dọn xuống chiếm lại đúng vị trí `right/bottom: 1rem` mà Zalo nổi từng đứng. **Liên hệ Zalo cá nhân KHÔNG mất hẳn** — vẫn còn: link "Nhắn Zalo cho dược sĩ" ở cuối khung chat (`.faq-chat-zalo` trong `FaqChat.astro`), nút `ZaloButton` ở trang Giới thiệu, và dòng "Nhắn Zalo hỏi đáp" ở chân trang — chỉ riêng ICON NỔI xuất hiện độc lập trên mọi trang là bị bỏ.
 - Trình duyệt giữ bản trang cũ tối đa khoảng 10 phút (GitHub Pages đặt `Cache-Control: max-age=600`), nên sau khi deploy nếu người dùng chưa thấy thay đổi thì bảo họ tải lại cứng (Ctrl+F5) hoặc mở cửa sổ ẩn danh.
 - **"Nhắn tin trực tiếp cho dược sĩ" (thêm tháng 10/2026)** — tin nhắn THẬT, 2 chiều, theo thời gian thực, dùng **Supabase Realtime** (Postgres Changes). Site tĩnh không có máy chủ riêng nên không làm được WebSocket server tự viết, nhưng Supabase (đã dùng sẵn cho đăng nhập/đơn hàng) có kênh realtime riêng, nghe trực tiếp trên bảng Postgres.
@@ -572,7 +572,7 @@ Cuối trang chi tiết sản phẩm (dưới đánh giá/bình luận) có kh�
     - Không gửi cho trạng thái "Mới đặt". Đơn "Đã xác nhận" + chuyển khoản có thêm dòng nhắc chuyển đúng số tiền và giữ mã đơn.
     - Kết quả (đã gửi / khách không để email / lỗi) hiện ở dòng `.admin-order-notice` TRÊN danh sách, vì đổi trạng thái xong đơn thường rời khỏi bộ lọc đang xem.
   - **Zalo thủ công.** Nút "Nhắn Zalo cho khách" mở `zalo.me/<SĐT người đặt>` và tự chép sẵn lời nhắn báo trạng thái vào bộ nhớ tạm, dược sĩ chỉ cần dán rồi gửi. Zalo không cho điền sẵn nội dung qua đường dẫn.
-  - **Gửi Zalo TỰ ĐỘNG chưa làm:** cần Zalo ZNS (Zalo Official Account đã xác minh, mẫu tin được duyệt, tính phí theo tin), mà chủ website đã quyết định không dùng Zalo OA.
+  - **Zalo OA tự động (ZNS):** chủ website đồng ý dùng OA của nhà thuốc từ 29/10/2026, xem mục "Báo khách qua Zalo OA (ZNS)" ngay dưới.
   - Đổi trạng thái qua lại nhiều lần sẽ gửi nhiều email. Không có cột ghi nhận "đã báo", vì đó là thao tác của chính dược sĩ.
 - Đã test bằng Puppeteer với phiên admin giả lập và dữ liệu đơn mẫu (chặn request, không đụng DB thật) ở 1280px và 390px: lọc, tìm, đổi trạng thái gọi đúng RPC, không tràn ngang.
 - **Báo đơn mới**: trang tự hỏi lại mỗi 30 giây các đơn tạo sau đơn mới nhất đang có (polling, KHÔNG dùng Supabase Realtime vì cần bật thêm publication cho bảng `orders`). Có đơn mới thì hiện thanh cam "Có N đơn mới vừa đến" và tiêu đề tab đổi thành "(N) Quản lý đơn hàng" — để nhận biết khi đang làm việc ở tab khác.
@@ -605,6 +605,35 @@ Chủ website gửi ảnh mẫu Long Châu (khung "Đánh giá sản phẩm" có
   - **Test được:** trạng thái "chưa đăng nhập" (hiện đúng dòng nhắc đăng nhập) qua Puppeteer thật. **Chưa test được** luồng đã đăng nhập admin (hiện danh sách thật, bấm Trả lời) bằng script tự động — giả lập phiên đăng nhập Supabase từ bên ngoài (không qua form thật) không đáng tin cậy/dễ vỡ, trong khi phần logic hiển thị/gửi trả lời đã dùng lại NGUYÊN VẸN từ `ProductReviews.astro` (đã xác nhận chạy đúng trên site thật ở mục ngay trên) nên rủi ro thấp. Chủ website tự đăng nhập và kiểm tra lại khi vào trang thật.
 - **Lỗi thực tế gặp ngay sau khi triển khai (chủ website báo "k gửi được bình luận"):** chủ website chưa chạy SQL mục "8." (thêm cột `parent_id`) nên mọi lượt gửi trả lời bị Postgrest từ chối ("column parent_id does not exist") — lỗi này trước đó chỉ `console.error`, không hiện gì cho người dùng thấy nên tưởng nhầm là code lỗi. Đã sửa: cả 4 khung trả lời (đánh giá/bình luận, trang sản phẩm/trang quản trị) đều thêm `<p class="review-form-msg">` hiện lỗi màu đỏ ngay dưới nút "Gửi trả lời" khi thất bại — **bài học áp dụng chung:** mọi thao tác ghi dữ liệu (không riêng tính năng này) nên luôn có nơi hiện lỗi NHÌN THẤY ĐƯỢC cho người dùng, không chỉ ghi console, để tránh "tưởng không chạy, thật ra lỗi im lặng" — đã là lỗi phổ biến nhất gặp phải khi thêm tính năng ghi dữ liệu mới trong dự án này.
 - **Không cho tự trả lời bình luận của CHÍNH MÌNH (chủ website phản hồi "sao tự trả lời bình luận của mình được, không hợp lý"):** nút "Trả lời" dưới mỗi bình luận giờ tự ẩn nếu `comment.user_id === currentUserId` (tài khoản đang đăng nhập) — áp dụng cho cả khách lẫn dược sĩ, ở cả `ProductReviews.astro` lẫn `/admin/binh-luan/`. `currentUserId` lấy từ `session.user.id` ngay trong `refreshAdminState()`/`init()` (nơi vốn đã gọi `getSession()` để xác định `isAdmin`), không gọi thêm lần nào khác. Đánh giá (có sao) không gặp vấn đề này vì chỉ khách viết, dược sĩ chỉ trả lời chứ không tự viết đánh giá.
+
+### Báo khách qua Zalo OA (ZNS) (29/10/2026)
+
+Chủ website yêu cầu dùng Zalo Official Account của Nhà Thuốc Nhật Minh để nhắn tin cho khách khi đặt đơn và khi đơn đổi trạng thái. Đây là **ngoại lệ có chủ đích** với quyết định cũ "không dùng Zalo OA" (quyết định cũ là về CHAT, vẫn giữ nguyên: khách vẫn liên hệ qua Zalo cá nhân và khung chat tự viết).
+
+- **Code:** `supabase/functions/_shared/zns.ts` (`sendZns()`, `toZnsPhone()`, `supabaseTokenStore()`), được dùng ở:
+  - `send-order-email`: tin "đã nhận đơn", mẫu `ZNS_TEMPLATE_ORDER_NEW`;
+  - `notify-order-status`: tin "cập nhật trạng thái", mẫu `ZNS_TEMPLATE_ORDER_STATUS`.
+  Gửi tới SĐT người đặt (đổi `0...` thành `84...`). Lỗi Zalo không bao giờ chặn đơn hay email.
+- **API Zalo:** gửi tin `POST https://business.openapi.zalo.me/message/template` (header `access_token`, body `phone`/`template_id`/`template_data`/`tracking_id`, thành công khi `error === 0`). Làm mới token `POST https://oauth.zaloapp.com/v4/oa/access_token` (header `secret_key`, form `app_id`/`grant_type=refresh_token`/`refresh_token`). Tài liệu chính thức developers.zalo.me là trang dựng bằng JS, không đọc tự động được; cách gọi trên đối chiếu từ mã nguồn các dự án đang dùng thật. Khi có tài khoản thật phải thử gửi 1 tin để xác nhận.
+- **Refresh token chỉ dùng được 1 lần:** mỗi lần làm mới, Zalo trả token mới và cái cũ hết hiệu lực. Vì vậy:
+  - token được lưu ở bảng `zalo_oa_tokens` (mục "14." trong `docs/supabase-schema.sql`, chỉ service role truy cập);
+  - secret `ZALO_REFRESH_TOKEN` chỉ dùng cho lần đầu;
+  - ghi token mới có điều kiện `refresh_token = cũ`, để 2 lượt làm mới cùng lúc không đè nhau.
+  Nếu chuỗi token bị đứt (lỗi "Invalid refresh token"), phải lấy refresh token mới trên Zalo, cập nhật lại secret và xóa hàng trong bảng.
+- **Tên tham số mẫu tin phải đúng y hệt** khi chủ website tạo mẫu trên Zalo:
+  - mẫu đơn mới: `customer_name`, `order_code`, `order_date`, `total`;
+  - mẫu đổi trạng thái: `customer_name`, `order_code`, `status` ("Đã xác nhận" / "Đang giao" / "Đã giao thành công" / "Đã hủy"), `total`.
+  Mọi giá trị gửi dạng chữ; `total` đã có "đ".
+- **Chưa cấu hình** (thiếu `ZALO_APP_ID`, `ZALO_APP_SECRET` hoặc mã mẫu) thì hàm trả `not_configured`, không gọi Zalo, trang admin không báo gì về Zalo.
+- Trang admin báo kết quả cả email lẫn Zalo ("đã gửi email, đã nhắn Zalo OA" hoặc lý do lỗi). Nút "Nhắn Zalo cho khách" (thủ công) vẫn giữ làm phương án dự phòng.
+- ZNS **tính phí theo tin** và trừ vào tài khoản Zalo Cloud của nhà thuốc. Chống spam đơn (5 đơn / 10 phút) cũng giới hạn luôn số tin.
+- **Đã test:** `zns.ts` với mạng giả lập (15 trường hợp: chưa cấu hình, SĐT sai, lần đầu dùng token khởi tạo, dùng lại token còn hạn, làm mới khi hết hạn, làm mới lỗi, Zalo báo lỗi mẫu tin); trang admin với phiên giả lập ở 1280 và 375px. **Chưa gửi thử tin thật** vì chưa có tài khoản đã cấu hình.
+- **Chủ website cần tự làm** (gồm thủ tục với Zalo và thanh toán, tôi không làm thay được):
+  1. OA của nhà thuốc đã xác minh; đăng ký dịch vụ ZNS và nạp tiền ở Zalo Cloud Account (account.zalo.cloud), liên kết với OA.
+  2. Tạo 2 mẫu tin loại giao dịch với đúng tên tham số ở trên, gửi Zalo duyệt, lấy 2 mã mẫu (template_id).
+  3. Tạo ứng dụng ở developers.zalo.me, liên kết với OA, lấy App ID, App Secret và refresh token của OA.
+  4. Chạy mục "14." trong `docs/supabase-schema.sql`.
+  5. `npx supabase secrets set ZALO_APP_ID=... ZALO_APP_SECRET=... ZALO_REFRESH_TOKEN=... ZNS_TEMPLATE_ORDER_NEW=... ZNS_TEMPLATE_ORDER_STATUS=...` (không cần deploy lại hàm). Sau đó đặt 1 đơn thử bằng SĐT của mình để kiểm tra.
 
 ### Chính sách bảo mật `/chinh-sach-bao-mat/` (29/10/2026)
 

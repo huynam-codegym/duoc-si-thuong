@@ -19,6 +19,7 @@
 //   - `supabase functions deploy send-order-email`
 
 import { createClient } from 'npm:@supabase/supabase-js@2';
+import { sendZns, supabaseTokenStore, type ZnsResult } from '../_shared/zns.ts';
 
 const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY');
 const OWNER_EMAIL = Deno.env.get('OWNER_EMAIL');
@@ -397,6 +398,26 @@ async function checkRateLimit(ip: string, order: OrderPayload): Promise<void> {
   if (cleanup.error) console.error('Dọn nhật ký tần suất thất bại:', cleanup.error.message);
 }
 
+// Tham số phải trùng tên tham số khi tạo mẫu tin ZNS trên Zalo (xem CLAUDE.md).
+async function sendOrderZns(order: OrderPayload): Promise<ZnsResult> {
+  const supabaseUrl = Deno.env.get('SUPABASE_URL');
+  const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+  if (!supabaseUrl || !serviceRoleKey) return { sent: false, reason: 'not_configured' };
+  const store = supabaseTokenStore(createClient(supabaseUrl, serviceRoleKey));
+  return sendZns(
+    store,
+    Deno.env.get('ZNS_TEMPLATE_ORDER_NEW'),
+    order.ordererPhone || order.phone,
+    {
+      customer_name: order.ordererName || order.name,
+      order_code: order.orderId,
+      order_date: new Date().toLocaleDateString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' }),
+      total: formatVnd(order.total + (order.shipping ?? 0)),
+    },
+    `new-${order.orderId}`,
+  );
+}
+
 Deno.serve(async (req) => {
   const origin = req.headers.get('origin');
   const headers = corsHeaders(origin);
@@ -432,6 +453,8 @@ Deno.serve(async (req) => {
   // Lưu đơn vào bảng orders TRƯỚC khi gửi email, để trang /admin/don-hang/ có đủ mọi đơn (kể cả khách
   // chưa đăng nhập). Lỗi lưu không chặn việc gửi email — email vẫn là kênh báo đơn chính.
   await saveOrder(req, order);
+  // Tin Zalo OA (ZNS) báo đã nhận đơn tới SĐT người đặt — chạy song song với email, lỗi không chặn đơn.
+  const zalo = sendOrderZns(order);
 
   try {
     // Luôn báo cho chủ nhà thuốc trước — đây là kênh DUY NHẤT để nhà thuốc biết có đơn mới (thay
@@ -451,11 +474,13 @@ Deno.serve(async (req) => {
       }
     }
 
-    return new Response(JSON.stringify({ ok: true, customerEmailSent }), {
+    const zaloResult = await zalo;
+    return new Response(JSON.stringify({ ok: true, customerEmailSent, zaloSent: zaloResult.sent }), {
       headers: { ...headers, 'Content-Type': 'application/json' },
     });
   } catch (err) {
     console.error('Gửi email chủ nhà thuốc thất bại:', err);
+    await zalo;
     return new Response(JSON.stringify({ error: 'Không gửi được email.' }), {
       status: 502,
       headers: { ...headers, 'Content-Type': 'application/json' },

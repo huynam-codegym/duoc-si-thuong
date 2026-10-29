@@ -602,3 +602,19 @@ create policy "Khách đã đăng nhập tạo bình luận của chính mình"
       or (author_role = 'admin' and exists (select 1 from public.profiles where id = auth.uid() and is_admin = true))
     )
   );
+
+-- =====================================================================
+-- 14. TOKEN ZALO OA cho tin ZNS (tháng 10/2026)
+-- =====================================================================
+-- Refresh token của Zalo chỉ dùng được 1 lần: mỗi lần làm mới, Zalo trả token MỚI, cái cũ hết hiệu lực.
+-- Edge Function (supabase/functions/_shared/zns.ts) lưu token mới vào đây bằng khóa service role.
+-- Chứa khóa truy cập OA (gửi tin nhân danh nhà thuốc) nên KHÔNG cấp quyền gì cho anon/authenticated.
+create table if not exists public.zalo_oa_tokens (
+  id integer primary key default 1 check (id = 1),
+  access_token text,
+  refresh_token text not null,
+  expires_at timestamptz,
+  updated_at timestamptz not null default now()
+);
+alter table public.zalo_oa_tokens enable row level security;
+revoke all on public.zalo_oa_tokens from anon, authenticated;
