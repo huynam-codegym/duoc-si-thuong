@@ -7,7 +7,7 @@
 //
 // Việc của function: build HTML email (mẫu giống src/emails/xac-nhan-don-hang.html, viết lại bằng
 // JS template string cho dễ chèn dữ liệu thật) rồi gọi Resend API để gửi:
-//   1. Cho KHÁCH (nếu khách có điền email — ô này không bắt buộc) — xác nhận đơn theo mẫu đẹp.
+//   1. Cho KHÁCH (ô email bắt buộc từ 29/10/2026) — xác nhận đơn theo mẫu đẹp.
 //   2. Cho CHỦ NHÀ THUỐC (luôn gửi) — thông báo có đơn mới, kèm đủ thông tin để liên hệ/xử lý ngay,
 //      vì đây là kênh DUY NHẤT thay cho luồng "mở Zalo, khách tự chép & gửi" trước đây.
 //
@@ -20,6 +20,7 @@
 
 import { createClient } from 'npm:@supabase/supabase-js@2';
 import { sendZns, supabaseTokenStore, type ZnsResult } from '../_shared/zns.ts';
+import { checkEmail } from '../_shared/email.ts';
 
 const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY');
 const OWNER_EMAIL = Deno.env.get('OWNER_EMAIL');
@@ -318,9 +319,11 @@ async function sanitizeOrder(raw: Record<string, unknown>): Promise<OrderPayload
   if (!/^[A-Z0-9]{6,24}$/i.test(order.orderId)) throw new RejectError(400, 'Mã đơn không hợp lệ.');
   if (!order.ordererName || !order.name || !order.address) throw new RejectError(400, 'Thiếu thông tin đơn hàng bắt buộc.');
   if (!isPhone(order.ordererPhone) || !isPhone(order.phone)) throw new RejectError(400, 'Số điện thoại chưa đúng.');
-  if (order.ordererEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(order.ordererEmail)) {
-    throw new RejectError(400, 'Email chưa đúng định dạng.');
-  }
+  // Email bắt buộc từ 29/10/2026 (chủ website yêu cầu): đây là kênh báo khách xác nhận và tình trạng đơn
+  // Cùng luật với trình duyệt (supabase/functions/_shared/email.ts)
+  const emailCheck = checkEmail(order.ordererEmail);
+  if (!emailCheck.ok) throw new RejectError(400, emailCheck.message);
+  order.ordererEmail = emailCheck.email;
   if (!PAYMENT_LABELS[order.paymentMethod]) throw new RejectError(400, 'Hình thức thanh toán không hợp lệ.');
 
   const rawItems = Array.isArray(raw.items) ? raw.items : [];

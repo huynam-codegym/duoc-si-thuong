@@ -40,7 +40,7 @@ const updatedAt = '29/10/2026';
       <h2>2. Chúng tôi thu thập những thông tin gì</h2>
       <h3>Khi bạn đặt hàng</h3>
       <ul>
-        <li>Họ tên, số điện thoại của người đặt và người nhận, địa chỉ giao hàng, email (nếu bạn điền).</li>
+        <li>Họ tên, số điện thoại của người đặt và người nhận, địa chỉ giao hàng, email của người đặt.</li>
         <li>Sản phẩm, số lượng, hình thức thanh toán bạn chọn, ghi chú cho đơn hàng.</li>
         <li>Địa chỉ IP (địa chỉ mạng của thiết bị) và số điện thoại, chỉ dùng để chặn gửi đơn hàng loạt (tối đa 5 đơn trong 10 phút).</li>
       </ul>
@@ -85,7 +85,7 @@ const updatedAt = '29/10/2026';
       <h2>4. Chúng tôi dùng thông tin để làm gì</h2>
       <ul>
         <li>Xác nhận đơn hàng, gọi điện cho bạn, giao hàng và đối chiếu thanh toán.</li>
-        <li>Gửi email xác nhận đơn hàng và báo khi đơn đổi trạng thái (nếu bạn có điền email), hoặc nhắn Zalo theo số điện thoại bạn để lại.</li>
+        <li>Gửi email xác nhận đơn hàng và báo khi đơn đổi trạng thái, hoặc nhắn Zalo theo số điện thoại bạn để lại.</li>
         <li>Trả lời tin nhắn và tư vấn sức khỏe ở mức tham khảo.</li>
         <li>Cho bạn đăng nhập, xem lại hồ sơ và đơn đã đặt.</li>
         <li>Chặn thư rác, chặn đơn hàng giả và bảo vệ an toàn cho website.</li>
@@ -100,7 +100,7 @@ const updatedAt = '29/10/2026';
       <ul>
         <li><strong>Supabase</strong>: lưu tài khoản, đơn hàng, tin nhắn, tệp đính kèm, đánh giá và bình luận.</li>
         <li><strong>Resend</strong>: gửi email về đơn hàng cho bạn và email báo cho dược sĩ.</li>
-        <li><strong>Zalo</strong>: Zalo Official Account của {site.pharmacy.name} gửi 1 tin báo đã nhận đơn tới số điện thoại người đặt (kèm thông tin chuyển khoản nếu bạn chọn chuyển khoản). Zalo nhận tên, số điện thoại, địa chỉ nhận hàng, mã đơn, tên sản phẩm (trừ khi bạn chọn ẩn tên sản phẩm) và số tiền của đơn.</li>
+        <li><strong>Zalo</strong>: khi dược sĩ nhắn Zalo tới số điện thoại của bạn để báo tình trạng đơn.</li>
         <li><strong>Google</strong>: chỉ khi bạn chọn "Đăng nhập với Google".</li>
         <li><strong>Cloudflare Turnstile</strong>: kiểm tra bạn không phải người máy khi gửi đơn.</li>
         <li><strong>VietQR</strong>: tạo ảnh mã QR chuyển khoản. Dịch vụ này nhận số tiền và mã đơn, không nhận tên hay địa chỉ của bạn.</li>

@@ -606,10 +606,24 @@ Chủ website gửi ảnh mẫu Long Châu (khung "Đánh giá sản phẩm" có
 - **Lỗi thực tế gặp ngay sau khi triển khai (chủ website báo "k gửi được bình luận"):** chủ website chưa chạy SQL mục "8." (thêm cột `parent_id`) nên mọi lượt gửi trả lời bị Postgrest từ chối ("column parent_id does not exist") — lỗi này trước đó chỉ `console.error`, không hiện gì cho người dùng thấy nên tưởng nhầm là code lỗi. Đã sửa: cả 4 khung trả lời (đánh giá/bình luận, trang sản phẩm/trang quản trị) đều thêm `<p class="review-form-msg">` hiện lỗi màu đỏ ngay dưới nút "Gửi trả lời" khi thất bại — **bài học áp dụng chung:** mọi thao tác ghi dữ liệu (không riêng tính năng này) nên luôn có nơi hiện lỗi NHÌN THẤY ĐƯỢC cho người dùng, không chỉ ghi console, để tránh "tưởng không chạy, thật ra lỗi im lặng" — đã là lỗi phổ biến nhất gặp phải khi thêm tính năng ghi dữ liệu mới trong dự án này.
 - **Không cho tự trả lời bình luận của CHÍNH MÌNH (chủ website phản hồi "sao tự trả lời bình luận của mình được, không hợp lý"):** nút "Trả lời" dưới mỗi bình luận giờ tự ẩn nếu `comment.user_id === currentUserId` (tài khoản đang đăng nhập) — áp dụng cho cả khách lẫn dược sĩ, ở cả `ProductReviews.astro` lẫn `/admin/binh-luan/`. `currentUserId` lấy từ `session.user.id` ngay trong `refreshAdminState()`/`init()` (nơi vốn đã gọi `getSession()` để xác định `isAdmin`), không gọi thêm lần nào khác. Đánh giá (có sao) không gặp vấn đề này vì chỉ khách viết, dược sĩ chỉ trả lời chứ không tự viết đánh giá.
 
+### Email bắt buộc khi đặt hàng (29/10/2026)
+
+Chủ website đổi ý: ô Email ở `/gio-hang/` giờ **bắt buộc** (trước đây "không bắt buộc"), vì email là kênh báo khách xác nhận đơn và tình trạng đơn (Zalo OA tạm hoãn). Các ghi chú cũ trong file này nói "chỉ gửi email khi khách có điền" giờ chỉ còn đúng với đơn cũ.
+
+- **Luật kiểm tra dùng chung** ở `supabase/functions/_shared/email.ts` (`checkEmail()`), import ở CẢ trang giỏ hàng (`../../supabase/functions/_shared/email`, chạy trong trình duyệt) LẪN `send-order-email` (máy chủ kiểm tra lại, trả 400 kèm lý do), nên 2 nơi luôn khớp. Sửa luật ở đúng 1 file đó.
+  - Chuẩn hóa: bỏ khoảng trắng 2 đầu, viết thường.
+  - Từ chối: thiếu/thừa `@`, có dấu cách, chữ có dấu tiếng Việt, phần trước `@` bắt đầu/kết thúc bằng dấu chấm hoặc có 2 chấm liền, tên miền có nhãn bắt đầu/kết thúc bằng `-`, đuôi không phải chữ cái hoặc ngắn hơn 2 ký tự, quá 254 ký tự (phần trước `@` quá 64).
+  - Gõ nhầm tên miền phổ biến (`gmail.con`, `gmial.com`, `yahoo.con`, `hotmail.con`... bảng `DOMAIN_TYPOS`) bị chặn kèm gợi ý "Có phải là @gmail.com?".
+- Kiểm tra `type="email"` của trình duyệt quá lỏng (nhận cả `a@b`) nên chỉ giữ để hiện bàn phím email trên điện thoại. Lỗi thật lấy từ `checkEmail()` trong `validateForm()`.
+- **Câu báo lỗi phải ngắn (1 dòng ở 375px).** Chỗ hiện lỗi `.field-error` chỉ dành sẵn chiều cao 1 dòng; câu dài xuống 2 dòng làm các ô bên dưới nhảy xuống (đã gặp: "Vui lòng nhập email để nhận xác nhận đơn hàng." làm lệch 18px trên điện thoại, đã rút còn "Vui lòng nhập email.").
+- Đã test: 28 trường hợp với `checkEmail()`; trang giỏ hàng ở 1280 và 375px (bỏ trống, `abc@gmail`, `te..n@gmail.com`, `thương@gmail.com`, `ten@gmail.con`, `ten@-abc.com` đều báo đúng, không lệch bố cục; email đúng được chuyển về chữ thường rồi mới gửi); gọi thẳng hàm máy chủ với 5 email sai đều bị trả 400.
+- Chưa áp dụng `checkEmail()` cho form đăng ký tài khoản (Supabase Auth tự kiểm tra email).
+
 ### Báo khách qua Zalo OA (ZNS) (29/10/2026)
 
 Chủ website yêu cầu dùng Zalo Official Account của Nhà Thuốc Nhật Minh để nhắn tin cho khách lúc đặt đơn. Đây là **ngoại lệ có chủ đích** với quyết định cũ "không dùng Zalo OA". Quyết định cũ là về CHAT và vẫn giữ nguyên: khách vẫn liên hệ qua Zalo cá nhân và khung chat tự viết.
 
+- **TẠM HOÃN (29/10/2026, chủ website quyết định):** chưa đăng ký ZBS/ZNS, chưa cài secret nào nên tính năng đang tắt (`not_configured`). Kênh báo khách hiện tại là **email (bắt buộc khi đặt hàng)** + nút "Nhắn Zalo cho khách" bấm tay. Trang Chính sách bảo mật đang KHÔNG nhắc tới tin Zalo OA tự động: khi bật lại phải thêm lại dòng đó (Zalo nhận tên, SĐT, địa chỉ, mã đơn, sản phẩm, số tiền) và sửa `updatedAt`.
 - **Mỗi đơn chỉ gửi ĐÚNG 1 tin Zalo, lúc đặt** (chủ website chọn để tiết kiệm phí, ZNS tính tiền theo tin). Đổi trạng thái đơn KHÔNG gửi Zalo tự động: chỉ gửi email, kèm nút "Nhắn Zalo cho khách" bấm tay (miễn phí). Không thêm tin Zalo tự động ở chỗ khác khi chưa hỏi chủ website.
 - **Mẫu nào được gửi:** khách chọn chuyển khoản và có `ZNS_TEMPLATE_ORDER_PAYMENT` thì gửi mẫu **yêu cầu thanh toán** (Zalo tự vẽ mã QR theo tài khoản ngân hàng khai báo trong mẫu). Còn lại gửi mẫu **tóm tắt đơn** `ZNS_TEMPLATE_ORDER_NEW`. Theo mẫu ảnh Long Châu chủ website gửi.
 - **Code:** `supabase/functions/_shared/zns.ts` (`sendZns()`, `toZnsPhone()`, `supabaseTokenStore()`), gọi từ `sendOrderZns()` trong `send-order-email`. Gửi tới SĐT người đặt (đổi `0...` thành `84...`). Lỗi Zalo không bao giờ chặn đơn hay email.
