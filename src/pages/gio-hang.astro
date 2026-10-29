@@ -148,7 +148,8 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? '';
           <input type="checkbox" name="consent" required data-error-required="Vui lòng đồng ý để nhà thuốc liên hệ và giao hàng trước khi gửi đơn." />
           <span>
             Tôi đồng ý để nhà thuốc dùng thông tin trên để liên hệ và giao hàng. Không gửi số CCCD, mật khẩu hay
-            thông tin thẻ ngân hàng qua form này.
+            thông tin thẻ ngân hàng qua form này. Xem
+            <a href={url('/chinh-sach-bao-mat/')} target="_blank" rel="noopener">Chính sách bảo mật</a>.
           </span>
           <span class="field-error" data-for="consent" role="alert"></span>
         </label>

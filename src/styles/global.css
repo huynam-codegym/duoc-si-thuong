@@ -2192,6 +2192,7 @@ p.faq-chat-bubble {
 .order input[type='text'],
 .order input[type='tel'],
 .order input[type='email'],
+.order input[type='password'],
 .order input[type='number'],
 .order textarea {
   width: 100%;
@@ -6566,6 +6567,13 @@ body.has-sticky-bar .faq-chat-toggle {
   padding-top: 0.75rem;
   border-top: 1px solid var(--line);
   font-size: 0.88rem;
+  text-align: center;
+  color: var(--ink-soft);
+}
+
+.account-privacy-note {
+  margin: 0.75rem 0 0;
+  font-size: 0.85rem;
   text-align: center;
   color: var(--ink-soft);
 }

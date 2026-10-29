@@ -391,6 +391,10 @@ async function checkRateLimit(ip: string, order: OrderPayload): Promise<void> {
   }
   const { error } = await admin.from('order_rate_log').insert({ ip: ip || null, phones });
   if (error) console.error('Ghi nhật ký tần suất thất bại:', error.message);
+  // Chỉ cần giữ trong khung 10 phút; xóa bản ghi quá 1 ngày đúng như Chính sách bảo mật đã ghi
+  const dayAgo = new Date(Date.now() - 24 * 60 * 60_000).toISOString();
+  const cleanup = await admin.from('order_rate_log').delete().lt('created_at', dayAgo);
+  if (cleanup.error) console.error('Dọn nhật ký tần suất thất bại:', cleanup.error.message);
 }
 
 Deno.serve(async (req) => {

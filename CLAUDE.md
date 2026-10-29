@@ -154,6 +154,7 @@ src/
     gio-hang.astro            # giỏ hàng và form đặt hàng, gộp sản phẩm từ mọi khu (noindex)
     tai-khoan.astro           # đăng nhập/đăng ký, hồ sơ, lịch sử đơn hàng (Supabase, noindex)
     gioi-thieu.astro          # trang giới thiệu dược sĩ Thương, có nút gọi và lưu ý cấp cứu 115
+    chinh-sach-bao-mat.astro  # chính sách bảo mật dữ liệu cá nhân
     tim-kiem.astro            # trang tìm kiếm (Pagefind UI, hỗ trợ ?q=từ-khóa)
     404.astro                 # trang báo lỗi không tìm thấy
     robots.txt.ts             # robots.txt, tự lấy tên miền từ `site`
@@ -595,6 +596,30 @@ Chủ website gửi ảnh mẫu Long Châu (khung "Đánh giá sản phẩm" có
   - **Test được:** trạng thái "chưa đăng nhập" (hiện đúng dòng nhắc đăng nhập) qua Puppeteer thật. **Chưa test được** luồng đã đăng nhập admin (hiện danh sách thật, bấm Trả lời) bằng script tự động — giả lập phiên đăng nhập Supabase từ bên ngoài (không qua form thật) không đáng tin cậy/dễ vỡ, trong khi phần logic hiển thị/gửi trả lời đã dùng lại NGUYÊN VẸN từ `ProductReviews.astro` (đã xác nhận chạy đúng trên site thật ở mục ngay trên) nên rủi ro thấp. Chủ website tự đăng nhập và kiểm tra lại khi vào trang thật.
 - **Lỗi thực tế gặp ngay sau khi triển khai (chủ website báo "k gửi được bình luận"):** chủ website chưa chạy SQL mục "8." (thêm cột `parent_id`) nên mọi lượt gửi trả lời bị Postgrest từ chối ("column parent_id does not exist") — lỗi này trước đó chỉ `console.error`, không hiện gì cho người dùng thấy nên tưởng nhầm là code lỗi. Đã sửa: cả 4 khung trả lời (đánh giá/bình luận, trang sản phẩm/trang quản trị) đều thêm `<p class="review-form-msg">` hiện lỗi màu đỏ ngay dưới nút "Gửi trả lời" khi thất bại — **bài học áp dụng chung:** mọi thao tác ghi dữ liệu (không riêng tính năng này) nên luôn có nơi hiện lỗi NHÌN THẤY ĐƯỢC cho người dùng, không chỉ ghi console, để tránh "tưởng không chạy, thật ra lỗi im lặng" — đã là lỗi phổ biến nhất gặp phải khi thêm tính năng ghi dữ liệu mới trong dự án này.
 - **Không cho tự trả lời bình luận của CHÍNH MÌNH (chủ website phản hồi "sao tự trả lời bình luận của mình được, không hợp lý"):** nút "Trả lời" dưới mỗi bình luận giờ tự ẩn nếu `comment.user_id === currentUserId` (tài khoản đang đăng nhập) — áp dụng cho cả khách lẫn dược sĩ, ở cả `ProductReviews.astro` lẫn `/admin/binh-luan/`. `currentUserId` lấy từ `session.user.id` ngay trong `refreshAdminState()`/`init()` (nơi vốn đã gọi `getSession()` để xác định `isAdmin`), không gọi thêm lần nào khác. Đánh giá (có sao) không gặp vấn đề này vì chỉ khách viết, dược sĩ chỉ trả lời chứ không tự viết đánh giá.
+
+### Chính sách bảo mật `/chinh-sach-bao-mat/` (29/10/2026)
+
+- Trang `src/pages/chinh-sach-bao-mat.astro` (có trong sitemap, không noindex). Nội dung gồm:
+  - ai chịu trách nhiệm (liên hệ qua Zalo; không đưa email hay địa chỉ vì chủ website chưa đồng ý công khai);
+  - thông tin thu thập theo từng luồng: đặt hàng, tài khoản, chat ẩn danh, đánh giá công khai, localStorage;
+  - dữ liệu sức khỏe là dữ liệu nhạy cảm;
+  - mục đích sử dụng;
+  - các dịch vụ nhận dữ liệu: Supabase, Resend, Google, Cloudflare Turnstile, VietQR, GitHub Pages, đơn vị giao hàng (máy chủ có thể ở nước ngoài);
+  - thời gian lưu, cách bảo vệ, quyền của chủ thể dữ liệu, trẻ em, thay đổi chính sách.
+- Ngày đăng và ngày cập nhật là 2 hằng số ở đầu file.
+- **Chỉ ghi điều site đang làm thật.** Khi thêm dịch vụ bên thứ ba mới (analytics, chat, cổng thanh toán, đơn vị giao hàng cụ thể...) hoặc đổi cách lưu dữ liệu, phải sửa trang này và đổi `updatedAt`.
+- Nhật ký chống spam `order_rate_log` (IP + SĐT) giờ tự xóa bản ghi quá 1 ngày mỗi lần có đơn mới (`checkRateLimit()` trong `send-order-email`). Việc này khớp với câu "tự xóa sau khoảng 1 ngày" trong chính sách.
+- Lối vào:
+  - chân trang (cột "Liên kết");
+  - ô đồng ý ở `/gio-hang/` (link mở tab mới để không mất chữ khách đã gõ);
+  - dòng `.account-privacy-note` trong khung đăng nhập nổi và ở trang `/tai-khoan/`.
+- Khung chat CHƯA có dòng nhắc, vì chủ website từng yêu cầu bỏ các dòng chữ trong khung chat.
+- **Cần chủ website tự xác nhận** (bản do AI soạn, chưa qua tư vấn pháp lý):
+  - thời gian lưu đơn hàng và tin nhắn;
+  - việc chuyển dữ liệu ra nước ngoài (Luật Bảo vệ dữ liệu cá nhân và văn bản hướng dẫn có thể yêu cầu hồ sơ đánh giá tác động);
+  - thời hạn phản hồi yêu cầu của khách;
+  - tên đơn vị chịu trách nhiệm chính thức (cá nhân hay Nhà Thuốc Nhật Minh).
+- **Bẫy đã gặp khi test trang này:** ô "Mật khẩu" ở `/tai-khoan/` bị mỏng dẹt, vì selector dùng chung `.order input[type=...]` thiếu `password` (cùng họ với bẫy thiếu `email` ở trang giỏ hàng). Đã thêm `.order input[type='password']`.
 
 ### Hình ảnh trong bài viết
 

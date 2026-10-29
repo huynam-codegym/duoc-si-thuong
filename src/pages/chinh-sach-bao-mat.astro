@@ -1,0 +1,161 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { site } from '../lib/site';
+import { url } from '../lib/url';
+
+// Ngày đăng và ngày cập nhật hiện trên trang. Sửa nội dung chính sách thì đổi updatedAt.
+const publishedAt = '29/10/2026';
+const updatedAt = '29/10/2026';
+---
+
+<BaseLayout
+  title="Chính sách bảo mật"
+  description="Dược Sĩ Thương thu thập những thông tin gì, dùng để làm gì, chia sẻ với ai, lưu bao lâu và bạn có những quyền gì với dữ liệu cá nhân của mình."
+>
+  <div class="container narrow">
+    <section class="hero">
+      <h1>Chính sách bảo mật</h1>
+      <p>Bạn tin tưởng gửi thông tin cho dược sĩ, nên chúng tôi giữ gìn thông tin đó cẩn thận.</p>
+    </section>
+
+    <div class="prose">
+      <p><em>Ngày đăng: {publishedAt} · Cập nhật lần cuối: {updatedAt}</em></p>
+
+      <h2>Tóm tắt nhanh</h2>
+      <ul>
+        <li>Chúng tôi chỉ thu thập thông tin cần để giao hàng, trả lời tin nhắn và quản lý tài khoản của bạn.</li>
+        <li>Chúng tôi <strong>không bán</strong> thông tin của bạn và không dùng để quảng cáo cho bên khác.</li>
+        <li>Tin nhắn hỏi về sức khỏe là thông tin nhạy cảm: chỉ bạn và dược sĩ xem được.</li>
+        <li>Bạn có quyền xem, sửa, xóa thông tin hoặc rút lại sự đồng ý bất cứ lúc nào, bằng cách nhắn Zalo cho dược sĩ.</li>
+      </ul>
+
+      <h2>1. Ai chịu trách nhiệm về thông tin của bạn</h2>
+      <p>
+        Website <strong>{site.name}</strong> (duocsithuong.com) do dược sĩ Thương, {site.role} {site.pharmacy.name}, quản lý.
+        Sản phẩm trên website do {site.pharmacy.name} giới thiệu và bán. Mọi câu hỏi về thông tin cá nhân, bạn liên hệ qua
+        Zalo <a href={site.zaloHref} target="_blank" rel="noopener noreferrer">{site.phone}</a>.
+      </p>
+
+      <h2>2. Chúng tôi thu thập những thông tin gì</h2>
+      <h3>Khi bạn đặt hàng</h3>
+      <ul>
+        <li>Họ tên, số điện thoại của người đặt và người nhận, địa chỉ giao hàng, email (nếu bạn điền).</li>
+        <li>Sản phẩm, số lượng, hình thức thanh toán bạn chọn, ghi chú cho đơn hàng.</li>
+        <li>Địa chỉ IP (địa chỉ mạng của thiết bị) và số điện thoại, chỉ dùng để chặn gửi đơn hàng loạt (tối đa 5 đơn trong 10 phút).</li>
+      </ul>
+      <p>Website không nhận và không lưu số thẻ ngân hàng. Bạn không cần gửi số CCCD hay mật khẩu cho chúng tôi.</p>
+
+      <h3>Khi bạn tạo tài khoản</h3>
+      <ul>
+        <li>Email và mật khẩu (mật khẩu được mã hóa, cả dược sĩ cũng không xem được), hoặc tên và email do Google cung cấp nếu bạn đăng nhập bằng Google.</li>
+        <li>Họ tên, số điện thoại, địa chỉ bạn tự lưu trong hồ sơ, và lịch sử đơn hàng.</li>
+      </ul>
+
+      <h3>Khi bạn nhắn tin cho dược sĩ</h3>
+      <ul>
+        <li>Nội dung tin nhắn, ảnh, tệp và tin nhắn thoại bạn gửi.</li>
+        <li>
+          Bạn không cần đăng ký để nhắn tin. Website tạo một mã khách ẩn danh ngẫu nhiên trên trình duyệt của bạn, để chỉ
+          bạn xem lại được cuộc trò chuyện của mình.
+        </li>
+      </ul>
+
+      <h3>Khi bạn đánh giá hoặc bình luận sản phẩm</h3>
+      <p>Số sao, nội dung và tên hiển thị của bạn sẽ <strong>hiện công khai</strong> cho mọi người xem trên trang sản phẩm.</p>
+
+      <h3>Thông tin chỉ lưu trên trình duyệt của bạn</h3>
+      <p>
+        Giỏ hàng, lịch sử tìm kiếm và cỡ chữ bạn chọn được lưu ngay trên trình duyệt của bạn (bộ nhớ "localStorage"),
+        không gửi về máy chủ. Bạn có thể xóa bằng cách xóa dữ liệu duyệt web. Website không dùng công cụ theo dõi
+        quảng cáo.
+      </p>
+
+      <h2>3. Thông tin sức khỏe là thông tin nhạy cảm</h2>
+      <p>
+        Câu hỏi về bệnh, thuốc bạn đang dùng, ảnh đơn thuốc hay sản phẩm bạn mua có thể cho biết tình trạng sức khỏe của
+        bạn. Theo pháp luật Việt Nam, đây là <strong>dữ liệu cá nhân nhạy cảm</strong>. Vì vậy:
+      </p>
+      <ul>
+        <li>Tin nhắn và tệp đính kèm chỉ bạn và dược sĩ xem được, không công khai.</li>
+        <li>Khi đặt hàng, bạn có thể chọn "Ẩn tên sản phẩm khi giao hàng". Phiếu dán ngoài kiện hàng khi đó không ghi tên sản phẩm.</li>
+        <li>Bạn chỉ nên gửi những gì cần để dược sĩ tư vấn. Đừng viết thông tin sức khỏe vào phần đánh giá hay bình luận công khai.</li>
+      </ul>
+
+      <h2>4. Chúng tôi dùng thông tin để làm gì</h2>
+      <ul>
+        <li>Xác nhận đơn hàng, gọi điện cho bạn, giao hàng và đối chiếu thanh toán.</li>
+        <li>Gửi email xác nhận đơn hàng (nếu bạn có điền email).</li>
+        <li>Trả lời tin nhắn và tư vấn sức khỏe ở mức tham khảo.</li>
+        <li>Cho bạn đăng nhập, xem lại hồ sơ và đơn đã đặt.</li>
+        <li>Chặn thư rác, chặn đơn hàng giả và bảo vệ an toàn cho website.</li>
+      </ul>
+      <p>Chúng tôi không dùng thông tin của bạn vào mục đích khác khi chưa hỏi ý bạn.</p>
+
+      <h2>5. Chúng tôi chia sẻ thông tin với ai</h2>
+      <p>
+        Chúng tôi <strong>không bán, không cho thuê</strong> thông tin của bạn. Để website chạy được, chúng tôi dùng một
+        số dịch vụ kỹ thuật. Mỗi dịch vụ chỉ nhận phần thông tin cần cho việc của nó:
+      </p>
+      <ul>
+        <li><strong>Supabase</strong>: lưu tài khoản, đơn hàng, tin nhắn, tệp đính kèm, đánh giá và bình luận.</li>
+        <li><strong>Resend</strong>: gửi email xác nhận đơn hàng và email báo cho dược sĩ.</li>
+        <li><strong>Google</strong>: chỉ khi bạn chọn "Đăng nhập với Google".</li>
+        <li><strong>Cloudflare Turnstile</strong>: kiểm tra bạn không phải người máy khi gửi đơn.</li>
+        <li><strong>VietQR</strong>: tạo ảnh mã QR chuyển khoản. Dịch vụ này nhận số tiền và mã đơn, không nhận tên hay địa chỉ của bạn.</li>
+        <li><strong>GitHub Pages</strong>: nơi đặt website. Dịch vụ này có thể ghi lại địa chỉ IP khi bạn mở trang, như mọi máy chủ web.</li>
+        <li><strong>Đơn vị giao hàng</strong>: nhận tên, số điện thoại, địa chỉ người nhận để giao hàng.</li>
+      </ul>
+      <p>
+        Máy chủ của các dịch vụ trên có thể đặt ở nước ngoài, nên thông tin của bạn có thể được lưu trữ ngoài Việt Nam.
+        Chúng tôi cũng sẽ cung cấp thông tin khi cơ quan nhà nước có thẩm quyền yêu cầu theo quy định của pháp luật.
+      </p>
+
+      <h2>6. Chúng tôi lưu thông tin bao lâu</h2>
+      <ul>
+        <li>Đơn hàng: lưu để đối chiếu, bảo hành và theo yêu cầu sổ sách, kế toán.</li>
+        <li>Tài khoản và tin nhắn: lưu cho tới khi bạn yêu cầu xóa.</li>
+        <li>Nhật ký chống gửi đơn hàng loạt (IP, số điện thoại): tự xóa sau khoảng 1 ngày.</li>
+      </ul>
+
+      <h2>7. Chúng tôi bảo vệ thông tin như thế nào</h2>
+      <ul>
+        <li>Mọi kết nối tới website đều được mã hóa (HTTPS).</li>
+        <li>Cơ sở dữ liệu được phân quyền: mỗi khách chỉ xem được đơn hàng và tin nhắn của chính mình.</li>
+        <li>Tệp đính kèm trong tin nhắn nằm trong kho riêng tư, chỉ mở được bằng đường dẫn có hạn dùng.</li>
+        <li>Chỉ dược sĩ phụ trách mới xem được đơn hàng và tin nhắn của khách.</li>
+      </ul>
+      <p>
+        Không có hệ thống nào an toàn tuyệt đối. Nếu phát hiện sự cố lộ thông tin, chúng tôi sẽ báo cho bạn và cơ quan
+        chức năng theo quy định.
+      </p>
+
+      <h2>8. Quyền của bạn</h2>
+      <p>Với thông tin cá nhân của mình, bạn có quyền:</p>
+      <ul>
+        <li>Được biết chúng tôi đang giữ thông tin gì và dùng để làm gì.</li>
+        <li>Xem và nhận bản sao thông tin của mình.</li>
+        <li>Yêu cầu sửa thông tin sai.</li>
+        <li>Rút lại sự đồng ý, yêu cầu ngừng hoặc hạn chế dùng thông tin.</li>
+        <li>Yêu cầu xóa thông tin (trừ phần pháp luật bắt buộc phải giữ, ví dụ sổ sách bán hàng).</li>
+        <li>Khiếu nại, tố cáo hoặc khởi kiện theo quy định của pháp luật.</li>
+      </ul>
+      <p>
+        Bạn tự sửa được hồ sơ ở trang <a href={url('/tai-khoan/')}>Tài khoản</a>. Các yêu cầu khác, bạn nhắn Zalo
+        <a href={site.zaloHref} target="_blank" rel="noopener noreferrer">{site.phone}</a>. Để bảo vệ bạn, dược sĩ có thể
+        hỏi thêm vài thông tin (ví dụ mã đơn hàng, số điện thoại đã đặt) để chắc đúng là bạn.
+      </p>
+
+      <h2>9. Trẻ em</h2>
+      <p>
+        Tài khoản và việc đặt hàng dành cho người lớn. Nếu con bạn cần hỏi về sức khỏe, cha mẹ hoặc người giám hộ nên là
+        người nhắn tin, đặt hàng và gửi thông tin thay cho con.
+      </p>
+
+      <h2>10. Thay đổi chính sách</h2>
+      <p>
+        Khi có thay đổi, chúng tôi sẽ cập nhật trang này và ghi lại ngày cập nhật ở đầu trang. Nếu thay đổi quan trọng ảnh
+        hưởng tới cách dùng thông tin của bạn, chúng tôi sẽ thông báo rõ trên website.
+      </p>
+    </div>
+  </div>
+</BaseLayout>

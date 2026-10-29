@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import { url } from '../lib/url';
 ---
 
 <BaseLayout
@@ -59,6 +60,9 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         <button type="submit" class="btn">Đăng ký</button>
         <p class="order-error" role="alert" hidden></p>
       </form>
+      <p class="account-privacy-note">
+        Khi đăng nhập hoặc đăng ký, bạn đồng ý với <a href={url('/chinh-sach-bao-mat/')}>Chính sách bảo mật</a>.
+      </p>
 
       <p class="account-message" id="auth-message" hidden></p>
     </div>
