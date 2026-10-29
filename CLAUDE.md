@@ -616,7 +616,7 @@ Chủ website yêu cầu dùng Zalo Official Account của Nhà Thuốc Nhật M
 - **API Zalo:**
   - gửi tin: `POST https://business.openapi.zalo.me/message/template` (header `access_token`, body `phone`/`template_id`/`template_data`/`tracking_id`, thành công khi `error === 0`);
   - làm mới token: `POST https://oauth.zaloapp.com/v4/oa/access_token` (header `secret_key`, form `app_id`/`grant_type=refresh_token`/`refresh_token`).
-  Tài liệu chính thức developers.zalo.me là trang dựng bằng JS, không đọc tự động được; cách gọi trên đối chiếu từ mã nguồn các dự án đang dùng thật. Khi có tài khoản thật phải thử gửi 1 tin để xác nhận.
+  Dịch vụ giờ mang tên **ZBS Template Message** (Zalo Business Solutions); tài khoản quản lý, nạp tiền, tạo mẫu ở https://account.zalo.solutions (lối vào từ oa.zalo.me: menu "Khác" > "ZBS Template Message"). Cách gửi tin đã đối chiếu với tài liệu chính thức https://zalo.solutions/business-message/guidelines/gui-api: access token sống 25 giờ, refresh token 3 tháng, `tracking_id` tối đa 48 ký tự và KHÔNG có ký tự đặc biệt (hàm tự bỏ ký tự không phải chữ/số). Giá chính thức (https://zalo.solutions/business-message/pricing, chưa VAT, chỉ tính tin gửi thành công): mẫu yêu cầu chuyển khoản 300đ, đa số mẫu khác 200đ, nút bấm đầu tiên miễn phí, từ nút thứ 2 thêm 100đ.
 - **Refresh token chỉ dùng được 1 lần:** mỗi lần làm mới, Zalo trả token mới và cái cũ hết hiệu lực. Vì vậy:
   - token được lưu ở bảng `zalo_oa_tokens` (mục "14." trong `docs/supabase-schema.sql`, đã chạy 29/10/2026, chỉ service role truy cập);
   - secret `ZALO_REFRESH_TOKEN` chỉ dùng cho lần đầu;

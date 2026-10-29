@@ -12,6 +12,7 @@
 // hiệu lực. Vì vậy phải lưu lại token mới (bảng zalo_oa_tokens, mục "14." trong docs/supabase-schema.sql),
 // không thể chỉ để trong secret cố định.
 
+// Tài liệu gửi tin: https://zalo.solutions/business-message/guidelines/gui-api (access token sống 25 giờ, refresh token 3 tháng)
 const TOKEN_URL = 'https://oauth.zaloapp.com/v4/oa/access_token';
 const SEND_URL = 'https://business.openapi.zalo.me/message/template';
 
@@ -118,7 +119,13 @@ export async function sendZns(
     const res = await fetch(SEND_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', access_token: token },
-      body: JSON.stringify({ phone: to, template_id: templateId, template_data: templateData, tracking_id: trackingId.slice(0, 48) }),
+      // tracking_id: tối đa 48 ký tự, không có ký tự đặc biệt (theo tài liệu zalo.solutions)
+      body: JSON.stringify({
+        phone: to,
+        template_id: templateId,
+        template_data: templateData,
+        tracking_id: trackingId.replace(/[^A-Za-z0-9]/g, '').slice(0, 48),
+      }),
     });
     const json = await res.json().catch(() => ({}));
     if (json.error === 0) return { sent: true };
