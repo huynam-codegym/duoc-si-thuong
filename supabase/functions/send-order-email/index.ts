@@ -398,21 +398,61 @@ async function checkRateLimit(ip: string, order: OrderPayload): Promise<void> {
   if (cleanup.error) console.error('Dọn nhật ký tần suất thất bại:', cleanup.error.message);
 }
 
-// Tham số phải trùng tên tham số khi tạo mẫu tin ZNS trên Zalo (xem CLAUDE.md).
+function clip(text: string, max: number): string {
+  return text.length > max ? `${text.slice(0, max - 1)}…` : text;
+}
+
+/** "Bioflora x1, Osteocare x2" — gọn trong 1 ô của bảng ZNS; ẩn tên nếu khách yêu cầu. */
+function productSummary(order: OrderPayload): string {
+  const count = order.items.reduce((sum, item) => sum + item.qty, 0);
+  if (order.hideProductName) return `${count} sản phẩm (đã ẩn tên theo yêu cầu)`;
+  const first = order.items.slice(0, 2).map((item) => `${item.name} x${item.qty}`).join(', ');
+  const more = order.items.length > 2 ? ` và ${order.items.length - 2} sản phẩm khác` : '';
+  return clip(first + more, 100);
+}
+
+// MỖI ĐƠN CHỈ GỬI 1 TIN ZALO, lúc đặt (chủ website chọn để tiết kiệm phí). Chuyển khoản thì gửi mẫu
+// "yêu cầu thanh toán" (Zalo tự vẽ mã QR theo tài khoản khai báo trong mẫu); cách khác gửi mẫu tóm tắt
+// đơn. Chưa có mẫu thanh toán thì dùng mẫu tóm tắt. Tên tham số phải trùng mẫu trên Zalo (xem CLAUDE.md).
 async function sendOrderZns(order: OrderPayload): Promise<ZnsResult> {
   const supabaseUrl = Deno.env.get('SUPABASE_URL');
   const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
   if (!supabaseUrl || !serviceRoleKey) return { sent: false, reason: 'not_configured' };
   const store = supabaseTokenStore(createClient(supabaseUrl, serviceRoleKey));
+  const phone = order.ordererPhone || order.phone;
+  const grandTotal = order.total + (order.shipping ?? 0);
+  const customerName = clip(order.ordererName || order.name, 30);
+  const paymentTemplate = Deno.env.get('ZNS_TEMPLATE_ORDER_PAYMENT');
+
+  if (order.paymentMethod === 'bank' && paymentTemplate && grandTotal > 0) {
+    return sendZns(
+      store,
+      paymentTemplate,
+      phone,
+      {
+        customer_name: customerName,
+        order_code: order.orderId,
+        amount: String(grandTotal),
+        // Giống hệt nội dung chuyển khoản của mã QR trên trang giỏ hàng, để nhà thuốc đối chiếu 1 kiểu
+        transfer_note: `Thanh toan don ${order.orderId} Duoc Si Thuong`,
+      },
+      `pay-${order.orderId}`,
+    );
+  }
+
   return sendZns(
     store,
     Deno.env.get('ZNS_TEMPLATE_ORDER_NEW'),
-    order.ordererPhone || order.phone,
+    phone,
     {
-      customer_name: order.ordererName || order.name,
+      customer_name: customerName,
       order_code: order.orderId,
-      order_date: new Date().toLocaleDateString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' }),
-      total: formatVnd(order.total + (order.shipping ?? 0)),
+      phone: order.phone,
+      address: clip(order.address, 100),
+      products: productSummary(order),
+      shipping: order.shipping === null ? 'Nhà thuốc báo sau' : order.shipping === 0 ? 'Miễn phí' : formatVnd(order.shipping),
+      total: formatVnd(grandTotal),
+      payment_method: PAYMENT_LABELS[order.paymentMethod] ?? order.paymentMethod,
     },
     `new-${order.orderId}`,
   );

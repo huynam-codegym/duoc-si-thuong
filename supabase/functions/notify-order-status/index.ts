@@ -8,12 +8,12 @@
 // Gửi tới email người đặt đã điền lúc đặt hàng; không có thì dùng email tài khoản (nếu khách đặt lúc
 // đã đăng nhập thật). Không có email nào thì trả { sent: false, reason: 'no_email' }, không báo lỗi.
 // Trạng thái "Mới đặt" không gửi (khách đã nhận email xác nhận lúc đặt).
-// Cùng lúc gửi tin Zalo OA (ZNS) tới SĐT người đặt nếu đã cấu hình (xem supabase/functions/_shared/zns.ts).
+// KHÔNG gửi tin Zalo OA ở đây: chủ website chọn chỉ gửi 1 tin Zalo lúc đặt đơn (send-order-email) để
+// tiết kiệm phí. Muốn báo khách qua Zalo khi đổi trạng thái thì dùng nút "Nhắn Zalo cho khách" (miễn phí).
 //
 // Deploy: `npx supabase functions deploy notify-order-status`
 
 import { createClient } from 'npm:@supabase/supabase-js@2';
-import { sendZns, supabaseTokenStore } from '../_shared/zns.ts';
 
 const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY');
 const RESEND_FROM = Deno.env.get('RESEND_FROM') || 'Dược Sĩ Thương <onboarding@resend.dev>';
@@ -52,17 +52,9 @@ interface OrderRow {
   payment_method: string | null;
   orderer_name: string | null;
   orderer_email: string | null;
-  orderer_phone: string | null;
-  phone: string;
   customer_name: string;
 }
 
-const STATUS_LABEL: Record<string, string> = {
-  da_xac_nhan: 'Đã xác nhận',
-  dang_giao: 'Đang giao',
-  hoan_tat: 'Đã giao thành công',
-  huy: 'Đã hủy',
-};
 
 // Nội dung từng trạng thái. Câu chữ chỉ nói điều nhà thuốc thật sự làm, không hứa thời gian giao cụ thể.
 const STATUS_TEXT: Record<string, { subject: string; title: string; body: string }> = {
@@ -182,25 +174,11 @@ Deno.serve(async (req) => {
 
   const { data: order, error: orderError } = await admin
     .from('orders')
-    .select('id, user_id, order_code, status, items, total, shipping, payment_method, orderer_name, orderer_email, orderer_phone, phone, customer_name')
+    .select('id, user_id, order_code, status, items, total, shipping, payment_method, orderer_name, orderer_email, customer_name')
     .eq('id', orderId)
     .maybeSingle<OrderRow>();
   if (orderError || !order) return json({ error: 'Không tìm thấy đơn hàng.' }, 404, headers);
   if (!STATUS_TEXT[order.status]) return json({ sent: false, reason: 'status_not_notified' }, 200, headers);
-
-  // Tin Zalo OA (ZNS) chạy song song với email; chưa cấu hình OA thì trả not_configured, không báo lỗi.
-  const zalo = sendZns(
-    supabaseTokenStore(admin),
-    Deno.env.get('ZNS_TEMPLATE_ORDER_STATUS'),
-    order.orderer_phone || order.phone,
-    {
-      customer_name: order.orderer_name || order.customer_name,
-      order_code: order.order_code ?? '',
-      status: STATUS_LABEL[order.status],
-      total: formatVnd(order.total + (order.shipping ?? 0)),
-    },
-    `${order.status}-${order.order_code ?? order.id}`,
-  );
 
   let to = order.orderer_email?.trim() || '';
   if (!to && order.user_id) {
@@ -225,8 +203,7 @@ Deno.serve(async (req) => {
       emailError = 'Gửi email thất bại, vui lòng thử lại sau.';
     }
   }
-  const zaloResult = await zalo;
-  const body = { sent: Boolean(to) && !emailError, reason: to ? undefined : 'no_email', zalo: zaloResult };
+  const body = { sent: Boolean(to) && !emailError, reason: to ? undefined : 'no_email' };
   if (emailError) return json({ ...body, error: emailError }, 502, headers);
   return json(body, 200, headers);
 });
