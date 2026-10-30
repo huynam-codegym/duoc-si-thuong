@@ -102,6 +102,18 @@ const jsonLd = {
   inLanguage: 'vi',
   image: new URL(imageForSchema.src, Astro.site).href,
   ...(brand && { brand: { '@type': 'Brand', name: brand } }),
+  // Giá bán thật (price) để Google có thể hiện giá trong kết quả tìm kiếm. Sản phẩm "Liên hệ" (chưa có giá)
+  // thì không khai báo. Không khai báo availability (còn hàng/hết hàng) vì site không theo dõi tồn kho.
+  ...(price && {
+    offers: {
+      '@type': 'Offer',
+      url: new URL(Astro.url.pathname, Astro.site).href,
+      price,
+      priceCurrency: 'VND',
+      itemCondition: 'https://schema.org/NewCondition',
+      seller: { '@type': 'Organization', name: site.pharmacy.name },
+    },
+  }),
 };
 ---
 
