@@ -47,8 +47,8 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? '';
                 required
                 pattern="(0|[+]84)[0-9]{9}"
                 placeholder="Ví dụ: 0912345678"
-                data-error-required="Vui lòng nhập số điện thoại người đặt."
-                data-error-pattern="Số điện thoại chưa đúng, ví dụ 0912345678."
+                data-error-required="Vui lòng nhập SĐT người đặt."
+                data-error-pattern="SĐT chưa đúng, ví dụ 0912345678."
               />
               <span class="field-error" data-for="orderer_phone" role="alert"></span>
             </label>
@@ -86,8 +86,8 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? '';
                 required
                 pattern="(0|[+]84)[0-9]{9}"
                 placeholder="Ví dụ: 0912345678"
-                data-error-required="Vui lòng nhập số điện thoại người nhận."
-                data-error-pattern="Số điện thoại chưa đúng, ví dụ 0912345678."
+                data-error-required="Vui lòng nhập SĐT người nhận."
+                data-error-pattern="SĐT chưa đúng, ví dụ 0912345678."
               />
               <span class="field-error" data-for="recipient_phone" role="alert"></span>
             </label>
@@ -153,7 +153,7 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? '';
         <input type="text" name="_gotcha" tabindex="-1" autocomplete="off" class="order-trap" aria-hidden="true" />
 
         <label class="order-consent">
-          <input type="checkbox" name="consent" required data-error-required="Vui lòng đồng ý để nhà thuốc liên hệ và giao hàng trước khi gửi đơn." />
+          <input type="checkbox" name="consent" required data-error-required="Vui lòng đồng ý trước khi gửi đơn." />
           <span>
             Tôi đồng ý để nhà thuốc dùng thông tin trên để liên hệ, giao hàng và báo tình trạng đơn qua Zalo, email. Không gửi số CCCD, mật khẩu hay
             thông tin thẻ ngân hàng qua form này. Xem
@@ -493,8 +493,7 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? '';
 
       // Gửi đơn thật qua Edge Function "send-order-email" (Supabase + Resend) — function tự gửi 2
       // email: báo nhà thuốc (luôn gửi, đây là kênh DUY NHẤT nhà thuốc biết có đơn mới, thay cho
-      // luồng mở Zalo thủ công trước đây) và xác nhận cho khách (chỉ khi khách có điền email, ô này
-      // không bắt buộc). Xem supabase/functions/send-order-email/index.ts và CLAUDE.md để biết cách
+      // luồng mở Zalo thủ công trước đây) và xác nhận cho khách (email bắt buộc từ 29/10/2026). Xem supabase/functions/send-order-email/index.ts và CLAUDE.md để biết cách
       // thiết lập Resend/deploy function.
       try {
         const { data: result, error: invokeError } = await supabase.functions.invoke('send-order-email', { body: order });

@@ -166,7 +166,7 @@ src/assets/
 public/               # favicon.png, apple-touch-icon.png, og-image.jpg, _headers (chỉ Cloudflare/Netlify dùng)
 supabase/functions/   # Edge Functions (Deno): send-order-email/notify-chat-message/notify-order-status (gửi email qua Resend), manage-product (commit sản phẩm qua GitHub API) — deploy riêng bằng Supabase CLI, không phải code Astro
 docs/                 # tài liệu nội bộ, KHÔNG đăng lên website (ví dụ ghi chú cho người kiểm duyệt)
-scripts/regression/   # bộ test hồi quy (Puppeteer chụp 28 trang × 2 khổ + 15 kiểm tra chức năng, so ảnh/chữ/HTML giữa 2 bản build), thư viện riêng, không phải của site
+scripts/regression/   # bộ test hồi quy (Puppeteer chụp 28 trang × 2 khổ + 15 kiểm tra chức năng, so ảnh/chữ/HTML giữa 2 bản build) và cases.mjs (chạy các test case tự động của docs/test-cases.md), thư viện riêng, không phải của site
 .claude/skills/       # quy trình cố định: add-product, fix-bug, update-deps, web-security-testing
 astro.config.mjs      # `site` = https://duocsithuong.com (không có `base`)
 .github/workflows/    # deploy.yml: tự build và deploy khi đẩy code lên `main`
@@ -615,7 +615,7 @@ Chủ website đổi ý: ô Email ở `/gio-hang/` giờ **bắt buộc** (trư�
   - Từ chối: thiếu/thừa `@`, có dấu cách, chữ có dấu tiếng Việt, phần trước `@` bắt đầu/kết thúc bằng dấu chấm hoặc có 2 chấm liền, tên miền có nhãn bắt đầu/kết thúc bằng `-`, đuôi không phải chữ cái hoặc ngắn hơn 2 ký tự, quá 254 ký tự (phần trước `@` quá 64).
   - Gõ nhầm tên miền phổ biến (`gmail.con`, `gmial.com`, `yahoo.con`, `hotmail.con`... bảng `DOMAIN_TYPOS`) bị chặn kèm gợi ý "Có phải là @gmail.com?".
 - Kiểm tra `type="email"` của trình duyệt quá lỏng (nhận cả `a@b`) nên chỉ giữ để hiện bàn phím email trên điện thoại. Lỗi thật lấy từ `checkEmail()` trong `validateForm()`.
-- **Câu báo lỗi phải ngắn (1 dòng ở 375px).** Chỗ hiện lỗi `.field-error` chỉ dành sẵn chiều cao 1 dòng; câu dài xuống 2 dòng làm các ô bên dưới nhảy xuống (đã gặp: "Vui lòng nhập email để nhận xác nhận đơn hàng." làm lệch 18px trên điện thoại, đã rút còn "Vui lòng nhập email.").
+- **Câu báo lỗi phải ngắn (1 dòng ở 375px).** Test case ORD-05 (`scripts/regression/cases.mjs`) tự đo việc này cho mọi ô; 30/10/2026 nó bắt được câu báo SĐT sai và câu ở ô đồng ý vẫn quá dài, đã rút còn "SĐT chưa đúng, ví dụ 0912345678." và "Vui lòng đồng ý trước khi gửi đơn.". Chỗ hiện lỗi `.field-error` chỉ dành sẵn chiều cao 1 dòng; câu dài xuống 2 dòng làm các ô bên dưới nhảy xuống (đã gặp: "Vui lòng nhập email để nhận xác nhận đơn hàng." làm lệch 18px trên điện thoại, đã rút còn "Vui lòng nhập email.").
 - Đã test: 28 trường hợp với `checkEmail()`; trang giỏ hàng ở 1280 và 375px (bỏ trống, `abc@gmail`, `te..n@gmail.com`, `thương@gmail.com`, `ten@gmail.con`, `ten@-abc.com` đều báo đúng, không lệch bố cục; email đúng được chuyển về chữ thường rồi mới gửi); gọi thẳng hàm máy chủ với 5 email sai đều bị trả 400.
 - Chưa áp dụng `checkEmail()` cho form đăng ký tài khoản (Supabase Auth tự kiểm tra email).
 
@@ -724,6 +724,8 @@ Mỗi bài nên có **ảnh đại diện** (`cover`) và 1-3 hình minh họa t
 - Khi viết bài mẫu hoặc nội dung sức khỏe, đánh dấu rõ phần cần **dược sĩ/bác sĩ kiểm duyệt trước khi đăng**. Không coi nội dung do AI viết là đã được kiểm chứng.
 - Nếu yêu cầu chưa rõ (ví dụ: chưa biết công nghệ, chưa biết bố cục), hỏi lại ngắn gọn trước khi làm.
 - Đề xuất trước khi thay đổi lớn về cấu trúc dự án.
+- **Bộ test case toàn hệ thống: `docs/test-cases.md`** (30/10/2026, chủ website yêu cầu). Case tự động chạy bằng `node scripts/regression/cases.mjs <dist> <outDir> <port> [--only=ORD] [--no-live]`, ghi `report.md`. Vòng lặp: chạy → case FAIL đi qua `fix-bug` (hoặc sửa test nếu test viết sai) → chạy lại TOÀN BỘ → sạch thì deploy, ghi "Lịch sử chạy" cuối file. Thêm/sửa tính năng thì thêm/sửa case tương ứng ở cả 2 file.
+- **Sitemap tự bỏ trang `noindex`** (bước `dropNoindexFromSitemap()` trong `astro.config.mjs`, chạy sau `sitemap()`): đọc HTML đã build, trang nào có `<meta name="robots" content="noindex` thì bị bỏ khỏi `sitemap-0.xml`. **Bẫy đã gặp:** trước đó bộ lọc chỉ loại `/gio-hang/`, nên sitemap gửi Google cả 4 trang `/admin/`, `/tai-khoan/` và các bài "bản xem thử" (Google báo "URL đã gửi bị đánh dấu noindex", lại lộ đường dẫn trang quản trị).
 - **Mọi lỗi đi qua skill `fix-bug`** (chủ website yêu cầu 28/10/2026): tái hiện → nguyên nhân gốc → sửa → test hồi quy (`scripts/regression/`) → **chạy lại skill `web-security-testing`** cho phần vừa sửa → lỗi mới thì lặp lại → deploy. Chưa chạy bảo mật thì chưa coi là sửa xong.
 - **Cập nhật thư viện là việc thường xuyên** (chủ website yêu cầu): dùng skill `update-deps` ít nhất mỗi tháng và mỗi khi Dependabot mở PR (`gh pr list --author app/dependabot`) hoặc `npm audit` báo lỗ hổng. Nâng bản lớn phải test lại TOÀN BỘ chức năng + giao diện như skill mô tả. PR Dependabot chỉ được build thử, không tự deploy — test xong mới merge.
 
