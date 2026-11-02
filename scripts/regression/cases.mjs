@@ -68,7 +68,7 @@ const pageOf = (slug) => productPages.find((p) => productSlug(p) === slug).route
 
 // ---------- trình duyệt ----------
 const browser = await puppeteer.launch({
-  executablePath: 'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe',
+  executablePath: process.env.BROWSER_PATH ?? 'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe',
   headless: 'new',
   args: ['--hide-scrollbars'],
 });
@@ -522,6 +522,50 @@ await tc('PRD-08', 'Nhãn xuất xứ và "-X%" không chồng nhau, không đè
   });
   await close();
   return verdict([...new Set(bad)]);
+});
+await tc('PRD-12', 'Rê chuột hiện đủ tên sản phẩm bị cắt, không xô lệch thẻ', async () => {
+  const bad = [];
+  const hoverCut = async (page, sel, where) => {
+    const target = await page.evaluateHandle((sel) => {
+      const inView = (el) => { const r = el.getBoundingClientRect(); return r.width > 0 && r.top >= 0 && r.bottom < innerHeight; };
+      return [...document.querySelectorAll(sel)].find((el) => inView(el) && el.scrollHeight > el.clientHeight + 1) ?? null;
+    }, sel);
+    const el = target.asElement();
+    if (!el) { bad.push(where + ': không thấy tên bị cắt để thử'); return; }
+    const before = await el.evaluate((e) => e.getBoundingClientRect().height);
+    await el.hover();
+    const r = await el.evaluate((e) => {
+      const box = document.getElementById('nameReveal'), b = box.getBoundingClientRect();
+      return { after: e.getBoundingClientRect().height, full: e.textContent.trim(), shown: box.hidden ? null : box.textContent.trim(), inside: b.left >= 0 && b.right <= innerWidth && b.top >= 0 && b.bottom <= innerHeight };
+    });
+    if (r.shown !== r.full) bad.push(where + ': hiện "' + r.shown + '", tên thật "' + r.full + '"');
+    if (r.after !== before) bad.push(where + ': thẻ đổi chiều cao');
+    if (!r.inside) bad.push(where + ': khung tên tràn màn hình');
+  };
+  const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+  const { page, close } = await open('desktop');
+  await go(page, '/thuc-pham-chuc-nang/');
+  await scrollAll(page);
+  await page.evaluate(() => window.scrollTo(0, 300));
+  await wait(200);
+  await hoverCut(page, '.product-card h3', 'thẻ sản phẩm');
+  await page.evaluate(() => window.scrollBy(0, 40));
+  await wait(200);
+  if (await page.evaluate(() => !document.getElementById('nameReveal').hidden)) bad.push('cuộn trang mà khung tên chưa ẩn');
+  await go(page, '/tim-kiem/?q=vitamin');
+  await page.waitForFunction(() => document.querySelectorAll('.search-result strong').length > 0, { timeout: 15000 });
+  await scrollAll(page);
+  await page.evaluate(() => window.scrollTo(0, 200));
+  await wait(300);
+  await hoverCut(page, '.search-result strong', 'kết quả tìm kiếm');
+  await close();
+  // Điện thoại: chạm vào thẻ không bật khung nổi
+  const m = await open('mobile');
+  await go(m.page, '/thuc-pham-chuc-nang/');
+  await m.page.evaluate(() => document.querySelector('.product-card h3').dispatchEvent(new PointerEvent('pointerover', { bubbles: true, pointerType: 'touch' })));
+  if (await m.page.evaluate(() => !document.getElementById('nameReveal').hidden)) bad.push('chạm tay vẫn bật khung tên');
+  await m.close();
+  return verdict(bad);
 });
 await tc('PRD-09', 'Không có chữ cấm trong nội dung sản phẩm/bài viết', async () => {
   const banned = [/chữa khỏi/i, /thần dược/i, /100% hiệu quả/i, /không (có )?tác dụng phụ/i, /khỏi bệnh/i];

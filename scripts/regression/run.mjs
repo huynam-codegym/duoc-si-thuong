@@ -37,7 +37,7 @@ const WIDTHS = [{ w: 1280, h: 900, name: 'desktop' }, { w: 375, h: 812, name: 'm
 const results = { pages: {}, checks: {} };
 
 const browser = await puppeteer.launch({
-  executablePath: 'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe',
+  executablePath: process.env.BROWSER_PATH ?? 'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe',
   headless: 'new', args: ['--hide-scrollbars'],
 });
 

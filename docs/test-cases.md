@@ -80,6 +80,7 @@ Vòng lặp:
 | PRD-09 | Chữ cấm trong nội dung sản phẩm | Không có "chữa khỏi", "thần dược", "100% hiệu quả", "không tác dụng phụ", "không có tác dụng phụ", "khỏi bệnh" | T |
 | PRD-10 | Đánh giá khi chưa có dữ liệu | Hiện "Chưa có đánh giá nào"; dòng tóm tắt sao cạnh tên sản phẩm ẩn | T |
 | PRD-11 | Bấm "Viết đánh giá"/gửi bình luận khi chưa đăng nhập | Mở khung đăng nhập nổi | T |
+| PRD-12 | Rê chuột vào sản phẩm có tên bị cắt "…" (thẻ sản phẩm, kết quả tìm kiếm) | Hiện đủ tên, thẻ không đổi chiều cao, khung tên không tràn màn hình, cuộn trang thì ẩn; chạm tay trên điện thoại không bật khung | T |
 
 ## 5. Giỏ hàng (CART)
 
@@ -210,3 +211,9 @@ Ghi mỗi lần chạy đủ bộ: ngày, số case PASS/FAIL, lỗi đã sửa.
   - Test viết sai (4), đã sửa test: UI-01 (trang `/404` vốn trả 404), UI-09 (ảnh trang trí `alt` rỗng là đúng), PRD-09 (bài vitamin đang *cảnh báo* người đọc về các chữ cấm), SEO-03 (ngày ghi bằng chữ "Đăng ngày…", không dùng thẻ `<time>`).
 - **Vòng 2:** PASS 92, FAIL 2. ORD-05 báo sai ở ô đồng ý: chỗ báo lỗi của ô này lúc trống đã cao hơn `min-height`. Đã sửa test để so với chiều cao lúc chưa có lỗi.
 - **Vòng 3 (cuối):** **94/94 PASS.** Chạy lại trên bản build cũ thì ORD-05 và SEO-01 FAIL đúng như mong đợi, tức là test bắt được lỗi. So ảnh 28 trang × 2 khổ (`run.mjs`): chỉ lệch 36-654 điểm ảnh ở ô tìm kiếm (chữ gợi ý tự gõ, nhiễu đã biết).
+
+### 02/11/2026 — thêm rê chuột hiện đủ tên sản phẩm
+
+- **95/95 PASS** (thêm PRD-12). Lần đầu ORD-11 lỗi mạng khi gọi site thật, chạy lại thì đạt.
+- Kiểm tra thêm bằng tay qua Puppeteer: menu lớn, khay giỏ hàng, thanh mua hàng dính (khung tự mở ngược lên, không tràn đáy màn hình), rê vào nút "Chọn mua" thì khung ẩn.
+- Edge 156.0.4314.58 trên máy thoát ngay khi Puppeteer khởi động (mã 0, không báo lỗi), nên các script test nhận đường dẫn trình duyệt qua biến `BROWSER_PATH`. Lần này chạy bằng Chrome: `BROWSER_PATH="C:/Program Files/Google/Chrome/Application/chrome.exe"`.

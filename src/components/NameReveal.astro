@@ -1,0 +1,75 @@
+---
+// Rê chuột vào một sản phẩm thì hiện HẾT tên đang bị cắt "…" (chủ website yêu cầu tháng 11/2026).
+// Dùng 1 khung nổi chung, đặt đè đúng vị trí tên, thay vì bỏ giới hạn dòng bằng CSS, vì:
+// - bỏ giới hạn dòng làm thẻ cao lên, xô lệch cả hàng sản phẩm mỗi lần lướt chuột;
+// - tên nằm trong khung cuộn (.carousel-track có overflow) sẽ bị cắt, khung position: fixed thì không;
+// - bắt sự kiện ở document nên tự áp dụng cho nội dung vẽ bằng JS (kết quả tìm kiếm, khay giỏ hàng).
+// Thêm nơi mới có tên bị cắt: thêm 1 cặp [khối sản phẩm, phần tử tên] vào NAME_TARGETS.
+---
+
+<div class="name-reveal" id="nameReveal" aria-hidden="true" hidden></div>
+
+<script>
+  const NAME_TARGETS = [
+    ['.product-card', 'h3'],
+    ['.search-result', 'strong'],
+    ['.mega-products a', '.mega-product-name'],
+    ['.cart-dropdown-item', '.cart-dropdown-item-name'],
+    ['.sticky-buy-info', '.sticky-buy-name'],
+  ];
+  const PADDING = 6;
+  const reveal = document.getElementById('nameReveal') as HTMLElement;
+  let current: HTMLElement | null = null;
+
+  function findName(target: EventTarget | null) {
+    // Rê vào nút (Chọn mua, xóa khỏi giỏ) thì ẩn khung, vì tên dài có thể đè lên chính nút đó.
+    if (!(target instanceof Element) || target.closest('button')) return null;
+    for (const [block, name] of NAME_TARGETS) {
+      const el = target.closest(block)?.querySelector<HTMLElement>(name);
+      if (el) return el;
+    }
+    return null;
+  }
+
+  function hide() {
+    current = null;
+    reveal.hidden = true;
+  }
+
+  function show(name: HTMLElement) {
+    if (name === current) return;
+    // Tên ngắn, hiện đủ rồi thì không cần khung nổi.
+    const isCut = name.scrollHeight > name.clientHeight + 1 || name.scrollWidth > name.clientWidth + 1;
+    if (!isCut) return hide();
+
+    current = name;
+    const rect = name.getBoundingClientRect();
+    const style = getComputedStyle(name);
+    reveal.textContent = name.textContent;
+    reveal.style.font = style.font;
+    reveal.style.color = style.color;
+    reveal.style.width = `${rect.width + PADDING * 2}px`;
+    reveal.style.left = `${rect.left - PADDING}px`;
+    reveal.style.top = `${rect.top - PADDING}px`;
+    reveal.hidden = false;
+    // Sát đáy màn hình (ví dụ thanh mua hàng dính) thì mở ngược lên trên để không bị khuất.
+    const overflow = reveal.getBoundingClientRect().bottom - window.innerHeight;
+    if (overflow > 0) reveal.style.top = `${Math.max(0, rect.top - PADDING - overflow - PADDING)}px`;
+  }
+
+  // Bỏ qua chạm tay: điện thoại không có rê chuột, chạm vào thẻ là mở trang sản phẩm.
+  document.addEventListener('pointerover', (event) => {
+    if (event.pointerType === 'touch') return;
+    const name = findName(event.target);
+    if (name) show(name);
+    else hide();
+  });
+  document.documentElement.addEventListener('pointerleave', hide);
+  document.addEventListener('focusin', (event) => {
+    const name = event.target instanceof Element && event.target.matches(':focus-visible') && findName(event.target);
+    if (name) show(name);
+    else hide();
+  });
+  window.addEventListener('scroll', hide, { capture: true, passive: true });
+  window.addEventListener('resize', hide);
+</script>

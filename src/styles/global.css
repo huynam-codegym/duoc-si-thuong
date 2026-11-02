@@ -1840,7 +1840,22 @@ p.faq-chat-bubble {
   background: var(--green-50);
 }
 
-/* Tên và mô tả sản phẩm cắt ngắn còn 2 dòng kèm dấu "…" (tên đầy đủ vẫn có ở trang chi tiết sản phẩm) */
+/* Tên và mô tả sản phẩm cắt ngắn còn 2 dòng kèm dấu "…". Rê chuột vào thẻ thì hiện đủ tên, xem
+   NameReveal.astro. */
+/* Khung hiện đủ tên sản phẩm khi rê chuột (NameReveal.astro). pointer-events: none để chuột vẫn bấm
+   được thẻ bên dưới; z-index cao hơn mọi khay nổi (khung đăng nhập là 300). */
+.name-reveal {
+  position: fixed;
+  z-index: 400;
+  box-sizing: border-box;
+  padding: 6px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: 0 6px 18px rgb(0 0 0 / 0.16);
+  pointer-events: none;
+}
+
 .product-card h3 {
   display: -webkit-box;
   -webkit-line-clamp: 2;

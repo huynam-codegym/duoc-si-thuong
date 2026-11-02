@@ -8,7 +8,7 @@ const serve = (dir, port) => http.createServer((q, s) => { let f = path.join(dir
 const s1 = serve(oldDir, 4501), s2 = serve(newDir, 4502);
 const walk = (d) => fs.readdirSync(d, { withFileTypes: true }).flatMap((e) => e.isDirectory() ? (['_astro', 'pagefind', 'videos'].includes(e.name) ? [] : walk(path.join(d, e.name))) : e.name === 'index.html' ? [path.join(d, e.name)] : []);
 const urls = walk(oldDir).map((f) => '/' + path.relative(oldDir, path.dirname(f)).split(path.sep).join('/') + '/').map((u) => u.replace('//', '/'));
-const b = await puppeteer.launch({ executablePath: 'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe', headless: 'new' });
+const b = await puppeteer.launch({ executablePath: process.env.BROWSER_PATH ?? 'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe', headless: 'new' });
 const page = await b.newPage();
 await page.setRequestInterception(true);
 page.on('request', (r) => (/^http:\/\/localhost:450[12]/.test(r.url()) && ['document', 'stylesheet', 'script'].includes(r.resourceType()) ? r.continue() : r.abort()));

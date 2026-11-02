@@ -5,6 +5,7 @@ import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import FaqChat from '../components/FaqChat.astro';
 import BackToTop from '../components/BackToTop.astro';
+import NameReveal from '../components/NameReveal.astro';
 import { url } from '../lib/url';
 
 interface Props {
@@ -68,5 +69,6 @@ const ogImage = new URL(shareImage ? shareImage.src : url('/og-image.jpg'), Astr
     <Footer />
     <FaqChat />
     <BackToTop />
+    <NameReveal />
   </body>
 </html>
