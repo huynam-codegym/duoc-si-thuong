@@ -40,6 +40,7 @@ Vòng lặp:
 | UI-08 | Liên kết nội bộ | Mọi `href` nội bộ trong `dist/` trỏ tới trang/tệp có thật | T |
 | UI-09 | Ảnh có alt | Mọi `<img>` hiển thị (không `hidden`, không trang trí `alt=""` có `aria-hidden`) có `alt` | T |
 | UI-10 | Cỡ chữ | Cỡ chữ gốc của trang là 18px (`html{font-size:112.5%}`) | T |
+| UI-11 | Khung xin phép cookie thống kê (chỉ khi build có `PUBLIC_GA_ID`) | Chưa có mã: không có khung, không có mã Google. Có mã: lần đầu hiện khung, nằm gọn trong màn hình ở 1280 và 375px; chưa đồng ý/từ chối thì không tải Google; "Cài đặt cookie" ở chân trang mở lại khung; đồng ý thì tải, không gửi query (mã đơn) cho Google, đã tắt Google Signals; trang `/admin/` không tải | T |
 
 ## 2. Điều hướng (NAV)
 
@@ -217,3 +218,8 @@ Ghi mỗi lần chạy đủ bộ: ngày, số case PASS/FAIL, lỗi đã sửa.
 - **95/95 PASS** (thêm PRD-12). Lần đầu ORD-11 lỗi mạng khi gọi site thật, chạy lại thì đạt.
 - Kiểm tra thêm bằng tay qua Puppeteer: menu lớn, khay giỏ hàng, thanh mua hàng dính (khung tự mở ngược lên, không tràn đáy màn hình), rê vào nút "Chọn mua" thì khung ẩn.
 - Edge 156.0.4314.58 trên máy thoát ngay khi Puppeteer khởi động (mã 0, không báo lỗi), nên các script test nhận đường dẫn trình duyệt qua biến `BROWSER_PATH`. Lần này chạy bằng Chrome: `BROWSER_PATH="C:/Program Files/Google/Chrome/Application/chrome.exe"`.
+
+### 03/11/2026 — thêm khung xin phép cookie và Google Analytics
+
+- Chạy toàn bộ trên bản có mã thử `G-TEST123`: 95/96, chỉ UI-11 lỗi do test xóa lựa chọn "Từ chối" mỗi lần tải lại trang (lỗi của test). Đã sửa `open()`, chỉ đặt lựa chọn cookie ở lần tải đầu.
+- Từ đây chỉ chạy lại các case liên quan phần vừa sửa (chủ website yêu cầu): UI-02, UI-03, UI-07, UI-11 trên bản có mã thử đều PASS; UI-07, UI-11 trên bản chưa có `PUBLIC_GA_ID` đều PASS.

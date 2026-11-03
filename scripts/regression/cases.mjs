@@ -99,9 +99,12 @@ async function open(vpName, { mock, storage } = {}) {
     if (!u.startsWith(BASE) && !u.startsWith('data:')) return r.respond({ status: 204, headers: CORS, body: '' });
     r.continue();
   });
-  if (storage) {
-    await page.evaluateOnNewDocument((s) => { for (const [k, v] of Object.entries(s)) localStorage.setItem(k, v); }, storage);
-  }
+  // Mặc định coi như khách đã trả lời khung cookie, để khung không che nút ở đáy trang trong các case khác.
+  const store = { 'duocsithuong-consent-v1': 'denied', ...storage };
+  // Lựa chọn cookie chỉ đặt ở lần tải đầu, để lựa chọn khách bấm trong case vẫn giữ khi tải lại trang.
+  await page.evaluateOnNewDocument((s) => {
+    for (const [k, v] of Object.entries(s)) if (k !== 'duocsithuong-consent-v1' || localStorage.getItem(k) === null) localStorage.setItem(k, v);
+  }, store);
   return { ctx, page, errors, calls, close: () => ctx.close() };
 }
 const go = (page, route) => page.goto(BASE + route, { waitUntil: 'networkidle0', timeout: 60000 });
@@ -222,6 +225,47 @@ await tc('UI-08', 'Liên kết nội bộ không gãy', async () => {
   }
   return verdict([...bad]);
 });
+await tc('UI-11', 'Khung xin phép cookie thống kê: chỉ tải Google Analytics khi khách đồng ý', async () => {
+  const bad = [];
+  const html = fs.readFileSync(path.join(path.resolve(distDir), 'index.html'), 'utf8');
+  if (!html.includes('id="cookieConsent"')) {
+    // Chưa cài PUBLIC_GA_ID: không được có khung, cũng không được có mã Google ở bất kỳ đâu.
+    if (html.includes('id="openConsent"')) bad.push('chưa có PUBLIC_GA_ID mà vẫn có nút Cài đặt cookie');
+    const { page, close } = await open('desktop', { storage: { 'duocsithuong-consent-v1': 'granted' } });
+    const gtag = [];
+    page.on('request', (r) => { if (r.url().includes('googletagmanager')) gtag.push(r.url()); });
+    await go(page, '/');
+    if (gtag.length) bad.push('chưa có PUBLIC_GA_ID mà vẫn tải mã Google');
+    await close();
+    return verdict(bad, 'bản build chưa có PUBLIC_GA_ID, khung không hiện (đúng)');
+  }
+  for (const vp of ['desktop', 'mobile']) {
+    const { page, close } = await open(vp, { storage: { 'duocsithuong-consent-v1': '' } });
+    const gtag = [];
+    page.on('request', (r) => { if (r.url().includes('googletagmanager')) gtag.push(r.url()); });
+    await go(page, '/tra-cuu-don-hang/?ma=ABC123');
+    const box = await page.evaluate(() => { const e = document.getElementById('cookieConsent'), r = e.getBoundingClientRect(); return { shown: !e.hidden, inside: r.left >= 0 && r.right <= innerWidth && r.bottom <= innerHeight }; });
+    if (!box.shown) bad.push(vp + ': lần đầu không hiện khung');
+    if (!box.inside) bad.push(vp + ': khung tràn màn hình');
+    if (gtag.length) bad.push(vp + ': tải Google trước khi đồng ý');
+    await page.click('[data-consent="denied"]');
+    await page.reload({ waitUntil: 'networkidle0' });
+    if (gtag.length || !(await page.evaluate(() => document.getElementById('cookieConsent').hidden))) bad.push(vp + ': từ chối xong vẫn hỏi lại hoặc vẫn tải Google');
+    await page.click('#openConsent');
+    await page.click('[data-consent="granted"]');
+    await sleep(300);
+    if (!gtag.length) bad.push(vp + ': đồng ý mà không tải Google');
+    const cfg = await page.evaluate(() => JSON.stringify((window.dataLayer || []).map((a) => [...a])));
+    if (cfg.includes('ABC123')) bad.push(vp + ': gửi mã đơn trong URL cho Google');
+    if (!cfg.includes('"allow_google_signals":false')) bad.push(vp + ': chưa tắt Google Signals');
+    const before = gtag.length;
+    await go(page, '/admin/don-hang/');
+    if (gtag.length !== before) bad.push(vp + ': trang admin vẫn tải Google');
+    await close();
+  }
+  return verdict(bad);
+});
+
 await tc('UI-09', 'Ảnh có alt', async () => {
   const bad = [];
   for (const p of pages) {

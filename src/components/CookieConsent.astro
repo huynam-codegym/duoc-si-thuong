@@ -1,0 +1,120 @@
+---
+// Xin phép khách trước khi bật thống kê lượt truy cập (Google Analytics 4), theo Nghị định 13/2023/NĐ-CP.
+// - Chỉ hiện khi có biến PUBLIC_GA_ID (Repository variable trên GitHub). Chưa có thì không có khung, không tải gì.
+// - Mã của Google CHỈ được tải sau khi khách bấm "Đồng ý". Từ chối thì không có cookie thống kê nào.
+// - Tắt Google Signals và cá nhân hóa quảng cáo: chỉ đếm lượt xem, không dùng để quảng cáo.
+// - Không gửi query của URL (ví dụ mã đơn ở /tra-cuu-don-hang/?ma=...), trừ từ khóa ?q= ở /tim-kiem/.
+// - Không thống kê các trang /admin/.
+// Khách đổi ý bằng nút "Cài đặt cookie" ở chân trang (bắn sự kiện duocsithuong:open-consent).
+import { url } from '../lib/url';
+
+const gaId = import.meta.env.PUBLIC_GA_ID;
+---
+
+{
+  gaId && (
+    <div class="cookie-consent" id="cookieConsent" role="dialog" aria-labelledby="cookieConsentTitle" data-ga-id={gaId} hidden>
+      <div class="cookie-consent-text">
+        <p class="cookie-consent-title" id="cookieConsentTitle">Cho phép thống kê lượt truy cập?</p>
+        <p>
+          Website muốn dùng cookie của Google Analytics để đếm lượt xem, giúp dược sĩ viết nội dung hữu ích hơn.
+          <strong>Không dùng để quảng cáo.</strong> Đổi ý được ở mục "Cài đặt cookie" cuối trang.{' '}
+          <a href={url('/chinh-sach-bao-mat/#cookie')}>Xem chính sách bảo mật</a>.
+        </p>
+      </div>
+      <div class="cookie-consent-actions">
+        <button type="button" class="btn" data-consent="granted">Đồng ý</button>
+        <button type="button" class="btn btn-outline" data-consent="denied">Từ chối</button>
+      </div>
+    </div>
+  )
+}
+
+<script>
+  const CONSENT_KEY = 'duocsithuong-consent-v1';
+  const box = document.getElementById('cookieConsent');
+  const gaId = box?.dataset.gaId;
+
+  function readConsent() {
+    try {
+      return localStorage.getItem(CONSENT_KEY);
+    } catch {
+      return null;
+    }
+  }
+
+  function saveConsent(value: string) {
+    try {
+      localStorage.setItem(CONSENT_KEY, value);
+    } catch {
+      // Trình duyệt chặn bộ nhớ: lần sau hỏi lại, không sao.
+    }
+  }
+
+  // Đường dẫn gửi cho Google: bỏ query (có thể chứa mã đơn), chỉ giữ từ khóa tìm kiếm.
+  function pageLocation() {
+    const { origin, pathname, search } = window.location;
+    const q = pathname.startsWith('/tim-kiem') ? new URLSearchParams(search).get('q') : null;
+    return origin + pathname + (q ? `?q=${encodeURIComponent(q)}` : '');
+  }
+
+  let loaded = false;
+  function loadAnalytics() {
+    if (loaded || !gaId || window.location.pathname.startsWith('/admin')) return;
+    loaded = true;
+    const w = window as unknown as { dataLayer: unknown[]; gtag: (...args: unknown[]) => void };
+    w.dataLayer = w.dataLayer || [];
+    w.gtag = function () {
+      // gtag cần đúng đối tượng arguments, không phải mảng.
+      // eslint-disable-next-line prefer-rest-params
+      w.dataLayer.push(arguments);
+    };
+    w.gtag('js', new Date());
+    w.gtag('config', gaId, {
+      allow_google_signals: false,
+      allow_ad_personalization_signals: false,
+      page_location: pageLocation(),
+    });
+    const script = document.createElement('script');
+    script.async = true;
+    script.src = `https://www.googletagmanager.com/gtag/js?id=${encodeURIComponent(gaId)}`;
+    document.head.appendChild(script);
+  }
+
+  // Rút lại đồng ý: xóa cookie _ga của Google ngay, không đợi tải lại trang.
+  function removeAnalyticsCookies() {
+    const host = window.location.hostname;
+    for (const part of document.cookie.split(';')) {
+      const name = part.split('=')[0].trim();
+      if (!name.startsWith('_ga')) continue;
+      for (const domain of ['', `; domain=${host}`, `; domain=.${host.replace(/^www\./, '')}`]) {
+        document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/${domain}`;
+      }
+    }
+  }
+
+  if (box && gaId) {
+    const consent = readConsent();
+    if (consent === 'granted') loadAnalytics();
+    else if (consent !== 'denied') box.hidden = false;
+
+    box.addEventListener('click', (event) => {
+      const button = (event.target as Element).closest<HTMLButtonElement>('[data-consent]');
+      if (!button) return;
+      const value = button.dataset.consent!;
+      saveConsent(value);
+      box.hidden = true;
+      if (value === 'granted') loadAnalytics();
+      else if (loaded) {
+        // Đã tải mã Google trong trang này: tải lại để dừng hẳn việc gửi dữ liệu.
+        removeAnalyticsCookies();
+        window.location.reload();
+      } else removeAnalyticsCookies();
+    });
+
+    window.addEventListener('duocsithuong:open-consent', () => {
+      box.hidden = false;
+      box.querySelector<HTMLButtonElement>('[data-consent="granted"]')?.focus();
+    });
+  }
+</script>

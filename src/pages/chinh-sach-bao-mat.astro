@@ -5,7 +5,10 @@ import { url } from '../lib/url';
 
 // Ngày đăng và ngày cập nhật hiện trên trang. Sửa nội dung chính sách thì đổi updatedAt.
 const publishedAt = '29/10/2026';
-const updatedAt = '29/10/2026';
+const updatedAt = '03/11/2026';
+// Thống kê lượt truy cập chỉ có khi đã cài mã Google Analytics (xem CookieConsent.astro), nên phần
+// nói về nó cũng chỉ hiện khi đó, để chính sách luôn đúng với những gì website đang làm.
+const hasAnalytics = Boolean(import.meta.env.PUBLIC_GA_ID);
 ---
 
 <BaseLayout
@@ -71,6 +74,26 @@ const updatedAt = '29/10/2026';
         quảng cáo.
       </p>
 
+      {
+        hasAnalytics && (
+          <>
+            <h3 id="cookie">Cookie thống kê lượt truy cập (chỉ khi bạn đồng ý)</h3>
+            <p>
+              Lần đầu vào website, bạn sẽ được hỏi có cho phép thống kê lượt truy cập hay không. Chỉ khi bạn bấm
+              <strong>"Đồng ý"</strong>, website mới dùng <strong>Google Analytics</strong> để đếm số người xem, trang nào được
+              xem nhiều, bạn đến từ đâu (ví dụ từ Google hay Facebook), loại thiết bị và thành phố gần đúng. Google Analytics
+              đặt cookie (tên bắt đầu bằng "_ga") trên trình duyệt của bạn để phân biệt lượt xem.
+            </p>
+            <ul>
+              <li>Không dùng để quảng cáo: đã tắt tính năng quảng cáo và liên kết tài khoản Google của Google Analytics.</li>
+              <li>Không gửi tên, số điện thoại, email, nội dung tin nhắn hay mã đơn hàng của bạn cho Google.</li>
+              <li>Từ khóa bạn gõ ở trang Tìm kiếm có được gửi, để dược sĩ biết mọi người đang tìm gì.</li>
+              <li>Bấm "Từ chối" thì không có cookie thống kê nào. Đổi ý bất cứ lúc nào ở mục "Cài đặt cookie" cuối trang.</li>
+            </ul>
+          </>
+        )
+      }
+
       <h2>3. Thông tin sức khỏe là thông tin nhạy cảm</h2>
       <p>
         Câu hỏi về bệnh, thuốc bạn đang dùng, ảnh đơn thuốc hay sản phẩm bạn mua có thể cho biết tình trạng sức khỏe của
@@ -102,6 +125,7 @@ const updatedAt = '29/10/2026';
         <li><strong>Resend</strong>: gửi email về đơn hàng cho bạn và email báo cho dược sĩ.</li>
         <li><strong>Zalo</strong>: khi dược sĩ nhắn Zalo tới số điện thoại của bạn để báo tình trạng đơn.</li>
         <li><strong>Google</strong>: chỉ khi bạn chọn "Đăng nhập với Google".</li>
+        {hasAnalytics && <li><strong>Google Analytics</strong>: thống kê lượt truy cập, chỉ khi bạn bấm "Đồng ý" (xem mục "Cookie thống kê lượt truy cập" ở trên).</li>}
         <li><strong>Cloudflare Turnstile</strong>: kiểm tra bạn không phải người máy khi gửi đơn.</li>
         <li><strong>VietQR</strong>: tạo ảnh mã QR chuyển khoản. Dịch vụ này nhận số tiền và mã đơn, không nhận tên hay địa chỉ của bạn.</li>
         <li><strong>GitHub Pages</strong>: nơi đặt website. Dịch vụ này có thể ghi lại địa chỉ IP khi bạn mở trang, như mọi máy chủ web.</li>
@@ -116,6 +140,7 @@ const updatedAt = '29/10/2026';
       <ul>
         <li>Đơn hàng, tài khoản và tin nhắn: lưu cho tới khi bạn yêu cầu xóa (trừ phần pháp luật bắt buộc phải giữ, ví dụ sổ sách bán hàng).</li>
         <li>Nhật ký chống gửi đơn hàng loạt (IP, số điện thoại): tự xóa sau khoảng 1 ngày.</li>
+        {hasAnalytics && <li>Số liệu thống kê lượt truy cập trên Google Analytics: tự xóa sau 14 tháng.</li>}
       </ul>
 
       <h2>7. Chúng tôi bảo vệ thông tin như thế nào</h2>

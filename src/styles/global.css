@@ -6619,3 +6619,91 @@ body.has-sticky-bar .faq-chat-toggle {
   margin: 0.75rem 0;
   min-height: 65px;
 }
+
+/* Khung xin phép cookie thống kê (CookieConsent.astro). Nằm đáy màn hình, trên nút chat nổi và
+   "Về đầu trang" (z-index 50-90) nhưng dưới ngăn kéo menu/modal đăng nhập (200). Hai nút cùng cỡ, không làm nút "Từ chối" mờ
+   đi, để khách chọn tự do. */
+.cookie-consent {
+  position: fixed;
+  left: 1rem;
+  right: 1rem;
+  bottom: 1rem;
+  z-index: 150;
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  max-width: 62rem;
+  margin-inline: auto;
+  padding: 1rem 1.25rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: #fff;
+  color: var(--ink);
+  font-size: 0.85rem;
+  line-height: 1.5;
+  box-shadow: 0 10px 30px rgb(0 0 0 / 0.18);
+}
+
+.cookie-consent[hidden] {
+  display: none;
+}
+
+.cookie-consent p {
+  margin: 0;
+}
+
+.cookie-consent-title {
+  margin-bottom: 0.25rem !important;
+  color: var(--green-900);
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
+.cookie-consent-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  flex: 0 0 auto;
+}
+
+.cookie-consent-actions .btn {
+  justify-content: center;
+  min-width: 8rem;
+  min-height: 2.6rem;
+  padding: 0.45rem 1.2rem;
+  border: 2px solid var(--green-700);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+@media (max-width: 40rem) {
+  .cookie-consent {
+    left: 0.5rem;
+    right: 0.5rem;
+    bottom: 0.5rem;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.75rem;
+    padding: 0.9rem 1rem;
+  }
+
+  .cookie-consent-actions {
+    flex-direction: row;
+  }
+
+  .cookie-consent-actions .btn {
+    flex: 1 1 0%;
+    min-width: 0;
+  }
+}
+
+.footer-consent-btn {
+  border: 0;
+  background: none;
+  padding: 0;
+  color: inherit;
+  font: inherit;
+  text-decoration: underline;
+  cursor: pointer;
+}

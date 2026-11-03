@@ -6,6 +6,7 @@ import Footer from '../components/Footer.astro';
 import FaqChat from '../components/FaqChat.astro';
 import BackToTop from '../components/BackToTop.astro';
 import NameReveal from '../components/NameReveal.astro';
+import CookieConsent from '../components/CookieConsent.astro';
 import { url } from '../lib/url';
 
 interface Props {
@@ -70,5 +71,6 @@ const ogImage = new URL(shareImage ? shareImage.src : url('/og-image.jpg'), Astr
     <FaqChat />
     <BackToTop />
     <NameReveal />
+    <CookieConsent />
   </body>
 </html>

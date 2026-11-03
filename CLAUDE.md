@@ -675,6 +675,18 @@ Chủ website yêu cầu dùng Zalo Official Account của Nhà Thuốc Nhật M
   - thời hạn phản hồi yêu cầu của khách.
 - **Bẫy đã gặp khi test trang này:** ô "Mật khẩu" ở `/tai-khoan/` bị mỏng dẹt, vì selector dùng chung `.order input[type=...]` thiếu `password` (cùng họ với bẫy thiếu `email` ở trang giỏ hàng). Đã thêm `.order input[type='password']`.
 
+### Thống kê lượt truy cập và khung xin phép cookie (03/11/2026)
+
+Chủ website muốn xem thống kê lượt truy cập, kèm khung xin phép cookie như Long Châu.
+
+- **Google Analytics 4**, khung xin phép ở `src/components/CookieConsent.astro` (gắn trong `BaseLayout`). Chỉ có khi build có biến `PUBLIC_GA_ID` (mã đo lường dạng `G-XXXXXXX`, công khai, đặt ở Repository variables trên GitHub, `deploy.yml` đã truyền vào). Chưa có biến thì không có khung, không có nút "Cài đặt cookie" ở chân trang, không tải mã Google, trang Chính sách bảo mật cũng ẩn phần nói về Google Analytics.
+- Chỉ có 1 lựa chọn: thống kê. Không có mục "quảng cáo/cá nhân hóa" như Long Châu, vì site không chia sẻ dữ liệu cho mạng quảng cáo. Hai nút "Đồng ý"/"Từ chối" cùng cỡ.
+- **Mã Google chỉ tải SAU khi khách bấm "Đồng ý"** (lựa chọn lưu ở `localStorage`, khóa `duocsithuong-consent-v1`). Từ chối thì không có cookie `_ga`; rút lại đồng ý thì xóa cookie `_ga` và tải lại trang. Khách đổi ý qua nút "Cài đặt cookie" ở chân trang (sự kiện `duocsithuong:open-consent`).
+- Đã tắt Google Signals và cá nhân hóa quảng cáo. Không gửi query của URL cho Google (ví dụ `?ma=` mã đơn ở `/tra-cuu-don-hang/`), trừ `?q=` ở `/tim-kiem/` để biết khách tìm gì. Không thống kê trang `/admin/`.
+- Thêm mã theo dõi khác (Facebook Pixel, quảng cáo Google...) thì phải thêm lựa chọn riêng vào khung này và sửa trang Chính sách bảo mật, không nạp mã trước khi khách đồng ý.
+- Bộ test: case UI-11. `open()` trong `cases.mjs` mặc định đặt sẵn `denied` để khung không che nút ở đáy trang trong các case khác.
+- **Cần chủ website tự làm:** tạo tài khoản ở analytics.google.com → tạo property "Dược Sĩ Thương" (múi giờ Việt Nam, tiền tệ VND) → tạo luồng dữ liệu Web cho `https://duocsithuong.com` → copy Mã đo lường `G-...` → GitHub repo > Settings > Secrets and variables > Actions > Variables, thêm `PUBLIC_GA_ID` → chạy lại deploy. Trong Google Analytics vào Quản trị > Thu thập và sửa đổi dữ liệu > Lưu giữ dữ liệu, chọn **14 tháng** (mặc định chỉ 2 tháng; trang Chính sách bảo mật ghi 14 tháng).
+
 ### Hình ảnh trong bài viết
 
 Mỗi bài nên có **ảnh đại diện** (`cover`) và 1-3 hình minh họa trong nội dung để dễ hình dung.

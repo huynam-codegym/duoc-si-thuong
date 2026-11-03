@@ -6,6 +6,8 @@ import { site } from '../lib/site';
 import { url } from '../lib/url';
 
 const year = new Date().getFullYear();
+// Có thống kê lượt truy cập thì cho khách đổi ý về cookie (xem CookieConsent.astro).
+const hasAnalytics = Boolean(import.meta.env.PUBLIC_GA_ID);
 ---
 
 <footer class="site-footer">
@@ -55,6 +57,9 @@ const year = new Date().getFullYear();
         <li><a href={url('/tim-kiem/')}>Tìm kiếm</a></li>
         <li><a href={url('/tra-cuu-don-hang/')}>Tra cứu đơn hàng</a></li>
         <li><a href={url('/chinh-sach-bao-mat/')}>Chính sách bảo mật</a></li>
+        {hasAnalytics && (
+          <li><button type="button" class="footer-consent-btn" id="openConsent">Cài đặt cookie</button></li>
+        )}
       </ul>
     </div>
   </div>
@@ -64,3 +69,9 @@ const year = new Date().getFullYear();
     <p>© {year} Dược Sĩ Thương. Chia sẻ kiến thức về ăn uống, nhận biết và phòng chống bệnh.</p>
   </div>
 </footer>
+
+<script>
+  document.getElementById('openConsent')?.addEventListener('click', () => {
+    window.dispatchEvent(new CustomEvent('duocsithuong:open-consent'));
+  });
+</script>
