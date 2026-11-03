@@ -223,3 +223,9 @@ Ghi mỗi lần chạy đủ bộ: ngày, số case PASS/FAIL, lỗi đã sửa.
 
 - Chạy toàn bộ trên bản có mã thử `G-TEST123`: 95/96, chỉ UI-11 lỗi do test xóa lựa chọn "Từ chối" mỗi lần tải lại trang (lỗi của test). Đã sửa `open()`, chỉ đặt lựa chọn cookie ở lần tải đầu.
 - Từ đây chỉ chạy lại các case liên quan phần vừa sửa (chủ website yêu cầu): UI-02, UI-03, UI-07, UI-11 trên bản có mã thử đều PASS; UI-07, UI-11 trên bản chưa có `PUBLIC_GA_ID` đều PASS.
+
+### 03/11/2026 — đầu trang dính khi cuộn (điện thoại, máy tính bảng)
+
+- Kiểm tra riêng bằng Puppeteer ở 375, 768, 1024, 1280px: dính đúng dưới 77rem, máy tính không dính, không tràn ngang, menu trái nằm dưới đầu trang, khung gợi ý tìm kiếm ngay dưới ô khi đã cuộn, ngăn kéo menu đè lên nút chat, bấm mục lục không bị che tiêu đề, thu gọn khung trên máy tính bảng không làm nội dung giật.
+- Chạy lại các case liên quan: UI-02, UI-03, NAV, SRC, CART, ACC, PRD — 41/41 PASS.
+

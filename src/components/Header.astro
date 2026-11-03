@@ -684,6 +684,43 @@ const drawerSections: DrawerSection[] = [
   const searchSuggest = document.getElementById('searchSuggest');
   const searchWrap = document.querySelector<HTMLElement>('.search-wrap');
   const siteHeader = document.querySelector<HTMLElement>('.site-header');
+  // Đầu trang dính ở điện thoại/máy tính bảng (CSS @media max-width 76.99rem, cùng mốc isDesktop()):
+  // đo chiều cao gửi cho CSS (--header-offset) để menu trái, mục lục, tóm tắt giỏ hàng dính ngay dưới
+  // và khi bấm mục lục không bị che tiêu đề; thêm .is-stuck khi đã cuộn để máy tính bảng thu gọn khung.
+  if (siteHeader) {
+    const mobileLayout = window.matchMedia('(max-width: 76.99rem)');
+    const setOffset = () => {
+      const h = mobileLayout.matches ? siteHeader.offsetHeight : 0;
+      document.documentElement.style.setProperty('--header-offset', h + 'px');
+    };
+    // Bật/tắt có khoảng đệm (bật khi cuộn quá 120px, tắt khi về dưới 40px): khung thu gọn làm trang
+    // ngắn lại, nếu chỉ dùng 1 mốc thì cuộn sát mốc đó sẽ nhảy qua lại liên tục.
+    // Khung thu gọn thấp hơn, nên bù phần chênh bằng margin-bottom để chỗ chiếm trong trang giữ nguyên,
+    // nội dung bên dưới không bị giật lên (Safari trên iPad không tự bù như Chrome).
+    const setStuck = () => {
+      const y = window.scrollY;
+      const stuck = siteHeader.classList.contains('is-stuck');
+      if (y > 120 && !stuck) {
+        const full = siteHeader.offsetHeight;
+        siteHeader.classList.add('is-stuck');
+        siteHeader.style.marginBottom = full - siteHeader.offsetHeight + 'px';
+      } else if (y < 40 && stuck) {
+        siteHeader.classList.remove('is-stuck');
+        siteHeader.style.marginBottom = '';
+      }
+    };
+    new ResizeObserver(setOffset).observe(siteHeader);
+    mobileLayout.addEventListener('change', setOffset);
+    // Xoay máy/đổi cỡ cửa sổ thì chiều cao 2 kiểu khung đổi theo: tính lại phần bù từ đầu.
+    window.addEventListener('resize', () => {
+      siteHeader.classList.remove('is-stuck');
+      siteHeader.style.marginBottom = '';
+      setStuck();
+    });
+    window.addEventListener('scroll', setStuck, { passive: true });
+    setOffset();
+    setStuck();
+  }
   if (searchInput && searchSuggest) {
     // .search-suggest nằm ngoài .header-main (xem lý do trong CSS) nên phải tự tính toạ độ theo
     // .site-header (điểm neo position:relative) thay vì dựa vào CSS top/left cố định.

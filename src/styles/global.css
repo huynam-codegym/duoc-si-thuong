@@ -21,6 +21,9 @@
 }
 
 html {
+  /* Chiều cao đầu trang dính (điện thoại/máy tính bảng), do Header.astro đo và đặt; máy tính = 0 */
+  --header-offset: 0px;
+  scroll-padding-top: var(--header-offset);
   font-size: 112.5%; /* 18px: chữ lớn cho người lớn tuổi */
   -webkit-text-size-adjust: 100%;
 }
@@ -986,7 +989,7 @@ p.faq-chat-bubble {
 
 .admin-product-list-wrap {
   position: sticky;
-  top: 1rem;
+  top: calc(var(--header-offset) + 1rem);
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
@@ -1077,7 +1080,7 @@ p.faq-chat-bubble {
 
 .admin-product-preview {
   position: sticky;
-  top: 1rem;
+  top: calc(var(--header-offset) + 1rem);
 }
 
 .admin-product-preview h2 {
@@ -1803,7 +1806,7 @@ p.faq-chat-bubble {
 
   .shop-side {
     position: sticky;
-    top: 1rem;
+    top: calc(var(--header-offset) + 1rem);
     /* `position: sticky` tự tạo NGỮ CẢNH XẾP LỚP (stacking context) riêng cho .shop-side, nên
        z-index:60 của .shop-flyout bên trong chỉ so được với các phần tử KHÁC CŨNG Ở TRONG
        .shop-side — không so được với .shop-main (thẻ sản phẩm) nằm ngoài. Kết quả: nhóm cha nào
@@ -3408,7 +3411,7 @@ button.btn:not(.btn-outline) {
 
   .checkout-summary {
     position: sticky;
-    top: 1rem;
+    top: calc(var(--header-offset) + 1rem);
   }
 }
 
@@ -4218,7 +4221,7 @@ body.has-sticky-bar .faq-chat-toggle {
 
   .detail-nav {
     position: sticky;
-    top: 1rem;
+    top: calc(var(--header-offset) + 1rem);
   }
 
   .detail-nav ul {
@@ -6706,4 +6709,40 @@ body.has-sticky-bar .faq-chat-toggle {
   font: inherit;
   text-decoration: underline;
   cursor: pointer;
+}
+
+/* Đầu trang dính trên cùng khi cuộn, chỉ ở điện thoại/máy tính bảng (dưới 77rem, cùng mốc ẩn thanh
+   menu ngang). Điện thoại: 1 hàng nút 3 gạch + ô tìm kiếm + giỏ hàng. Máy tính bảng: hàng logo + giỏ
+   hàng và hàng ô tìm kiếm; khi đã cuộn thì ẩn logo, đưa ô tìm kiếm lên cùng hàng để khung dính gọn,
+   đỡ chiếm màn hình. Máy tính giữ nguyên (đầu trang cao, có thanh menu, không dính).
+   z-index 80: dưới nút chat nổi (90), khung cookie (150); nhưng ngăn kéo menu và khung đăng nhập nằm
+   TRONG header (position: sticky tạo ngữ cảnh xếp lớp riêng), nên khi chúng mở thì nâng cả header lên. */
+@media (max-width: 76.99rem) {
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: 80;
+  }
+
+  .site-header:has(.mobile-drawer:not([hidden]), .account-modal:not([hidden])) {
+    z-index: 400;
+  }
+}
+
+@media (min-width: 30.01rem) and (max-width: 76.99rem) {
+  .site-header.is-stuck .header-main {
+    flex-wrap: nowrap;
+    align-items: center;
+    padding-block: 0.5rem;
+  }
+
+  .site-header.is-stuck .header-main .brand {
+    display: none;
+  }
+
+  .site-header.is-stuck .search-wrap {
+    order: 2;
+    flex: 1 1 0%;
+    min-width: 0;
+  }
 }
