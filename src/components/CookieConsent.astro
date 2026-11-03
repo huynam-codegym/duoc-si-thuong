@@ -106,7 +106,9 @@ const gaId = import.meta.env.PUBLIC_GA_ID;
       box.hidden = true;
       if (value === 'granted') loadAnalytics();
       else if (loaded) {
-        // Đã tải mã Google trong trang này: tải lại để dừng hẳn việc gửi dữ liệu.
+        // Đã tải mã Google trong trang này: tắt nó trước, nếu không nó ghi lại cookie _ga_<mã> ngay
+        // lúc rời trang, rồi tải lại để dừng hẳn việc gửi dữ liệu.
+        (window as unknown as Record<string, boolean>)[`ga-disable-${gaId}`] = true;
         removeAnalyticsCookies();
         window.location.reload();
       } else removeAnalyticsCookies();
