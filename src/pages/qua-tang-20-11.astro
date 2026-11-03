@@ -1,0 +1,74 @@
+---
+// Trang chương trình "Quà tặng 20.11": mở ra khi bấm "Mua ngay" ở banner trang chủ (xem src/lib/campaign.ts).
+// Mỗi nhóm quà là 1 mục có id (#suc-khoe...), dải nút ở đầu trang để nhảy nhanh giữa các nhóm.
+import BaseLayout from '../layouts/BaseLayout.astro';
+import CampaignBanner from '../components/CampaignBanner.astro';
+import ProductCard from '../components/ProductCard.astro';
+import { CAMPAIGN, getCampaignGroups } from '../lib/campaign';
+import { url } from '../lib/url';
+
+const groups = await getCampaignGroups();
+const endDate = new Date(CAMPAIGN.endsAt);
+endDate.setTime(endDate.getTime() - 1);
+const endLabel = endDate.toLocaleDateString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh', day: '2-digit', month: '2-digit', year: 'numeric' });
+---
+
+<BaseLayout
+  title={`${CAMPAIGN.title}: ${CAMPAIGN.headline}`}
+  description="Gợi ý quà tặng 20.11 tri ân thầy cô: thực phẩm bảo vệ sức khỏe, dược mỹ phẩm và sản phẩm chăm sóc cá nhân chính hãng, do Nhà Thuốc Nhật Minh giới thiệu và bán."
+>
+  <div class="container">
+    <CampaignBanner compact />
+
+    <p class="campaign-ended" id="campaignEnded" hidden>
+      Chương trình {CAMPAIGN.title} đã kết thúc ngày {endLabel}. Bạn vẫn mua được các sản phẩm dưới đây theo giá đang bán.
+    </p>
+
+    <nav class="campaign-nav" aria-label="Nhóm quà tặng">
+      {groups.map((group) => <a href={`#${group.id}`}>{group.name}</a>)}
+    </nav>
+
+    {
+      groups.map((group) => (
+        <section class="campaign-section" id={group.id} aria-labelledby={`${group.id}-title`}>
+          <h2 class="section-title" id={`${group.id}-title`}>{group.name}</h2>
+          <div class="carousel carousel-wide">
+            <div class="carousel-track">
+              {group.products.map((product) => (
+                <div class="carousel-item">
+                  <ProductCard product={product} />
+                </div>
+              ))}
+            </div>
+          </div>
+          {group.products.length > 12 && (
+            <p class="carousel-more">
+              <button type="button" class="btn btn-outline carousel-more-btn">Xem thêm sản phẩm</button>
+            </p>
+          )}
+        </section>
+      ))
+    }
+
+    <div class="campaign-notes">
+      <p>
+        Giá và mức giảm là giá đang bán trên website, có thể thay đổi; nhà thuốc sẽ xác nhận lại khi gọi cho bạn.
+        Miễn phí giao hàng cho đơn từ 350.000đ.
+      </p>
+      <p>
+        Thực phẩm bảo vệ sức khỏe không phải là thuốc và không có tác dụng thay thế thuốc chữa bệnh. Khi tặng quà cho
+        người đang dùng thuốc, phụ nữ có thai hoặc cho con bú, người có bệnh nền, nên hỏi ý kiến bác sĩ hoặc dược sĩ trước.
+        Cần tư vấn chọn quà? <a href={url('/gioi-thieu/')}>Liên hệ dược sĩ Thương</a>.
+      </p>
+    </div>
+  </div>
+</BaseLayout>
+
+<script>
+  import { initProductLoadMoreGrids } from '../lib/product-grid';
+  initProductLoadMoreGrids();
+  const banner = document.querySelector<HTMLElement>('.campaign[data-campaign-ends]');
+  if (banner && Date.now() >= Date.parse(banner.dataset.campaignEnds!)) {
+    document.getElementById('campaignEnded')!.hidden = false;
+  }
+</script>

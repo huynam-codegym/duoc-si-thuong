@@ -73,6 +73,7 @@ const browser = await puppeteer.launch({
   args: ['--hide-scrollbars'],
 });
 const VP = { desktop: { width: 1280, height: 900 }, mobile: { width: 375, height: 812 } };
+const VP_W = { desktop: 1280, mobile: 375 };
 const CORS = { 'access-control-allow-origin': '*', 'access-control-allow-headers': '*', 'access-control-allow-methods': 'GET,POST,PATCH,DELETE,OPTIONS' };
 
 /** Mở trang mới với Supabase giả lập. `mock(url, req)` trả {status, body} hoặc undefined (dùng mặc định). */
@@ -566,6 +567,31 @@ await tc('PRD-08', 'Nhãn xuất xứ và "-X%" không chồng nhau, không đè
   });
   await close();
   return verdict([...new Set(bad)]);
+});
+await tc('PRD-13', 'Banner Quà tặng 20.11: Mua ngay mở đúng nhóm quà, giá đúng sản phẩm thật', async () => {
+  const bad = [];
+  const home = fs.readFileSync(path.join(path.resolve(distDir), 'index.html'), 'utf8');
+  if (!home.includes('class="campaign')) return verdict(bad, 'chương trình đã hết hạn lúc build, banner không dựng (đúng)');
+  for (const vp of ['desktop', 'mobile']) {
+    const { page, close } = await open(vp);
+    await go(page, '/');
+    const tiles = await page.$$eval('.campaign-tile', (as) => as.map((a) => a.getAttribute('href')));
+    if (tiles.length !== 4) bad.push(vp + ': có ' + tiles.length + ' ô nhóm quà');
+    const sw = await page.evaluate(() => document.documentElement.scrollWidth);
+    if (sw > VP_W[vp]) bad.push(vp + ': banner làm tràn ngang');
+    await Promise.all([page.waitForNavigation({ waitUntil: 'networkidle0' }), page.click('.campaign-tile[href$="#sac-dep"]')]);
+    const r = await page.evaluate(() => {
+      const sec = document.getElementById('sac-dep');
+      return { hash: location.hash, cards: sec?.querySelectorAll('.product-card').length ?? 0, top: Math.round(sec?.getBoundingClientRect().top ?? -1), header: Math.round(document.querySelector('.site-header').getBoundingClientRect().bottom) };
+    });
+    if (r.hash !== '#sac-dep' || r.cards === 0) bad.push(vp + ': Mua ngay không mở đúng nhóm sắc đẹp');
+    if (r.top < Math.max(0, r.header) - 2) bad.push(vp + ': tiêu đề nhóm bị đầu trang che');
+    // Giá trên trang chương trình phải khớp giá thật của sản phẩm
+    const prices = await page.$$eval('#sac-dep .product-card', (cs) => cs.map((c) => [c.querySelector('a.product-link').getAttribute('href').split('/')[2], c.querySelector('.product-price')?.textContent ?? '']));
+    for (const [slug, text] of prices) if (catalog[slug] && vndNum(text) !== catalog[slug].price) bad.push(vp + ': giá ' + slug + ' sai');
+    await close();
+  }
+  return verdict(bad);
 });
 await tc('PRD-12', 'Rê chuột hiện đủ tên sản phẩm bị cắt, không xô lệch thẻ', async () => {
   const bad = [];

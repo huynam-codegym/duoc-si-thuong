@@ -676,6 +676,17 @@ Chủ website yêu cầu dùng Zalo Official Account của Nhà Thuốc Nhật M
   - thời hạn phản hồi yêu cầu của khách.
 - **Bẫy đã gặp khi test trang này:** ô "Mật khẩu" ở `/tai-khoan/` bị mỏng dẹt, vì selector dùng chung `.order input[type=...]` thiếu `password` (cùng họ với bẫy thiếu `email` ở trang giỏ hàng). Đã thêm `.order input[type='password']`.
 
+### Chương trình "Quà tặng 20.11" (03/11/2026)
+
+Chủ website gửi mẫu banner Long Châu (bảng phấn "Tri ân thầy cô" + 4 ô nhóm quà, mỗi ô có nút "Mua ngay" mở trang sản phẩm của chương trình).
+
+- Dữ liệu ở `src/lib/campaign.ts` (tiêu đề, ngày kết thúc `endsAt`, 4 nhóm quà và danh sách slug sản phẩm). Banner `src/components/CampaignBanner.astro` hiện ở trang chủ, ngay dưới dải "Liên hệ nhanh". Bấm "Mua ngay" mở `/qua-tang-20-11/#<nhóm>` (`src/pages/qua-tang-20-11.astro`), trang này dùng lại `ProductCard` và lưới `.carousel-wide`.
+- Banner dựng bằng HTML/CSS (không phải ảnh), dùng ảnh sản phẩm thật của site; 3 sản phẩm đầu mỗi nhóm là ảnh trong ô. Không có logo Long Châu.
+- **Không bịa khuyến mãi:** không đặt giảm giá riêng. "Giảm đến X%" tự tính từ `originalPrice` thật của sản phẩm trong chương trình (`maxCampaignDiscount()`); "Miễn phí giao hàng đơn từ 350.000đ" lấy từ `FREE_SHIPPING_THRESHOLD`. Không ghi "Freeship tận nhà" vô điều kiện như mẫu. Trang chương trình có dòng "Thực phẩm bảo vệ sức khỏe không phải là thuốc..." và lưu ý hỏi bác sĩ/dược sĩ khi tặng cho người có bệnh nền, phụ nữ có thai/cho con bú.
+- 4 nhóm do tôi chọn tạm từ sản phẩm có sẵn: Sức khỏe, Sắc đẹp, Xương khớp, Chăm sóc cá nhân (mẫu Long Châu có "Sâm, Yến" và "Thư giãn" nhưng site chưa có sản phẩm hợp). Chủ website đổi nhóm/sản phẩm thì sửa `campaign.ts`.
+- **Hết hạn:** sau 20/11/2026 (giờ Việt Nam) banner trang chủ tự ẩn ở trình duyệt; lần build sau thì không dựng nữa. Trang `/qua-tang-20-11/` vẫn còn, hiện dòng "Chương trình đã kết thúc". Dùng lại cho dịp khác: đổi `CAMPAIGN` và nhóm trong `campaign.ts` (slug trang đổi thì đổi tên file trang).
+- Bộ test: case PRD-13.
+
 ### Thống kê lượt truy cập và khung xin phép cookie (03/11/2026)
 
 Chủ website muốn xem thống kê lượt truy cập, kèm khung xin phép cookie như Long Châu.

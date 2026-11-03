@@ -82,6 +82,7 @@ Vòng lặp:
 | PRD-10 | Đánh giá khi chưa có dữ liệu | Hiện "Chưa có đánh giá nào"; dòng tóm tắt sao cạnh tên sản phẩm ẩn | T |
 | PRD-11 | Bấm "Viết đánh giá"/gửi bình luận khi chưa đăng nhập | Mở khung đăng nhập nổi | T |
 | PRD-12 | Rê chuột vào sản phẩm có tên bị cắt "…" (thẻ sản phẩm, kết quả tìm kiếm) | Hiện đủ tên, thẻ không đổi chiều cao, khung tên không tràn màn hình, cuộn trang thì ẩn; chạm tay trên điện thoại không bật khung | T |
+| PRD-13 | Banner "Quà tặng 20.11" ở trang chủ (khi chương trình còn hạn lúc build) | Có 4 ô nhóm quà, không tràn ngang; bấm "Mua ngay" ô Sắc đẹp mở `/qua-tang-20-11/#sac-dep`, nhóm có sản phẩm, tiêu đề không bị đầu trang che, giá khớp giá thật | T |
 
 ## 5. Giỏ hàng (CART)
 
@@ -228,4 +229,9 @@ Ghi mỗi lần chạy đủ bộ: ngày, số case PASS/FAIL, lỗi đã sửa.
 
 - Kiểm tra riêng bằng Puppeteer ở 375, 768, 1024, 1280px: dính đúng dưới 77rem, máy tính không dính, không tràn ngang, menu trái nằm dưới đầu trang, khung gợi ý tìm kiếm ngay dưới ô khi đã cuộn, ngăn kéo menu đè lên nút chat, bấm mục lục không bị che tiêu đề, thu gọn khung trên máy tính bảng không làm nội dung giật.
 - Chạy lại các case liên quan: UI-02, UI-03, NAV, SRC, CART, ACC, PRD — 41/41 PASS.
+
+### 03/11/2026 — chương trình "Quà tặng 20.11"
+
+- Kiểm tra riêng bằng Puppeteer ở 1280, 768, 375px: banner trang chủ không tràn ngang, ảnh không vỡ; "Mua ngay" mở đúng nhóm, tiêu đề nhóm không bị đầu trang che; trang có đúng 1 `<h1>`; không lỗi JS.
+- Chạy lại các case liên quan: UI, SEO, PRD-13 (mới) — 17/17 PASS.
 

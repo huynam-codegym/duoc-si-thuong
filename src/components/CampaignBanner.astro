@@ -1,0 +1,94 @@
+---
+// Banner chương trình "Quà tặng 20.11" (xem src/lib/campaign.ts). Dựng bằng HTML/CSS, không phải 1 ảnh
+// tĩnh: chữ luôn nét và đọc được bằng trình đọc màn hình, giá/mức giảm tự đúng theo sản phẩm thật.
+// - Mặc định (trang chủ): bảng phấn bên trái + 4 ô nhóm quà, mỗi ô 3 ảnh sản phẩm và nút "Mua ngay".
+// - compact (đầu trang /qua-tang-20-11/): chỉ dải bảng phấn, không có ô.
+import { Image, getImage } from 'astro:assets';
+import logo from '../assets/logo.jpg';
+import { CAMPAIGN, getCampaignGroups, maxCampaignDiscount } from '../lib/campaign';
+import { FREE_SHIPPING_THRESHOLD } from '../lib/cart';
+import { formatPrice } from '../lib/products';
+import { url } from '../lib/url';
+
+interface Props {
+  compact?: boolean;
+}
+
+const { compact = false } = Astro.props;
+const groups = await getCampaignGroups();
+const maxDiscount = maxCampaignDiscount(groups);
+const pageUrl = url(`/${CAMPAIGN.slug}/`);
+const tiles = compact
+  ? []
+  : await Promise.all(
+      groups.map(async (group) => ({
+        ...group,
+        thumbs: await Promise.all(
+          group.products.slice(0, 3).map(async (p) => ({
+            src: (await getImage({ src: p.data.image, width: 220, height: 220, fit: 'contain', background: '#ffffff', format: 'webp' })).src,
+            alt: p.data.name,
+          })),
+        ),
+      })),
+    );
+const Heading = compact ? 'h1' : 'h2';
+---
+
+<section class:list={['campaign', { 'campaign-compact': compact }]} aria-labelledby="campaignTitle" data-campaign-ends={CAMPAIGN.endsAt}>
+  <div class="campaign-board">
+    <svg class="campaign-doodle campaign-doodle-plane" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11 21 4l-6 16-3-7-9-2Z M12 13l9-9" /></svg>
+    <svg class="campaign-doodle campaign-doodle-star" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v6M12 15v6M3 12h6M15 12h6" /></svg>
+    <svg class="campaign-doodle campaign-doodle-note" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18V5l11-2v13 M9 18a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z M20 16a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /></svg>
+    <p class="campaign-brand">
+      <Image src={logo} alt="" width={64} height={64} class="campaign-brand-logo" />
+      <span>Dược Sĩ Thương</span>
+    </p>
+    <p class="campaign-tag">{CAMPAIGN.title}</p>
+    <Heading class="campaign-title" id="campaignTitle">
+      {/* Xuống dòng ngay sau dấu phẩy, không để trình duyệt ngắt giữa cụm "tri ân" */}
+      {CAMPAIGN.headline.split(', ').map((part, i, all) => <span class="campaign-title-line">{part}{i < all.length - 1 && ','}</span>)}
+    </Heading>
+    <ul class="campaign-badges">
+      {
+        maxDiscount !== undefined && (
+          <li class="campaign-badge">
+            <span>Giảm đến</span>
+            <strong>{maxDiscount}%</strong>
+          </li>
+        )
+      }
+      <li class="campaign-badge">
+        <span>Miễn phí giao hàng</span>
+        <strong class="campaign-badge-small">đơn từ {formatPrice(FREE_SHIPPING_THRESHOLD)}</strong>
+      </li>
+    </ul>
+    {!compact && <a class="campaign-board-cta" href={pageUrl}>Xem tất cả quà tặng</a>}
+  </div>
+
+  {
+    !compact && (
+      <ul class="campaign-tiles">
+        {tiles.map((tile) => (
+          <li>
+            <a class="campaign-tile" href={`${pageUrl}#${tile.id}`}>
+              <h3>{tile.name}</h3>
+              <span class="campaign-thumbs">
+                {tile.thumbs.map((t) => (
+                  <img src={t.src} alt={t.alt} width="220" height="220" loading="lazy" decoding="async" />
+                ))}
+              </span>
+              <span class="campaign-buy">Mua ngay</span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    )
+  }
+</section>
+
+<script>
+  // Trang tĩnh chỉ build lại khi có thay đổi, nên tự ẩn banner ở trang chủ khi chương trình đã hết hạn.
+  document.querySelectorAll<HTMLElement>('.campaign:not(.campaign-compact)[data-campaign-ends]').forEach((el) => {
+    if (Date.now() >= Date.parse(el.dataset.campaignEnds!)) el.hidden = true;
+  });
+</script>
