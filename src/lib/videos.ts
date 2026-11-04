@@ -20,6 +20,8 @@
  * nhờ chủ website xác nhận lại đúng nội dung video khi có dịp.
  */
 import reelDuocSiThuong1 from '../assets/videos/reel-duoc-si-thuong-1.jpg';
+// Ảnh bìa tự dựng từ 1 khung hình thật của video (giây 5,5) + tiêu đề, che dòng chữ gốc trong video.
+import top6VitaminD from '../assets/videos/top-6-thuc-pham-giau-vitamin-d.jpg';
 
 export interface VideoItem {
   title: string;
@@ -31,6 +33,12 @@ export interface VideoItem {
 }
 
 export const videos: VideoItem[] = [
+  {
+    // Video chủ website gửi 04/11/2026 (16 giây, 1080x1920, 3,9MB)
+    title: 'Top 6 thực phẩm giàu vitamin D cho bé',
+    src: '/videos/trang-chu/top-6-thuc-pham-giau-vitamin-d.mp4',
+    thumbnail: top6VitaminD,
+  },
   {
     title: 'Dược sĩ Thương chia sẻ kiến thức sức khỏe',
     url: 'https://www.facebook.com/reel/2111457869732557',
