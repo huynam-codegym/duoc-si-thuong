@@ -13,13 +13,9 @@
  * - title: tiêu đề ngắn hiện dưới ảnh
  *
  * Lưu ý về `thumbnail`: Facebook (và hầu hết mạng xã hội) không cho lấy ảnh đại diện video qua công cụ
- * tự động (cần đăng nhập, link ảnh cũng hết hạn) nên KHÔNG dùng ảnh thật của video làm thumbnail ở đây —
- * video "reel-duoc-si-thuong-1" bên dưới đang dùng ảnh đại diện tự thiết kế (nền xanh lá, biểu tượng Play)
- * thay cho ảnh cắt từ video thật. Muốn hiện đúng khung hình đầu video, gửi cho Claude 1 ảnh chụp màn hình
- * video đó (tỷ lệ dọc) để thay vào. Tiêu đề "Dược sĩ Thương chia sẻ kiến thức sức khỏe" là tên tạm đặt,
- * nhờ chủ website xác nhận lại đúng nội dung video khi có dịp.
+ * tự động (cần đăng nhập, link ảnh cũng hết hạn). Với video có file (`src`), dựng ảnh bìa từ 1 khung hình
+ * thật của chính file đó.
  */
-import reelDuocSiThuong1 from '../assets/videos/reel-duoc-si-thuong-1.jpg';
 // Ảnh bìa tự dựng từ 1 khung hình thật của video (giây 5,5) + tiêu đề, che dòng chữ gốc trong video.
 import top6VitaminD from '../assets/videos/top-6-thuc-pham-giau-vitamin-d.jpg';
 
@@ -38,10 +34,5 @@ export const videos: VideoItem[] = [
     title: 'Top 6 thực phẩm giàu vitamin D cho bé',
     src: '/videos/trang-chu/top-6-thuc-pham-giau-vitamin-d.mp4',
     thumbnail: top6VitaminD,
-  },
-  {
-    title: 'Dược sĩ Thương chia sẻ kiến thức sức khỏe',
-    url: 'https://www.facebook.com/reel/2111457869732557',
-    thumbnail: reelDuocSiThuong1,
   },
 ];
