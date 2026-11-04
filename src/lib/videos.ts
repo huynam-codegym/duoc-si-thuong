@@ -1,10 +1,14 @@
 /**
  * Video ngắn hiện ở trang chủ (mục "Video ngắn", chủ website yêu cầu tháng 9/2026, kiểu video ngắn/reels
- * của các nhà thuốc trực tuyến khác). Không tự dựng video; chỉ nhúng liên kết tới video CÓ THẬT
- * (Zalo, Facebook, YouTube...). Mảng rỗng thì cả mục tự ẩn trên trang chủ (xem `src/pages/index.astro`).
+ * của các nhà thuốc trực tuyến khác). Không tự dựng video; chỉ dùng video CÓ THẬT của chủ website.
+ * Mảng rỗng thì cả mục tự ẩn trên trang chủ (xem `src/pages/index.astro`).
  *
- * Thêm một video: thêm một phần tử vào mảng bên dưới.
- * - url: liên kết tới video thật (mở tab mới khi bấm vào)
+ * Thêm một video: thêm một phần tử vào mảng bên dưới, có `src` HOẶC `url`:
+ * - src: file video tự tải lên, PHÁT NGAY TRÊN TRANG (khung xem video nổi, tháng 11/2026 chủ website yêu
+ *   cầu thay cho mở Facebook). Đặt file .mp4 (H.264) trong public/videos/trang-chu/, ghi đường dẫn bắt đầu
+ *   bằng `/videos/...`. Nên nén dưới ~20MB/video (giống video sản phẩm) vì site chạy trên GitHub Pages,
+ *   file trên 100MB không đẩy lên được.
+ * - url: liên kết tới video ở nơi khác (Facebook, YouTube...), bấm vào mở tab mới. Chỉ dùng khi chưa có file.
  * - thumbnail: ảnh đại diện video, đặt trong src/assets/videos/, tỷ lệ dọc 9:16 giống ảnh reels
  * - title: tiêu đề ngắn hiện dưới ảnh
  *
@@ -19,7 +23,10 @@ import reelDuocSiThuong1 from '../assets/videos/reel-duoc-si-thuong-1.jpg';
 
 export interface VideoItem {
   title: string;
-  url: string;
+  /** File video trong public/, phát ngay trên trang. */
+  src?: `/videos/${string}`;
+  /** Liên kết ra ngoài (Facebook...), chỉ dùng khi không có `src`. */
+  url?: string;
   thumbnail: ImageMetadata;
 }
 

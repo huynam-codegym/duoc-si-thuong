@@ -5373,6 +5373,78 @@ body.has-sticky-bar .faq-chat-toggle {
   text-decoration: none;
 }
 
+/* Thẻ video phát trên trang là <button>: bỏ kiểu nút mặc định để giống hệt thẻ liên kết */
+.video-track button.video-card {
+  /* nút tự canh nội dung vào giữa theo chiều dọc: ép bắt đầu từ trên như thẻ liên kết */
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.video-card:focus-visible .video-thumb {
+  outline: 3px solid var(--green-700);
+  outline-offset: 2px;
+}
+
+/* Khung xem video nổi (VideoSection.astro). <dialog> mở bằng showModal() nằm ở lớp trên cùng,
+   không cần z-index. */
+.video-dialog {
+  width: min(24rem, calc(100vw - 2rem));
+  max-width: none;
+  max-height: none;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  overflow: visible;
+}
+
+.video-dialog::backdrop {
+  background: rgb(0 0 0 / 0.8);
+}
+
+.video-dialog-box {
+  position: relative;
+}
+
+.video-dialog-player {
+  display: block;
+  width: 100%;
+  max-height: calc(100dvh - 7rem);
+  aspect-ratio: 9 / 16;
+  border-radius: var(--radius);
+  background: #000;
+}
+
+.video-dialog-title {
+  margin: 0.6rem 0 0;
+  color: #fff;
+  font-weight: 600;
+  text-align: center;
+}
+
+.video-dialog-close {
+  position: absolute;
+  top: -0.6rem;
+  right: -0.6rem;
+  z-index: 1;
+  width: 2.4rem;
+  height: 2.4rem;
+  border: 0;
+  border-radius: 50%;
+  background: #fff;
+  color: #111;
+  font-size: 1.1rem;
+  line-height: 1;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgb(0 0 0 / 0.3);
+}
+
 .video-thumb {
   position: relative;
   display: block;
