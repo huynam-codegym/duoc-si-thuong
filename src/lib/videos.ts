@@ -18,6 +18,7 @@
  */
 // Ảnh bìa tự dựng từ 1 khung hình thật của video (giây 5,5) + tiêu đề, che dòng chữ gốc trong video.
 import top6VitaminD from '../assets/videos/top-6-thuc-pham-giau-vitamin-d.jpg';
+import top6SunTangTruong from '../assets/videos/top-6-mon-an-tot-cho-sun-tang-truong.jpg';
 
 export interface VideoItem {
   title: string;
@@ -29,6 +30,12 @@ export interface VideoItem {
 }
 
 export const videos: VideoItem[] = [
+  {
+    // Video chủ website gửi 04/11/2026 (28 giây, 1080x1920, 8,8MB)
+    title: 'Top 6 món ăn tốt cho sụn tăng trưởng của bé',
+    src: '/videos/trang-chu/top-6-mon-an-tot-cho-sun-tang-truong.mp4',
+    thumbnail: top6SunTangTruong,
+  },
   {
     // Video chủ website gửi 04/11/2026 (16 giây, 1080x1920, 3,9MB)
     title: 'Top 6 thực phẩm giàu vitamin D cho bé',
