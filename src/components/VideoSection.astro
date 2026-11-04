@@ -110,7 +110,7 @@ const hasPlayer = items.some((video) => video.src);
     const small = matchMedia('(max-width: 76.99rem)');
     const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)');
     const cards = track.querySelectorAll<HTMLElement>('.video-card');
-    const STEP_MS = 3500;
+    const STEP_MS = 2500;
     let onScreen = false;
     let pausedUntil = 0;
     new IntersectionObserver(([entry]) => (onScreen = entry.isIntersecting), { threshold: 0.5 }).observe(track);
