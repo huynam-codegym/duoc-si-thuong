@@ -102,6 +102,31 @@ const hasPlayer = items.some((video) => video.src);
     track.addEventListener('scroll', update, { passive: true });
     new ResizeObserver(update).observe(track);
     update();
+
+    // Điện thoại/máy tính bảng (dưới 77rem, cùng mốc "máy tính" của toàn site): không có nút (CSS ẩn),
+    // hàng video tự trượt lần lượt từng video, hết thì quay về đầu. Khách chạm/vuốt thì dừng, 6 giây
+    // sau mới chạy tiếp. Không chạy khi khung không nằm trên màn hình, đang xem video, hoặc máy bật
+    // "giảm chuyển động".
+    const small = matchMedia('(max-width: 76.99rem)');
+    const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)');
+    const cards = track.querySelectorAll<HTMLElement>('.video-card');
+    const STEP_MS = 3500;
+    let onScreen = false;
+    let pausedUntil = 0;
+    new IntersectionObserver(([entry]) => (onScreen = entry.isIntersecting), { threshold: 0.5 }).observe(track);
+    const pause = () => (pausedUntil = Date.now() + 6000);
+    ['pointerdown', 'touchstart', 'wheel', 'focusin'].forEach((type) =>
+      track.addEventListener(type, pause, { passive: true }),
+    );
+    setInterval(() => {
+      if (!small.matches || reduceMotion.matches || !onScreen || document.hidden || cards.length < 2) return;
+      if (Date.now() < pausedUntil || document.querySelector<HTMLDialogElement>('#videoDialog')?.open) return;
+      const max = track.scrollWidth - track.clientWidth;
+      if (max <= 2) return;
+      const step = cards[1].offsetLeft - cards[0].offsetLeft;
+      if (track.scrollLeft >= max - 2) track.scrollTo({ left: 0, behavior: 'smooth' });
+      else track.scrollBy({ left: step, behavior: 'smooth' });
+    }, STEP_MS);
   }
 
   const dialog = document.getElementById('videoDialog') as HTMLDialogElement | null;

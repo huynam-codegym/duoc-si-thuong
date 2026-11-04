@@ -5403,6 +5403,13 @@ body.has-sticky-bar .faq-chat-toggle {
   display: none;
 }
 
+/* điện thoại/máy tính bảng: không có nút, hàng video tự trượt (script VideoSection) */
+@media (max-width: 76.99rem) {
+  .video-nav-btn {
+    display: none;
+  }
+}
+
 .video-nav-prev {
   left: 0.4rem;
 }
