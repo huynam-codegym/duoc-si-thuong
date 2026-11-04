@@ -21,8 +21,15 @@ const items = await Promise.all(
 const hasPlayer = items.some((video) => video.src);
 ---
 
-<section aria-labelledby="video-ngan">
-  <h2 class="section-title" id="video-ngan">Video ngắn</h2>
+<section aria-labelledby="video-ngan" class="video-section">
+  <div class="video-section-head">
+    <h2 class="section-title" id="video-ngan">Video ngắn</h2>
+    {/* Khung cuộn ẩn thanh cuộn, máy tính dùng chuột không vuốt được: 2 nút cuộn, tự ẩn khi đủ chỗ */}
+    <div class="video-nav" hidden>
+      <button type="button" class="video-nav-btn" data-video-scroll="-1" aria-label="Xem video trước">‹</button>
+      <button type="button" class="video-nav-btn" data-video-scroll="1" aria-label="Xem video tiếp theo">›</button>
+    </div>
+  </div>
   <div class="carousel">
     <div class="carousel-track video-track">
       {
@@ -72,6 +79,26 @@ const hasPlayer = items.some((video) => video.src);
 }
 
 <script>
+  const track = document.querySelector<HTMLElement>('.video-track');
+  const nav = document.querySelector<HTMLElement>('.video-nav');
+  if (track && nav) {
+    const [prev, next] = nav.querySelectorAll<HTMLButtonElement>('.video-nav-btn');
+    const update = () => {
+      const max = track.scrollWidth - track.clientWidth;
+      nav.hidden = max <= 2;
+      prev.disabled = track.scrollLeft <= 2;
+      next.disabled = track.scrollLeft >= max - 2;
+    };
+    nav.querySelectorAll<HTMLButtonElement>('[data-video-scroll]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        track.scrollBy({ left: Number(btn.dataset.videoScroll) * track.clientWidth * 0.8, behavior: 'smooth' });
+      });
+    });
+    track.addEventListener('scroll', update, { passive: true });
+    new ResizeObserver(update).observe(track);
+    update();
+  }
+
   const dialog = document.getElementById('videoDialog') as HTMLDialogElement | null;
   if (dialog) {
     const player = dialog.querySelector('video')!;

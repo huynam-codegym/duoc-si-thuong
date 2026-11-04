@@ -21,6 +21,10 @@ import top6VitaminD from '../assets/videos/top-6-thuc-pham-giau-vitamin-d.jpg';
 import top6SunTangTruong from '../assets/videos/top-6-mon-an-tot-cho-sun-tang-truong.jpg';
 import top6Magie from '../assets/videos/top-6-thuc-pham-giau-magie.jpg';
 import top6LoaiQua from '../assets/videos/top-6-loai-qua-tot-cho-be.jpg';
+import top6LoaiHat from '../assets/videos/top-6-loai-hat-dinh-duong.jpg';
+import canhRauMungToi from '../assets/videos/3-cach-nau-canh-rau-mung-toi.jpg';
+import loiKhuyenLonKhoe from '../assets/videos/6-loi-khuyen-giup-con-lon-khoe.jpg';
+import buaSang10Phut from '../assets/videos/bua-sang-10-phut-cho-be.jpg';
 
 export interface VideoItem {
   title: string;
@@ -32,6 +36,27 @@ export interface VideoItem {
 }
 
 export const videos: VideoItem[] = [
+  // 4 video chủ website gửi 04/11/2026 (đợt 3), giữ đúng thứ tự gửi
+  {
+    title: 'Top 6 loại hạt dinh dưỡng cho bé',
+    src: '/videos/trang-chu/top-6-loai-hat-dinh-duong.mp4',
+    thumbnail: top6LoaiHat,
+  },
+  {
+    title: '3 cách nấu canh rau mùng tơi cho bé',
+    src: '/videos/trang-chu/3-cach-nau-canh-rau-mung-toi.mp4',
+    thumbnail: canhRauMungToi,
+  },
+  {
+    title: '6 lời khuyên giúp con lớn khỏe',
+    src: '/videos/trang-chu/6-loi-khuyen-giup-con-lon-khoe.mp4',
+    thumbnail: loiKhuyenLonKhoe,
+  },
+  {
+    title: 'Bữa sáng 10 phút cho bé',
+    src: '/videos/trang-chu/bua-sang-10-phut-cho-be.mp4',
+    thumbnail: buaSang10Phut,
+  },
   {
     // Video chủ website gửi 04/11/2026 (14 giây, 1080x1920, 4,7MB)
     title: 'Top 6 thực phẩm giàu magie cho bé',

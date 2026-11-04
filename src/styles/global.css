@@ -5373,6 +5373,49 @@ body.has-sticky-bar .faq-chat-toggle {
   text-decoration: none;
 }
 
+.video-section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin: 2.5rem 0 1rem;
+}
+
+.video-section-head .section-title {
+  margin: 0;
+}
+
+.video-nav {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.video-nav[hidden] {
+  display: none;
+}
+
+.video-nav-btn {
+  width: 2.5rem;
+  height: 2.5rem;
+  border: 1px solid var(--green-700);
+  border-radius: 50%;
+  background: #fff;
+  color: var(--green-700);
+  font-size: 1.5rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.video-nav-btn:hover:not(:disabled) {
+  background: var(--green-700);
+  color: #fff;
+}
+
+.video-nav-btn:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
 /* Thẻ video phát trên trang là <button>: bỏ kiểu nút mặc định để giống hệt thẻ liên kết */
 .video-track button.video-card {
   /* nút tự canh nội dung vào giữa theo chiều dọc: ép bắt đầu từ trên như thẻ liên kết */
