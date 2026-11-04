@@ -19,6 +19,8 @@
 // Ảnh bìa tự dựng từ 1 khung hình thật của video (giây 5,5) + tiêu đề, che dòng chữ gốc trong video.
 import top6VitaminD from '../assets/videos/top-6-thuc-pham-giau-vitamin-d.jpg';
 import top6SunTangTruong from '../assets/videos/top-6-mon-an-tot-cho-sun-tang-truong.jpg';
+import top6Magie from '../assets/videos/top-6-thuc-pham-giau-magie.jpg';
+import top6LoaiQua from '../assets/videos/top-6-loai-qua-tot-cho-be.jpg';
 
 export interface VideoItem {
   title: string;
@@ -30,6 +32,18 @@ export interface VideoItem {
 }
 
 export const videos: VideoItem[] = [
+  {
+    // Video chủ website gửi 04/11/2026 (14 giây, 1080x1920, 4,7MB)
+    title: 'Top 6 thực phẩm giàu magie cho bé',
+    src: '/videos/trang-chu/top-6-thuc-pham-giau-magie.mp4',
+    thumbnail: top6Magie,
+  },
+  {
+    // Video chủ website gửi 04/11/2026 (22 giây, 1080x1920, 7,9MB)
+    title: 'Top 6 loại quả tốt cho bé',
+    src: '/videos/trang-chu/top-6-loai-qua-tot-cho-be.mp4',
+    thumbnail: top6LoaiQua,
+  },
   {
     // Video chủ website gửi 04/11/2026 (28 giây, 1080x1920, 8,8MB)
     title: 'Top 6 món ăn tốt cho sụn tăng trưởng của bé',
