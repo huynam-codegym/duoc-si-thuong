@@ -2,26 +2,35 @@
 import { Image, getImage } from 'astro:assets';
 import { departments } from '../lib/departments';
 import { originFlagCode } from '../lib/flags';
+import { flashTime, type FlashSlot } from '../lib/flash-sale';
 import { discountPercent, formatPrice, type Product } from '../lib/products';
 import { url } from '../lib/url';
 
 interface Props {
   product: Product;
+  /** Thẻ trong khung Flash Sale: hiện sẵn giá Flash của khung giờ đó (FlashSale.astro) */
+  flash?: { price: number; slot: FlashSlot };
 }
 
-const { product } = Astro.props;
+const { product, flash } = Astro.props;
 const { name, summary, department, group, price, originalPrice, unit, origin, image, imageAlt } = product.data;
-const discount = discountPercent(price, originalPrice);
+// Thẻ Flash Sale: giá gạch ngang là giá gốc (hoặc giá bán nếu không có giá gốc), % tính so với giá đó
+const shownPrice = flash ? flash.price : price;
+const shownOriginal = flash ? (originalPrice ?? price) : originalPrice;
+const discount = discountPercent(shownPrice, shownOriginal);
 const flagCode = origin && originFlagCode(origin);
 // Từ đầu tiên của quy cách (ví dụ "Hộp", "Chai", "Tuýp") hiện ngắn gọn ngay cạnh giá, kiểu "363.000 đ
 // / Hộp" — quy cách đầy đủ ("Hộp 30 viên (2 vỉ x 15 viên)") vẫn hiện riêng bên dưới dạng nhãn nhỏ.
 const unitType = unit?.split(' ')[0];
 // Ảnh nhỏ dùng trong giỏ hàng
 const cartImage = await getImage({ src: image, width: 160, height: 160, format: 'webp' });
+// Thẻ thường: FlashPriceSync.astro tự đổi sang giá Flash ở trình duyệt khi sản phẩm đang trong khung giờ
+const discountBase = discountPercent(price, originalPrice);
 ---
 
-<div class="card product-card">
-  {discount !== undefined && <span class="sale-badge sale-badge-card">-{discount}%</span>}
+<div class:list={['card product-card', { 'flash-card': flash }]} data-flash-sync={flash ? undefined : product.id}>
+  {/* Luôn có sẵn nhãn (ẩn bằng `hidden` khi không giảm giá) để FlashPriceSync bật lên được */}
+  <span class="sale-badge sale-badge-card" data-price-badge hidden={discount === undefined}>{discount !== undefined && `-${discount}%`}</span>
   <a class="product-link" href={url(`/${department}/${product.id}/`)}>
     {origin && (
       <span class="origin-badge">
@@ -35,11 +44,21 @@ const cartImage = await getImage({ src: image, width: 160, height: 160, format: 
     <p>{summary}</p>
   </a>
   <p class="product-price">
-    {formatPrice(price)}
+    <span data-price-value>{formatPrice(shownPrice)}</span>
     {unitType && <span class="product-unit-type"> / {unitType}</span>}
   </p>
-  {discount !== undefined && <p class="product-price-original">{formatPrice(originalPrice)}</p>}
+  <p class="product-price-original" data-price-original hidden={discount === undefined}>
+    {discount !== undefined && formatPrice(shownOriginal)}
+  </p>
   {unit && <span class="product-card-unit">{unit}</span>}
+  {
+    flash && (
+      <p class="flash-tag">
+        <span class="flash-tag-live">⚡ Flash đến {flashTime(flash.slot.end)}</span>
+        <span class="flash-tag-soon">Mở bán {flashTime(flash.slot.start)}</span>
+      </p>
+    )
+  }
   <button
     type="button"
     class="btn btn-add"
@@ -47,7 +66,7 @@ const cartImage = await getImage({ src: image, width: 160, height: 160, format: 
     data-id={product.id}
     data-name={name}
     data-price={price ?? ''}
-    data-original-price={discount !== undefined ? originalPrice : ''}
+    data-original-price={discountBase !== undefined ? originalPrice : ''}
     data-unit={unit ?? ''}
     data-image={cartImage.src}
   >

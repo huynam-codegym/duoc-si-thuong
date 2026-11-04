@@ -644,6 +644,7 @@ const drawerSections: DrawerSection[] = [
 
 <script>
   import { MAX_QTY, addToCart, cartCount, formatVnd, getCart, removeItem, type CartItem } from '../lib/cart';
+  import { flashPriceFor } from '../lib/flash-sale';
   import { url } from '../lib/url';
   import { supabase } from '../lib/supabase';
   import { clearSearchHistory, getSearchHistory, removeSearchHistory } from '../lib/search-history';
@@ -1223,10 +1224,14 @@ const drawerSections: DrawerSection[] = [
     sheetProduct = product;
     cartSheetImg.src = product.image;
     cartSheetName.textContent = product.name;
-    cartSheetPrice.textContent = product.price !== null ? formatVnd(product.price) : 'Liên hệ';
+    // Đang Flash Sale thì hiện giá Flash (giỏ hàng cũng tự áp giá này lúc đọc, xem lib/cart.ts)
+    const flash = flashPriceFor(product.id);
+    const shownPrice = flash ? flash.price : product.price;
+    const shownOriginal = flash ? (product.originalPrice ?? product.price) : product.originalPrice;
+    cartSheetPrice.textContent = shownPrice !== null ? formatVnd(shownPrice) : 'Liên hệ';
     const discount =
-      product.price !== null && product.originalPrice && product.originalPrice > product.price
-        ? Math.round((1 - product.price / product.originalPrice) * 100)
+      shownPrice !== null && shownOriginal && shownOriginal > shownPrice
+        ? Math.round((1 - shownPrice / shownOriginal) * 100)
         : null;
     if (cartSheetSaleBadge) {
       cartSheetSaleBadge.hidden = discount === null;
@@ -1234,7 +1239,7 @@ const drawerSections: DrawerSection[] = [
     }
     if (cartSheetOriginalPrice) {
       cartSheetOriginalPrice.hidden = discount === null;
-      cartSheetOriginalPrice.textContent = discount !== null && product.originalPrice ? formatVnd(product.originalPrice) : '';
+      cartSheetOriginalPrice.textContent = discount !== null && shownOriginal ? formatVnd(shownOriginal) : '';
     }
     cartSheetQty.value = '1';
     cartSheetBackdrop.hidden = false;

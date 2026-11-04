@@ -687,6 +687,23 @@ Chủ website gửi mẫu banner Long Châu (bảng phấn "Tri ân thầy cô" 
 - **Hết hạn:** sau 20/11/2026 (giờ Việt Nam) banner trang chủ tự ẩn ở trình duyệt; lần build sau thì không dựng nữa. Trang `/qua-tang-20-11/` vẫn còn, hiện dòng "Chương trình đã kết thúc". Dùng lại cho dịp khác: đổi `CAMPAIGN` và nhóm trong `campaign.ts` (slug trang đổi thì đổi tên file trang).
 - Bộ test: case PRD-13.
 
+### Flash Sale và "Danh mục nổi bật" (04/11/2026)
+
+Chủ website gửi mẫu "Flash Sale giá tốt" của Long Châu, chọn chạy **08:00–22:00 ngày 05/11 và 06/11/2026**, giao cho tôi đặt sản phẩm và giá.
+
+- **Dữ liệu** ở `src/lib/flash-sale.ts` (không import `astro:content`, dùng được cả ở trình duyệt): mỗi khung giờ có `start`/`end` (giờ VN), chủ đề, và `items` (slug → giá Flash). 05/11 "Sức khỏe & mẹ bé", 06/11 "Làm đẹp & chăm sóc da", mỗi ngày 8 sản phẩm đang có giá gốc. **Giá Flash do tôi đặt** = giá bán hiện tại giảm thêm 5%, làm tròn xuống nghìn đồng; chủ website đổi được ở file này. Build báo lỗi nếu sản phẩm không còn bán, giá Flash không thấp hơn giá bán, hoặc giảm quá 50% so với giá gốc (`FlashSale.astro`).
+- **Giao diện:** `src/components/FlashSale.astro`, ở trang chủ ngay dưới "Liên hệ nhanh", trên banner 20.11. Đầu khung xanh đậm dựng bằng HTML/CSS (không dùng ảnh/logo Long Châu), tab khung giờ ("Đang diễn ra" viền đỏ / "Sắp diễn ra"), đếm ngược "Kết thúc sau"/"Bắt đầu sau", 1 hàng thẻ cuộn ngang (máy tính có nút ‹ ›). Thẻ dùng lại `ProductCard` với prop `flash` (giá Flash, giá gốc gạch ngang, nhãn "⚡ Flash đến 22:00"). Khung giờ chưa tới: ẩn "Chọn mua", hiện "Mở bán 08:00". Khung giờ đã qua tự ẩn; hết cả 2 thì cả khung ẩn (trình duyệt), lần build sau không dựng nữa. Trang `/flash-sale/` hiện hết sản phẩm + **Thể lệ** (giá tính theo giờ hệ thống nhận đơn, không cộng dồn, nhà thuốc xác nhận trước khi giao).
+- **Không làm theo mẫu:** thanh "Đã bán 28/100 suất" (site không đếm hàng bán thật, không bịa), "Ưu đãi giá sốc".
+- **Giá Flash áp ở mọi nơi, theo giờ:**
+  - Giỏ hàng (`lib/cart.ts`) luôn LƯU giá thường; `getCart()` áp giá Flash lúc đọc (`withFlash`), `save()` khôi phục giá thường (`stripFlash`). Nhờ vậy hết giờ thì giỏ tự về giá thường. Trang giỏ hiện dòng "⚡ Giá Flash Sale đến 22:00 hôm nay".
+  - HTML tĩnh luôn là giá thường. `src/components/FlashPriceSync.astro` (trong `BaseLayout`) đổi giá ở trình duyệt cho mọi khối `data-flash-sync="<slug>"`: thẻ sản phẩm, trang chi tiết (thêm dòng `[data-flash-note]`), thanh mua hàng dính; trang đang mở qua mốc 08:00/22:00 thì tự cập nhật. Khay chọn số lượng điện thoại (`Header.astro`) cũng áp giá Flash.
+  - **Máy chủ:** `/san-pham.json` có thêm `flash: [{start,end,price}]`; `send-order-email` lấy giá Flash nếu giờ máy chủ nhận đơn nằm trong khung, không tin giá giỏ của khách.
+  - **Chưa đổi giá Flash ở:** kết quả tìm kiếm Pagefind và gợi ý tìm kiếm, khung sản phẩm của menu lớn — vẫn hiện giá thường (giỏ/đơn vẫn tính đúng giá Flash).
+  - Thẻ sản phẩm giờ luôn có sẵn nhãn `[data-price-badge]` và giá gốc `[data-price-original]` (ẩn bằng `hidden` khi không giảm giá), nên rule nhãn xuất xứ đổi thành `.product-card:has(.sale-badge-card:not([hidden]))`.
+- **Pháp lý (chủ website tự xác nhận):** giảm giá khuyến mại có thể phải thông báo Sở Công Thương trước khi chạy; mức giảm thường không quá 50%; giá gạch ngang phải là giá đã bán thật.
+- **Dùng lại cho đợt sau:** sửa `flashSlots` (ngày giờ, sản phẩm, giá), build lại. Bộ test: PRD-14 (lệch đồng hồ trình duyệt tới từng mốc). Các case giỏ hàng chọn sản phẩm không có Flash để không lệch vào ngày chạy chương trình.
+- **"Danh mục nổi bật"** (trang chủ, ngay dưới banner 20.11): chủ website thấy trang chủ hiện quá nhiều danh mục nên **bỏ hẳn** các mục "Danh mục [khu]" của từng khu và "Sản phẩm theo nhu cầu" (khối sản phẩm của từng khu vẫn giữ). Thay bằng 1 lưới 12 ô (6 cột máy tính, 4 cột máy tính bảng, 3 cột điện thoại): 12 nhóm **cấp cao nhất** có nhiều sản phẩm nhất ở cả 4 khu, mỗi ô icon + tên + "N sản phẩm" (cộng dồn nhóm con, `groupWithChildren()`), tự cập nhật khi thêm sản phẩm.
+
 ### Thống kê lượt truy cập và khung xin phép cookie (03/11/2026)
 
 Chủ website muốn xem thống kê lượt truy cập, kèm khung xin phép cookie như Long Châu.

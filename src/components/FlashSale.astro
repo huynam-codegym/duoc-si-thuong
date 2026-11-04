@@ -1,0 +1,182 @@
+---
+// Khung "Flash Sale giá tốt" (xem src/lib/flash-sale.ts): tab theo khung giờ (Đang diễn ra/Sắp diễn ra),
+// đếm ngược và thẻ sản phẩm có giá Flash. Dựng bằng HTML/CSS, không dùng ảnh hay logo của nơi khác.
+// - Mặc định (trang chủ): 1 hàng cuộn ngang, có nút ‹ › trên máy tính, link "Xem tất cả".
+// - full (trang /flash-sale/): lưới hiện hết sản phẩm, không có link "Xem tất cả".
+// Trạng thái tab, đếm ngược, ẩn khung giờ đã qua đều tính ở trình duyệt (trang tĩnh không tự build lại).
+import ProductCard from './ProductCard.astro';
+import { FLASH_SALE, flashDate, flashSlots, flashTime } from '../lib/flash-sale';
+import { getProducts } from '../lib/products';
+import { url } from '../lib/url';
+
+interface Props {
+  full?: boolean;
+}
+
+const { full = false } = Astro.props;
+const bySlug = new Map((await getProducts()).map((p) => [p.id, p]));
+
+// Chặn ngay lúc build những giá Flash sai: sản phẩm không còn bán, giá Flash không thấp hơn giá bán, hoặc
+// giảm quá 50% so với giá gốc (mức trần giảm giá khuyến mại thường gặp theo quy định, chủ website tự xác nhận)
+const slots = flashSlots.map((slot) => ({
+  ...slot,
+  products: Object.entries(slot.items).map(([slug, flashPrice]) => {
+    const product = bySlug.get(slug);
+    if (!product) throw new Error(`Flash Sale: không tìm thấy sản phẩm đã đăng "${slug}" (src/lib/flash-sale.ts)`);
+    const { price, originalPrice } = product.data;
+    if (!price || flashPrice >= price) throw new Error(`Flash Sale: giá Flash của "${slug}" phải thấp hơn giá bán ${price}`);
+    if (flashPrice < (originalPrice ?? price) * 0.5) throw new Error(`Flash Sale: "${slug}" giảm quá 50% so với giá gốc`);
+    return { product, flash: { price: flashPrice, slot } };
+  }),
+}));
+const pageUrl = url(`/${FLASH_SALE.slug}/`);
+const Heading = full ? 'h1' : 'h2';
+---
+
+<section class:list={['flash', { 'flash-full': full }]} aria-labelledby="flashTitle" data-flash-root>
+  <div class="flash-head">
+    <svg class="flash-bolt" viewBox="0 0 24 24" aria-hidden="true"><path d="M13 2 4 14h7l-1 8 9-12h-7l1-8Z" /></svg>
+    <Heading class="flash-title" id="flashTitle">Flash Sale <span>giá tốt</span></Heading>
+    <a class="flash-rules-link" href={`${pageUrl}#the-le`}>Thể lệ ›</a>
+  </div>
+
+  <div class="flash-body">
+    <div class="flash-tabs" role="tablist" aria-label="Khung giờ Flash Sale">
+      {
+        slots.map((slot) => (
+          <button type="button" class="flash-tab" role="tab" data-slot={slot.id} data-start={slot.start} data-end={slot.end} aria-selected="false">
+            <strong>
+              {flashTime(slot.start)} - {flashTime(slot.end)}, {flashDate(slot.start)}
+            </strong>
+            <span class="flash-tab-status">Sắp diễn ra</span>
+            <span class="flash-tab-theme">{slot.theme}</span>
+          </button>
+        ))
+      }
+    </div>
+
+    <p class="flash-countdown" data-flash-countdown aria-live="off">
+      <span data-flash-countdown-label>Kết thúc sau</span>
+      <b data-unit="h">00</b><span aria-hidden="true">:</span><b data-unit="m">00</b><span aria-hidden="true">:</span><b data-unit="s">00</b>
+    </p>
+
+    {
+      slots.map((slot) => (
+        <div class="flash-panel" role="tabpanel" data-slot={slot.id} hidden>
+          <div class="flash-row">
+            {!full && <button type="button" class="flash-nav flash-nav-prev" data-flash-scroll="-1" aria-label="Xem sản phẩm trước" hidden>‹</button>}
+            {!full && <button type="button" class="flash-nav flash-nav-next" data-flash-scroll="1" aria-label="Xem sản phẩm tiếp theo" hidden>›</button>}
+            <div class:list={['carousel', { 'carousel-wide': full }]}>
+              <div class="carousel-track flash-track">
+                {slot.products.map(({ product, flash }) => (
+                  <div class="carousel-item">
+                    <ProductCard product={product} flash={flash} />
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      ))
+    }
+
+    <p class="flash-foot">
+      Giá Flash chỉ áp dụng cho đơn đặt trong khung giờ. Thực phẩm bảo vệ sức khỏe không phải là thuốc, không có tác
+      dụng thay thế thuốc chữa bệnh.
+    </p>
+    {!full && <p class="flash-more"><a href={pageUrl}>Xem tất cả ›</a></p>}
+  </div>
+</section>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-flash-root]').forEach((root) => {
+    const tabs = [...root.querySelectorAll<HTMLButtonElement>('.flash-tab')];
+    const panels = [...root.querySelectorAll<HTMLElement>('.flash-panel')];
+    const countdown = root.querySelector<HTMLElement>('[data-flash-countdown]')!;
+    const countdownLabel = root.querySelector<HTMLElement>('[data-flash-countdown-label]')!;
+    let selected: string | null = null;
+    let userPicked = false;
+
+    const state = (tab: HTMLButtonElement, now: number) =>
+      now >= Date.parse(tab.dataset.end!) ? 'ended' : now >= Date.parse(tab.dataset.start!) ? 'live' : 'soon';
+
+    const select = (id: string) => {
+      selected = id;
+      tabs.forEach((t) => {
+        const on = t.dataset.slot === id;
+        t.classList.toggle('active', on);
+        t.setAttribute('aria-selected', String(on));
+      });
+      panels.forEach((p) => (p.hidden = p.dataset.slot !== id));
+      updateNav();
+    };
+
+    const pad = (n: number) => String(n).padStart(2, '0');
+    function tick() {
+      const now = Date.now();
+      const open = tabs.filter((t) => state(t, now) !== 'ended');
+      // Hết mọi khung giờ thì ẩn hẳn khung (trang /flash-sale/ thì báo đã kết thúc)
+      if (open.length === 0) {
+        if (root.classList.contains('flash-full')) {
+          root.querySelector('.flash-body')!.innerHTML = '<p class="flash-ended">Chương trình Flash Sale đã kết thúc. Cảm ơn bạn đã quan tâm.</p>';
+        } else {
+          root.hidden = true;
+        }
+        clearInterval(timer);
+        return;
+      }
+      tabs.forEach((t) => {
+        const s = state(t, now);
+        t.hidden = s === 'ended';
+        t.classList.toggle('is-live', s === 'live');
+        t.querySelector('.flash-tab-status')!.textContent = s === 'live' ? 'Đang diễn ra' : 'Sắp diễn ra';
+        panels.find((p) => p.dataset.slot === t.dataset.slot)?.classList.toggle('is-soon', s === 'soon');
+      });
+      const current = tabs.find((t) => t.dataset.slot === selected);
+      if (!current || current.hidden || (!userPicked && state(open[0], now) === 'live' && current !== open[0])) {
+        select(open[0].dataset.slot!);
+      }
+      const tab = tabs.find((t) => t.dataset.slot === selected)!;
+      const live = state(tab, now) === 'live';
+      countdownLabel.textContent = live ? 'Kết thúc sau' : 'Bắt đầu sau';
+      countdown.classList.toggle('is-soon', !live);
+      const left = Math.max(0, Math.floor((Date.parse(live ? tab.dataset.end! : tab.dataset.start!) - now) / 1000));
+      countdown.querySelector('[data-unit="h"]')!.textContent = pad(Math.floor(left / 3600));
+      countdown.querySelector('[data-unit="m"]')!.textContent = pad(Math.floor((left % 3600) / 60));
+      countdown.querySelector('[data-unit="s"]')!.textContent = pad(left % 60);
+    }
+
+    tabs.forEach((t) =>
+      t.addEventListener('click', () => {
+        userPicked = true;
+        select(t.dataset.slot!);
+        tick();
+      }),
+    );
+
+    // Nút ‹ › (chỉ trang chủ, chỉ máy tính — CSS ẩn trên màn hình nhỏ, nơi khách vuốt ngang)
+    function updateNav() {
+      panels.forEach((panel) => {
+        const track = panel.querySelector<HTMLElement>('.flash-track');
+        const prev = panel.querySelector<HTMLElement>('.flash-nav-prev');
+        const next = panel.querySelector<HTMLElement>('.flash-nav-next');
+        if (!track || !prev || !next || panel.hidden) return;
+        const max = track.scrollWidth - track.clientWidth;
+        prev.hidden = track.scrollLeft <= 2;
+        next.hidden = track.scrollLeft >= max - 2;
+      });
+    }
+    panels.forEach((panel) => {
+      const track = panel.querySelector<HTMLElement>('.flash-track');
+      if (!track) return;
+      track.addEventListener('scroll', updateNav, { passive: true });
+      new ResizeObserver(updateNav).observe(track);
+      panel.querySelectorAll<HTMLElement>('[data-flash-scroll]').forEach((btn) =>
+        btn.addEventListener('click', () => track.scrollBy({ left: Number(btn.dataset.flashScroll) * track.clientWidth * 0.8, behavior: 'smooth' })),
+      );
+    });
+
+    const timer = setInterval(tick, 1000);
+    tick();
+  });
+</script>

@@ -1,0 +1,58 @@
+---
+// Trang tĩnh dựng sẵn giá thường. Đoạn script này đổi sang giá Flash Sale (src/lib/flash-sale.ts) ở trình
+// duyệt cho mọi khối có `data-flash-sync="<slug>"` (thẻ sản phẩm, trang chi tiết, thanh mua hàng dính) khi
+// sản phẩm đang trong khung giờ, và tự đổi lại đúng lúc khung giờ bắt đầu/kết thúc nếu trang đang mở.
+// Bên trong khối: [data-price-value] (giá), [data-price-original] (giá gạch ngang), [data-price-badge]
+// (-X%), [data-price-compare] (khối chứa 2 cái trên, nếu có), [data-flash-note] (dòng nhắc giờ kết thúc).
+// Giá trong giỏ và máy chủ tính riêng theo giờ (lib/cart.ts, send-order-email), không phụ thuộc chỗ này.
+---
+
+<script>
+  import { formatVnd } from '../lib/cart';
+  import { flashPriceFor, flashTime, nextFlashBoundary } from '../lib/flash-sale';
+
+  const show = (el: Element | null, text: string | null) => {
+    if (!el) return;
+    if (text === null) {
+      (el as HTMLElement).hidden = true;
+    } else {
+      el.textContent = text;
+      (el as HTMLElement).hidden = false;
+    }
+  };
+
+  function sync() {
+    document.querySelectorAll<HTMLElement>('[data-flash-sync]').forEach((box) => {
+      const button = box.querySelector<HTMLElement>('[data-add-to-cart]');
+      const valueEl = box.querySelector('[data-price-value]');
+      if (!button || !valueEl) return;
+      const base = Number(button.dataset.price) || null;
+      const baseOriginal = Number(button.dataset.originalPrice) || null;
+      const flash = flashPriceFor(box.dataset.flashSync!);
+      const price = flash ? flash.price : base;
+      const original = flash ? (baseOriginal ?? base) : baseOriginal;
+      const discount = price && original && original > price ? Math.round((1 - price / original) * 100) : null;
+
+      if (price) valueEl.textContent = formatVnd(price);
+      show(box.querySelector('[data-price-original]'), discount !== null ? formatVnd(original!) : null);
+      show(box.querySelector('[data-price-badge]'), discount !== null ? `-${discount}%` : null);
+      const compare = box.querySelector<HTMLElement>('[data-price-compare]');
+      if (compare) compare.hidden = discount === null;
+      show(box.querySelector('[data-flash-note]'), flash ? `⚡ Giá Flash Sale, chỉ áp dụng đến ${flashTime(flash.slot.end)} hôm nay` : null);
+      box.classList.toggle('is-flash', !!flash);
+    });
+  }
+
+  sync();
+  // Trang đang mở qua mốc 08:00/22:00: cập nhật giá trên trang và giỏ hàng (khay xem nhanh, trang giỏ)
+  const schedule = () => {
+    const next = nextFlashBoundary();
+    if (next === undefined || next - Date.now() > 86_400_000) return;
+    setTimeout(() => {
+      sync();
+      window.dispatchEvent(new CustomEvent('cart:change'));
+      schedule();
+    }, next - Date.now() + 500);
+  };
+  schedule();
+</script>

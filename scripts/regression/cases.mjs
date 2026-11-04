@@ -62,8 +62,8 @@ const postPages = pages.filter((p) => {
   return parts.length === 2 && ['an-uong', 'kien-thuc-ve-thuoc'].includes(parts[0]) && parts[1] !== 'nhom';
 });
 const productSlug = (p) => p.route.split('/').filter(Boolean)[1];
-const onSale = Object.entries(catalog).find(([, v]) => v.originalPrice && v.originalPrice > v.price);
-const cheap = Object.entries(catalog).filter(([, v]) => v.price && v.price < 200000).sort((a, b) => a[1].price - b[1].price)[0];
+const onSale = Object.entries(catalog).find(([, v]) => !v.flash && v.originalPrice && v.originalPrice > v.price);
+const cheap = Object.entries(catalog).filter(([, v]) => !v.flash && v.price && v.price < 200000).sort((a, b) => a[1].price - b[1].price)[0];
 const pageOf = (slug) => productPages.find((p) => productSlug(p) === slug).route;
 
 // ---------- trình duyệt ----------
@@ -126,7 +126,11 @@ async function scrollAll(page) {
 }
 const cartStorage = (items) => ({ 'duocsithuong-cart': JSON.stringify(items) });
 const cartItem = (slug, qty = 1) => ({ id: slug, name: catalog[slug].name, price: catalog[slug].price, originalPrice: catalog[slug].originalPrice ?? undefined, unit: 'Hộp', image: '', qty });
-const vndNum = (s) => Number(String(s).replace(/\D/g, ''));
+// Chỉ lấy số tiền đầu tiên ("470.000đ -15%" -> 470000)
+const vndNum = (s) => Number((String(s).match(/[\d.]+/)?.[0] ?? '').replace(/\D/g, ''));
+// Giá đang bán lúc chạy test: giá Flash nếu đang trong khung giờ (san-pham.json có khung giờ), không thì giá thường
+const effectivePrice = (slug, now = Date.now()) =>
+  catalog[slug]?.flash?.find((w) => now >= Date.parse(w.start) && now < Date.parse(w.end))?.price ?? catalog[slug]?.price;
 
 // ---------- khung chạy case ----------
 const results = [];
@@ -544,7 +548,8 @@ await tc('PRD-07', 'san-pham.json khớp trang sản phẩm', async () => {
   for (const s of Object.keys(catalog)) if (!slugs.includes(s)) bad.push(`${s} trong json nhưng không có trang`);
   for (const p of productPages) {
     const c = catalog[productSlug(p)];
-    const m = p.html.match(/class="product-price product-price-lg"[^>]*>([^<]+)</);
+    // Giá nằm trong <span data-price-value> (FlashPriceSync đổi giá Flash ở trình duyệt, HTML tĩnh là giá thường)
+    const m = p.html.match(/class="product-price product-price-lg"[^>]*>\s*(?:<span[^>]*data-price-value[^>]*>)?([^<]+)</);
     if (c?.price && vndNum(m?.[1]) !== c.price) bad.push(`${productSlug(p)}: trang ${m?.[1]} json ${c.price}`);
   }
   return verdict(bad, `${slugs.length} sản phẩm`);
@@ -588,10 +593,72 @@ await tc('PRD-13', 'Banner Quà tặng 20.11: Mua ngay mở đúng nhóm quà, g
     if (r.top < Math.max(0, r.header) - 2) bad.push(vp + ': tiêu đề nhóm bị đầu trang che');
     // Giá trên trang chương trình phải khớp giá thật của sản phẩm
     const prices = await page.$$eval('#sac-dep .product-card', (cs) => cs.map((c) => [c.querySelector('a.product-link').getAttribute('href').split('/')[2], c.querySelector('.product-price')?.textContent ?? '']));
-    for (const [slug, text] of prices) if (catalog[slug] && vndNum(text) !== catalog[slug].price) bad.push(vp + ': giá ' + slug + ' sai');
+    for (const [slug, text] of prices) if (catalog[slug] && vndNum(text) !== effectivePrice(slug)) bad.push(vp + ': giá ' + slug + ' sai');
     await close();
   }
   return verdict(bad);
+});
+await tc('PRD-14', 'Flash Sale: trạng thái khung giờ, giá Flash ở thẻ/trang chi tiết/giỏ, hết giờ về giá thường', async () => {
+  const bad = [];
+  const slots = Object.entries(catalog).flatMap(([slug, c]) => (c.flash ?? []).map((w) => ({ slug, ...w })));
+  if (slots.length === 0) return verdict(bad, 'không có khung giờ Flash Sale (đúng nếu chương trình đã gỡ)');
+  const first = slots.reduce((a, b) => (Date.parse(a.start) <= Date.parse(b.start) ? a : b));
+  const lastEnd = Math.max(...slots.map((s) => Date.parse(s.end)));
+  // Lệch đồng hồ trình duyệt tới mốc cần thử (không đổi đồng hồ máy)
+  const at = async (vp, ms) => {
+    const o = await open(vp);
+    await o.page.evaluateOnNewDocument((t) => {
+      const off = t - Date.now(), R = Date;
+      globalThis.Date = class extends R { constructor(...a) { super(...(a.length ? a : [R.now() + off])); } static now() { return R.now() + off; } };
+    }, ms);
+    return o;
+  };
+  const inside = Date.parse(first.start) + 3600_000;
+  const c = catalog[first.slug];
+  for (const vp of ['desktop', 'mobile']) {
+    // Trước giờ: tab "Sắp diễn ra", đếm "Bắt đầu sau", ẩn nút Chọn mua
+    let o = await at(vp, Date.parse(first.start) - 3600_000);
+    await go(o.page, '/');
+    let r = await o.page.evaluate(() => {
+      const root = document.querySelector('[data-flash-root]'), panel = root && [...root.querySelectorAll('.flash-panel')].find((p) => !p.hidden);
+      return root && { shown: !root.hidden, label: root.querySelector('[data-flash-countdown-label]').textContent, buy: panel && getComputedStyle(panel.querySelector('.btn-add')).display, sw: document.documentElement.scrollWidth };
+    });
+    if (!r?.shown || r.label !== 'Bắt đầu sau' || r.buy !== 'none') bad.push(vp + ': trước giờ hiển thị sai ' + JSON.stringify(r));
+    if (r && r.sw > VP_W[vp]) bad.push(vp + ': khung Flash Sale làm tràn ngang');
+    await o.close();
+    // Trong giờ: "Đang diễn ra", trang chi tiết hiện giá Flash
+    o = await at(vp, inside);
+    await go(o.page, '/');
+    r = await o.page.evaluate(() => document.querySelector('.flash-tab.active .flash-tab-status')?.textContent);
+    if (r !== 'Đang diễn ra') bad.push(vp + ': trong giờ tab hiện "' + r + '"');
+    await o.close();
+    // Sau khung giờ cuối: khung tự ẩn
+    o = await at(vp, lastEnd + 60_000);
+    await go(o.page, '/');
+    if (await o.page.evaluate(() => !document.querySelector('[data-flash-root]')?.hidden)) bad.push(vp + ': hết giờ vẫn hiện khung');
+    await o.close();
+  }
+  // Trang chi tiết + giỏ hàng trong giờ, rồi sau giờ
+  let o = await at('desktop', inside);
+  const href = await (async () => { await go(o.page, '/'); return o.page.$eval(`[data-flash-root] a.product-link[href*="/${first.slug}/"]`, (a) => a.getAttribute('href')); })();
+  await go(o.page, href);
+  const shown = await o.page.$eval('.product-info [data-price-value]', (e) => e.textContent);
+  if (vndNum(shown) !== first.price) bad.push(`trang chi tiết hiện ${shown}, giá Flash ${first.price}`);
+  await o.page.click('.product-info [data-add-to-cart]:not([data-go-cart])');
+  const stored = await o.page.evaluate(() => JSON.parse(localStorage.getItem('duocsithuong-cart') || '[]'));
+  if (stored[0]?.price !== c.price) bad.push('giỏ phải LƯU giá thường, đang lưu ' + stored[0]?.price);
+  await go(o.page, '/gio-hang/');
+  const cartPrice = await o.page.$eval('.cart-price', (e) => e.textContent);
+  if (vndNum(cartPrice) !== first.price) bad.push('giỏ hàng trong giờ hiện ' + cartPrice);
+  await o.close();
+  o = await at('desktop', Date.parse(first.end) + 60_000);
+  await go(o.page, '/');
+  await o.page.evaluate((s) => localStorage.setItem('duocsithuong-cart', JSON.stringify(s)), stored);
+  await go(o.page, '/gio-hang/');
+  const after = await o.page.$eval('.cart-price', (e) => e.textContent);
+  if (vndNum(after) !== c.price) bad.push('hết giờ giỏ vẫn hiện ' + after);
+  await o.close();
+  return verdict(bad, `${slots.length} sản phẩm trong các khung giờ`);
 });
 await tc('PRD-12', 'Rê chuột hiện đủ tên sản phẩm bị cắt, không xô lệch thẻ', async () => {
   const bad = [];

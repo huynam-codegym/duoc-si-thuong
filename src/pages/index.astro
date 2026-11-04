@@ -9,7 +9,9 @@ import VideoSection from '../components/VideoSection.astro';
 import CampaignBanner from '../components/CampaignBanner.astro';
 import { campaignActive } from '../lib/campaign';
 import { categories } from '../lib/categories';
-import { departments, departmentSlugs, getProductGroups } from '../lib/departments';
+import { departments, departmentSlugs, getProductGroups, groupWithChildren } from '../lib/departments';
+import FlashSale from '../components/FlashSale.astro';
+import { flashSaleActive } from '../lib/flash-sale';
 import { getPosts } from '../lib/posts';
 import { getProducts } from '../lib/products';
 import { seasonalTopics } from '../lib/seasonal';
@@ -30,17 +32,25 @@ const shops = await Promise.all(
 );
 const activeShops = shops.filter((shop) => shop.featured.length > 0);
 
-// "Sản phẩm theo nhu cầu": gộp các NHÓM (ở bất kỳ khu nào) đã có sản phẩm thật, thành các thẻ để bấm chuyển.
-// Không gắn theo tên bệnh cụ thể (tránh hiểu nhầm "sản phẩm chữa bệnh X"); tự ẩn khi chưa nhóm nào có sản phẩm.
-const needTabsRaw = await Promise.all(
-  departmentSlugs.flatMap((deptSlug) =>
-    getProductGroups(deptSlug).map(async ([groupSlug, group]) => {
-      const products = await getProducts(deptSlug, groupSlug);
-      return { deptSlug, groupSlug, group, products };
-    }),
-  ),
-);
-const needTabs = needTabsRaw.filter((tab) => tab.products.length > 0);
+// "Danh mục nổi bật" (04/11/2026, chủ website yêu cầu thay cho "Danh mục [khu]" của từng khu và "Sản phẩm
+// theo nhu cầu", vì hiện quá nhiều): 12 nhóm CẤP CAO NHẤT (không tính nhóm con) có nhiều sản phẩm nhất ở cả
+// 4 khu, số đếm cộng dồn cả sản phẩm của nhóm con (giống menu trái). Nhóm chưa có sản phẩm thì không hiện.
+const allProducts = shops.flatMap((shop) => shop.featured);
+const featuredGroups = departmentSlugs
+  .flatMap((deptSlug) => {
+    const groups = getProductGroups(deptSlug);
+    const childSlugs = new Set(groups.flatMap(([, group]) => group.childGroups ?? []));
+    return groups
+      .filter(([groupSlug]) => !childSlugs.has(groupSlug))
+      .map(([groupSlug, group]) => {
+        const slugs = groupWithChildren(deptSlug, groupSlug);
+        const count = allProducts.filter((p) => p.data.department === deptSlug && slugs.includes(p.data.group)).length;
+        return { deptSlug, groupSlug, group, count };
+      });
+  })
+  .filter((entry) => entry.count > 0)
+  .sort((a, b) => b.count - a.count || a.group.name.localeCompare(b.group.name, 'vi'))
+  .slice(0, 12);
 
 // "Bệnh thường gặp theo mùa": mỗi tab là một bệnh (nhóm con của chuyên mục an-uong), kèm đoạn giới
 // thiệu ngắn và (nếu có khai báo) sản phẩm hỗ trợ thật thuộc nhóm liên quan. Xem src/lib/seasonal.ts.
@@ -126,12 +136,33 @@ const seasonal = await Promise.all(
     </ul>
 
     {/* Chương trình theo dịp (src/lib/campaign.ts): hết hạn thì không dựng nữa, banner cũng tự ẩn ở trình duyệt */}
+    {/* Flash Sale theo khung giờ (src/lib/flash-sale.ts): hết mọi khung giờ thì không dựng nữa, khung cũng tự ẩn ở trình duyệt */}
+    {flashSaleActive() && <FlashSale />}
+
     {campaignActive() && <CampaignBanner />}
 
     {
-      /* Thứ tự trang chủ (tháng 9/2026, chủ website yêu cầu): khu bán hàng lên đầu; trong mỗi khu, phần sản
-         phẩm ("[Tên khu]") đứng TRÊN phần "Danh mục [khu]"; "Bệnh thường gặp theo mùa" nằm dưới "Sản phẩm theo
-         nhu cầu". */
+      featuredGroups.length > 0 && (
+        <section aria-labelledby="danh-muc-noi-bat">
+          <h2 class="section-title" id="danh-muc-noi-bat"><GroupIcon icon="grid" size={22} /> Danh mục nổi bật</h2>
+          <ul class="featured-cats">
+            {featuredGroups.map(({ deptSlug, groupSlug, group, count }) => (
+              <li>
+                <a href={url(`/${deptSlug}/nhom/${groupSlug}/`)}>
+                  <GroupIcon icon={group.icon} size={30} badge badgeSize={56} />
+                  <strong>{group.name}</strong>
+                  <span>{count} sản phẩm</span>
+                </a>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )
+    }
+
+    {
+      /* Thứ tự trang chủ: khu bán hàng lên đầu (tháng 9/2026). Từ 04/11/2026 bỏ "Danh mục [khu]" của từng khu
+         và "Sản phẩm theo nhu cầu" (chủ website thấy hiện quá nhiều), thay bằng 1 mục "Danh mục nổi bật" ở trên. */
       activeShops.map((shop) => (
         <>
           <section aria-labelledby={`sp-${shop.slug}`}>
@@ -154,71 +185,8 @@ const seasonal = await Promise.all(
               <a class="btn btn-outline" href={url(`/${shop.slug}/`)}>Xem tất cả {shop.department.name.toLowerCase()}</a>
             </p>
           </section>
-
-          <section aria-labelledby={`danh-muc-${shop.slug}`}>
-            <h2 class="section-title" id={`danh-muc-${shop.slug}`}>
-              <GroupIcon icon="grid" size={22} /> Danh mục {shop.department.name.toLowerCase()}
-            </h2>
-            <ul class="cat-tiles">
-              {shop.groups.map(([groupSlug, group]) => (
-                <li>
-                  <a href={url(`/${shop.slug}/nhom/${groupSlug}/`)}>
-                    <span class="tile-icon" aria-hidden="true">
-                      <GroupIcon icon={group.icon} size={26} badge badgeSize={52} />
-                    </span>
-                    <span>{group.name}</span>
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </section>
         </>
       ))
-    }
-
-    {
-      needTabs.length > 0 && (
-        <section aria-labelledby="theo-nhu-cau">
-          <h2 class="section-title" id="theo-nhu-cau"><GroupIcon icon="target" size={22} /> Sản phẩm theo nhu cầu</h2>
-          <div class="need-tabs" role="tablist">
-            {needTabs.map((tab, index) => (
-              <button
-                type="button"
-                class={`need-tab${index === 0 ? ' active' : ''}`}
-                data-panel={`need-${index}`}
-                role="tab"
-                aria-selected={index === 0 ? 'true' : 'false'}
-              >
-                <GroupIcon icon={tab.group.icon} size={17} />
-                <span>{tab.group.name}</span>
-              </button>
-            ))}
-          </div>
-          {needTabs.map((tab, index) => (
-            <div class={`need-panel${index === 0 ? ' active' : ''}`} data-panel={`need-${index}`} role="tabpanel">
-              <div class="carousel carousel-wide">
-                <div class="carousel-track">
-                  {tab.products.map((product) => (
-                    <div class="carousel-item">
-                      <ProductCard product={product} />
-                    </div>
-                  ))}
-                </div>
-              </div>
-              {tab.products.length > 12 && (
-                <p class="carousel-more">
-                  <button type="button" class="btn btn-outline carousel-more-btn">Xem thêm sản phẩm</button>
-                </p>
-              )}
-              <p class="more">
-                <a class="btn btn-outline" href={url(`/${tab.deptSlug}/nhom/${tab.groupSlug}/`)}>
-                  Xem tất cả {tab.group.name.toLowerCase()}
-                </a>
-              </p>
-            </div>
-          ))}
-        </section>
-      )
     }
 
     <section aria-labelledby="benh-theo-mua">
@@ -311,19 +279,6 @@ const seasonal = await Promise.all(
   // lưới 2/4 cột kèm nút "Xem thêm sản phẩm", dùng chung với trang khu bán hàng và trang nhóm sản
   // phẩm — xem chi tiết cách hoạt động trong src/lib/product-grid.ts.
   initProductLoadMoreGrids();
-
-  // Thẻ "Sản phẩm theo nhu cầu": bấm để chuyển nhóm đang xem
-  document.querySelectorAll<HTMLButtonElement>('.need-tab').forEach((tab) => {
-    tab.addEventListener('click', () => {
-      const panel = tab.dataset.panel;
-      document.querySelectorAll<HTMLElement>('.need-tab').forEach((t) => {
-        const active = t.dataset.panel === panel;
-        t.classList.toggle('active', active);
-        t.setAttribute('aria-selected', String(active));
-      });
-      document.querySelectorAll<HTMLElement>('.need-panel').forEach((p) => p.classList.toggle('active', p.dataset.panel === panel));
-    });
-  });
 
   // Thẻ "Bệnh thường gặp theo mùa": bấm để chuyển bệnh đang xem
   document.querySelectorAll<HTMLButtonElement>('.season-tab').forEach((tab) => {

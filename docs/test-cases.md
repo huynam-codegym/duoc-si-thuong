@@ -83,6 +83,7 @@ Vòng lặp:
 | PRD-11 | Bấm "Viết đánh giá"/gửi bình luận khi chưa đăng nhập | Mở khung đăng nhập nổi | T |
 | PRD-12 | Rê chuột vào sản phẩm có tên bị cắt "…" (thẻ sản phẩm, kết quả tìm kiếm) | Hiện đủ tên, thẻ không đổi chiều cao, khung tên không tràn màn hình, cuộn trang thì ẩn; chạm tay trên điện thoại không bật khung | T |
 | PRD-13 | Banner "Quà tặng 20.11" ở trang chủ (khi chương trình còn hạn lúc build) | Có 4 ô nhóm quà, không tràn ngang; bấm "Mua ngay" ô Sắc đẹp mở `/qua-tang-20-11/#sac-dep`, nhóm có sản phẩm, tiêu đề không bị đầu trang che, giá khớp giá thật | T |
+| PRD-14 | Flash Sale (`src/lib/flash-sale.ts`), lệch đồng hồ trình duyệt tới từng mốc | Trước giờ: tab "Sắp diễn ra", "Bắt đầu sau", ẩn nút Chọn mua, không tràn ngang; trong giờ: tab "Đang diễn ra", trang chi tiết hiện giá Flash, giỏ hiện giá Flash nhưng LƯU giá thường; hết khung giờ: giỏ về giá thường; sau khung giờ cuối: khung ẩn | T |
 
 ## 5. Giỏ hàng (CART)
 
@@ -234,4 +235,9 @@ Ghi mỗi lần chạy đủ bộ: ngày, số case PASS/FAIL, lỗi đã sửa.
 
 - Kiểm tra riêng bằng Puppeteer ở 1280, 768, 375px: banner trang chủ không tràn ngang, ảnh không vỡ; "Mua ngay" mở đúng nhóm, tiêu đề nhóm không bị đầu trang che; trang có đúng 1 `<h1>`; không lỗi JS.
 - Chạy lại các case liên quan: UI, SEO, PRD-13 (mới) — 17/17 PASS.
+
+### 04/11/2026 — Flash Sale và "Danh mục nổi bật"
+
+- Kiểm tra riêng bằng Puppeteer ở 320, 375, 768, 1280px với đồng hồ trình duyệt lệch tới trước giờ, trong ngày 05/11, gần hết 06/11 và sau khi kết thúc: tab/đếm ngược/nút đúng trạng thái, giá Flash ở thẻ, trang chi tiết, thanh mua dính, khay chọn số lượng, giỏ hàng; hết giờ về giá thường; tiêu đề không đè nút "Thể lệ"; không tràn ngang, không lỗi JS.
+- Chạy toàn bộ: 79/80, PRD-07 lỗi do test đọc giá theo HTML cũ (giá giờ nằm trong `<span data-price-value>`), đã sửa test. Thêm PRD-14; các case giỏ hàng bỏ qua sản phẩm Flash Sale để không lệch vào 2 ngày chạy chương trình. Chạy lại PRD + CART — 23/23 PASS.
 

@@ -282,7 +282,14 @@ class RejectError extends Error {
   }
 }
 
-type Catalog = Record<string, { name: string; price: number | null; originalPrice: number | null }>;
+type FlashWindow = { start: string; end: string; price: number };
+type Catalog = Record<string, { name: string; price: number | null; originalPrice: number | null; flash?: FlashWindow[] }>;
+
+/** Giá Flash Sale nếu giờ máy chủ nhận đơn nằm trong khung giờ của sản phẩm (xem src/lib/flash-sale.ts). */
+function flashPrice(product: Catalog[string], now = Date.now()): number | undefined {
+  const win = product.flash?.find((w) => now >= Date.parse(w.start) && now < Date.parse(w.end));
+  return win && Number.isInteger(win.price) && win.price > 0 ? win.price : undefined;
+}
 let catalogCache: { data: Catalog; at: number } | null = null;
 
 async function loadCatalog(): Promise<Catalog> {
@@ -348,8 +355,9 @@ async function sanitizeOrder(raw: Record<string, unknown>): Promise<OrderPayload
     if (!product || seen.has(id)) throw new RejectError(400, 'Giỏ hàng có sản phẩm không còn bán, vui lòng tải lại trang giỏ hàng.');
     if (!Number.isInteger(qty) || qty < 1 || qty > MAX_QTY) throw new RejectError(400, 'Số lượng sản phẩm không hợp lệ.');
     seen.add(id);
-    items.push({ id, name: product.name, qty, price: product.price });
-    total += (product.price ?? 0) * qty;
+    const price = flashPrice(product) ?? product.price;
+    items.push({ id, name: product.name, qty, price });
+    total += (price ?? 0) * qty;
     originalTotal += (product.originalPrice ?? product.price ?? 0) * qty;
   }
   const unpriced = items.some((item) => item.price === null);

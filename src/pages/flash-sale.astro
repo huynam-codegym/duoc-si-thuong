@@ -1,0 +1,48 @@
+---
+// Trang "Flash Sale giá tốt" (nút "Xem tất cả"/"Xem thể lệ" ở khung Flash Sale trang chủ), xem src/lib/flash-sale.ts.
+import BaseLayout from '../layouts/BaseLayout.astro';
+import FlashSale from '../components/FlashSale.astro';
+import { FREE_SHIPPING_THRESHOLD } from '../lib/cart';
+import { FLASH_SALE, flashDate, flashSlots, flashTime } from '../lib/flash-sale';
+import { formatPrice } from '../lib/products';
+import { site } from '../lib/site';
+---
+
+<BaseLayout
+  title={FLASH_SALE.title}
+  description="Flash Sale giá tốt tại Dược Sĩ Thương: giá ưu đãi theo khung giờ cho thực phẩm bảo vệ sức khỏe, dược mỹ phẩm và sản phẩm chăm sóc cá nhân, do Nhà Thuốc Nhật Minh bán."
+>
+  <div class="container">
+    <FlashSale full />
+
+    <section class="flash-rules" id="the-le" aria-labelledby="the-le-title">
+      <h2 class="section-title" id="the-le-title">Thể lệ chương trình</h2>
+      <ol>
+        <li>
+          Thời gian:
+          {flashSlots.map((slot, i) => (
+            <>
+              {i > 0 && '; '}
+              <strong>{flashTime(slot.start)} - {flashTime(slot.end)} ngày {flashDate(slot.start)}</strong> ({slot.theme})
+            </>
+          ))}
+          , theo giờ Việt Nam.
+        </li>
+        <li>
+          Giá Flash chỉ áp dụng cho sản phẩm trong đúng khung giờ của sản phẩm đó, tính theo thời điểm hệ thống nhận đơn.
+          Đơn gửi sau khi khung giờ kết thúc được tính theo giá bán thường.
+        </li>
+        <li>Giá Flash đã gồm mức giảm, không cộng dồn với ưu đãi khác. Mỗi đơn tối đa 20 sản phẩm cho mỗi loại.</li>
+        <li>Miễn phí giao hàng cho đơn từ {formatPrice(FREE_SHIPPING_THRESHOLD)}, như chính sách thường ngày.</li>
+        <li>
+          Nhà thuốc sẽ liên hệ xác nhận đơn trước khi giao. Nếu chọn chuyển khoản, vui lòng chờ xác nhận rồi mới chuyển tiền.
+        </li>
+      </ol>
+      <p class="flash-rules-note">
+        Thực phẩm bảo vệ sức khỏe không phải là thuốc và không có tác dụng thay thế thuốc chữa bệnh. Phụ nữ có thai hoặc
+        cho con bú, trẻ em, người có bệnh nền hoặc đang dùng thuốc nên hỏi ý kiến bác sĩ, dược sĩ trước khi dùng. Cần tư
+        vấn? <a href={site.zaloHref} target="_blank" rel="noopener noreferrer">Nhắn Zalo cho dược sĩ</a>.
+      </p>
+    </section>
+  </div>
+</BaseLayout>

@@ -226,7 +226,7 @@ const jsonLd = {
           </div>
           <div class="product-gallery-zoom" id="galleryZoom" aria-hidden="true"></div>
         </div>
-        <div class="product-info">
+        <div class="product-info" data-flash-sync={product.id}>
           <p class="origin-brand-row">
             <span class="origin-line">
               {flagCode && <img class="origin-flag" src={url(`/flags/${flagCode}.svg`)} alt="" width="16" height="12" loading="lazy" />}
@@ -249,15 +249,15 @@ const jsonLd = {
           </p>
           <p class="lead">{summary}</p>
           <p class="product-price product-price-lg">
-            {formatPrice(price)}
+            <span data-price-value>{formatPrice(price)}</span>
             {unit && <span class="product-unit"> / {unit}</span>}
           </p>
-          {discount !== undefined && (
-            <p class="product-price-compare">
-              <span class="product-price-original">{formatPrice(originalPrice)}</span>
-              <span class="sale-badge">-{discount}%</span>
-            </p>
-          )}
+          {/* Luôn có sẵn khối giá gốc (ẩn khi không giảm giá) để FlashPriceSync bật lên khi đang Flash Sale */}
+          <p class="product-price-compare" data-price-compare hidden={discount === undefined}>
+            <span class="product-price-original" data-price-original>{discount !== undefined && formatPrice(originalPrice)}</span>
+            <span class="sale-badge" data-price-badge>{discount !== undefined && `-${discount}%`}</span>
+          </p>
+          <p class="flash-note" data-flash-note hidden></p>
           <dl class="product-facts">
             {dosageForm && (<><dt>Dạng bào chế</dt><dd>{dosageForm}</dd></>)}
             {ingredients && (<><dt>Thành phần</dt><dd>{ingredients}</dd></>)}
@@ -372,14 +372,14 @@ const jsonLd = {
            tách 2 bản riêng để khỏi trùng lặp sự kiện. Dùng lại [data-add-to-cart]/[data-qty-step] đã
            có sẵn (xử lý chung ở Header.astro) nên không cần viết thêm JS cho việc thêm giỏ/mua ngay. -->
       <div class="sticky-buy-bar" id="stickyBuyBar" hidden>
-        <div class="container sticky-buy-bar-inner">
+        <div class="container sticky-buy-bar-inner" data-flash-sync={product.id}>
           <div class="sticky-buy-info">
             <img src={cartImage.src} alt="" class="sticky-buy-img" width="48" height="48" loading="lazy" />
             <div class="sticky-buy-text">
               <p class="sticky-buy-name" title={name}>{name}</p>
               <p class="sticky-buy-price">
-                {formatPrice(price)}
-                {discount !== undefined && <span class="product-price-original">{formatPrice(originalPrice)}</span>}
+                <span data-price-value>{formatPrice(price)}</span>
+                <span class="product-price-original" data-price-original hidden={discount === undefined}>{discount !== undefined && formatPrice(originalPrice)}</span>
               </p>
             </div>
           </div>

@@ -3,6 +3,7 @@
  * Chỉ import file này trong thẻ <script> của component (chạy ở trình duyệt), không import ở phần frontmatter.
  * Giá và tên lưu lại lúc thêm vào giỏ; đơn hàng luôn được nhà thuốc xác nhận lại trước khi giao.
  */
+import { flashPriceFor } from './flash-sale';
 export interface CartItem {
   id: string;
   name: string;
@@ -14,10 +15,32 @@ export interface CartItem {
   unit: string;
   image: string;
   qty: number;
+  /** Chỉ có trong dữ liệu getCart() trả về khi sản phẩm đang Flash Sale (KHÔNG lưu vào localStorage):
+   * giờ kết thúc khung giờ và giá thường để khôi phục khi lưu lại. */
+  flashEnds?: string;
+  base?: { price: number | null; originalPrice?: number | null };
 }
 
 export const MAX_QTY = 20;
 const KEY = 'duocsithuong-cart';
+
+// Giỏ luôn LƯU giá thường; giá Flash Sale chỉ áp lúc đọc ra (theo giờ hiện tại), nên khung giờ kết thúc
+// thì giỏ tự về giá thường mà không cần sửa dữ liệu đã lưu. Máy chủ cũng tự tính lại giá theo giờ nhận đơn.
+function withFlash(item: CartItem): CartItem {
+  const flash = flashPriceFor(item.id);
+  if (!flash) return { ...item };
+  return {
+    ...item,
+    price: flash.price,
+    originalPrice: item.originalPrice ?? item.price,
+    flashEnds: flash.slot.end,
+    base: { price: item.price, originalPrice: item.originalPrice },
+  };
+}
+
+function stripFlash({ flashEnds: _ends, base, ...item }: CartItem): CartItem {
+  return base ? { ...item, ...base } : item;
+}
 
 // Nếu trình duyệt chặn localStorage (ví dụ cửa sổ ẩn danh) thì giữ giỏ trong bộ nhớ, giỏ vẫn dùng được trong trang đang mở
 let memory: CartItem[] = [];
@@ -44,10 +67,11 @@ export function getCart(): CartItem[] {
   } catch {
     // giữ nguyên `memory`
   }
-  return memory.map((item) => ({ ...item }));
+  return memory.map(withFlash);
 }
 
-function save(items: CartItem[]) {
+function save(flashItems: CartItem[]) {
+  const items = flashItems.map(stripFlash);
   memory = items;
   try {
     localStorage.setItem(KEY, JSON.stringify(items));
@@ -61,6 +85,9 @@ export function addToCart(item: Omit<CartItem, 'qty'>, qty = 1) {
   const items = getCart();
   const found = items.find((entry) => entry.id === item.id);
   if (found) {
+    // `item` mang giá thường mới nhất từ trang, bỏ giá Flash đang áp để save() không khôi phục giá cũ
+    delete found.base;
+    delete found.flashEnds;
     Object.assign(found, item, { qty: Math.min(MAX_QTY, found.qty + qty) });
   } else {
     items.push({ ...item, qty: Math.min(MAX_QTY, qty) });
