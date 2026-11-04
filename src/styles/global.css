@@ -5373,47 +5373,50 @@ body.has-sticky-bar .faq-chat-toggle {
   text-decoration: none;
 }
 
-.video-section-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  margin: 2.5rem 0 1rem;
-}
-
-.video-section-head .section-title {
-  margin: 0;
-}
-
-.video-nav {
-  display: flex;
-  gap: 0.5rem;
-}
-
-.video-nav[hidden] {
-  display: none;
+/* 2 nút cuộn đè lên 2 bên hàng video, ngang giữa ảnh (--video-nav-top do script VideoSection tính) */
+.video-carousel {
+  position: relative;
 }
 
 .video-nav-btn {
+  position: absolute;
+  top: var(--video-nav-top, 40%);
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   width: 2.5rem;
   height: 2.5rem;
-  border: 1px solid var(--green-700);
+  padding: 0 0 0.15rem;
+  border: 1px solid var(--line);
   border-radius: 50%;
   background: #fff;
   color: var(--green-700);
-  font-size: 1.5rem;
+  font-size: 1.6rem;
   line-height: 1;
   cursor: pointer;
+  box-shadow: 0 2px 10px rgb(0 0 0 / 0.18);
+  transform: translateY(-50%);
 }
 
-.video-nav-btn:hover:not(:disabled) {
-  background: var(--green-700);
-  color: #fff;
+.video-nav-btn[hidden] {
+  display: none;
 }
 
-.video-nav-btn:disabled {
-  opacity: 0.35;
-  cursor: default;
+.video-nav-prev {
+  left: 0.4rem;
+}
+
+.video-nav-next {
+  right: 0.4rem;
+}
+
+/* chỉ máy có chuột: màn hình cảm ứng giữ nguyên trạng thái hover sau khi chạm, nút bị dính màu xanh */
+@media (hover: hover) {
+  .video-nav-btn:hover {
+    background: var(--green-700);
+    color: #fff;
+  }
 }
 
 /* Thẻ video phát trên trang là <button>: bỏ kiểu nút mặc định để giống hệt thẻ liên kết */
