@@ -82,6 +82,18 @@ await convert('2.webp', 'anh-2.jpg');
 
 Xoá script `.mjs` tạm sau khi chạy xong (`rm -f scratch-*.mjs`).
 
+### 5b. Video (nếu có) — LUÔN kiểm tra và chuyển định dạng (chủ website yêu cầu 05/11/2026)
+
+Mọi video chủ website gửi (sản phẩm hay "Video ngắn" trang chủ) đều qua bước này trước khi đặt vào `public/videos/`, không cần hỏi lại. Xem mục "Bẫy đã gặp — iPhone không xem được video" trong CLAUDE.md.
+
+1. `ffprobe` xem codec video/tiếng, kích thước, độ dài.
+2. Chưa phải H.264 (VP9/AV1/HEVC...), hoặc rộng/cao quá 720×1280 (dọc) / 1280×720 (ngang), hoặc nặng quá ~20MB → chuyển bằng lệnh chuẩn trong CLAUDE.md (`libx264 -profile:v main -level 4.0 -pix_fmt yuv420p -crf 23 -maxrate 2500k`, `aac 128k`, `+faststart`; video ngang thì `scale=1280:-2`). Đã là H.264 vừa cỡ → chỉ `-c copy -movflags +faststart`.
+3. So độ dài cũ/mới và xem 1 khung hình trước/sau.
+4. Chạy case UI-12 và thử phát thật (Puppeteer, 390px + 1280px).
+5. Báo chủ website: codec gốc → codec mới, dung lượng trước/sau.
+
+ffmpeg: bản chính thức BtbN đã đối chiếu SHA256, để trong scratchpad (không cài vào máy). Không còn thì tải lại `ffmpeg-master-latest-win64-gpl.zip` + `checksums.sha256` từ github.com/BtbN/FFmpeg-Builds/releases, đối chiếu SHA256 trước khi giải nén.
+
 ## 6. Patch/vẽ lại ảnh (chỉ khi cần, theo mục 2)
 
 - **Patch logo/badge nhỏ**: đo vùng bằng cách cắt thử + phóng to xem lại bằng Read (không áng chừng bằng mắt), phủ hình chữ nhật trắng (SVG `<rect>` qua sharp composite) đúng vùng đã đo, mở rộng ra tới full width nếu vùng nằm sát mép để tránh để lại viền lởm chởm.
