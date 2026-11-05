@@ -693,6 +693,12 @@ Chủ website gửi mẫu "Flash Sale giá tốt" của Long Châu, chọn chạ
 
 - **Dữ liệu** ở `src/lib/flash-sale.ts` (không import `astro:content`, dùng được cả ở trình duyệt): mỗi khung giờ có `start`/`end` (giờ VN), chủ đề, và `items` (slug → giá Flash). 05/11 "Sức khỏe & mẹ bé", 06/11 "Làm đẹp & chăm sóc da", mỗi ngày 8 sản phẩm đang có giá gốc. **Giá Flash do tôi đặt** = giá bán hiện tại giảm thêm 5%, làm tròn xuống nghìn đồng; chủ website đổi được ở file này. Build báo lỗi nếu sản phẩm không còn bán, giá Flash không thấp hơn giá bán, hoặc giảm quá 50% so với giá gốc (`FlashSale.astro`).
 - **Giao diện:** `src/components/FlashSale.astro`, ở trang chủ ngay dưới "Liên hệ nhanh", trên banner 20.11. Đầu khung xanh đậm dựng bằng HTML/CSS (không dùng ảnh/logo Long Châu), tab khung giờ ("Đang diễn ra" viền đỏ / "Sắp diễn ra"), đếm ngược "Kết thúc sau"/"Bắt đầu sau", 1 hàng thẻ cuộn ngang (máy tính có nút ‹ ›). Thẻ dùng lại `ProductCard` với prop `flash` (giá Flash, giá gốc gạch ngang, nhãn "⚡ Flash đến 22:00"). Khung giờ chưa tới: ẩn "Chọn mua", hiện "Mở bán 08:00". Khung giờ đã qua tự ẩn; hết cả 2 thì cả khung ẩn (trình duyệt), lần build sau không dựng nữa. Trang `/flash-sale/` hiện hết sản phẩm + **Thể lệ** (giá tính theo giờ hệ thống nhận đơn, không cộng dồn, nhà thuốc xác nhận trước khi giao).
+- **Bẫy đã gặp (05/11/2026) — thẻ Flash rộng không đều trên iPhone (164–249px):**
+  - Thẻ đặt `flex-basis` theo %, nhưng flex item có `min-width:auto` ngầm định, nên ảnh sản phẩm (mỗi ảnh một tỷ lệ) làm thẻ phình theo ảnh. Đã sửa bằng `min-width: 0` cho `.flash-row .carousel-item`. Các hàng khác dùng bề rộng cố định 13rem, đủ lớn nên chưa lộ.
+  - Sửa xong mới thấy bề rộng định sẵn quá hẹp (129px, chữ và giá bị cắt). Đổi thành ~1,75 thẻ trên điện thoại và giảm viền khung.
+  - `.card p` mạnh hơn `.flash-tag` (cùng họ bẫy độ ưu tiên CSS), nên cỡ chữ nhãn chưa từng có tác dụng. Selector giờ là `.flash .flash-tag`.
+  - Nhãn rút thành "⚡ Đến 22:00"; điện thoại ẩn "/ Hộp" cạnh giá.
+  - PRD-14 kiểm tra các thẻ rộng bằng nhau. Test bằng cách đo đủ 320/375/390/430/820/1280px xem chữ nào tràn (`scrollWidth > clientWidth`), không chỉ chụp 1 khổ.
 - **Không làm theo mẫu:** thanh "Đã bán 28/100 suất" (site không đếm hàng bán thật, không bịa), "Ưu đãi giá sốc".
 - **Giá Flash áp ở mọi nơi, theo giờ:**
   - Giỏ hàng (`lib/cart.ts`) luôn LƯU giá thường; `getCart()` áp giá Flash lúc đọc (`withFlash`), `save()` khôi phục giá thường (`stripFlash`). Nhờ vậy hết giờ thì giỏ tự về giá thường. Trang giỏ hiện dòng "⚡ Giá Flash Sale đến 22:00 hôm nay".

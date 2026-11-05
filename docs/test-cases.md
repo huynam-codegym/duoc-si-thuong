@@ -248,3 +248,7 @@ Ghi mỗi lần chạy đủ bộ: ngày, số case PASS/FAIL, lỗi đã sửa.
 - Puppeteer 390px và 1280px: mở lần lượt cả 8 video, mỗi video phát quá 1,5 giây, 720×1280, không lỗi JS (phát hiện và sửa lỗi đóng rồi mở ngay video khác bị mất `src`).
 - Chạy lại UI + SEC — 14/14 PASS.
 
+### 05/11/2026 — thẻ Flash Sale rộng không đều trên iPhone
+
+- Đo 320/375/390/430/820/1280px: thẻ rộng bằng nhau, không chữ nào bị cắt, không tràn ngang. PRD-14 thêm kiểm tra thẻ rộng bằng nhau.
+- Chạy lại UI + PRD + SEC — 29/29 PASS.

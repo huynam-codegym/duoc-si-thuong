@@ -644,9 +644,12 @@ await tc('PRD-14', 'Flash Sale: trạng thái khung giờ, giá Flash ở thẻ/
     await go(o.page, '/');
     let r = await o.page.evaluate(() => {
       const root = document.querySelector('[data-flash-root]'), panel = root && [...root.querySelectorAll('.flash-panel')].find((p) => !p.hidden);
-      return root && { shown: !root.hidden, label: root.querySelector('[data-flash-countdown-label]').textContent, buy: panel && getComputedStyle(panel.querySelector('.btn-add')).display, sw: document.documentElement.scrollWidth };
+      // Thẻ phải rộng bằng nhau (bẫy min-width:auto: ảnh tỷ lệ khác nhau làm thẻ phình, 05/11/2026)
+      const widths = panel ? [...panel.querySelectorAll('.product-card')].map((c) => Math.round(c.getBoundingClientRect().width)) : [];
+      return root && { shown: !root.hidden, label: root.querySelector('[data-flash-countdown-label]').textContent, buy: panel && getComputedStyle(panel.querySelector('.btn-add')).display, sw: document.documentElement.scrollWidth, widths: [...new Set(widths)] };
     });
     if (!r?.shown || r.label !== 'Bắt đầu sau' || r.buy !== 'none') bad.push(vp + ': trước giờ hiển thị sai ' + JSON.stringify(r));
+    if (r && r.widths.length !== 1) bad.push(vp + ': thẻ Flash rộng không đều ' + r.widths.join('/'));
     if (r && r.sw > VP_W[vp]) bad.push(vp + ': khung Flash Sale làm tràn ngang');
     await o.close();
     // Trong giờ: "Đang diễn ra", trang chi tiết hiện giá Flash

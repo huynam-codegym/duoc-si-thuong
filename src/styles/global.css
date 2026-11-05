@@ -7209,7 +7209,7 @@ body.has-sticky-bar .faq-chat-toggle {
   margin: 1.5rem 0;
   border-radius: 18px;
   background: var(--green-900);
-  padding: 0.75rem 0.6rem 0.6rem;
+  padding: 0.6rem 0.4rem 0.4rem;
 }
 
 .flash-head {
@@ -7262,7 +7262,7 @@ body.has-sticky-bar .faq-chat-toggle {
 .flash-body {
   background: #fff;
   border-radius: 14px;
-  padding: 0 0.75rem 0.75rem;
+  padding: 0 0.5rem 0.6rem;
   overflow: hidden;
 }
 
@@ -7270,7 +7270,7 @@ body.has-sticky-bar .faq-chat-toggle {
   display: grid;
   grid-auto-flow: column;
   grid-auto-columns: minmax(0, 1fr);
-  margin: 0 -0.75rem;
+  margin: 0 -0.5rem;
   border-bottom: 1px solid var(--line);
 }
 
@@ -7302,6 +7302,14 @@ body.has-sticky-bar .faq-chat-toggle {
 }
 
 @media (min-width: 40rem) {
+  .flash-body {
+    padding: 0 0.75rem 0.75rem;
+  }
+
+  .flash-tabs {
+    margin: 0 -0.75rem;
+  }
+
   .flash .flash-title {
     font-size: 1.6rem;
     letter-spacing: 0.02em;
@@ -7359,9 +7367,13 @@ body.has-sticky-bar .faq-chat-toggle {
   position: relative;
 }
 
-/* Điện thoại: thấy đủ 2 thẻ + mép thẻ thứ 3 để biết vuốt ngang được; máy tính bảng ~3,5 thẻ */
+/* Điện thoại: ~1,75 thẻ (thẻ rộng ~175px, bằng thẻ ở lưới sản phẩm khác; hẹp hơn thì chữ/giá bị cắt),
+   lộ mép thẻ sau để biết vuốt ngang được; máy tính bảng ~3,5 thẻ */
 .flash-row .carousel-item {
-  flex-basis: calc((100% - 1.6rem) / 2.15);
+  flex-basis: calc((100% - 0.8rem) / 1.75);
+  /* Bẫy min-width:auto của flex item: ảnh sản phẩm (tỷ lệ gốc mỗi ảnh một khác) làm thẻ phình rộng
+     theo ảnh thay vì đúng flex-basis, nên các thẻ rộng không đều (05/11/2026) */
+  min-width: 0;
 }
 
 @media (min-width: 40rem) {
@@ -7378,7 +7390,7 @@ body.has-sticky-bar .faq-chat-toggle {
   border: 2px solid #fdba74;
 }
 
-.flash-tag {
+.flash .flash-tag {
   margin: 0.4rem 0 0.5rem;
   font-size: 0.78rem;
   font-weight: 700;
@@ -7572,5 +7584,40 @@ body.has-sticky-bar .faq-chat-toggle {
 
   .featured-cats strong {
     font-size: 0.95rem;
+  }
+}
+
+/* Thẻ Flash trên điện thoại hẹp (~176px): "/ Hộp" cạnh giá bị cắt (quy cách đầy đủ đã có ở nhãn bên dưới),
+   nhãn "Flash đến 22:00" giữ 1 dòng để các thẻ cao bằng nhau */
+.flash-tag-live,
+.flash-tag-soon {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+@media (max-width: 39.99rem) {
+  .flash .product-unit-type {
+    display: none;
+  }
+
+  .flash .flash-tag {
+    font-size: 0.72rem;
+  }
+}
+
+/* Màn rất hẹp (iPhone SE đời đầu, 320px): giá 7 chữ số tràn thẻ 136px */
+@media (max-width: 22.49rem) {
+  .flash .product-price {
+    font-size: 0.92rem !important;
+  }
+
+  .flash .flash-tag {
+    font-size: 0.66rem;
+  }
+
+  .flash-tag-live,
+  .flash-tag-soon {
+    padding-inline: 0.2rem;
   }
 }
