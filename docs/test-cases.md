@@ -41,6 +41,7 @@ Vòng lặp:
 | UI-09 | Ảnh có alt | Mọi `<img>` hiển thị (không `hidden`, không trang trí `alt=""` có `aria-hidden`) có `alt` | T |
 | UI-10 | Cỡ chữ | Cỡ chữ gốc của trang là 18px (`html{font-size:112.5%}`) | T |
 | UI-11 | Khung xin phép cookie thống kê (chỉ khi build có `PUBLIC_GA_ID`) | Chưa có mã: không có khung, không có mã Google. Có mã: lần đầu hiện khung, nằm gọn trong màn hình ở 1280 và 375px; chưa đồng ý/từ chối thì không tải Google; "Cài đặt cookie" ở chân trang mở lại khung; đồng ý thì tải, không gửi query (mã đơn) cho Google, đã tắt Google Signals; trang `/admin/` không tải | T |
+| UI-12 | Định dạng mọi file trong `public/videos/` | H.264 (`avc1`) + AAC (`mp4a`), `moov` đứng trước `mdat` (faststart). VP9/AV1/HEVC không phát được trên nhiều điện thoại dù Chrome máy tính vẫn phát | T |
 
 ## 2. Điều hướng (NAV)
 
@@ -240,4 +241,10 @@ Ghi mỗi lần chạy đủ bộ: ngày, số case PASS/FAIL, lỗi đã sửa.
 
 - Kiểm tra riêng bằng Puppeteer ở 320, 375, 768, 1280px với đồng hồ trình duyệt lệch tới trước giờ, trong ngày 05/11, gần hết 06/11 và sau khi kết thúc: tab/đếm ngược/nút đúng trạng thái, giá Flash ở thẻ, trang chi tiết, thanh mua dính, khay chọn số lượng, giỏ hàng; hết giờ về giá thường; tiêu đề không đè nút "Thể lệ"; không tràn ngang, không lỗi JS.
 - Chạy toàn bộ: 79/80, PRD-07 lỗi do test đọc giá theo HTML cũ (giá giờ nằm trong `<span data-price-value>`), đã sửa test. Thêm PRD-14; các case giỏ hàng bỏ qua sản phẩm Flash Sale để không lệch vào 2 ngày chạy chương trình. Chạy lại PRD + CART — 23/23 PASS.
+
+### 05/11/2026 — video trang chủ không xem được trên iPhone
+
+- Nguyên nhân: 8 video là VP9/AV1 (Chrome máy tính phát được nên test cũ không lộ). Đã chuyển sang H.264 + AAC, faststart cả 11 video sản phẩm. Thêm UI-12 (kiểm tra định dạng file video).
+- Puppeteer 390px và 1280px: mở lần lượt cả 8 video, mỗi video phát quá 1,5 giây, 720×1280, không lỗi JS (phát hiện và sửa lỗi đóng rồi mở ngay video khác bị mất `src`).
+- Chạy lại UI + SEC — 14/14 PASS.
 

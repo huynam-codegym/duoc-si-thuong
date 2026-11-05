@@ -283,6 +283,29 @@ await tc('UI-09', 'Ảnh có alt', async () => {
   }
   return verdict(bad);
 });
+await tc('UI-12', 'Video tự tải lên phát được trên iPhone/Android: H.264 + AAC, moov đứng trước mdat', async () => {
+  // Chrome máy tính phát được cả VP9/AV1 nên test bằng Puppeteer không lộ lỗi; Safari iPhone thì không.
+  // Đọc thẳng cấu trúc file MP4 thay vì thử phát.
+  const bad = [];
+  const dir = path.join(ROOT, 'public/videos');
+  const files = fs.existsSync(dir) ? fs.readdirSync(dir, { recursive: true }).filter((f) => String(f).endsWith('.mp4')) : [];
+  for (const f of files) {
+    const buf = fs.readFileSync(path.join(dir, String(f)));
+    const top = [];
+    for (let off = 0; off + 8 <= buf.length; ) {
+      let size = buf.readUInt32BE(off);
+      top.push(buf.toString('latin1', off + 4, off + 8));
+      if (size === 1) size = Number(buf.readBigUInt64BE(off + 8));
+      if (size < 8) break;
+      off += size;
+    }
+    const head = buf.toString('latin1', 0, Math.min(buf.length, 4_000_000)) + buf.toString('latin1', Math.max(0, buf.length - 4_000_000));
+    if (!head.includes('avc1')) bad.push(`${f}: không phải H.264 (${['vp09', 'av01', 'hvc1', 'hev1'].filter((c) => head.includes(c)).join('/') || '?'})`);
+    if (!head.includes('mp4a')) bad.push(`${f}: tiếng không phải AAC`);
+    if (top.indexOf('moov') > top.indexOf('mdat')) bad.push(`${f}: moov nằm sau mdat (chưa faststart)`);
+  }
+  return verdict(bad, `${files.length} video`);
+});
 await tc('UI-10', 'Cỡ chữ gốc 18px', async () => {
   const { page, close } = await open('desktop');
   await go(page, '/');

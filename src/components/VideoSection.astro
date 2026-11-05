@@ -149,8 +149,11 @@ const hasPlayer = items.some((video) => video.src);
     dialog.addEventListener('click', (event) => {
       if (event.target === dialog) dialog.close();
     });
-    // Đóng (kể cả bằng Esc) thì dừng hẳn và bỏ file, không để tiếng chạy ngầm hay tải tiếp
+    // Đóng (kể cả bằng Esc) thì dừng hẳn và bỏ file, không để tiếng chạy ngầm hay tải tiếp.
+    // Sự kiện "close" tới chậm một nhịp: khách đóng rồi mở ngay video khác thì khung đã mở lại,
+    // không được xóa mất video vừa chọn.
     dialog.addEventListener('close', () => {
+      if (dialog.open) return;
       player.pause();
       player.removeAttribute('src');
       player.load();
