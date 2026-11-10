@@ -351,7 +351,8 @@ async function sanitizeOrder(raw: Record<string, unknown>): Promise<OrderPayload
   for (const entry of rawItems as Record<string, unknown>[]) {
     const id = str(entry?.id, 120);
     const qty = Number(entry?.qty);
-    const product = catalog[id];
+    // Object.hasOwn: chặn mã như "__proto__"/"constructor" (có sẵn trên mọi object, không phải sản phẩm)
+    const product = Object.hasOwn(catalog, id) ? catalog[id] : undefined;
     if (!product || seen.has(id)) throw new RejectError(400, 'Giỏ hàng có sản phẩm không còn bán, vui lòng tải lại trang giỏ hàng.');
     if (!Number.isInteger(qty) || qty < 1 || qty > MAX_QTY) throw new RejectError(400, 'Số lượng sản phẩm không hợp lệ.');
     seen.add(id);

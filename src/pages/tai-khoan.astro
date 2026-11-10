@@ -105,7 +105,63 @@ import { url } from '../lib/url';
 
   <script>
     import { supabase } from '../lib/supabase';
-    import { formatVnd } from '../lib/cart';
+    import { addToCart, formatVnd } from '../lib/cart';
+    import { loadCatalog, type CatalogItem } from '../lib/catalog';
+    import { url } from '../lib/url';
+
+    type OrderItem = { id?: string; name: string; qty: number };
+
+    // "Mua lại" (10/11/2026): cho lại các sản phẩm của 1 đơn cũ vào giỏ. Tên, giá, ảnh lấy MỚI từ /san-pham.json
+    // (không dùng giá cũ trong đơn); sản phẩm đã ngừng bán thì bỏ qua và báo cho khách biết.
+    async function buyAgain(items: OrderItem[], button: HTMLButtonElement, message: HTMLElement) {
+      button.disabled = true;
+      message.hidden = true;
+      let catalog: Record<string, CatalogItem>;
+      try {
+        catalog = await loadCatalog();
+      } catch {
+        message.textContent = 'Chưa tải được danh sách sản phẩm, vui lòng thử lại.';
+        message.hidden = false;
+        button.disabled = false;
+        return;
+      }
+      // Đơn cũ có thể không lưu mã sản phẩm, khi đó tìm theo đúng tên
+      const slugByName = new Map(Object.entries(catalog).map(([slug, item]) => [item.name, slug]));
+      const missing: string[] = [];
+      let added = 0;
+      for (const item of items) {
+        const slug = item.id && Object.hasOwn(catalog, item.id) ? item.id : slugByName.get(item.name);
+        const product = slug ? catalog[slug] : undefined;
+        const qty = Math.floor(Number(item.qty)) || 1;
+        if (!slug || !product) {
+          missing.push(item.name);
+          continue;
+        }
+        const onSale = product.price !== null && product.originalPrice !== null && product.originalPrice > product.price;
+        addToCart(
+          { id: slug, name: product.name, price: product.price, originalPrice: onSale ? product.originalPrice : null, unit: product.unit, image: product.image },
+          qty,
+        );
+        added += 1;
+      }
+      if (missing.length === 0) {
+        location.href = url('/gio-hang/');
+        return;
+      }
+      button.disabled = false;
+      message.replaceChildren();
+      message.append(
+        added > 0 ? `Đã thêm ${added} sản phẩm vào giỏ. ` : '',
+        `Không còn bán: ${missing.join(', ')}. `,
+      );
+      if (added > 0) {
+        const link = document.createElement('a');
+        link.href = url('/gio-hang/');
+        link.textContent = 'Xem giỏ hàng';
+        message.append(link);
+      }
+      message.hidden = false;
+    }
 
     const loading = document.getElementById('account-loading')!;
     const authBox = document.getElementById('auth-box')!;
@@ -255,7 +311,7 @@ import { url } from '../lib/url';
       profileMessage.hidden = false;
     });
 
-    function orderRow(order: { id: string; created_at: string; total: number | null; status: string; payment_method: string; items: { name: string; qty: number }[] }) {
+    function orderRow(order: { id: string; created_at: string; total: number | null; status: string; payment_method: string; items: OrderItem[] }) {
       const li = document.createElement('li');
       li.className = 'order-row';
       const date = new Date(order.created_at).toLocaleDateString('vi-VN');
@@ -276,8 +332,16 @@ import { url } from '../lib/url';
           <span class="order-status">${statusLabel[order.status] ?? escapeHtml(order.status)}</span>
         </div>
         <p class="order-row-items">${itemText}</p>
-        <p class="order-row-foot">${order.total ? formatVnd(order.total) : 'Liên hệ'} · ${paymentLabel[order.payment_method] ?? escapeHtml(order.payment_method)}</p>
+        <div class="order-row-bottom">
+          <p class="order-row-foot">${order.total ? formatVnd(order.total) : 'Liên hệ'} · ${paymentLabel[order.payment_method] ?? escapeHtml(order.payment_method)}</p>
+          <button type="button" class="btn btn-outline order-buy-again">Mua lại</button>
+        </div>
+        <p class="order-buy-again-msg" role="status" hidden></p>
       `;
+      const button = li.querySelector<HTMLButtonElement>('.order-buy-again')!;
+      const message = li.querySelector<HTMLElement>('.order-buy-again-msg')!;
+      if (!Array.isArray(order.items) || order.items.length === 0) button.remove();
+      else button.addEventListener('click', () => buyAgain(order.items, button, message));
       return li;
     }
 

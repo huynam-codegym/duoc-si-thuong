@@ -6183,6 +6183,26 @@ body.has-sticky-bar .faq-chat-toggle {
   font-weight: 600;
 }
 
+/* Nút "Mua lại" cạnh tổng tiền (tai-khoan.astro) */
+.order-row-bottom {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem 1rem;
+}
+
+.order-buy-again {
+  padding: 0.4rem 1rem;
+  font-size: 0.92rem;
+}
+
+.order-buy-again-msg {
+  margin: 0.5rem 0 0;
+  color: #b45309;
+  font-size: 0.9rem;
+}
+
 /* Modal đăng nhập nhanh (nút "Tài khoản" ở đầu trang) — khung nổi CHÍNH GIỮA màn hình (khác
    .mobile-drawer trượt từ cạnh), theo đúng kiểu popup đăng nhập Long Châu chủ website gửi. */
 .account-modal[hidden] {
@@ -7668,5 +7688,64 @@ body.has-sticky-bar .faq-chat-toggle {
   .flash-tag-live,
   .flash-tag-soon {
     padding-inline: 0.2rem;
+  }
+}
+
+/* "Sản phẩm bạn đã xem" (RecentlyViewed.astro): 1 hàng thẻ cuộn ngang, nút ‹ › từ 40rem (.carousel-btn) */
+.recent-viewed-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin: 2.5rem 0 1rem;
+}
+
+.recent-viewed-head .section-title {
+  margin: 0;
+}
+
+.recent-viewed-clear {
+  flex: none;
+  border: 0;
+  background: none;
+  padding: 0.25rem 0;
+  color: var(--green-700);
+  font: inherit;
+  font-size: 0.9rem;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.recent-viewed .carousel-item {
+  flex: 0 0 10.5rem;
+  min-width: 0;
+}
+
+/* Nút ‹ › đè lên 2 mép hàng thẻ (không chiếm chỗ, để thẻ đầu thẳng hàng với tiêu đề) */
+.recent-viewed-row {
+  display: block;
+}
+
+.recent-viewed .carousel-btn {
+  position: absolute;
+  top: 35%;
+  z-index: 2;
+}
+
+.recent-viewed-prev {
+  left: -0.75rem;
+}
+
+.recent-viewed-next {
+  right: -0.75rem;
+}
+
+.recent-viewed .carousel-btn:disabled {
+  visibility: hidden;
+}
+
+@media (min-width: 77rem) {
+  .recent-viewed .carousel-item {
+    flex-basis: 12rem;
   }
 }

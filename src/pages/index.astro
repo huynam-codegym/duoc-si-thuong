@@ -4,6 +4,7 @@ import cover from '../assets/cover.jpg';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import PostCard from '../components/PostCard.astro';
 import ProductCard from '../components/ProductCard.astro';
+import RecentlyViewed from '../components/RecentlyViewed.astro';
 import GroupIcon from '../components/GroupIcon.astro';
 import VideoSection from '../components/VideoSection.astro';
 import CampaignBanner from '../components/CampaignBanner.astro';
@@ -181,6 +182,8 @@ const seasonal = await Promise.all(
         </section>
       )
     }
+
+    <RecentlyViewed />
 
     {
       /* Thứ tự trang chủ: khu bán hàng lên đầu (tháng 9/2026). Từ 04/11/2026 bỏ "Danh mục [khu]" của từng khu

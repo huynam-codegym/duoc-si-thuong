@@ -712,6 +712,12 @@ Chủ website gửi mẫu "Flash Sale giá tốt" của Long Châu, chọn chạ
 - **"Mua theo đối tượng"** (10/11/2026, chủ website chọn từ danh sách đề xuất): trang chủ ngay dưới "Danh mục nổi bật", 3 ô Trẻ em / Mẹ bầu & cho con bú / Phụ nữ, mỗi ô mở `/doi-tuong/<slug>/` (`src/pages/doi-tuong/[audience].astro`, có lưu ý riêng cho từng đối tượng theo nguyên tắc 7). Dữ liệu ở `src/lib/audiences.ts`, chỉ là cách xem thêm, sản phẩm vẫn thuộc đúng 1 nhóm như cũ.
   - **Chỉ xếp sản phẩm khi mục "Đối tượng sử dụng" (theo nhãn) ghi rõ đối tượng đó.** Nhãn ghi "cần hỏi bác sĩ" với nhóm đó thì không xếp (ví dụ Alive Probiotics với mẹ bầu). Chưa có "Người cao tuổi" vì chỉ 1 sản phẩm (Orihiro Glucosamine) có nhãn ghi rõ. **Thêm sản phẩm mới: xem mục "Đối tượng sử dụng", nếu hợp thì thêm slug vào `audiences.ts`.** Slug gõ sai thì build báo lỗi; sản phẩm nháp tự bỏ qua. Bộ test: PRD-16.
   - Nhóm "Trẻ em" và "Phụ nữ & mẹ bầu" trong `departments.ts` vẫn trống (menu hiện "đang cập nhật"); chưa nối 2 nhóm này với trang đối tượng.
+- **"Sản phẩm đã xem" và "Mua lại"** (10/11/2026, chủ website yêu cầu):
+  - `src/components/RecentlyViewed.astro`, ở trang chủ (dưới "Mua theo đối tượng") và cuối trang chi tiết sản phẩm (dưới "Sản phẩm liên quan"). Lịch sử là danh sách slug (tối đa 12) trong localStorage `duocsithuong-recent-v1` (`src/lib/recently-viewed.ts`), không gửi đi đâu; trang Chính sách bảo mật đã nhắc. Tên, ảnh, giá lấy mới từ `/san-pham.json` lúc hiện (`src/lib/catalog.ts`), nên sản phẩm ngừng bán tự biến mất. Chưa xem gì thì khối ẩn; có nút "Xóa lịch sử". Thẻ cùng class với `ProductCard` (rút gọn, không nhãn xuất xứ/tóm tắt) nên dùng chung nút "Chọn mua" và giá Flash.
+  - Nút "Mua lại" ở mỗi đơn trong lịch sử `/tai-khoan/`: cho lại sản phẩm vào giỏ với tên/giá MỚI (không dùng giá trong đơn), đơn cũ không có mã sản phẩm thì tìm theo tên. Có sản phẩm ngừng bán thì ở lại trang và báo "Không còn bán: ..."; đủ hàng thì sang `/gio-hang/`.
+  - `/san-pham.json` có thêm `unit`, `url`, `image` (160px, cùng file với giỏ hàng), `thumb` (320px), `group`. Edge Function đặt hàng chỉ đọc tên/giá nên không ảnh hưởng.
+  - **Bẫy đã gặp:** tra bảng `catalog[id]` với `id` khách gửi lên, `"__proto__"`/`"constructor"` trả về thứ có sẵn trên mọi object (không phải `undefined`). Máy chủ đặt hàng từng coi đó là sản phẩm hợp lệ (tên trống, tiền NaN). Mọi chỗ tra theo khóa từ khách/localStorage dùng `Object.hasOwn(catalog, id)`.
+  - Bộ test: PRD-17, ACC-04.
 
 ### Thống kê lượt truy cập và khung xin phép cookie (03/11/2026)
 

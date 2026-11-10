@@ -87,6 +87,7 @@ Vòng lặp:
 | PRD-14 | Flash Sale (`src/lib/flash-sale.ts`), lệch đồng hồ trình duyệt tới từng mốc | Trước giờ: tab "Sắp diễn ra", "Bắt đầu sau", ẩn nút Chọn mua, không tràn ngang; trong giờ: tab "Đang diễn ra", trang chi tiết hiện giá Flash, giỏ hiện giá Flash nhưng LƯU giá thường; hết khung giờ: giỏ về giá thường; sau khung giờ cuối: khung ẩn | T |
 | PRD-15 | Giá Flash ngoài thẻ sản phẩm, lệch đồng hồ vào trong/trước khung giờ đầu | Trong giờ: gợi ý tìm kiếm đầu trang, kết quả `/tim-kiem/` và khung sản phẩm của menu lớn hiện giá Flash; trước giờ: cả 3 hiện giá thường | T |
 | PRD-16 | "Mua theo đối tượng" (`src/lib/audiences.ts`) | Trang chủ có ô từng đối tượng; mỗi trang `/doi-tuong/<slug>/` có đúng số thẻ như ô ghi, nút đối tượng đang xem được đánh dấu, có câu "không phải là thuốc", không tràn ngang, không lỗi console | T |
+| PRD-17 | "Sản phẩm đã xem" (`RecentlyViewed.astro`, localStorage + `/san-pham.json`) | Chưa xem gì thì ẩn; xem A, B, A, C: trang C hiện A, B (không có C, không trùng), trang chủ hiện C, A, B; ảnh tải được, nút "Chọn mua" đủ dữ liệu; "Xóa lịch sử" thì ẩn hẳn; không tràn ngang ở 1280 và 375px | T |
 
 ## 5. Giỏ hàng (CART)
 
@@ -162,6 +163,7 @@ Gọi thẳng hàm thật bằng `fetch` của Node (không dùng `curl` trong G
 | ACC-01 | `/tai-khoan/` khi chưa đăng nhập | Hiện nút Google, tab Đăng nhập/Đăng ký, dòng Chính sách bảo mật; ô mật khẩu rộng bằng ô email | T |
 | ACC-02 | Bấm "Tài khoản" đầu trang (1280px) | Khung đăng nhập nổi mở, có dòng Chính sách bảo mật và "Tra cứu đơn hàng"; Esc đóng | T |
 | ACC-03 | Phiên ẩn danh (do khung chat tạo) | Đầu trang vẫn ghi "Tài khoản"/"Đăng nhập", không coi là đã đăng nhập | T |
+| ACC-04 | "Mua lại" ở lịch sử đơn `/tai-khoan/` (Supabase giả lập) | Đơn có sản phẩm ngừng bán: thêm sản phẩm còn bán với tên/giá MỚI từ `/san-pham.json` (không lấy giá trong đơn), báo "Không còn bán: ..." và không thêm sản phẩm đó; đơn đủ hàng (kể cả đơn cũ chỉ có tên, không có mã) thì chuyển sang `/gio-hang/` | T |
 | ACC-04 | Đăng nhập Google, email; đăng xuất; quên mật khẩu | Thành công, toast hiện đúng 1 lần, quay về trang chủ | Tay |
 
 ## 11. Khung chat (CHAT)
@@ -259,3 +261,7 @@ Ghi mỗi lần chạy đủ bộ: ngày, số case PASS/FAIL, lỗi đã sửa.
 
 - Thêm PRD-15, PRD-16. Chụp ảnh 1280px và 375px: ô trang chủ, trang `/doi-tuong/me-bau/`, kết quả `/tim-kiem/?q=orihiro` trong giờ Flash (phát hiện và sửa icon tiêu đề trôi giữa 2 dòng trên điện thoại).
 - Chạy toàn bộ — 84/84 PASS.
+
+### 10/11/2026 — "Sản phẩm đã xem", "Mua lại"
+
+- Thêm PRD-17, ACC-04. Chụp ảnh 1280px và 375px: khối "Sản phẩm đã xem" ở trang chủ và trang sản phẩm, lịch sử đơn có nút "Mua lại" (phát hiện và sửa: nút ‹ chiếm chỗ làm hàng thẻ thụt vào trên máy tính; tiêu đề xuống 2 dòng trên điện thoại).

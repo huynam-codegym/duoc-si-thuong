@@ -767,6 +767,79 @@ await tc('PRD-16', 'Mua theo đối tượng: ô trang chủ, trang đối tư�
   }
   return verdict(bad);
 });
+await tc('PRD-17', 'Sản phẩm bạn đã xem: nhớ đúng thứ tự, bỏ sản phẩm đang xem, xóa được, không tràn ngang', async () => {
+  const bad = [];
+  const [a, b, c] = productPages.slice(0, 3).map(productSlug);
+  const recent = (page) => page.evaluate(() => {
+    const sec = document.querySelector('.recent-viewed');
+    return {
+      shown: !!sec && !sec.hidden,
+      slugs: [...document.querySelectorAll('.recent-viewed .product-card')].map((e) => e.dataset.flashSync),
+      img: [...document.querySelectorAll('.recent-viewed .product-thumb')].every((i) => i.complete && i.naturalWidth > 0),
+      btn: [...document.querySelectorAll('.recent-viewed [data-add-to-cart]')].every((x) => x.dataset.image && x.dataset.name),
+      sw: document.documentElement.scrollWidth,
+    };
+  });
+  for (const vp of ['desktop', 'mobile']) {
+    const { page, close, errors } = await open(vp);
+    await go(page, '/');
+    if ((await recent(page)).shown) bad.push(vp + ': chưa xem gì mà đã hiện khối');
+    for (const slug of [a, b, a, c]) await go(page, pageOf(slug));
+    await scrollAll(page);
+    const onC = await recent(page);
+    if (onC.slugs.join() !== [a, b].join()) bad.push(`${vp} trang ${c}: hiện ${onC.slugs.join()}, cần ${a},${b}`);
+    await go(page, '/');
+    await scrollAll(page);
+    const home = await recent(page);
+    if (home.slugs.join() !== [c, a, b].join()) bad.push(`${vp} trang chủ: hiện ${home.slugs.join()}, cần ${c},${a},${b}`);
+    if (!home.img) bad.push(vp + ': ảnh thẻ không tải được');
+    if (!home.btn) bad.push(vp + ': nút Chọn mua thiếu dữ liệu');
+    if (home.sw > VP_W[vp]) bad.push(`${vp}: tràn ngang ${home.sw}px`);
+    await page.click('.recent-viewed-clear');
+    await go(page, '/');
+    if ((await recent(page)).shown) bad.push(vp + ': bấm Xóa lịch sử rồi vẫn hiện');
+    if (errors.length) bad.push(vp + ': lỗi console ' + errors[0]);
+    await close();
+  }
+  return verdict(bad);
+});
+await tc('ACC-04', 'Mua lại đơn cũ: giá/tên lấy mới, báo sản phẩm ngừng bán, đơn đủ hàng thì sang giỏ', async () => {
+  const bad = [];
+  const ref = new URL(SB_URL).hostname.split('.')[0];
+  const [a, b] = productPages.slice(0, 2).map(productSlug);
+  const fakeUser = { id: '22222222-2222-2222-2222-222222222222', aud: 'authenticated', role: 'authenticated', is_anonymous: false, email: 'khach@example.com', app_metadata: {}, user_metadata: {} };
+  const session = { access_token: 'x.eyJzdWIiOiIyIn0.x', refresh_token: 'r', token_type: 'bearer', expires_in: 3600, expires_at: Math.floor(Date.now() / 1000) + 3600, user: fakeUser };
+  const orders = [
+    { id: 'o1', created_at: '2026-11-01T03:00:00Z', total: 100000, status: 'hoan_tat', payment_method: 'cod', items: [{ id: a, name: 'Tên cũ', qty: 2, price: 1 }, { id: 'da-ngung-ban', name: 'Sản phẩm đã ngừng bán', qty: 1, price: 1 }] },
+    // Đơn cũ không lưu mã sản phẩm: tìm theo tên
+    { id: 'o2', created_at: '2026-10-01T03:00:00Z', total: 100000, status: 'hoan_tat', payment_method: 'cod', items: [{ name: catalog[b].name, qty: 1 }] },
+  ];
+  for (const vp of ['desktop', 'mobile']) {
+    const { page, close, errors } = await open(vp, {
+      storage: { [`sb-${ref}-auth-token`]: JSON.stringify(session) },
+      mock: (u) => u.includes('/auth/v1/user') ? { body: fakeUser } : u.includes('/rest/v1/profiles') ? { body: { full_name: '', phone: '', address: '' } } : u.includes('/rest/v1/orders') ? { body: orders } : undefined,
+    });
+    await go(page, '/tai-khoan/');
+    await page.waitForSelector('.order-buy-again', { timeout: 10000 }).catch(() => {});
+    const btns = await page.$$('.order-buy-again');
+    if (btns.length !== 2) { bad.push(`${vp}: có ${btns.length} nút Mua lại`); await close(); continue; }
+    await btns[0].click();
+    await page.waitForFunction(() => !document.querySelector('.order-buy-again-msg').hidden, { timeout: 10000 }).catch(() => {});
+    const r = await page.evaluate(() => ({ msg: document.querySelector('.order-buy-again-msg').textContent, cart: JSON.parse(localStorage.getItem('duocsithuong-cart') ?? '[]'), sw: document.documentElement.scrollWidth }));
+    const item = r.cart.find((x) => x.id === a);
+    if (!r.msg.includes('Sản phẩm đã ngừng bán')) bad.push(`${vp}: không báo sản phẩm ngừng bán ("${r.msg}")`);
+    if (!item || item.qty !== 2 || item.price !== catalog[a].price || item.name !== catalog[a].name || !item.image) bad.push(`${vp}: giỏ sai ${JSON.stringify(item)}`);
+    if (r.cart.some((x) => x.id === 'da-ngung-ban')) bad.push(vp + ': thêm cả sản phẩm ngừng bán');
+    if (r.sw > VP_W[vp]) bad.push(`${vp}: tràn ngang ${r.sw}px`);
+    await Promise.all([page.waitForNavigation({ timeout: 10000 }).catch(() => {}), btns[1].click()]);
+    if (!page.url().includes('/gio-hang/')) bad.push(`${vp}: đơn đủ hàng không chuyển sang giỏ (${page.url()})`);
+    const cart2 = await page.evaluate(() => JSON.parse(localStorage.getItem('duocsithuong-cart') ?? '[]'));
+    if (!cart2.some((x) => x.id === b)) bad.push(vp + ': đơn không có mã sản phẩm, tìm theo tên không ra');
+    if (errors.length) bad.push(vp + ': lỗi console ' + errors[0]);
+    await close();
+  }
+  return verdict(bad);
+});
 await tc('PRD-12', 'Rê chuột hiện đủ tên sản phẩm bị cắt, không xô lệch thẻ', async () => {
   const bad = [];
   const hoverCut = async (page, sel, where) => {

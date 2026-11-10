@@ -8,6 +8,7 @@ import ProductNotice from '../../components/ProductNotice.astro';
 import ProductReviews from '../../components/ProductReviews.astro';
 import Disclaimer from '../../components/Disclaimer.astro';
 import ProductCard from '../../components/ProductCard.astro';
+import RecentlyViewed from '../../components/RecentlyViewed.astro';
 import { departments, groupWithChildren } from '../../lib/departments';
 import { originFlagCode } from '../../lib/flags';
 import { foldVietnamese, formatDate } from '../../lib/posts';
@@ -354,6 +355,8 @@ const jsonLd = {
           </section>
         )
       }
+
+      <RecentlyViewed current={product.id} />
 
       <p class="product-seller">
         Sản phẩm được giới thiệu và bán bởi {site.pharmacy.name} (do dược sĩ Thương điều hành). Thông tin sản phẩm cập

@@ -1,0 +1,129 @@
+---
+import GroupIcon from './GroupIcon.astro';
+
+/**
+ * "Sản phẩm bạn đã xem" (10/11/2026): 1 hàng thẻ cuộn ngang, dựng ở trình duyệt từ localStorage
+ * (src/lib/recently-viewed.ts) + /san-pham.json. Chưa xem sản phẩm nào thì cả khối ẩn.
+ * Đặt ở trang chủ và cuối trang chi tiết sản phẩm. Ở trang chi tiết truyền `current`: khối bỏ chính sản phẩm
+ * đang xem ra khỏi danh sách, rồi ghi sản phẩm này vào lịch sử (cho lần xem trang sau).
+ */
+interface Props {
+  current?: string;
+}
+const { current } = Astro.props;
+---
+
+<section class="recent-viewed" aria-labelledby="recent-viewed-title" data-current={current} hidden>
+  <div class="recent-viewed-head">
+    <h2 class="section-title" id="recent-viewed-title"><GroupIcon icon="eye" size={22} /> Sản phẩm đã xem</h2>
+    <button type="button" class="recent-viewed-clear">Xóa lịch sử</button>
+  </div>
+  <div class="carousel recent-viewed-row">
+    <button type="button" class="carousel-btn recent-viewed-prev" aria-label="Xem sản phẩm trước">‹</button>
+    <div class="carousel-track recent-viewed-track"></div>
+    <button type="button" class="carousel-btn recent-viewed-next" aria-label="Xem sản phẩm tiếp">›</button>
+  </div>
+</section>
+
+<script>
+  import { loadCatalog, type CatalogItem } from '../lib/catalog';
+  import { addRecentlyViewed, clearRecentlyViewed, getRecentlyViewed } from '../lib/recently-viewed';
+  import { formatVnd } from '../lib/cart';
+
+  // Giống discountPercent() ở lib/products.ts; không import file đó vì nó dùng astro:content (chỉ chạy lúc build)
+  function discountPercent(price?: number, originalPrice?: number) {
+    if (price === undefined || originalPrice === undefined || originalPrice <= price) return undefined;
+    return Math.round((1 - price / originalPrice) * 100);
+  }
+
+  function el<K extends keyof HTMLElementTagNameMap>(tag: K, className: string, text?: string) {
+    const node = document.createElement(tag);
+    node.className = className;
+    if (text !== undefined) node.textContent = text;
+    return node;
+  }
+
+  // Cùng cấu trúc class với ProductCard.astro (rút gọn: không có nhãn xuất xứ và đoạn tóm tắt) để dùng lại
+  // CSS thẻ, nút "Chọn mua" (xử lý chung ở Header.astro) và FlashPriceSync (data-flash-sync).
+  function card(slug: string, item: CatalogItem) {
+    const discount = discountPercent(item.price ?? undefined, item.originalPrice ?? undefined);
+    const box = el('div', 'card product-card');
+    box.dataset.flashSync = slug;
+
+    const badge = el('span', 'sale-badge sale-badge-card', discount !== undefined ? `-${discount}%` : '');
+    badge.dataset.priceBadge = '';
+    badge.hidden = discount === undefined;
+
+    const link = el('a', 'product-link');
+    link.href = item.url;
+    const img = el('img', 'product-thumb');
+    img.src = item.thumb;
+    img.alt = item.name;
+    img.width = img.height = 320;
+    img.loading = 'lazy';
+    link.append(img, el('span', 'tag', item.group), el('h3', '', item.name));
+
+    const price = el('p', 'product-price');
+    const value = el('span', '', item.price ? formatVnd(item.price) : 'Liên hệ');
+    value.dataset.priceValue = '';
+    price.append(value);
+    const original = el('p', 'product-price-original', discount !== undefined && item.originalPrice ? formatVnd(item.originalPrice) : '');
+    original.dataset.priceOriginal = '';
+    original.hidden = discount === undefined;
+
+    const button = el('button', 'btn btn-add', 'Chọn mua');
+    button.type = 'button';
+    Object.assign(button.dataset, {
+      addToCart: '',
+      id: slug,
+      name: item.name,
+      price: item.price ?? '',
+      originalPrice: discount !== undefined ? item.originalPrice : '',
+      unit: item.unit,
+      image: item.image,
+    });
+
+    box.append(badge, link, price, original, button);
+    const wrap = el('div', 'carousel-item');
+    wrap.append(box);
+    return wrap;
+  }
+
+  document.querySelectorAll<HTMLElement>('.recent-viewed').forEach(async (section) => {
+    const { current } = section.dataset;
+    const slugs = getRecentlyViewed().filter((slug) => slug !== current);
+    if (current) addRecentlyViewed(current);
+    if (slugs.length === 0) return;
+    let catalog: Record<string, CatalogItem>;
+    try {
+      catalog = await loadCatalog();
+    } catch {
+      return; // không tải được thì giữ khối ẩn, không ảnh hưởng phần còn lại của trang
+    }
+    const track = section.querySelector<HTMLElement>('.recent-viewed-track')!;
+    // Sản phẩm đã ngừng bán (không còn trong bảng) tự bỏ qua
+    const cards = slugs.filter((slug) => Object.hasOwn(catalog, slug)).map((slug) => card(slug, catalog[slug]));
+    if (cards.length === 0) return;
+    track.replaceChildren(...cards);
+    section.hidden = false;
+    window.dispatchEvent(new CustomEvent('flash:sync'));
+
+    const prev = section.querySelector<HTMLButtonElement>('.recent-viewed-prev')!;
+    const next = section.querySelector<HTMLButtonElement>('.recent-viewed-next')!;
+    const updateButtons = () => {
+      prev.disabled = track.scrollLeft <= 2;
+      next.disabled = track.scrollLeft + track.clientWidth >= track.scrollWidth - 2;
+    };
+    prev.addEventListener('click', () => track.scrollBy({ left: -track.clientWidth * 0.8, behavior: 'smooth' }));
+    next.addEventListener('click', () => track.scrollBy({ left: track.clientWidth * 0.8, behavior: 'smooth' }));
+    track.addEventListener('scroll', updateButtons, { passive: true });
+    window.addEventListener('resize', updateButtons);
+    updateButtons();
+
+    section.querySelector('.recent-viewed-clear')?.addEventListener('click', () => {
+      clearRecentlyViewed();
+      section.hidden = true;
+      track.replaceChildren();
+    });
+  });
+</script>
