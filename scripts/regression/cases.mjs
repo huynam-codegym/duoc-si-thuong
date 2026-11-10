@@ -686,6 +686,87 @@ await tc('PRD-14', 'Flash Sale: trạng thái khung giờ, giá Flash ở thẻ/
   await o.close();
   return verdict(bad, `${slots.length} sản phẩm trong các khung giờ`);
 });
+await tc('PRD-15', 'Giá Flash ở gợi ý tìm kiếm, trang /tim-kiem/ và menu lớn; ngoài giờ giữ giá thường', async () => {
+  const bad = [];
+  const slots = Object.entries(catalog).flatMap(([slug, c]) => (c.flash ?? []).map((w) => ({ slug, ...w })));
+  if (slots.length === 0) return verdict(bad, 'không có khung giờ Flash Sale');
+  const first = slots.reduce((a, b) => (Date.parse(a.start) <= Date.parse(b.start) ? a : b));
+  const term = first.slug.split('-')[0];
+  const base = catalog[first.slug].price;
+  const at = async (vp, ms) => {
+    const o = await open(vp);
+    await o.page.evaluateOnNewDocument((t) => {
+      const off = t - Date.now(), R = Date;
+      globalThis.Date = class extends R { constructor(...a) { super(...(a.length ? a : [R.now() + off])); } static now() { return R.now() + off; } };
+    }, ms);
+    return o;
+  };
+  for (const [when, ms, want] of [['trong giờ', Date.parse(first.start) + 3600_000, first.price], ['trước giờ', Date.parse(first.start) - 3600_000, base]]) {
+    for (const vp of ['desktop', 'mobile']) {
+      const o = await at(vp, ms);
+      await go(o.page, '/tim-kiem/?q=' + term);
+      const sel = `.search-result[data-flash-sync="${first.slug}"]`;
+      try {
+        await o.page.waitForSelector(sel, { timeout: 15000 });
+        const price = await o.page.$eval(sel + ' [data-price-value]', (e) => e.textContent);
+        if (vndNum(price) !== want) bad.push(`${vp} ${when}: /tim-kiem/ hiện ${price}, cần ${want}`);
+      } catch { bad.push(`${vp} ${when}: /tim-kiem/ không có kết quả ${first.slug}`); }
+      // Gợi ý khi gõ ở đầu trang
+      await o.page.$eval('#header-q', (e) => { e.value = ''; });
+      await o.page.click('#header-q');
+      await o.page.keyboard.type(term);
+      const sug = `.search-suggest-product[data-flash-sync="${first.slug}"] [data-price-value]`;
+      try {
+        await o.page.waitForSelector(sug, { visible: true, timeout: 15000 });
+        const price = await o.page.$eval(sug, (e) => e.textContent);
+        if (vndNum(price) !== want) bad.push(`${vp} ${when}: gợi ý hiện ${price}, cần ${want}`);
+      } catch { bad.push(`${vp} ${when}: gợi ý không có ${first.slug}`); }
+      await o.close();
+    }
+    // Menu lớn (chỉ máy tính): mọi sản phẩm của khung giờ có trong menu
+    const o = await at('desktop', ms);
+    await go(o.page, '/');
+    const mega = await o.page.$$eval('.mega-products a[data-flash-sync]', (as) => as.map((a) => [a.dataset.flashSync, a.querySelector('[data-price-value]').textContent]));
+    const inSlot = slots.filter((s) => s.start === first.start);
+    let checked = 0;
+    for (const [slug, text] of mega) {
+      const s = inSlot.find((x) => x.slug === slug);
+      if (!s) continue;
+      checked++;
+      const need = when === 'trong giờ' ? s.price : catalog[slug].price;
+      if (vndNum(text) !== need) bad.push(`menu lớn ${when}: ${slug} hiện ${text}, cần ${need}`);
+    }
+    if (checked === 0) bad.push('menu lớn không có sản phẩm nào của khung giờ để thử');
+    await o.close();
+  }
+  return verdict(bad, `thử với "${term}"`);
+});
+await tc('PRD-16', 'Mua theo đối tượng: ô trang chủ, trang đối tượng đúng số sản phẩm, có lưu ý, không tràn ngang', async () => {
+  const bad = [];
+  for (const vp of ['desktop', 'mobile']) {
+    const { page, close, errors } = await open(vp);
+    await go(page, '/');
+    const tiles = await page.$$eval('.audience-cats a', (as) => as.map((a) => [a.getAttribute('href'), Number(a.querySelector('span:last-child').textContent.match(/\d+/)?.[0])]));
+    if (tiles.length < 2) bad.push(vp + ': trang chủ có ' + tiles.length + ' ô đối tượng');
+    for (const [href, count] of tiles) {
+      await go(page, href);
+      await scrollAll(page);
+      const r = await page.evaluate(() => ({
+        cards: document.querySelectorAll('.product-card').length,
+        note: document.querySelector('.campaign-notes')?.textContent ?? '',
+        current: document.querySelector('.campaign-nav [aria-current="page"]')?.getAttribute('href'),
+        sw: document.documentElement.scrollWidth,
+      }));
+      if (r.cards !== count) bad.push(`${vp} ${href}: ô ghi ${count}, trang có ${r.cards} thẻ`);
+      if (!r.note.includes('không phải là thuốc')) bad.push(`${vp} ${href}: thiếu câu "không phải là thuốc"`);
+      if (r.current !== href) bad.push(`${vp} ${href}: nút đối tượng đang xem không được đánh dấu`);
+      if (r.sw > VP_W[vp]) bad.push(`${vp} ${href}: tràn ngang ${r.sw}px`);
+    }
+    if (errors.length) bad.push(vp + ': lỗi console ' + errors[0]);
+    await close();
+  }
+  return verdict(bad);
+});
 await tc('PRD-12', 'Rê chuột hiện đủ tên sản phẩm bị cắt, không xô lệch thẻ', async () => {
   const bad = [];
   const hoverCut = async (page, sel, where) => {

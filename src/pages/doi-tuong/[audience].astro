@@ -1,0 +1,76 @@
+---
+// Trang "Mua theo đối tượng" (/doi-tuong/tre-em/...), xem src/lib/audiences.ts.
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import GroupIcon from '../../components/GroupIcon.astro';
+import ProductCard from '../../components/ProductCard.astro';
+import { getAudiences, type AudienceWithProducts } from '../../lib/audiences';
+import { url } from '../../lib/url';
+
+export async function getStaticPaths() {
+  const list = await getAudiences();
+  return list.map((audience) => ({ params: { audience: audience.slug }, props: { audience, all: list } }));
+}
+
+interface Props {
+  audience: AudienceWithProducts;
+  all: AudienceWithProducts[];
+}
+
+const { audience, all } = Astro.props;
+---
+
+<BaseLayout
+  title={`Sản phẩm cho ${audience.name.toLowerCase()}`}
+  description={`${audience.description}: thực phẩm bảo vệ sức khỏe, dược mỹ phẩm và sản phẩm chăm sóc do Nhà Thuốc Nhật Minh giới thiệu và bán.`}
+>
+  <div class="container audience-page">
+    <nav class="breadcrumb" aria-label="Đường dẫn">
+      <a href={url('/')}>Trang chủ</a> / <span>Mua theo đối tượng</span> / <span>{audience.name}</span>
+    </nav>
+
+    <h1 class="audience-title"><GroupIcon icon={audience.icon} size={28} /> {audience.name}</h1>
+    <p class="audience-lead">{audience.description}. {audience.products.length} sản phẩm.</p>
+
+    <nav class="campaign-nav" aria-label="Đối tượng khác">
+      {
+        all.map((item) => (
+          <a href={url(`/doi-tuong/${item.slug}/`)} aria-current={item.slug === audience.slug ? 'page' : undefined}>
+            {item.name}
+          </a>
+        ))
+      }
+    </nav>
+
+    <div class="carousel carousel-wide">
+      <div class="carousel-track">
+        {
+          audience.products.map((product) => (
+            <div class="carousel-item">
+              <ProductCard product={product} />
+            </div>
+          ))
+        }
+      </div>
+    </div>
+    {
+      audience.products.length > 12 && (
+        <p class="carousel-more">
+          <button type="button" class="btn btn-outline carousel-more-btn">Xem thêm sản phẩm</button>
+        </p>
+      )
+    }
+
+    <div class="campaign-notes">
+      <p><strong>Lưu ý:</strong> {audience.note}</p>
+      <p>
+        Thực phẩm bảo vệ sức khỏe không phải là thuốc và không có tác dụng thay thế thuốc chữa bệnh. Cần tư vấn chọn
+        sản phẩm? <a href={url('/gioi-thieu/')}>Liên hệ dược sĩ Thương</a>.
+      </p>
+    </div>
+  </div>
+</BaseLayout>
+
+<script>
+  import { initProductLoadMoreGrids } from '../../lib/product-grid';
+  initProductLoadMoreGrids();
+</script>

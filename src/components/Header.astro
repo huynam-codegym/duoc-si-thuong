@@ -5,7 +5,7 @@ import GroupIcon from './GroupIcon.astro';
 import { categories, getGroups, type CategorySlug } from '../lib/categories';
 import { departments, departmentSlugs, getProductGroups, type DepartmentSlug } from '../lib/departments';
 import { activeIngredients, allActiveIngredients, herbalMaterials, ingredientCategories } from '../lib/drug-lookup';
-import { formatPrice, getProducts } from '../lib/products';
+import { discountPercent, formatPrice, getProducts } from '../lib/products';
 import { site } from '../lib/site';
 import { url } from '../lib/url';
 
@@ -55,7 +55,7 @@ const drugLookupPanels = [
 
 // Với mỗi khu bán hàng: sản phẩm của từng nhóm để hiện ở khung bên phải menu lớn (tối đa 5 sản phẩm mỗi nhóm)
 const allProducts = await getProducts();
-type MegaProduct = { id: string; name: string; price: number | undefined; image: string };
+type MegaProduct = { id: string; name: string; price: number | undefined; originalPrice: number | undefined; image: string };
 const shopMenus = await Promise.all(
   departmentSlugs.map(async (departmentSlug) => {
     const department = departments[departmentSlug];
@@ -77,6 +77,7 @@ const shopMenus = await Promise.all(
             id: product.id,
             name: product.data.name,
             price: product.data.price,
+            originalPrice: discountPercent(product.data.price, product.data.originalPrice) !== undefined ? product.data.originalPrice : undefined,
             image: (await getImage({ src: product.data.image, width: 240, height: 240, format: 'webp' })).src,
           })),
         ),
@@ -303,10 +304,19 @@ const drawerSections: DrawerSection[] = [
                                 <ul class="mega-products">
                                   {list.map((product) => (
                                     <li>
-                                      <a href={url(`/${departmentSlug}/${product.id}/`)}>
+                                      <a
+                                        href={url(`/${departmentSlug}/${product.id}/`)}
+                                        data-flash-sync={product.id}
+                                        data-price={product.price ?? ''}
+                                        data-original-price={product.originalPrice ?? ''}
+                                      >
                                         <img src={product.image} alt="" width="120" height="120" loading="lazy" />
                                         <span class="mega-product-name">{product.name}</span>
-                                        <span class="mega-product-price">{formatPrice(product.price)}</span>
+                                        <span class="mega-product-price" data-price-value>{formatPrice(product.price)}</span>
+                                        {/* Giá gạch ngang: có sẵn khi khuyến mãi, FlashPriceSync bật lên trong giờ Flash Sale */}
+                                        <span class="product-price-original" data-price-original hidden={!product.originalPrice}>
+                                          {product.originalPrice && formatPrice(product.originalPrice)}
+                                        </span>
                                       </a>
                                     </li>
                                   ))}
@@ -644,7 +654,7 @@ const drawerSections: DrawerSection[] = [
 
 <script>
   import { MAX_QTY, addToCart, cartCount, formatVnd, getCart, removeItem, type CartItem } from '../lib/cart';
-  import { flashPriceFor } from '../lib/flash-sale';
+  import { flashPriceFor, markFlashSync } from '../lib/flash-sale';
   import { url } from '../lib/url';
   import { supabase } from '../lib/supabase';
   import { clearSearchHistory, getSearchHistory, removeSearchHistory } from '../lib/search-history';
@@ -740,7 +750,7 @@ const drawerSections: DrawerSection[] = [
       search: (
         q: string,
         options?: { filters?: Record<string, string[]> },
-      ) => Promise<{ results: { id: string; data: () => Promise<{ url: string; meta: { title?: string; image?: string; price?: string }; excerpt: string }> }[] }>;
+      ) => Promise<{ results: { id: string; data: () => Promise<{ url: string; meta: { title?: string; image?: string; price?: string; originalPrice?: string }; excerpt: string }> }[] }>;
       filters: () => Promise<unknown>;
     } | null = null;
     let loadingPagefind: Promise<void> | null = null;
@@ -861,12 +871,15 @@ const drawerSections: DrawerSection[] = [
         if (item.meta.price) {
           const price = document.createElement('span');
           price.className = 'search-suggest-price';
+          price.dataset.priceValue = '';
           price.textContent = item.meta.price;
           text.append(price);
+          markFlashSync(a, item.url, item.meta.price, item.meta.originalPrice);
         }
         a.append(text);
         searchSuggest.append(a);
       });
+      window.dispatchEvent(new CustomEvent('flash:sync'));
       const seeAll = document.createElement('a');
       seeAll.href = url(`/tim-kiem/?q=${encodeURIComponent(term)}`);
       seeAll.className = 'search-suggest-all';

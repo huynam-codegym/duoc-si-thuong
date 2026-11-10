@@ -7587,6 +7587,55 @@ body.has-sticky-bar .faq-chat-toggle {
   }
 }
 
+/* "Mua theo đối tượng" (src/lib/audiences.ts): ô trang chủ dùng lại .featured-cats, luôn tối đa 3 cột */
+@media (min-width: 48rem) {
+  .featured-cats.audience-cats {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.audience-cats small {
+  display: none;
+  font-size: 0.8rem;
+  line-height: 1.35;
+  color: var(--ink-soft);
+}
+
+@media (min-width: 48rem) {
+  .audience-cats small {
+    display: block;
+  }
+}
+
+.audience-page .breadcrumb {
+  margin: 1rem 0;
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+}
+
+/* Tiêu đề dài xuống 2 dòng trên điện thoại: icon đứng ngang dòng đầu, không trôi giữa 2 dòng */
+.audience-title {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  margin: 0 0 0.3rem;
+}
+
+.audience-title svg {
+  flex: none;
+  margin-top: 0.3em;
+}
+
+.audience-lead {
+  margin: 0 0 1rem;
+  color: var(--ink-soft);
+}
+
+.campaign-nav a[aria-current='page'] {
+  background: var(--green-700);
+  color: #fff;
+}
+
 /* Thẻ Flash trên điện thoại hẹp (~176px): "/ Hộp" cạnh giá bị cắt (quy cách đầy đủ đã có ở nhãn bên dưới),
    nhãn "Flash đến 22:00" giữ 1 dòng để các thẻ cao bằng nhau */
 .flash-tag-live,

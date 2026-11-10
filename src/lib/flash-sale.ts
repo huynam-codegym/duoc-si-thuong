@@ -81,6 +81,19 @@ export function nextFlashBoundary(now = Date.now()): number | undefined {
   return times.length ? Math.min(...times) : undefined;
 }
 
+/**
+ * Gắn khối giá dựng bằng JS (kết quả tìm kiếm, gợi ý đầu trang) vào FlashPriceSync: slug lấy từ đường dẫn
+ * sản phẩm, giá gốc lấy từ chữ "363.000 đ" của Pagefind. Gọi xong thì bắn sự kiện `flash:sync`.
+ */
+export function markFlashSync(box: HTMLElement, productUrl: string, priceText?: string, originalText?: string) {
+  const digits = (text?: string) => text?.replace(/\D/g, '') ?? '';
+  const slug = productUrl.split('/').filter(Boolean).pop();
+  if (!slug || !digits(priceText)) return;
+  box.dataset.flashSync = slug;
+  box.dataset.price = digits(priceText);
+  box.dataset.originalPrice = digits(originalText);
+}
+
 /** "22:00" theo giờ Việt Nam */
 export function flashTime(iso: string): string {
   return new Date(iso).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'Asia/Ho_Chi_Minh' });

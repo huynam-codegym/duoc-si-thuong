@@ -97,6 +97,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 <script>
   import { url } from '../lib/url';
   import { addSearchHistory } from '../lib/search-history';
+  import { markFlashSync } from '../lib/flash-sale';
 
   // Trang tìm kiếm tự xây bằng chỉ mục Pagefind (không dùng khung PagefindUI đóng gói sẵn) để khớp đúng
   // giao diện chủ website gửi (ảnh Long Châu, tháng 9/2026): không có ô nhập từ khóa thứ hai (chỉ ô đầu
@@ -329,11 +330,16 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       li.className = 'search-result';
       // Nhãn giảm giá đè góc ảnh, giống thẻ sản phẩm ở trang chủ/danh mục (dùng chung class
       // .sale-badge-card nên tự ăn đúng kiểu, không cần viết CSS riêng cho trang tìm kiếm).
-      if (item.meta.discount) {
+      // Sản phẩm luôn có sẵn nhãn + giá gạch ngang (ẩn khi không giảm giá) để FlashPriceSync bật lên
+      // trong giờ Flash Sale; thứ tự sắp xếp theo giá vẫn theo giá thường.
+      if (item.meta.price) {
         const badge = document.createElement('span');
         badge.className = 'sale-badge sale-badge-card';
-        badge.textContent = `-${item.meta.discount}%`;
+        badge.dataset.priceBadge = '';
+        badge.textContent = item.meta.discount ? `-${item.meta.discount}%` : '';
+        badge.hidden = !item.meta.discount;
         li.append(badge);
+        markFlashSync(li, item.url, item.meta.price, item.meta.originalPrice);
       }
       const a = document.createElement('a');
       a.href = item.url;
@@ -352,14 +358,15 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       if (item.meta.price) {
         const price = document.createElement('span');
         price.className = 'search-result-price';
+        price.dataset.priceValue = '';
         price.textContent = item.meta.price;
         a.append(price);
-        if (item.meta.originalPrice) {
-          const original = document.createElement('span');
-          original.className = 'product-price-original';
-          original.textContent = item.meta.originalPrice;
-          a.append(original);
-        }
+        const original = document.createElement('span');
+        original.className = 'product-price-original';
+        original.dataset.priceOriginal = '';
+        original.textContent = item.meta.originalPrice ?? '';
+        original.hidden = !item.meta.originalPrice;
+        a.append(original);
       } else {
         const excerpt = document.createElement('span');
         excerpt.className = 'search-result-excerpt';
@@ -370,6 +377,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       resultsList?.append(li);
     });
 
+    window.dispatchEvent(new CustomEvent('flash:sync'));
     if (resultsCount) resultsCount.textContent = `${items.length} kết quả cho "${query}"`;
     if (emptyMsg) emptyMsg.hidden = items.length > 0;
     if (layout) layout.hidden = false;

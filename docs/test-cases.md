@@ -85,6 +85,8 @@ Vòng lặp:
 | PRD-12 | Rê chuột vào sản phẩm có tên bị cắt "…" (thẻ sản phẩm, kết quả tìm kiếm) | Hiện đủ tên, thẻ không đổi chiều cao, khung tên không tràn màn hình, cuộn trang thì ẩn; chạm tay trên điện thoại không bật khung | T |
 | PRD-13 | Banner "Quà tặng 20.11" ở trang chủ (khi chương trình còn hạn lúc build) | Có 4 ô nhóm quà, không tràn ngang; bấm "Mua ngay" ô Sắc đẹp mở `/qua-tang-20-11/#sac-dep`, nhóm có sản phẩm, tiêu đề không bị đầu trang che, giá khớp giá thật | T |
 | PRD-14 | Flash Sale (`src/lib/flash-sale.ts`), lệch đồng hồ trình duyệt tới từng mốc | Trước giờ: tab "Sắp diễn ra", "Bắt đầu sau", ẩn nút Chọn mua, không tràn ngang; trong giờ: tab "Đang diễn ra", trang chi tiết hiện giá Flash, giỏ hiện giá Flash nhưng LƯU giá thường; hết khung giờ: giỏ về giá thường; sau khung giờ cuối: khung ẩn | T |
+| PRD-15 | Giá Flash ngoài thẻ sản phẩm, lệch đồng hồ vào trong/trước khung giờ đầu | Trong giờ: gợi ý tìm kiếm đầu trang, kết quả `/tim-kiem/` và khung sản phẩm của menu lớn hiện giá Flash; trước giờ: cả 3 hiện giá thường | T |
+| PRD-16 | "Mua theo đối tượng" (`src/lib/audiences.ts`) | Trang chủ có ô từng đối tượng; mỗi trang `/doi-tuong/<slug>/` có đúng số thẻ như ô ghi, nút đối tượng đang xem được đánh dấu, có câu "không phải là thuốc", không tràn ngang, không lỗi console | T |
 
 ## 5. Giỏ hàng (CART)
 
@@ -252,3 +254,8 @@ Ghi mỗi lần chạy đủ bộ: ngày, số case PASS/FAIL, lỗi đã sửa.
 
 - Đo 320/375/390/430/820/1280px: thẻ rộng bằng nhau, không chữ nào bị cắt, không tràn ngang. PRD-14 thêm kiểm tra thẻ rộng bằng nhau.
 - Chạy lại UI + PRD + SEC — 29/29 PASS.
+
+### 10/11/2026 — giá Flash ở tìm kiếm/menu lớn, "Mua theo đối tượng"
+
+- Thêm PRD-15, PRD-16. Chụp ảnh 1280px và 375px: ô trang chủ, trang `/doi-tuong/me-bau/`, kết quả `/tim-kiem/?q=orihiro` trong giờ Flash (phát hiện và sửa icon tiêu đề trôi giữa 2 dòng trên điện thoại).
+- Chạy toàn bộ — 84/84 PASS.

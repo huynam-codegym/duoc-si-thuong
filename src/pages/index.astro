@@ -8,6 +8,7 @@ import GroupIcon from '../components/GroupIcon.astro';
 import VideoSection from '../components/VideoSection.astro';
 import CampaignBanner from '../components/CampaignBanner.astro';
 import { campaignActive } from '../lib/campaign';
+import { getAudiences } from '../lib/audiences';
 import { categories } from '../lib/categories';
 import { departments, departmentSlugs, getProductGroups, groupWithChildren } from '../lib/departments';
 import FlashSale from '../components/FlashSale.astro';
@@ -20,6 +21,7 @@ import { url } from '../lib/url';
 import { videos } from '../lib/videos';
 
 const latest = (await getPosts()).slice(0, 6);
+const audiences = await getAudiences();
 
 // Với mỗi khu bán hàng: chỉ hiện phần "Danh mục sản phẩm"/"Sản phẩm" khi khu đó đã có sản phẩm thật
 const shops = await Promise.all(
@@ -152,6 +154,26 @@ const seasonal = await Promise.all(
                   <GroupIcon icon={group.icon} size={30} badge badgeSize={56} />
                   <strong>{group.name}</strong>
                   <span>{count} sản phẩm</span>
+                </a>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )
+    }
+
+    {
+      audiences.length > 0 && (
+        <section aria-labelledby="mua-theo-doi-tuong">
+          <h2 class="section-title" id="mua-theo-doi-tuong"><GroupIcon icon="target" size={22} /> Mua theo đối tượng</h2>
+          <ul class="featured-cats audience-cats">
+            {audiences.map((audience) => (
+              <li>
+                <a href={url(`/doi-tuong/${audience.slug}/`)}>
+                  <GroupIcon icon={audience.icon} size={30} badge badgeSize={56} />
+                  <strong>{audience.name}</strong>
+                  <small>{audience.description}</small>
+                  <span>{audience.products.length} sản phẩm</span>
                 </a>
               </li>
             ))}
