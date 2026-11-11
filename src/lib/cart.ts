@@ -3,7 +3,7 @@
  * Chỉ import file này trong thẻ <script> của component (chạy ở trình duyệt), không import ở phần frontmatter.
  * Giá và tên lưu lại lúc thêm vào giỏ; đơn hàng luôn được nhà thuốc xác nhận lại trước khi giao.
  */
-import { flashPriceFor, priceNote } from './flash-sale';
+import { flashPriceFor, freeShippingFor, priceNote } from './flash-sale';
 export interface CartItem {
   id: string;
   name: string;
@@ -151,6 +151,9 @@ export const SHIPPING_FEE = 20_000;
  * cứ để tính phí, nơi gọi nên hiện "Nhà thuốc báo sau" thay vì áp phí sai. */
 export function shippingFee(items = getCart()): number | null {
   if (items.length === 0) return 0;
+  // Có sản phẩm thuộc chương trình freeship đang diễn ra (ví dụ "Săn sale 11.11"): miễn phí cả đơn.
+  // Máy chủ (send-order-email) tính lại y hệt theo giờ nhận đơn.
+  if (items.some((item) => freeShippingFor(item.id))) return 0;
   const total = cartTotal(items);
   if (total === 0 && hasUnpriced(items)) return null;
   return total >= FREE_SHIPPING_THRESHOLD ? 0 : SHIPPING_FEE;

@@ -897,6 +897,19 @@ await tc('PRD-18', 'Săn sale 11.11: banner, trang chương trình, giá ưu đ�
   const cartPrice = await o.page.$eval('.cart-price', (e) => e.textContent);
   if (vndNum(cartPrice) !== w.price) bad.push('giỏ hàng hiện ' + cartPrice + ', cần ' + w.price);
   await o.close();
+  // Freeship: giỏ chỉ có 1 sản phẩm chương trình dưới 350.000đ vẫn miễn phí; hết hạn thì tính phí thường
+  const cheap = wins.find((x) => x.freeShipping && x.price < 350000);
+  if (cheap) {
+    for (const [when, ms, want] of [['trong chương trình', inside, 'Miễn phí'], ['hết hạn', Date.parse(cheap.end) + 60_000, '20.000đ']]) {
+      const p = await at('mobile', ms);
+      await go(p.page, '/');
+      await p.page.evaluate((s) => localStorage.setItem('duocsithuong-cart', JSON.stringify(s)), [cartItem(cheap.slug)]);
+      await go(p.page, '/gio-hang/');
+      const ship = await p.page.$eval('#cart-shipping', (e) => e.textContent.trim());
+      if (ship !== want) bad.push(`${when}: phí ship hiện "${ship}", cần "${want}"`);
+      await p.close();
+    }
+  }
   return verdict(bad, `${wins.length} sản phẩm`);
 });
 await tc('PRD-12', 'Rê chuột hiện đủ tên sản phẩm bị cắt, không xô lệch thẻ', async () => {

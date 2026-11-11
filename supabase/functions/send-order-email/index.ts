@@ -282,7 +282,7 @@ class RejectError extends Error {
   }
 }
 
-type FlashWindow = { start: string; end: string; price: number };
+type FlashWindow = { start: string; end: string; price: number; freeShipping?: boolean };
 type Catalog = Record<string, { name: string; price: number | null; originalPrice: number | null; flash?: FlashWindow[] }>;
 
 /** Giá ưu đãi theo giờ (Flash Sale, Săn sale 11.11...) nếu giờ máy chủ nhận đơn nằm trong khung của sản phẩm
@@ -292,6 +292,12 @@ function flashPrice(product: Catalog[string], now = Date.now()): number | undefi
     .filter((w) => now >= Date.parse(w.start) && now < Date.parse(w.end) && Number.isInteger(w.price) && w.price > 0)
     .map((w) => w.price);
   return prices.length ? Math.min(...prices) : undefined;
+}
+
+/** Sản phẩm đang trong chương trình có miễn phí giao hàng (ví dụ "Săn sale 11.11"): cả đơn được freeship,
+ * giống shippingFee() trong src/lib/cart.ts. */
+function freeShipping(product: Catalog[string], now = Date.now()): boolean {
+  return (product.flash ?? []).some((w) => w.freeShipping === true && now >= Date.parse(w.start) && now < Date.parse(w.end));
 }
 let catalogCache: { data: Catalog; at: number } | null = null;
 
@@ -349,6 +355,7 @@ async function sanitizeOrder(raw: Record<string, unknown>): Promise<OrderPayload
 
   const seen = new Set<string>();
   const items: OrderItem[] = [];
+  let freeShip = false;
   let total = 0;
   let originalTotal = 0;
   for (const entry of rawItems as Record<string, unknown>[]) {
@@ -360,12 +367,13 @@ async function sanitizeOrder(raw: Record<string, unknown>): Promise<OrderPayload
     if (!Number.isInteger(qty) || qty < 1 || qty > MAX_QTY) throw new RejectError(400, 'Số lượng sản phẩm không hợp lệ.');
     seen.add(id);
     const price = flashPrice(product) ?? product.price;
+    if (freeShipping(product)) freeShip = true;
     items.push({ id, name: product.name, qty, price });
     total += (price ?? 0) * qty;
     originalTotal += (product.originalPrice ?? product.price ?? 0) * qty;
   }
   const unpriced = items.some((item) => item.price === null);
-  const shipping = total === 0 && unpriced ? null : total >= FREE_SHIPPING_THRESHOLD ? 0 : SHIPPING_FEE;
+  const shipping = freeShip ? 0 : total === 0 && unpriced ? null : total >= FREE_SHIPPING_THRESHOLD ? 0 : SHIPPING_FEE;
 
   return { ...order, items, total, originalTotal, shipping };
 }

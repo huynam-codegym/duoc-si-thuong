@@ -8,8 +8,8 @@ import { getProducts, type Product } from './products';
  * Sản phẩm, giá ưu đãi và thời gian nằm ở `promoSlots` (id 'san-sale-11-11') trong flash-sale.ts, vì giỏ
  * hàng, trang sản phẩm và máy chủ đặt hàng đều đọc giá theo giờ từ đó. File này chỉ thêm phần chữ.
  *
- * Câu chữ lấy từ bài đăng của chủ website, bỏ các cụm phóng đại ("cực tốt"). "Freeship tận nhà" ghi đúng
- * chính sách giao hàng thật (miễn phí từ FREE_SHIPPING_THRESHOLD trong cart.ts), không ghi miễn phí vô điều kiện.
+ * Câu chữ lấy từ bài đăng của chủ website, bỏ các cụm phóng đại ("cực tốt"). "Freeship tận nhà": đơn có sản
+ * phẩm của chương trình được miễn phí giao hàng cả đơn (`freeShipping` trong promoSlots, chủ website yêu cầu).
  */
 const slot = promoSlots.find((s) => s.id === 'san-sale-11-11')!;
 

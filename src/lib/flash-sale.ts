@@ -20,6 +20,8 @@ export interface FlashSlot {
   items: Record<string, number>;
   /** Chỉ có ở chương trình khác Flash Sale (promoSlots): tên hiện ở dòng nhắc giá, ví dụ "Săn sale 11.11" */
   label?: string;
+  /** Đơn có ít nhất 1 sản phẩm của khung này (đang diễn ra) thì miễn phí giao hàng cả đơn */
+  freeShipping?: boolean;
 }
 
 export const FLASH_SALE = { slug: 'flash-sale', title: 'Flash Sale giá tốt' };
@@ -71,6 +73,8 @@ export const promoSlots: FlashSlot[] = [
     id: 'san-sale-11-11',
     label: 'Săn sale 11.11',
     theme: 'Săn sale 11.11',
+    // Chủ website yêu cầu 11/11/2026: sản phẩm trong chương trình được freeship
+    freeShipping: true,
     start: '2026-11-11T00:00:00+07:00',
     end: '2026-11-12T00:00:00+07:00',
     items: {
@@ -102,10 +106,16 @@ export function flashPriceFor(id: string, now = Date.now()): { price: number; sl
   return best;
 }
 
+/** Sản phẩm đang trong một chương trình có miễn phí giao hàng (lib/cart.ts shippingFee() áp cho cả đơn). */
+export function freeShippingFor(id: string, now = Date.now()): FlashSlot | undefined {
+  return priceSlots.find((slot) => slot.freeShipping && isLive(slot, now) && Object.hasOwn(slot.items, id));
+}
+
 /** Dòng nhắc cạnh giá ưu đãi: Flash Sale ghi giờ kết thúc, chương trình theo ngày ghi ngày cuối. */
 export function priceNote(slot: FlashSlot): string {
   if (!slot.label) return `⚡ Giá Flash Sale, chỉ áp dụng đến ${flashTime(slot.end)} hôm nay`;
-  return `🔥 Giá ${slot.label}, áp dụng đến hết ngày ${flashDate(new Date(ms(slot.end) - 1).toISOString())}`;
+  const ship = slot.freeShipping ? ', miễn phí giao hàng' : '';
+  return `🔥 Giá ${slot.label}${ship}, áp dụng đến hết ngày ${flashDate(new Date(ms(slot.end) - 1).toISOString())}`;
 }
 
 /** Chương trình còn khung giờ nào chưa kết thúc không. */

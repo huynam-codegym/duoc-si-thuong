@@ -6,7 +6,6 @@
 import { Image, getImage } from 'astro:assets';
 import logo from '../assets/logo.jpg';
 import { SALE_1111, getSale1111Products } from '../lib/sale-1111';
-import { FREE_SHIPPING_THRESHOLD } from '../lib/cart';
 import { formatPrice } from '../lib/products';
 import { url } from '../lib/url';
 
@@ -32,7 +31,7 @@ const Heading = compact ? 'h1' : 'h2';
 const perks = [
   { icon: 'tag', text: 'Săn deal giá tốt' },
   { icon: 'shield', text: 'Chính hãng, rõ nguồn gốc' },
-  { icon: 'truck', text: `Freeship đơn từ ${formatPrice(FREE_SHIPPING_THRESHOLD)}` },
+  { icon: 'truck', text: 'Freeship tận nhà' },
   { icon: 'clock', text: 'Tiện lợi, tiết kiệm thời gian' },
 ];
 ---

@@ -17,7 +17,7 @@ const lastDay = flashDate(new Date(Date.parse(SALE_1111.endsAt) - 1).toISOString
 
 <BaseLayout
   title={`${SALE_1111.title}: ${SALE_1111.headline}`}
-  description="Săn sale 11.11 tại Dược Sĩ Thương: giá ưu đãi cho một số thực phẩm bảo vệ sức khỏe, giao tận nhà, miễn phí giao hàng đơn từ 350.000đ."
+  description="Săn sale 11.11 tại Dược Sĩ Thương: giá ưu đãi cho một số thực phẩm bảo vệ sức khỏe, miễn phí giao hàng tận nhà khi mua sản phẩm trong chương trình."
 >
   <div class="container">
     <Sale1111Banner compact />
@@ -43,7 +43,8 @@ const lastDay = flashDate(new Date(Date.parse(SALE_1111.endsAt) - 1).toISOString
       <p>
         Giá ưu đãi áp dụng cho đơn đặt trên website đến hết ngày {lastDay}, tính theo giờ hệ thống nhận đơn; hết thời gian
         chương trình, giá tự về giá đang bán. Ưu đãi không cộng dồn: nếu sản phẩm cùng lúc có giá Flash Sale thì áp giá
-        thấp hơn. Nhà thuốc sẽ gọi xác nhận đơn trước khi giao. Miễn phí giao hàng cho đơn từ {formatPrice(FREE_SHIPPING_THRESHOLD)}.
+        thấp hơn. Đơn có ít nhất 1 sản phẩm của chương trình được <strong>miễn phí giao hàng cả đơn</strong> (đơn khác vẫn miễn phí
+        từ {formatPrice(FREE_SHIPPING_THRESHOLD)}). Nhà thuốc sẽ gọi xác nhận đơn trước khi giao.
       </p>
       <p>
         Thực phẩm bảo vệ sức khỏe không phải là thuốc và không có tác dụng thay thế thuốc chữa bệnh. Phụ nữ có thai hoặc cho
