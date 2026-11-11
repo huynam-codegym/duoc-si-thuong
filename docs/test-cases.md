@@ -87,6 +87,7 @@ Vòng lặp:
 | PRD-14 | Flash Sale (`src/lib/flash-sale.ts`), lệch đồng hồ trình duyệt tới từng mốc | Trước giờ: tab "Sắp diễn ra", "Bắt đầu sau", ẩn nút Chọn mua, không tràn ngang; trong giờ: tab "Đang diễn ra", trang chi tiết hiện giá Flash, giỏ hiện giá Flash nhưng LƯU giá thường; hết khung giờ: giỏ về giá thường; sau khung giờ cuối: khung ẩn | T |
 | PRD-15 | Giá Flash ngoài thẻ sản phẩm, lệch đồng hồ vào trong/trước khung giờ đầu | Trong giờ: gợi ý tìm kiếm đầu trang, kết quả `/tim-kiem/` và khung sản phẩm của menu lớn hiện giá Flash; trước giờ: cả 3 hiện giá thường | T |
 | PRD-16 | "Mua theo đối tượng" (`src/lib/audiences.ts`) | Trang chủ có ô từng đối tượng; mỗi trang `/doi-tuong/<slug>/` có đúng số thẻ như ô ghi, nút đối tượng đang xem được đánh dấu, có câu "không phải là thuốc", không tràn ngang, không lỗi console | T |
+| PRD-18 | "Săn sale 11.11" (`promoSlots` trong `flash-sale.ts`, `Sale1111Banner.astro`, `/san-sale-11-11/`) | Lệch đồng hồ trình duyệt vào trong chương trình (ngoài giờ Flash): banner trang chủ hiện, không tràn ngang; trang chương trình hiện đúng giá ưu đãi; trang chi tiết có dòng "Giá Săn sale 11.11"; giỏ hàng tính giá ưu đãi. Sau hạn: banner ẩn, trang báo kết thúc, giá về giá thường. Ở 1280 và 375px | T |
 | PRD-17 | "Sản phẩm đã xem" (`RecentlyViewed.astro`, localStorage + `/san-pham.json`) | Chưa xem gì thì ẩn; xem A, B, A, C: trang C hiện A, B (không có C, không trùng), trang chủ hiện C, A, B; ảnh tải được, nút "Chọn mua" đủ dữ liệu; "Xóa lịch sử" thì ẩn hẳn; không tràn ngang ở 1280 và 375px | T |
 
 ## 5. Giỏ hàng (CART)
@@ -265,3 +266,7 @@ Ghi mỗi lần chạy đủ bộ: ngày, số case PASS/FAIL, lỗi đã sửa.
 ### 10/11/2026 — "Sản phẩm đã xem", "Mua lại"
 
 - Thêm PRD-17, ACC-04. Chụp ảnh 1280px và 375px: khối "Sản phẩm đã xem" ở trang chủ và trang sản phẩm, lịch sử đơn có nút "Mua lại" (phát hiện và sửa: nút ‹ chiếm chỗ làm hàng thẻ thụt vào trên máy tính; tiêu đề xuống 2 dòng trên điện thoại).
+
+### 11/11/2026 — chương trình "Săn sale 11.11"
+
+- Thêm PRD-18; PRD-14/15 chỉ lấy khung giờ Flash Sale (bỏ khung có `label`). Chạy cả bộ: 86/87, FAIL SRC-04 (trong giờ ưu đãi, sắp xếp "Giá thấp" ở `/tim-kiem/` theo giá thường nên lệch với giá đang hiện). Đã sửa: sắp lại theo giá ưu đãi ở trình duyệt. Chạy lại SRC, PRD, CART, ORD: 48/48.

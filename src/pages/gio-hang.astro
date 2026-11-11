@@ -207,7 +207,6 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? '';
 
   <script>
     import { MAX_QTY, cartOriginalTotal, cartTotal, clearCart, formatVnd, getCart, hasUnpriced, removeItem, setQty, shippingFee, type CartItem } from '../lib/cart';
-    import { flashTime } from '../lib/flash-sale';
     import { supabase } from '../lib/supabase';
     import { url } from '../lib/url';
     import { checkEmail } from '../../supabase/functions/_shared/email';
@@ -269,9 +268,9 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? '';
       } else {
         info.append(priceRow);
       }
-      // Giá Flash Sale chỉ áp tới hết khung giờ (lib/cart.ts tự về giá thường khi hết giờ)
-      if (item.flashEnds) {
-        info.append(el('p', 'cart-flash-note', `⚡ Giá Flash Sale đến ${flashTime(item.flashEnds)} hôm nay`));
+      // Giá ưu đãi chỉ áp tới hết khung giờ (lib/cart.ts tự về giá thường khi hết giờ)
+      if (item.flashNote) {
+        info.append(el('p', 'cart-flash-note', item.flashNote));
       }
 
       const qty = el('div', 'qty');

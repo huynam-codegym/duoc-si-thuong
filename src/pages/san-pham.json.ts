@@ -1,7 +1,7 @@
 import type { APIRoute } from 'astro';
 import { getImage } from 'astro:assets';
 import { departments } from '../lib/departments';
-import { flashSlots } from '../lib/flash-sale';
+import { priceSlots } from '../lib/flash-sale';
 import { getProducts } from '../lib/products';
 import { url } from '../lib/url';
 
@@ -13,9 +13,10 @@ export const GET: APIRoute = async () => {
   const products = await getProducts();
   const entries = await Promise.all(
     products.map(async (p) => {
-      // Khung giờ Flash Sale (src/lib/flash-sale.ts): máy chủ áp giá Flash nếu giờ nhận đơn nằm trong khung
-      const flash = flashSlots.flatMap((slot) =>
-        slot.items[p.id] ? [{ start: slot.start, end: slot.end, price: slot.items[p.id] }] : [],
+      // Khung giờ có giá riêng (Flash Sale + chương trình khác, src/lib/flash-sale.ts): máy chủ áp giá thấp
+      // nhất trong các khung đang diễn ra lúc nhận đơn
+      const flash = priceSlots.flatMap((slot) =>
+        slot.items[p.id] ? [{ start: slot.start, end: slot.end, price: slot.items[p.id], ...(slot.label && { label: slot.label }) }] : [],
       );
       // Cùng thông số ảnh với ProductCard (160px giỏ hàng) để dùng lại đúng file đã dựng
       const image = await getImage({ src: p.data.image, width: 160, height: 160, format: 'webp' });

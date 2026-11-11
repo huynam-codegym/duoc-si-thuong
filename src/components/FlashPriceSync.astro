@@ -11,7 +11,7 @@
 
 <script>
   import { formatVnd } from '../lib/cart';
-  import { flashPriceFor, flashTime, nextFlashBoundary } from '../lib/flash-sale';
+  import { flashPriceFor, nextFlashBoundary, priceNote } from '../lib/flash-sale';
 
   const show = (el: Element | null, text: string | null) => {
     if (!el) return;
@@ -41,7 +41,7 @@
       show(box.querySelector('[data-price-badge]'), discount !== null ? `-${discount}%` : null);
       const compare = box.querySelector<HTMLElement>('[data-price-compare]');
       if (compare) compare.hidden = discount === null;
-      show(box.querySelector('[data-flash-note]'), flash ? `⚡ Giá Flash Sale, chỉ áp dụng đến ${flashTime(flash.slot.end)} hôm nay` : null);
+      show(box.querySelector('[data-flash-note]'), flash ? priceNote(flash.slot) : null);
       box.classList.toggle('is-flash', !!flash);
     });
   }

@@ -1,0 +1,109 @@
+---
+// Banner chương trình "Săn sale 11.11" (xem src/lib/sale-1111.ts). Dựng bằng HTML/CSS, không phải ảnh tĩnh:
+// chữ luôn nét, đọc được bằng trình đọc màn hình. Chưa có sản phẩm thì không dựng gì.
+// - Mặc định (trang chủ): khối chữ "11.11" + 4 lợi ích + dải ảnh sản phẩm và nút xem chương trình.
+// - compact (đầu trang /san-sale-11-11/): chỉ khối chữ và lợi ích, không có dải sản phẩm.
+import { Image, getImage } from 'astro:assets';
+import logo from '../assets/logo.jpg';
+import { SALE_1111, getSale1111Products } from '../lib/sale-1111';
+import { FREE_SHIPPING_THRESHOLD } from '../lib/cart';
+import { formatPrice } from '../lib/products';
+import { url } from '../lib/url';
+
+interface Props {
+  compact?: boolean;
+}
+
+const { compact = false } = Astro.props;
+const products = await getSale1111Products();
+const pageUrl = url(`/${SALE_1111.slug}/`);
+const thumbs = compact
+  ? []
+  : await Promise.all(
+      products.slice(0, 5).map(async (p) => ({
+        src: (await getImage({ src: p.data.image, width: 220, height: 220, fit: 'contain', background: '#ffffff', format: 'webp' })).src,
+        alt: p.data.name,
+        // Giá của chương trình (trong khung Flash Sale trùng giờ, thẻ sản phẩm có thể hiện giá thấp hơn nữa)
+        price: SALE_1111.items[p.id],
+        original: p.data.originalPrice ?? p.data.price,
+      })),
+    );
+const Heading = compact ? 'h1' : 'h2';
+const perks = [
+  { icon: 'tag', text: 'Săn deal giá tốt' },
+  { icon: 'shield', text: 'Chính hãng, rõ nguồn gốc' },
+  { icon: 'truck', text: `Freeship đơn từ ${formatPrice(FREE_SHIPPING_THRESHOLD)}` },
+  { icon: 'clock', text: 'Tiện lợi, tiết kiệm thời gian' },
+];
+---
+
+{
+  (compact || products.length > 0) && (
+    <section class:list={['sale1111', { 'sale1111-compact': compact }]} aria-labelledby="sale1111Title" data-campaign-ends={SALE_1111.endsAt}>
+      <div class="sale1111-hero">
+        <svg class="sale1111-bag" viewBox="0 0 64 64" aria-hidden="true">
+          <path d="M14 22h36l-3 34H17Z" />
+          <path d="M24 26v-8a8 8 0 0 1 16 0v8" />
+        </svg>
+        <p class="sale1111-brand">
+          <Image src={logo} alt="" width={64} height={64} class="sale1111-brand-logo" />
+          <span>Dược Sĩ Thương</span>
+        </p>
+        <Heading class="sale1111-title" id="sale1111Title">
+          <span class="sale1111-tag">Ngày hội mua sắm</span>
+          <span class="visually-hidden">{SALE_1111.title}: </span>
+          <span class="sale1111-big" aria-hidden="true">11.11</span>
+          <span class="sale1111-headline">
+            {/* Xuống dòng ngay sau dấu phẩy, không để trình duyệt ngắt giữa cụm "mua sắm" */}
+            {SALE_1111.headline.split(', ').map((part, i, all) => <span class="sale1111-headline-line">{part}{i < all.length - 1 && ','}</span>)}
+          </span>
+        </Heading>
+        {!compact && <a class="sale1111-cta" href={pageUrl}>Săn deal ngay</a>}
+      </div>
+
+      <ul class="sale1111-perks">
+        {perks.map((perk) => (
+          <li>
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              {perk.icon === 'tag' && <path d="M3 12V4h8l10 10-8 8L3 12Z M7.5 7.5h.01" />}
+              {perk.icon === 'shield' && <path d="M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6l-8-3Z M8.5 12l2.5 2.5 4.5-5" />}
+              {perk.icon === 'truck' && <path d="M2 6h12v10H2Z M14 10h4l3 3v3h-7 M6 19a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z M17 19a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z" />}
+              {perk.icon === 'clock' && <path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18Z M12 7v5l3 2" />}
+            </svg>
+            <span>{perk.text}</span>
+          </li>
+        ))}
+      </ul>
+
+      {
+        thumbs.length > 0 && (
+          <a class="sale1111-strip" href={pageUrl}>
+            <span class="sale1111-thumbs" style={`--sale1111-count: ${thumbs.length}`}>
+              {thumbs.map((t) => (
+                <span class="sale1111-thumb">
+                  <img src={t.src} alt={t.alt} width="220" height="220" loading="lazy" decoding="async" />
+                  <span class="sale1111-thumb-price">
+                    <span class="visually-hidden">Giá ưu đãi </span>{formatPrice(t.price)}
+                  </span>
+                  {t.original && t.original > t.price && (
+                    <s class="sale1111-thumb-original">
+                      <span class="visually-hidden">Giá thường </span>{formatPrice(t.original)}
+                    </s>
+                  )}
+                </span>
+              ))}
+            </span>
+            <span class="sale1111-strip-more">Xem {products.length} sản phẩm 11.11 ›</span>
+          </a>
+        )
+      }
+    </section>
+  )
+}
+
+<script>
+  // Trang tĩnh chỉ build lại khi có thay đổi, nên tự ẩn banner ở trang chủ khi chương trình đã hết hạn.
+  document.querySelectorAll<HTMLElement>('.sale1111:not(.sale1111-compact)[data-campaign-ends]').forEach((el) => {
+    if (Date.now() >= Date.parse(el.dataset.campaignEnds!)) el.hidden = true;
+  });
+</script>

@@ -128,9 +128,14 @@ const cartStorage = (items) => ({ 'duocsithuong-cart': JSON.stringify(items) });
 const cartItem = (slug, qty = 1) => ({ id: slug, name: catalog[slug].name, price: catalog[slug].price, originalPrice: catalog[slug].originalPrice ?? undefined, unit: 'Hộp', image: '', qty });
 // Chỉ lấy số tiền đầu tiên ("470.000đ -15%" -> 470000)
 const vndNum = (s) => Number((String(s).match(/[\d.]+/)?.[0] ?? '').replace(/\D/g, ''));
-// Giá đang bán lúc chạy test: giá Flash nếu đang trong khung giờ (san-pham.json có khung giờ), không thì giá thường
-const effectivePrice = (slug, now = Date.now()) =>
-  catalog[slug]?.flash?.find((w) => now >= Date.parse(w.start) && now < Date.parse(w.end))?.price ?? catalog[slug]?.price;
+// Giá đang bán lúc chạy test: giá thấp nhất trong các khung giờ đang diễn ra (Flash Sale hoặc chương trình
+// khác, san-pham.json có khung giờ), không thì giá thường
+const effectivePrice = (slug, now = Date.now()) => {
+  const live = (catalog[slug]?.flash ?? []).filter((w) => now >= Date.parse(w.start) && now < Date.parse(w.end)).map((w) => w.price);
+  return live.length ? Math.min(...live) : catalog[slug]?.price;
+};
+// Khung giờ của riêng Flash Sale (chương trình khác như "Săn sale 11.11" có `label`)
+const flashWindows = () => Object.entries(catalog).flatMap(([slug, c]) => (c.flash ?? []).filter((w) => !w.label).map((w) => ({ slug, ...w })));
 
 // ---------- khung chạy case ----------
 const results = [];
@@ -623,7 +628,7 @@ await tc('PRD-13', 'Banner Quà tặng 20.11: Mua ngay mở đúng nhóm quà, g
 });
 await tc('PRD-14', 'Flash Sale: trạng thái khung giờ, giá Flash ở thẻ/trang chi tiết/giỏ, hết giờ về giá thường', async () => {
   const bad = [];
-  const slots = Object.entries(catalog).flatMap(([slug, c]) => (c.flash ?? []).map((w) => ({ slug, ...w })));
+  const slots = flashWindows();
   if (slots.length === 0) return verdict(bad, 'không có khung giờ Flash Sale (đúng nếu chương trình đã gỡ)');
   const first = slots.reduce((a, b) => (Date.parse(a.start) <= Date.parse(b.start) ? a : b));
   const lastEnd = Math.max(...slots.map((s) => Date.parse(s.end)));
@@ -688,7 +693,7 @@ await tc('PRD-14', 'Flash Sale: trạng thái khung giờ, giá Flash ở thẻ/
 });
 await tc('PRD-15', 'Giá Flash ở gợi ý tìm kiếm, trang /tim-kiem/ và menu lớn; ngoài giờ giữ giá thường', async () => {
   const bad = [];
-  const slots = Object.entries(catalog).flatMap(([slug, c]) => (c.flash ?? []).map((w) => ({ slug, ...w })));
+  const slots = flashWindows();
   if (slots.length === 0) return verdict(bad, 'không có khung giờ Flash Sale');
   const first = slots.reduce((a, b) => (Date.parse(a.start) <= Date.parse(b.start) ? a : b));
   const term = first.slug.split('-')[0];
@@ -839,6 +844,60 @@ await tc('ACC-04', 'Mua lại đơn cũ: giá/tên lấy mới, báo sản phẩ
     await close();
   }
   return verdict(bad);
+});
+await tc('PRD-18', 'Săn sale 11.11: banner, trang chương trình, giá ưu đãi ở thẻ/trang chi tiết/giỏ, hết hạn về giá thường', async () => {
+  const bad = [];
+  const wins = Object.entries(catalog).flatMap(([slug, c]) => (c.flash ?? []).filter((w) => w.label === 'Săn sale 11.11').map((w) => ({ slug, ...w })));
+  if (wins.length === 0) return verdict(bad, 'không có chương trình Săn sale 11.11 (đúng nếu đã gỡ)');
+  const at = async (vp, ms) => {
+    const o = await open(vp);
+    await o.page.evaluateOnNewDocument((t) => {
+      const off = t - Date.now(), R = Date;
+      globalThis.Date = class extends R { constructor(...a) { super(...(a.length ? a : [R.now() + off])); } static now() { return R.now() + off; } };
+    }, ms);
+    return o;
+  };
+  // Thời điểm trong chương trình nhưng NGOÀI giờ Flash Sale (23:00 ngày cuối) để giá đúng bằng giá chương trình
+  const inside = Date.parse(wins[0].end) - 3600_000;
+  for (const vp of ['desktop', 'mobile']) {
+    let o = await at(vp, inside);
+    await go(o.page, '/');
+    let r = await o.page.evaluate(() => {
+      const b = document.querySelector('.sale1111');
+      return b && { shown: !b.hidden, thumbs: b.querySelectorAll('.sale1111-thumb').length, href: b.querySelector('.sale1111-cta')?.getAttribute('href'), sw: document.documentElement.scrollWidth };
+    });
+    if (!r?.shown) bad.push(vp + ': banner trang chủ không hiện');
+    else if (r.sw > VP_W[vp]) bad.push(vp + ': banner làm tràn ngang');
+    await go(o.page, '/san-sale-11-11/');
+    r = await o.page.$$eval('.carousel-track .product-card[data-flash-sync]', (cs) => cs.map((c) => [c.dataset.flashSync, c.querySelector('[data-price-value]').textContent]));
+    for (const w of wins) {
+      const shown = r.find(([s]) => s === w.slug)?.[1];
+      if (vndNum(shown) !== w.price) bad.push(`${vp}: trang chương trình ${w.slug} hiện ${shown}, cần ${w.price}`);
+    }
+    await o.close();
+    // Hết hạn: banner ẩn, trang báo kết thúc, giá về giá thường
+    o = await at(vp, Date.parse(wins[0].end) + 60_000);
+    await go(o.page, '/');
+    if (await o.page.evaluate(() => document.querySelector('.sale1111') && !document.querySelector('.sale1111').hidden)) bad.push(vp + ': hết hạn vẫn hiện banner');
+    await go(o.page, '/san-sale-11-11/');
+    r = await o.page.evaluate(() => !document.getElementById('sale1111Ended').hidden);
+    if (!r) bad.push(vp + ': hết hạn trang không báo kết thúc');
+    const after = await o.page.$eval(`.product-card[data-flash-sync="${wins[0].slug}"] [data-price-value]`, (e) => e.textContent);
+    if (vndNum(after) !== effectivePrice(wins[0].slug, Date.parse(wins[0].end) + 60_000)) bad.push(`${vp}: hết hạn vẫn hiện ${after}`);
+    await o.close();
+  }
+  // Trang chi tiết: dòng nhắc + giỏ hàng tính giá chương trình
+  const w = wins.find((x) => !catalog[x.slug].flash.some((f) => !f.label)) ?? wins[0];
+  const o = await at('desktop', inside);
+  await go(o.page, catalog[w.slug].url);
+  const note = await o.page.$eval('[data-flash-note]', (e) => (e.hidden ? '' : e.textContent));
+  if (!note.includes('Săn sale 11.11')) bad.push('trang chi tiết thiếu dòng nhắc: "' + note + '"');
+  await o.page.click('.product-info [data-add-to-cart]:not([data-go-cart])');
+  await go(o.page, '/gio-hang/');
+  const cartPrice = await o.page.$eval('.cart-price', (e) => e.textContent);
+  if (vndNum(cartPrice) !== w.price) bad.push('giỏ hàng hiện ' + cartPrice + ', cần ' + w.price);
+  await o.close();
+  return verdict(bad, `${wins.length} sản phẩm`);
 });
 await tc('PRD-12', 'Rê chuột hiện đủ tên sản phẩm bị cắt, không xô lệch thẻ', async () => {
   const bad = [];

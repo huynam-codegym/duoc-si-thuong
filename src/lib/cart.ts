@@ -3,7 +3,7 @@
  * Chỉ import file này trong thẻ <script> của component (chạy ở trình duyệt), không import ở phần frontmatter.
  * Giá và tên lưu lại lúc thêm vào giỏ; đơn hàng luôn được nhà thuốc xác nhận lại trước khi giao.
  */
-import { flashPriceFor } from './flash-sale';
+import { flashPriceFor, priceNote } from './flash-sale';
 export interface CartItem {
   id: string;
   name: string;
@@ -18,6 +18,8 @@ export interface CartItem {
   /** Chỉ có trong dữ liệu getCart() trả về khi sản phẩm đang Flash Sale (KHÔNG lưu vào localStorage):
    * giờ kết thúc khung giờ và giá thường để khôi phục khi lưu lại. */
   flashEnds?: string;
+  /** Dòng nhắc hiện dưới sản phẩm trong giỏ (Flash Sale hoặc chương trình khác, xem priceNote()) */
+  flashNote?: string;
   base?: { price: number | null; originalPrice?: number | null };
 }
 
@@ -34,11 +36,12 @@ function withFlash(item: CartItem): CartItem {
     price: flash.price,
     originalPrice: item.originalPrice ?? item.price,
     flashEnds: flash.slot.end,
+    flashNote: priceNote(flash.slot),
     base: { price: item.price, originalPrice: item.originalPrice },
   };
 }
 
-function stripFlash({ flashEnds: _ends, base, ...item }: CartItem): CartItem {
+function stripFlash({ flashEnds: _ends, flashNote: _note, base, ...item }: CartItem): CartItem {
   return base ? { ...item, ...base } : item;
 }
 
@@ -88,6 +91,7 @@ export function addToCart(item: Omit<CartItem, 'qty'>, qty = 1) {
     // `item` mang giá thường mới nhất từ trang, bỏ giá Flash đang áp để save() không khôi phục giá cũ
     delete found.base;
     delete found.flashEnds;
+    delete found.flashNote;
     Object.assign(found, item, { qty: Math.min(MAX_QTY, found.qty + qty) });
   } else {
     items.push({ ...item, qty: Math.min(MAX_QTY, qty) });

@@ -18,6 +18,8 @@ export interface FlashSlot {
   end: string;
   /** slug sản phẩm -> giá Flash (đồng) */
   items: Record<string, number>;
+  /** Chỉ có ở chương trình khác Flash Sale (promoSlots): tên hiện ở dòng nhắc giá, ví dụ "Săn sale 11.11" */
+  label?: string;
 }
 
 export const FLASH_SALE = { slug: 'flash-sale', title: 'Flash Sale giá tốt' };
@@ -36,7 +38,7 @@ export const flashSlots: FlashSlot[] = [
       'ecogreen-jex-natural-60-vien': 655_000,
       'blackmores-bio-magnesium-100-vien': 627_000,
       'blackmores-coq10-150mg-30-vien': 508_000,
-      'blackmores-ginkgo-forte-40-vien': 422_000,
+      // Ginkgo Forte chuyển sang "Săn sale 11.11" (390.000đ, thấp hơn giá Flash 422.000đ) ở promoSlots
       'blackmores-omega-double-90-vien': 617_000,
     },
   },
@@ -58,18 +60,52 @@ export const flashSlots: FlashSlot[] = [
   },
 ];
 
-const ms = (iso: string) => Date.parse(iso);
+/**
+ * Chương trình giảm giá theo thời gian KHÁC Flash Sale (không hiện ở khung Flash Sale trang chủ), dùng chung
+ * cách áp giá: giỏ hàng, FlashPriceSync, /san-pham.json và máy chủ đặt hàng. Trùng giờ với Flash Sale thì
+ * khách được giá thấp nhất.
+ * "Săn sale 11.11" (chủ website đặt giá 11/11/2026), trang /san-sale-11-11/ (src/lib/sale-1111.ts).
+ */
+export const promoSlots: FlashSlot[] = [
+  {
+    id: 'san-sale-11-11',
+    label: 'Săn sale 11.11',
+    theme: 'Săn sale 11.11',
+    start: '2026-11-11T00:00:00+07:00',
+    end: '2026-11-12T00:00:00+07:00',
+    items: {
+      'blackmores-ginkgo-forte-40-vien': 390_000,
+      'smartbibi-zinc': 240_000,
+      'blackmores-omega-double-90-vien': 630_000,
+    },
+  },
+];
 
-/** Khung giờ đang diễn ra lúc `now` (nếu có). */
+/** Mọi khung giờ có giá riêng (Flash Sale + chương trình khác) */
+export const priceSlots: FlashSlot[] = [...flashSlots, ...promoSlots];
+
+const ms = (iso: string) => Date.parse(iso);
+const isLive = (slot: FlashSlot, now: number) => now >= ms(slot.start) && now < ms(slot.end);
+
+/** Khung giờ Flash Sale đang diễn ra lúc `now` (nếu có). */
 export function activeFlashSlot(now = Date.now()): FlashSlot | undefined {
-  return flashSlots.find((slot) => now >= ms(slot.start) && now < ms(slot.end));
+  return flashSlots.find((slot) => isLive(slot, now));
 }
 
-/** Giá Flash của sản phẩm nếu đang trong khung giờ của nó. */
+/** Giá ưu đãi của sản phẩm nếu đang trong khung giờ của nó (nhiều khung trùng giờ thì lấy giá thấp nhất). */
 export function flashPriceFor(id: string, now = Date.now()): { price: number; slot: FlashSlot } | undefined {
-  const slot = activeFlashSlot(now);
-  const price = slot?.items[id];
-  return slot && price ? { price, slot } : undefined;
+  let best: { price: number; slot: FlashSlot } | undefined;
+  for (const slot of priceSlots) {
+    const price = isLive(slot, now) && Object.hasOwn(slot.items, id) ? slot.items[id] : undefined;
+    if (price && (!best || price < best.price)) best = { price, slot };
+  }
+  return best;
+}
+
+/** Dòng nhắc cạnh giá ưu đãi: Flash Sale ghi giờ kết thúc, chương trình theo ngày ghi ngày cuối. */
+export function priceNote(slot: FlashSlot): string {
+  if (!slot.label) return `⚡ Giá Flash Sale, chỉ áp dụng đến ${flashTime(slot.end)} hôm nay`;
+  return `🔥 Giá ${slot.label}, áp dụng đến hết ngày ${flashDate(new Date(ms(slot.end) - 1).toISOString())}`;
 }
 
 /** Chương trình còn khung giờ nào chưa kết thúc không. */
@@ -77,7 +113,7 @@ export const flashSaleActive = (now = Date.now()) => flashSlots.some((slot) => n
 
 /** Mốc bắt đầu/kết thúc gần nhất sau `now` — để trang đang mở tự cập nhật giá đúng lúc. */
 export function nextFlashBoundary(now = Date.now()): number | undefined {
-  const times = flashSlots.flatMap((slot) => [ms(slot.start), ms(slot.end)]).filter((t) => t > now);
+  const times = priceSlots.flatMap((slot) => [ms(slot.start), ms(slot.end)]).filter((t) => t > now);
   return times.length ? Math.min(...times) : undefined;
 }
 

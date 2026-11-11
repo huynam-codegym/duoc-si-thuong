@@ -676,6 +676,18 @@ Chủ website yêu cầu dùng Zalo Official Account của Nhà Thuốc Nhật M
   - thời hạn phản hồi yêu cầu của khách.
 - **Bẫy đã gặp khi test trang này:** ô "Mật khẩu" ở `/tai-khoan/` bị mỏng dẹt, vì selector dùng chung `.order input[type=...]` thiếu `password` (cùng họ với bẫy thiếu `email` ở trang giỏ hàng). Đã thêm `.order input[type='password']`.
 
+### Chương trình "Săn sale 11.11" (11/11/2026)
+
+Chủ website gửi bài đăng Facebook "Săn sale 11/11 – không ngại đi xa, freeship tận nhà", xem banner trước rồi chọn 3 sản phẩm và giá.
+
+- **Giá theo thời gian nằm ở `promoSlots` trong `src/lib/flash-sale.ts`** (cùng kiểu `FlashSlot`, thêm `label`), không phải sửa `price` trong frontmatter: hết hạn thì tự về giá thường, không cần ai nhớ sửa lại. Hiện có: Ginkgo Forte 390.000đ, Smartbibi Zinc 240.000đ ("Kẽm zin C" chủ website nhắn, là sản phẩm duy nhất có kẽm + vitamin C), Omega Double 630.000đ; từ 00:00 đến 24:00 ngày 11/11.
+- `priceSlots = flashSlots + promoSlots` dùng cho giỏ hàng, `FlashPriceSync`, `/san-pham.json` (khung có `label`) và máy chủ đặt hàng. **Trùng giờ thì lấy giá THẤP NHẤT** (`flashPriceFor()`, `flashPrice()` trong `send-order-email`). Ví dụ: Omega Double 08:00–22:00 hiện giá Flash 617.000đ, ngoài giờ đó 630.000đ. Ginkgo Forte đã bỏ khỏi khung Flash 11/11 (422.000đ) vì giá 11.11 thấp hơn. Khung Flash Sale trang chủ chỉ đọc `flashSlots`.
+- Dòng nhắc giá (trang chi tiết, giỏ hàng) dùng `priceNote()`: Flash ghi "⚡ … đến 22:00 hôm nay", chương trình có `label` ghi "🔥 Giá Săn sale 11.11, áp dụng đến hết ngày 11/11".
+- Banner `src/components/Sale1111Banner.astro` (trang chủ, ngay trên Flash Sale; chữ và dữ liệu ở `src/lib/sale-1111.ts`), dựng bằng HTML/CSS nền đỏ cam; trang `/san-sale-11-11/`. Build báo lỗi nếu giá ưu đãi không thấp hơn giá bán hoặc giảm quá 50% so với giá gốc. Hết hạn: banner tự ẩn, trang báo kết thúc.
+- **Câu chữ:** bỏ "cực tốt"; "Freeship tận nhà" ghi thành "Freeship đơn từ 350.000đ" vì chưa đổi chính sách ship (chủ website chưa xác nhận miễn phí mọi đơn). Muốn miễn phí mọi đơn trong thời gian chương trình phải sửa CẢ `shippingFee()` ở `cart.ts` lẫn hằng số trong `send-order-email`.
+- **Bẫy đã gặp:** chỉ mục Pagefind sắp "Giá thấp/Giá cao" theo giá thường, nên trong giờ Flash/chương trình thứ tự lệch với giá đang hiện (SRC-04 bắt được). `/tim-kiem/` giờ sắp lại theo `flashPriceFor()` ở trình duyệt (Pagefind trả hết kết quả một lần nên sắp lại được).
+- Dùng lại cho dịp khác: thêm phần tử vào `promoSlots` (kèm `label`), làm banner/trang riêng như trên. Bộ test: PRD-18.
+
 ### Chương trình "Quà tặng 20.11" (03/11/2026)
 
 Chủ website gửi mẫu banner Long Châu (bảng phấn "Tri ân thầy cô" + 4 ô nhóm quà, mỗi ô có nút "Mua ngay" mở trang sản phẩm của chương trình).
@@ -704,7 +716,7 @@ Chủ website gửi mẫu "Flash Sale giá tốt" của Long Châu, chọn chạ
   - Giỏ hàng (`lib/cart.ts`) luôn LƯU giá thường; `getCart()` áp giá Flash lúc đọc (`withFlash`), `save()` khôi phục giá thường (`stripFlash`). Nhờ vậy hết giờ thì giỏ tự về giá thường. Trang giỏ hiện dòng "⚡ Giá Flash Sale đến 22:00 hôm nay".
   - HTML tĩnh luôn là giá thường. `src/components/FlashPriceSync.astro` (trong `BaseLayout`) đổi giá ở trình duyệt cho mọi khối `data-flash-sync="<slug>"`: thẻ sản phẩm, trang chi tiết (thêm dòng `[data-flash-note]`), thanh mua hàng dính; trang đang mở qua mốc 08:00/22:00 thì tự cập nhật. Khay chọn số lượng điện thoại (`Header.astro`) cũng áp giá Flash.
   - **Máy chủ:** `/san-pham.json` có thêm `flash: [{start,end,price}]`; `send-order-email` lấy giá Flash nếu giờ máy chủ nhận đơn nằm trong khung, không tin giá giỏ của khách.
-  - **Từ 10/11/2026 giá Flash hiện cả ở** gợi ý tìm kiếm đầu trang, trang `/tim-kiem/` và khung sản phẩm của menu lớn. Khối không có nút "Chọn mua" thì tự mang `data-price`/`data-original-price`; khối dựng bằng JS (kết quả Pagefind) gọi `markFlashSync()` trong `flash-sale.ts` (slug lấy từ đường dẫn, giá lấy từ chữ "363.000đ" của Pagefind) rồi bắn sự kiện `flash:sync`. Sắp xếp "Giá thấp/Giá cao" ở `/tim-kiem/` vẫn theo giá thường (chỉ mục Pagefind dựng lúc build). Bộ test: PRD-15.
+  - **Từ 10/11/2026 giá Flash hiện cả ở** gợi ý tìm kiếm đầu trang, trang `/tim-kiem/` và khung sản phẩm của menu lớn. Khối không có nút "Chọn mua" thì tự mang `data-price`/`data-original-price`; khối dựng bằng JS (kết quả Pagefind) gọi `markFlashSync()` trong `flash-sale.ts` (slug lấy từ đường dẫn, giá lấy từ chữ "363.000đ" của Pagefind) rồi bắn sự kiện `flash:sync`. Sắp xếp "Giá thấp/Giá cao" ở `/tim-kiem/` từ 11/11/2026 được sắp lại theo giá đang hiện (xem mục "Săn sale 11.11"). Bộ test: PRD-15.
   - Thẻ sản phẩm giờ luôn có sẵn nhãn `[data-price-badge]` và giá gốc `[data-price-original]` (ẩn bằng `hidden` khi không giảm giá), nên rule nhãn xuất xứ đổi thành `.product-card:has(.sale-badge-card:not([hidden]))`.
 - **Pháp lý (chủ website tự xác nhận):** giảm giá khuyến mại có thể phải thông báo Sở Công Thương trước khi chạy; mức giảm thường không quá 50%; giá gạch ngang phải là giá đã bán thật.
 - **Dùng lại cho đợt sau:** sửa `flashSlots` (ngày giờ, sản phẩm, giá), build lại. Bộ test: PRD-14 (lệch đồng hồ trình duyệt tới từng mốc). Các case giỏ hàng chọn sản phẩm không có Flash để không lệch vào ngày chạy chương trình.

@@ -12,6 +12,8 @@ import { campaignActive } from '../lib/campaign';
 import { getAudiences } from '../lib/audiences';
 import { categories } from '../lib/categories';
 import { departments, departmentSlugs, getProductGroups, groupWithChildren } from '../lib/departments';
+import Sale1111Banner from '../components/Sale1111Banner.astro';
+import { sale1111Active } from '../lib/sale-1111';
 import FlashSale from '../components/FlashSale.astro';
 import { flashSaleActive } from '../lib/flash-sale';
 import { getPosts } from '../lib/posts';
@@ -140,6 +142,7 @@ const seasonal = await Promise.all(
 
     {/* Chương trình theo dịp (src/lib/campaign.ts): hết hạn thì không dựng nữa, banner cũng tự ẩn ở trình duyệt */}
     {/* Flash Sale theo khung giờ (src/lib/flash-sale.ts): hết mọi khung giờ thì không dựng nữa, khung cũng tự ẩn ở trình duyệt */}
+    {sale1111Active() && <Sale1111Banner />}
     {flashSaleActive() && <FlashSale />}
 
     {campaignActive() && <CampaignBanner />}

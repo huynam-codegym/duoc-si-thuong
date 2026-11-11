@@ -6892,6 +6892,257 @@ body.has-sticky-bar .faq-chat-toggle {
   }
 }
 
+/* ---------- Chương trình "Săn sale 11.11" (Sale1111Banner.astro, trang /san-sale-11-11/) ----------
+   Nền đỏ cam (màu khuyến mãi, khác hẳn màu vàng cảnh báo y khoa), chữ "11.11" lớn bên trái, 4 lợi ích
+   dạng ô trắng, dải ảnh sản phẩm ở dưới. Máy tính: khối chữ và lợi ích nằm 2 cột. */
+.sale1111 {
+  position: relative;
+  display: grid;
+  gap: 0.9rem;
+  margin: 1.5rem 0;
+  padding: 1.1rem;
+  overflow: hidden;
+  border-radius: 18px;
+  background:
+    radial-gradient(circle at 85% 15%, rgb(253 224 71 / 0.35), transparent 40%),
+    radial-gradient(circle at 10% 100%, rgb(255 255 255 / 0.12), transparent 45%),
+    linear-gradient(135deg, #dc2626 0%, #ea580c 100%);
+  color: #fff;
+}
+
+.sale1111[hidden] {
+  display: none;
+}
+
+.sale1111-hero {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+
+.sale1111-bag {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 4.2rem;
+  height: 4.2rem;
+  fill: none;
+  stroke: rgb(255 255 255 / 0.45);
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transform: rotate(12deg);
+  pointer-events: none;
+}
+
+.sale1111-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin: 0;
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.sale1111-brand-logo {
+  width: 1.7rem;
+  height: 1.7rem;
+  border: 2px solid #fff;
+  border-radius: 50%;
+}
+
+.sale1111-title {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.15rem;
+  margin: 0;
+  color: #fff;
+}
+
+.sale1111-tag {
+  padding: 0.2rem 0.9rem;
+  border-radius: 999px;
+  background: #fde047;
+  color: #991b1b;
+  font-size: 1rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.sale1111-big {
+  font-size: clamp(3.4rem, 15vw, 5.6rem);
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  color: #fff;
+  text-shadow: 0 4px 0 #991b1b, 0 8px 18px rgb(0 0 0 / 0.25);
+}
+
+.sale1111-headline {
+  max-width: 16em;
+  font-size: clamp(1.05rem, 4vw, 1.4rem);
+  font-weight: 800;
+  line-height: 1.3;
+  text-transform: uppercase;
+}
+
+.sale1111-headline-line {
+  display: block;
+}
+
+.sale1111-cta {
+  margin-top: 0.3rem;
+  padding: 0.5rem 1.4rem;
+  border-radius: 999px;
+  background: #fde047;
+  color: #991b1b;
+  font-weight: 800;
+  text-decoration: none;
+  box-shadow: 0 4px 0 #a16207;
+}
+
+.sale1111-cta:hover {
+  background: #fff;
+}
+
+.sale1111-perks {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.55rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.sale1111-perks li {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.45rem 0.5rem;
+  border-radius: 12px;
+  background: #fff;
+  color: #7f1d1d;
+  font-size: 0.75rem;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.sale1111-perks svg {
+  flex: 0 0 auto;
+  width: 1.6rem;
+  height: 1.6rem;
+  padding: 0.25rem;
+  border-radius: 50%;
+  background: #fee2e2;
+  fill: none;
+  stroke: #dc2626;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.sale1111-strip {
+  display: grid;
+  gap: 0.5rem;
+  padding: 0.6rem;
+  border-radius: 14px;
+  background: rgb(255 255 255 / 0.18);
+  color: #fff;
+  text-decoration: none;
+}
+
+/* Số cột = số sản phẩm (tối đa 3 trên điện thoại, 5 trên máy tính), để 3 sản phẩm không chừa ô trống */
+.sale1111-thumbs {
+  display: grid;
+  grid-template-columns: repeat(min(var(--sale1111-count, 3), 3), minmax(0, 1fr));
+  gap: 0.4rem;
+}
+
+.sale1111-thumb:nth-child(n + 4) {
+  display: none;
+}
+
+.sale1111-thumb {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0.35rem 0.35rem 0.45rem;
+  border-radius: 10px;
+  background: #fff;
+  line-height: 1.2;
+}
+
+.sale1111-thumb img {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1;
+  object-fit: contain;
+}
+
+.sale1111-thumb-price {
+  margin-top: 0.2rem;
+  color: #dc2626;
+  font-size: 0.9rem;
+  font-weight: 900;
+}
+
+.sale1111-thumb-original {
+  color: #6b7280;
+  font-size: 0.72rem;
+}
+
+.sale1111-strip-more {
+  justify-self: end;
+  font-size: 0.9rem;
+  font-weight: 800;
+}
+
+.sale1111-strip:hover .sale1111-strip-more {
+  text-decoration: underline;
+}
+
+@media (min-width: 48rem) {
+  .sale1111:not(.sale1111-compact) {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    align-items: center;
+    padding: 1.5rem 1.8rem;
+  }
+
+  .sale1111-strip {
+    grid-column: 1 / -1;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+  }
+
+  .sale1111-thumbs {
+    grid-template-columns: repeat(min(var(--sale1111-count, 5), 5), minmax(0, 9rem));
+  }
+
+  .sale1111-thumb:nth-child(n + 4) {
+    display: flex;
+  }
+
+  .sale1111-thumb-price {
+    font-size: 1.05rem;
+  }
+
+  .sale1111-perks li {
+    gap: 0.55rem;
+    padding: 0.7rem 0.75rem;
+    font-size: 0.95rem;
+  }
+
+  .sale1111-bag {
+    right: 1rem;
+    width: 5.5rem;
+    height: 5.5rem;
+  }
+}
+
 /* ---------- Chương trình "Quà tặng 20.11" (CampaignBanner.astro, trang /qua-tang-20-11/) ----------
    Theo mẫu banner chủ website gửi: bảng phấn xanh viền gỗ bên trái, 4 ô hồng nhóm quà bên phải (máy
    tính); điện thoại/máy tính bảng xếp bảng phấn lên trên, các ô thành lưới 2 cột. */

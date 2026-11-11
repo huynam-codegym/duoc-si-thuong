@@ -285,10 +285,13 @@ class RejectError extends Error {
 type FlashWindow = { start: string; end: string; price: number };
 type Catalog = Record<string, { name: string; price: number | null; originalPrice: number | null; flash?: FlashWindow[] }>;
 
-/** Giá Flash Sale nếu giờ máy chủ nhận đơn nằm trong khung giờ của sản phẩm (xem src/lib/flash-sale.ts). */
+/** Giá ưu đãi theo giờ (Flash Sale, Săn sale 11.11...) nếu giờ máy chủ nhận đơn nằm trong khung của sản phẩm
+ * (xem src/lib/flash-sale.ts). Nhiều khung trùng giờ thì lấy giá thấp nhất, giống trình duyệt. */
 function flashPrice(product: Catalog[string], now = Date.now()): number | undefined {
-  const win = product.flash?.find((w) => now >= Date.parse(w.start) && now < Date.parse(w.end));
-  return win && Number.isInteger(win.price) && win.price > 0 ? win.price : undefined;
+  const prices = (product.flash ?? [])
+    .filter((w) => now >= Date.parse(w.start) && now < Date.parse(w.end) && Number.isInteger(w.price) && w.price > 0)
+    .map((w) => w.price);
+  return prices.length ? Math.min(...prices) : undefined;
 }
 let catalogCache: { data: Catalog; at: number } | null = null;
 

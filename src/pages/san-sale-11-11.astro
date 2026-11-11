@@ -1,0 +1,62 @@
+---
+// Trang chương trình "Săn sale 11.11": mở ra khi bấm banner ở trang chủ (xem src/lib/sale-1111.ts).
+// Thẻ dùng ProductCard thường: FlashPriceSync tự đổi sang giá ưu đãi khi đang trong thời gian chương trình,
+// hết giờ thì tự về giá thường (giá trong giỏ và ở máy chủ đặt hàng cũng theo giờ, xem lib/flash-sale.ts).
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Sale1111Banner from '../components/Sale1111Banner.astro';
+import ProductCard from '../components/ProductCard.astro';
+import { flashDate } from '../lib/flash-sale';
+import { SALE_1111, getSale1111Products } from '../lib/sale-1111';
+import { FREE_SHIPPING_THRESHOLD } from '../lib/cart';
+import { formatPrice } from '../lib/products';
+import { url } from '../lib/url';
+
+const products = await getSale1111Products();
+const lastDay = flashDate(new Date(Date.parse(SALE_1111.endsAt) - 1).toISOString());
+---
+
+<BaseLayout
+  title={`${SALE_1111.title}: ${SALE_1111.headline}`}
+  description="Săn sale 11.11 tại Dược Sĩ Thương: giá ưu đãi cho một số thực phẩm bảo vệ sức khỏe, giao tận nhà, miễn phí giao hàng đơn từ 350.000đ."
+>
+  <div class="container">
+    <Sale1111Banner compact />
+
+    <p class="campaign-ended" id="sale1111Ended" hidden>
+      Chương trình {SALE_1111.title} đã kết thúc. Bạn vẫn mua được các sản phẩm dưới đây theo giá đang bán.
+    </p>
+
+    <section class="campaign-section" aria-labelledby="sale1111-products">
+      <h2 class="section-title" id="sale1111-products">Sản phẩm ưu đãi 11.11</h2>
+      <div class="carousel carousel-wide">
+        <div class="carousel-track">
+          {products.map((product) => (
+            <div class="carousel-item">
+              <ProductCard product={product} />
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <div class="campaign-notes">
+      <p>
+        Giá ưu đãi áp dụng cho đơn đặt trên website đến hết ngày {lastDay}, tính theo giờ hệ thống nhận đơn; hết thời gian
+        chương trình, giá tự về giá đang bán. Ưu đãi không cộng dồn: nếu sản phẩm cùng lúc có giá Flash Sale thì áp giá
+        thấp hơn. Nhà thuốc sẽ gọi xác nhận đơn trước khi giao. Miễn phí giao hàng cho đơn từ {formatPrice(FREE_SHIPPING_THRESHOLD)}.
+      </p>
+      <p>
+        Thực phẩm bảo vệ sức khỏe không phải là thuốc và không có tác dụng thay thế thuốc chữa bệnh. Phụ nữ có thai hoặc cho
+        con bú, trẻ nhỏ, người có bệnh nền hoặc đang dùng thuốc nên hỏi ý kiến bác sĩ hoặc dược sĩ trước khi dùng.
+        Cần tư vấn? <a href={url('/gioi-thieu/')}>Liên hệ dược sĩ Thương</a>.
+      </p>
+    </div>
+  </div>
+</BaseLayout>
+
+<script>
+  const banner = document.querySelector<HTMLElement>('.sale1111[data-campaign-ends]');
+  if (banner && Date.now() >= Date.parse(banner.dataset.campaignEnds!)) {
+    document.getElementById('sale1111Ended')!.hidden = false;
+  }
+</script>
