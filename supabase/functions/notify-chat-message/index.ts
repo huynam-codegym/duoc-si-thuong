@@ -69,7 +69,7 @@ Deno.serve(async (req) => {
   } catch {
     return new Response(JSON.stringify({ error: 'Dữ liệu không hợp lệ.' }), { status: 400, headers: { ...headers, 'Content-Type': 'application/json' } });
   }
-  if (!payload.conversationId || !payload.body) {
+  if (typeof payload?.conversationId !== 'string' || typeof payload.body !== 'string' || !payload.body) {
     return new Response(JSON.stringify({ error: 'Thiếu nội dung tin nhắn.' }), { status: 400, headers: { ...headers, 'Content-Type': 'application/json' } });
   }
 
@@ -77,22 +77,37 @@ Deno.serve(async (req) => {
 
   // Kiểm tra lần báo email gần nhất của ĐÚNG hội thoại này — chưa từng báo (null) hoặc đã quá 1 giờ
   // thì mới gửi tiếp, còn lại bỏ qua (khách vẫn gửi tin bình thường, chỉ là không báo email thêm).
-  const { data: conv, error: convError } = await supabaseAdmin.from('conversations').select('last_notified_at').eq('id', payload.conversationId).maybeSingle();
+  // Chỉ chủ hội thoại (đúng phiên đăng nhập, kể cả ẩn danh) mới được báo. Trước 13/11/2026 hàm không kiểm tra
+  // gì: ai có khóa anon cũng gửi được email tới OWNER_EMAIL với nội dung tùy ý, chỉ cần đổi conversationId ngẫu nhiên.
+  const token = req.headers.get('authorization')?.replace(/^Bearer\s+/i, '') ?? '';
+  const { data: userData } = token ? await supabaseAdmin.auth.getUser(token) : { data: { user: null } };
+  if (!userData.user) {
+    return new Response(JSON.stringify({ error: 'Chưa đăng nhập.' }), { status: 401, headers: { ...headers, 'Content-Type': 'application/json' } });
+  }
+  const { data: conv, error: convError } = await supabaseAdmin
+    .from('conversations')
+    .select('last_notified_at, customer_user_id')
+    .eq('id', payload.conversationId)
+    .maybeSingle();
   if (convError) {
     console.error('Không đọc được hội thoại:', convError);
     return new Response(JSON.stringify({ error: 'Không đọc được hội thoại.' }), { status: 500, headers: { ...headers, 'Content-Type': 'application/json' } });
+  }
+  if (!conv || conv.customer_user_id !== userData.user.id) {
+    return new Response(JSON.stringify({ error: 'Không có quyền với hội thoại này.' }), { status: 403, headers: { ...headers, 'Content-Type': 'application/json' } });
   }
   const lastNotified = conv?.last_notified_at ? new Date(conv.last_notified_at).getTime() : 0;
   if (Date.now() - lastNotified < NOTIFY_THROTTLE_MS) {
     return new Response(JSON.stringify({ ok: true, skipped: true }), { headers: { ...headers, 'Content-Type': 'application/json' } });
   }
 
-  const who = payload.customerName ? escapeHtml(payload.customerName) : `Khách #${payload.conversationId.slice(0, 8)}`;
+  const name = typeof payload.customerName === 'string' ? payload.customerName.slice(0, 80) : '';
+  const who = name ? escapeHtml(name) : `Khách #${payload.conversationId.slice(0, 8)}`;
   const html = `<!doctype html>
 <html lang="vi"><body style="font-family: Arial, Helvetica, sans-serif; color: #111827; padding: 16px">
 <h2 style="color: #14532d">Có tin nhắn mới từ ${who}</h2>
 <table role="presentation" cellpadding="0" cellspacing="0" style="background: #f0fdf4; border: 1px solid #dcfce7; border-radius: 8px; margin: 12px 0">
-<tr><td style="padding: 14px 16px; font-size: 15px; color: #14532d">${escapeHtml(payload.body)}</td></tr>
+<tr><td style="padding: 14px 16px; font-size: 15px; color: #14532d">${escapeHtml(payload.body.slice(0, 1000))}</td></tr>
 </table>
 <p><a href="https://duocsithuong.com/admin/tin-nhan/" style="color: #15803d; font-weight: 600">Trả lời ngay tại /admin/tin-nhan/</a></p>
 <p style="font-size: 12px; color: #9ca3af">Để tránh làm phiền, mỗi hội thoại chỉ báo email tối đa 1 lần/giờ — khách có thể đã nhắn thêm vài tin sau tin này, hãy vào trang quản trị xem đầy đủ.</p>
