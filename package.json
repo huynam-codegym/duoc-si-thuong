@@ -10,12 +10,12 @@
     "astro": "astro"
   },
   "dependencies": {
-    "@astrojs/sitemap": "^3.7.4",
-    "@supabase/supabase-js": "^2.118.0",
+    "@astrojs/sitemap": "^3.7.6",
+    "@supabase/supabase-js": "^2.119.2",
     "astro": "^7.4.2"
   },
   "devDependencies": {
-    "pagefind": "^1.5.2",
+    "pagefind": "^1.6.0",
     "typescript": "^5.9.3"
   },
   "engines": {
